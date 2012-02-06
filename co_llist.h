@@ -1,6 +1,9 @@
 #ifndef CO_LLIST_H
 #define CO_LLIST_H
-/* linked-list */
+/**
+ *
+ * Linked list.
+ */
 
 typedef struct _co_llist_element co_llist_element;
 
