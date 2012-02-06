@@ -161,6 +161,22 @@ co_do_add(co_execute_data *execute_data)
 }
 
 int
+co_do_sub(co_execute_data *execute_data)
+{
+    co_op *op = EX(op);
+
+    cval *val1, *val2, *result;
+
+    val1 = get_cval_ptr(&op->op1, EX(ts));
+    val2 = get_cval_ptr(&op->op2, EX(ts));
+    result = get_cval_ptr(&op->result, EX(ts));
+    result->u.ival = val1->u.ival - val2->u.ival;
+
+    EX(op)++;
+    return CO_VM_CONTINUE;
+}
+
+int
 co_do_print(co_execute_data *execute_data)
 {
     co_op *op = EX(op);

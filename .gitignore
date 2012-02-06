@@ -1,0 +1,8 @@
+*.[aos]
+*.out
+*~
+local.h
+tags
+co
+co_parser.[ch]
+co_scanner.[ch]

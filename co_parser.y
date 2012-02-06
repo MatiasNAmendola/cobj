@@ -45,6 +45,7 @@ expression: /* express something */
     |   T_NUM       { $$ = $1; }
     |   T_FNUM      { $$ = $1; }
     |   expression '+' expression { co_binary_op(CO_ADD, &$$, &$1, &$3); }
+    |   expression '-' expression { co_binary_op(CO_SUB, &$$, &$1, &$3); }
 ;
 
 statement: /* state something */

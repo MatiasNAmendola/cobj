@@ -1,27 +1,33 @@
-Source Language -> Lexical Analyser -> Tokens -> Parser -> Opcodes -> Virtual Machine
-    -> Running Program
-    -> Machine Language (executed)
+This is co, a simple toy language.
 
-Source Language -> Lexical Analyser -> Parser -> Abstract Syntax Tree -> Bytecode
-    -> Running Program
-    -> Machine Language (executed)
+=== Routines ===
+   Source Codes -> 
+   Lexical Analyser ->
+   Tokens ->
+   Parser ->
+   Abstract Syntax Tree ->
+   Bytecodes (Opcodes) ->
+   Virtual Machine ->
+   Running Program
 
-Name Convertions
-    * use general name for internal use as possible as you can, maybe specilized name for external use
+=== Name Conventions ===
+    use general name for internal use as possible as you can, maybe specilized name for external use
+    - CO
+        C Object Compiler
 
-Zen
+    - CNode
+        Node For Language Constructor
+
+    - CVal
+        Value Container
+
+    - Opcode
+       opline: opcode op1 op2
+
+=== Zen ===
     Everything changes.
 
-C Object Compiler
-
-* CNode *
-    Node For Language Constructor
-
-* CVal *
-    Value Container
-
-* Opcode *
-   opline: opcode op1 op2
-
-C Object Language
-    cobj
+== Compile/Install ===
+    $ # install bison/flex first
+    $ make
+    $ make install

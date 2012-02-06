@@ -22,20 +22,15 @@ struct _co_vm_stack {
 };
 
 extern int co_do_add(co_execute_data *execute_data);
-
+extern int co_do_sub(co_execute_data *execute_data);
 extern int co_do_print(co_execute_data *execute_data);
-
 extern int co_do_assign(co_execute_data *execute_data);
-
 extern int co_do_exit(co_execute_data *execute_data);
-
 extern int co_do_if_cond(co_execute_data *execute_data);
-
 extern int co_do_if_after_statement(co_execute_data *execute_data);
 
 /* executor */
 void init_executor();
-
 void co_vm_execute(co_op_array *op_array);
 
 static inline cval *

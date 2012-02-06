@@ -98,7 +98,11 @@ co_binary_op(uchar opcode, cnode *result, const cnode *op1, const cnode *op2)
 {
     co_op *op = get_next_op(CG(active_op_array));
 
-    op->handler = co_do_add;
+    if (opcode == CO_ADD) {
+        op->handler = co_do_add;
+    } else if (opcode == CO_SUB) {
+        op->handler = co_do_sub;
+    }
     op->opcode = opcode;
     op->result.op_type = IS_TMP_VAR;
     op->result.u.var = get_temporary_variable(CG(active_op_array));

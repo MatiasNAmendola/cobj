@@ -2,7 +2,7 @@
 all::
 
 CC = gcc
-RM = rm -f
+RM = rm -rf
 
 CFLAGS = -std=c99 -O2 -Wall
 LDFLAGS =
@@ -79,8 +79,8 @@ clean:
 	# local header
 	$(RM) local.h
 
-test: install test.co
-	./test.co
+test: all
+	./t/test.co
 
 indent:
 	@# try to find out all typenames defined by 'typedef' of c
