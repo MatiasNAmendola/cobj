@@ -62,7 +62,6 @@ struct _cnode {
 /* c op for opcode */
 struct _co_op {
     uchar opcode;
-    op_handler_t handler;
     cnode result;
     cnode op1;
     cnode op2;

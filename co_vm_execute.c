@@ -1,3 +1,4 @@
+#include "co_vm_opcodes.h"
 #include "co_vm_execute.h"
 #include "co_globals.h"
 #include "co_globals_macros.h"
@@ -90,6 +91,33 @@ co_vm_stack_alloc(size_t size)
     return ret;
 }
 
+static op_handler_t get_op_handler(int opcode)
+{
+    switch (opcode) {
+    case OP_ADD:
+        return co_do_add;
+        break;
+    case OP_SUB:
+        return co_do_sub;
+        break;
+    case OP_ASSIGN:
+        return co_do_assign;
+        break;
+    case OP_PRINT:
+        return co_do_print;
+        break;
+    case OP_JMPZ:
+        return co_do_if_cond;
+        break;
+    case OP_JMP:
+        return co_do_if_after_statement;
+        break;
+    case OP_EXIT:
+        return co_do_exit;
+        break;
+    }
+}
+
 void
 co_vm_execute(co_op_array *op_array)
 {
@@ -117,8 +145,8 @@ co_vm_execute(co_op_array *op_array)
 
     while (true) {
         int ret;
-
-        ret = EX(op)->handler(execute_data);
+        op_handler_t handler = get_op_handler(EX(op)->opcode);
+        ret = handler(execute_data);
 
         switch (ret) {
         case CO_VM_CONTINUE:

@@ -98,11 +98,6 @@ co_binary_op(uchar opcode, cnode *result, const cnode *op1, const cnode *op2)
 {
     co_op *op = get_next_op(CG(active_op_array));
 
-    if (opcode == CO_ADD) {
-        op->handler = co_do_add;
-    } else if (opcode == CO_SUB) {
-        op->handler = co_do_sub;
-    }
     op->opcode = opcode;
     op->result.op_type = IS_TMP_VAR;
     op->result.u.var = get_temporary_variable(CG(active_op_array));
@@ -116,8 +111,7 @@ co_assign(cnode *result, cnode *variable, const cnode *value)
 {
     co_op *op = get_next_op(CG(active_op_array));
 
-    op->handler = co_do_assign;
-    op->opcode = CO_ASSIGN;
+    op->opcode = OP_ASSIGN;
     op->op1 = *variable;
     op->op2 = *value;
     op->result.op_type = IS_TMP_VAR;
@@ -130,8 +124,7 @@ co_print(const cnode *arg)
 {
     co_op *op = get_next_op(CG(active_op_array));
 
-    op->handler = co_do_print;
-    op->opcode = CO_PRINT;
+    op->opcode = OP_PRINT;
     op->op1 = *arg;
     SET_UNUSED(op->op2);
 }
@@ -141,8 +134,7 @@ co_if_cond(const cnode *cond, cnode *closing_bracket_token)
 {
     uint if_cond_opline_num = get_next_op_num(CG(active_op_array));
     co_op *opline = get_next_op(CG(active_op_array));
-    opline->handler = co_do_if_cond;
-    opline->opcode = CO_JMPZ;
+    opline->opcode = OP_JMPZ;
     opline->op1 = *cond;
     closing_bracket_token->u.opline_num = if_cond_opline_num;
     SET_UNUSED(opline->op2);
@@ -156,8 +148,7 @@ co_if_after_statement(cnode *closing_bracket_token)
     CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num =
         if_after_stmt_op_num + 1;
     closing_bracket_token->u.opline_num = if_after_stmt_op_num;
-    opline->opcode = CO_JMP;
-    opline->handler = co_do_if_after_statement;
+    opline->opcode = OP_JMP;
     SET_UNUSED(opline->op1);
     SET_UNUSED(opline->op2);
 }
@@ -174,8 +165,7 @@ co_end_compilation()
 {
     co_op *op = get_next_op(CG(active_op_array));
 
-    op->handler = co_do_exit;
-    op->opcode = CO_EXIT;
+    op->opcode = OP_EXIT;
     SET_UNUSED(op->op1);
     SET_UNUSED(op->op2);
 }
