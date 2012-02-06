@@ -100,6 +100,15 @@ static op_handler_t get_op_handler(int opcode)
     case OP_SUB:
         return co_do_sub;
         break;
+    case OP_MUL:
+        return co_do_mul;
+        break;
+    case OP_DIV:
+        return co_do_div;
+        break;
+    case OP_MOD:
+        return co_do_mod;
+        break;
     case OP_ASSIGN:
         return co_do_assign;
         break;
@@ -199,6 +208,54 @@ co_do_sub(co_execute_data *execute_data)
     val2 = get_cval_ptr(&op->op2, EX(ts));
     result = get_cval_ptr(&op->result, EX(ts));
     result->u.ival = val1->u.ival - val2->u.ival;
+
+    EX(op)++;
+    return CO_VM_CONTINUE;
+}
+
+int
+co_do_mul(co_execute_data *execute_data)
+{
+    co_op *op = EX(op);
+
+    cval *val1, *val2, *result;
+
+    val1 = get_cval_ptr(&op->op1, EX(ts));
+    val2 = get_cval_ptr(&op->op2, EX(ts));
+    result = get_cval_ptr(&op->result, EX(ts));
+    result->u.ival = val1->u.ival * val2->u.ival;
+
+    EX(op)++;
+    return CO_VM_CONTINUE;
+}
+
+int
+co_do_div(co_execute_data *execute_data)
+{
+    co_op *op = EX(op);
+
+    cval *val1, *val2, *result;
+
+    val1 = get_cval_ptr(&op->op1, EX(ts));
+    val2 = get_cval_ptr(&op->op2, EX(ts));
+    result = get_cval_ptr(&op->result, EX(ts));
+    result->u.ival = val1->u.ival / val2->u.ival;
+
+    EX(op)++;
+    return CO_VM_CONTINUE;
+}
+
+int
+co_do_mod(co_execute_data *execute_data)
+{
+    co_op *op = EX(op);
+
+    cval *val1, *val2, *result;
+
+    val1 = get_cval_ptr(&op->op1, EX(ts));
+    val2 = get_cval_ptr(&op->op2, EX(ts));
+    result = get_cval_ptr(&op->result, EX(ts));
+    result->u.ival = val1->u.ival % val2->u.ival;
 
     EX(op)++;
     return CO_VM_CONTINUE;
