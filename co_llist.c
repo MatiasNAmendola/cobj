@@ -48,7 +48,7 @@ co_llist_prepend_element(co_llist *l, void *element)
 }
 
 void
-co_llist_del_element(co_llist *l, void *element, bool (*compare)(void *element1, void *element2))
+co_llist_del_element(co_llist *l, void *element, bool(*compare) (void *element1, void *element2))
 {
     co_llist_element *current = l->head;
     co_llist_element *next;

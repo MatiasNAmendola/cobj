@@ -149,7 +149,8 @@ co_if_after_statement(cnode *closing_bracket_token)
 {
     uint if_after_stmt_op_num = get_next_op_num(CG(active_op_array));
     co_op *opline = get_next_op(CG(active_op_array));
-    CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num = if_after_stmt_op_num + 1;
+    CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num =
+        if_after_stmt_op_num + 1;
     closing_bracket_token->u.opline_num = if_after_stmt_op_num;
     opline->opcode = CO_JMP;
     opline->handler = co_do_if_after_statement;

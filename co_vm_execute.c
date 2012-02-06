@@ -121,17 +121,17 @@ co_vm_execute(co_op_array *op_array)
         ret = EX(op)->handler(execute_data);
 
         switch (ret) {
-            case CO_VM_CONTINUE:
-                break;
-            case CO_VM_RETURN:
-                return;
-            case CO_VM_ENTER:
-                op_array = EG(active_op_array);
-                goto vm_enter;
-            case CO_VM_LEAVE:
-                execute_data = EG(current_execute_data);
-            default:
-                break;
+        case CO_VM_CONTINUE:
+            break;
+        case CO_VM_RETURN:
+            return;
+        case CO_VM_ENTER:
+            op_array = EG(active_op_array);
+            goto vm_enter;
+        case CO_VM_LEAVE:
+            execute_data = EG(current_execute_data);
+        default:
+            break;
         }
     }
 

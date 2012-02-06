@@ -120,16 +120,16 @@ listnode(FILE * fp, node * n)
             listnode(fp, CHILD(n, i));
     } else if (TYPE(n) > 256) { // is terminal
         switch (TYPE(n)) {
-            default:
-                if (atbol) {
-                    int i;
+        default:
+            if (atbol) {
+                int i;
 
-                    for (i = 0; i < level; i++)
-                        fprintf(fp, "\t");
-                    atbol = 0;
-                }
-                fprintf(fp, "%s ", STR(n));
-                break;
+                for (i = 0; i < level; i++)
+                    fprintf(fp, "\t");
+                atbol = 0;
+            }
+            fprintf(fp, "%s ", STR(n));
+            break;
         }
     } else {
         fprintf(fp, "? ");

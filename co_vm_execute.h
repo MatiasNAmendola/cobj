@@ -44,27 +44,27 @@ get_cval_ptr(cnode *node, const temp_variable *ts)
     cval *cvalptr;
 
     switch (node->op_type) {
-        case T_FNUM:
-        case T_NUM:
-        case T_STRING:
-            return &node->u.val;
-            break;
-        case T_NAME:
-            cvalptr = getcval(node->u.val.u.str.val);
-            if (!cvalptr) {
-                cval cvalnew;
+    case T_FNUM:
+    case T_NUM:
+    case T_STRING:
+        return &node->u.val;
+        break;
+    case T_NAME:
+        cvalptr = getcval(node->u.val.u.str.val);
+        if (!cvalptr) {
+            cval cvalnew;
 
-                putcval(node->u.val.u.str.val, &cvalnew);
-                cvalptr = getcval(node->u.val.u.str.val);
-            }
-            return cvalptr;
-            break;
-        case IS_TMP_VAR:
-            return &T(node->u.var).tmp_var;
-            break;
-        case IS_UNUSED:
-            return NULL;
-            break;
+            putcval(node->u.val.u.str.val, &cvalnew);
+            cvalptr = getcval(node->u.val.u.str.val);
+        }
+        return cvalptr;
+        break;
+    case IS_TMP_VAR:
+        return &T(node->u.var).tmp_var;
+        break;
+    case IS_UNUSED:
+        return NULL;
+        break;
     }
 
     return NULL;

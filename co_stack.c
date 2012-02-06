@@ -90,19 +90,19 @@ co_stack_apply(co_stack * stack, int type, int (*apply_function) (void *element)
     int i;
 
     switch (type) {
-        case CO_STACK_APPLY_TYPE_TOPDOWN:
-            for (i = stack->top - 1; i >= 0; i--) {
-                if (apply_function(stack->elements[i])) {
-                    break;
-                }
+    case CO_STACK_APPLY_TYPE_TOPDOWN:
+        for (i = stack->top - 1; i >= 0; i--) {
+            if (apply_function(stack->elements[i])) {
+                break;
             }
-            break;
-        case CO_STACK_APPLY_TYPE_BOTTOMUP:
-            for (i = 0; i < stack->top; i++) {
-                if (apply_function(stack->elements[i])) {
-                    break;
-                }
+        }
+        break;
+    case CO_STACK_APPLY_TYPE_BOTTOMUP:
+        for (i = 0; i < stack->top; i++) {
+            if (apply_function(stack->elements[i])) {
+                break;
             }
-            break;
+        }
+        break;
     }
 }

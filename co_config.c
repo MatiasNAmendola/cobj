@@ -86,24 +86,24 @@ parse_value(void)
         if (c == '\\') {
             c = get_next_char();
             switch (c) {
-                case '\n':
-                    continue;
-                case 't':
-                    c = '\t';
-                    break;
-                case 'b':
-                    c = '\b';
-                    break;
-                case 'n':
-                    c = '\n';
-                    break;
-                    /* Some characters escape as themselves */
-                case '\\':
-                case '"':
-                    break;
-                    /* Reject unknown escape sequences */
-                default:
-                    return NULL;
+            case '\n':
+                continue;
+            case 't':
+                c = '\t';
+                break;
+            case 'b':
+                c = '\b';
+                break;
+            case 'n':
+                c = '\n';
+                break;
+                /* Some characters escape as themselves */
+            case '\\':
+            case '"':
+                break;
+                /* Reject unknown escape sequences */
+            default:
+                return NULL;
             }
             value[len++] = c;
             continue;

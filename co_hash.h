@@ -125,25 +125,25 @@ co_inline_hash_func(const char *arKey, uint nKeyLen)
         hash = ((hash << 5) + hash) + *arKey++;
     }
     switch (nKeyLen) {
-        case 7:
-            hash = ((hash << 5) + hash) + *arKey++;     /* fallthrough... */
-        case 6:
-            hash = ((hash << 5) + hash) + *arKey++;     /* fallthrough... */
-        case 5:
-            hash = ((hash << 5) + hash) + *arKey++;     /* fallthrough... */
-        case 4:
-            hash = ((hash << 5) + hash) + *arKey++;     /* fallthrough... */
-        case 3:
-            hash = ((hash << 5) + hash) + *arKey++;     /* fallthrough... */
-        case 2:
-            hash = ((hash << 5) + hash) + *arKey++;     /* fallthrough... */
-        case 1:
-            hash = ((hash << 5) + hash) + *arKey++;
-            break;
-        case 0:
-            break;
-        default:
-            break;
+    case 7:
+        hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+    case 6:
+        hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+    case 5:
+        hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+    case 4:
+        hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+    case 3:
+        hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+    case 2:
+        hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+    case 1:
+        hash = ((hash << 5) + hash) + *arKey++;
+        break;
+    case 0:
+        break;
+    default:
+        break;
     }
     return hash;
 }
