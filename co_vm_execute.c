@@ -192,6 +192,7 @@ co_do_add(co_execute_data *execute_data)
     val2 = get_cval_ptr(&op->op2, EX(ts));
     result = get_cval_ptr(&op->result, EX(ts));
     result->u.ival = val1->u.ival + val2->u.ival;
+    result->type = CVAL_IS_INT;
 
     EX(op)++;
     return CO_VM_CONTINUE;
@@ -208,6 +209,7 @@ co_do_sub(co_execute_data *execute_data)
     val2 = get_cval_ptr(&op->op2, EX(ts));
     result = get_cval_ptr(&op->result, EX(ts));
     result->u.ival = val1->u.ival - val2->u.ival;
+    result->type = CVAL_IS_INT;
 
     EX(op)++;
     return CO_VM_CONTINUE;
@@ -224,6 +226,7 @@ co_do_mul(co_execute_data *execute_data)
     val2 = get_cval_ptr(&op->op2, EX(ts));
     result = get_cval_ptr(&op->result, EX(ts));
     result->u.ival = val1->u.ival * val2->u.ival;
+    result->type = CVAL_IS_INT;
 
     EX(op)++;
     return CO_VM_CONTINUE;
@@ -240,6 +243,7 @@ co_do_div(co_execute_data *execute_data)
     val2 = get_cval_ptr(&op->op2, EX(ts));
     result = get_cval_ptr(&op->result, EX(ts));
     result->u.ival = val1->u.ival / val2->u.ival;
+    result->type = CVAL_IS_INT;
 
     EX(op)++;
     return CO_VM_CONTINUE;
@@ -256,6 +260,7 @@ co_do_mod(co_execute_data *execute_data)
     val2 = get_cval_ptr(&op->op2, EX(ts));
     result = get_cval_ptr(&op->result, EX(ts));
     result->u.ival = val1->u.ival % val2->u.ival;
+    result->type = CVAL_IS_INT;
 
     EX(op)++;
     return CO_VM_CONTINUE;
@@ -269,8 +274,16 @@ co_do_print(co_execute_data *execute_data)
     cval *val1;
 
     val1 = get_cval_ptr(&op->op1, EX(ts));
-
-    printf("%ld\n", val1->u.ival);
+    switch (val1->type) {
+    case CVAL_IS_INT:
+        printf("%ld\n", val1->u.ival);
+        break;
+    case CVAL_IS_STRING:
+        printf("%s\n", val1->u.str.val);
+        break;
+    default:
+        die("do print error (type: %d)", val1->type);
+    }
 
     EX(op)++;
     return CO_VM_CONTINUE;
@@ -288,6 +301,8 @@ co_do_assign(co_execute_data *execute_data)
 
     result = get_cval_ptr(&op->result, EX(ts));
     result->u.ival = val1->u.ival = val2->u.ival;
+    val1->type = CVAL_IS_INT;
+    result->type = CVAL_IS_INT;
 
     EX(op)++;
     return CO_VM_CONTINUE;

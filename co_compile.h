@@ -4,29 +4,25 @@
 #include "co.h"
 #include "co_hash.h"
 
-#define IS_INTEGER  1
-#define IS_FLOAT    2
-#define IS_STRING   3
-#define IS_NAME     4
+/** cval type **/
+#define CVAL_IS_NULL    0
+#define CVAL_IS_INT     1
+#define CVAL_IS_FLOAT   2
+#define CVAL_IS_BOOL    3
+#define CVAL_IS_STRING  4
 
+/** cnode type **/
 #define IS_CONST        (1<<0)
 #define IS_TMP_VAR      (1<<1)
 #define IS_VAR          (1<<2)
 #define IS_UNUSED       (1<<3)  /* unused variable */
-#define IS_COMPILED_VAR (1<<4)  /* compiled variable */
-
 #define SET_UNUSED(op)   (op).op_type = IS_UNUSED
 
 typedef struct _cval cval;
-
 typedef struct _cnode cnode;
-
 typedef struct _co_op co_op;
-
 typedef struct _co_op_array co_op_array;
-
 typedef struct _co_execute_data co_execute_data;
-
 typedef union _temp_variable temp_variable;
 
 /* c op handler */
@@ -92,7 +88,7 @@ struct _co_execute_data {
 
 /* compiler */
 void init_compiler();
-void init_op_array(co_op_array *op_array, uchar type, int ops_size);
+void init_op_array(co_op_array *op_array, int ops_size);
 
 /* parser-driven code generators */
 void co_binary_op(uchar opcode, cnode *result, const cnode *op1, const cnode *op2);

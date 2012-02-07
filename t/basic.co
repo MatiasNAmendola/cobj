@@ -30,3 +30,6 @@ print (1 + 2 + 3 + 4 + 7) - 9;
 print 1 + 64 / 8;
 print 18 - 1 * 8;
 print (25 - 1 - 1) % 12;
+
+#
+print "hello world\n";

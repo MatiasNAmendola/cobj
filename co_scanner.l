@@ -31,13 +31,15 @@ FORMAT_SPACES   [ \t\n]
         errno = 0;
         yylval->u.val.u.ival = strtol(yytext, NULL, 0);
     }
-    yylval->op_type = T_NUM;
+    yylval->u.val.type = CVAL_IS_INT;
+    yylval->op_type = IS_CONST;
     return T_NUM;
 }
 
 {FNUM} {
     yylval->u.val.u.fval = strtof(yytext, NULL);
-    yylval->op_type = T_FNUM;
+    yylval->u.val.type = CVAL_IS_FLOAT;
+    yylval->op_type = IS_CONST;
     return T_FNUM;
 }
 
@@ -45,7 +47,8 @@ FORMAT_SPACES   [ \t\n]
 "\""[^"]*"\"" {
     yylval->u.val.u.str.val = xstrndup(yytext + 1, yyleng - 2);
     yylval->u.val.u.str.len = yyleng;
-    yylval->op_type = T_STRING;
+    yylval->u.val.type = CVAL_IS_STRING;
+    yylval->op_type = IS_CONST;
     return T_STRING;
 }
 
@@ -68,7 +71,8 @@ FORMAT_SPACES   [ \t\n]
 {NAME} {
     yylval->u.val.u.str.val = xstrndup(yytext, yyleng);
     yylval->u.val.u.str.len = yyleng;
-    yylval->op_type = T_NAME;
+    yylval->u.val.type = CVAL_IS_STRING;
+    yylval->op_type = IS_VAR;
     return T_NAME;
 }
 

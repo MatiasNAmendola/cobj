@@ -73,8 +73,8 @@ clean:
 	$(RM) local.h
 
 test: all
-	./t/test.co
-	./t/compound.co
+	./t/basic.co
+	./t/ifelse.co
 
 indent:
 	@# try to find out all typenames defined by 'typedef' of c

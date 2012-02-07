@@ -1,0 +1,5 @@
+#!./co
+
+func helloworld() {
+    print "hello world";
+}

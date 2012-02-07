@@ -42,12 +42,10 @@ get_cval_ptr(cnode *node, const temp_variable *ts)
     cval *cvalptr;
 
     switch (node->op_type) {
-    case T_FNUM:
-    case T_NUM:
-    case T_STRING:
+    case IS_CONST:
         return &node->u.val;
         break;
-    case T_NAME:
+    case IS_VAR:
         cvalptr = getcval(node->u.val.u.str.val);
         if (!cvalptr) {
             cval cvalnew;

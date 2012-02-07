@@ -40,13 +40,12 @@ init_compiler()
     co_stack_init(&CG(function_call_stack));
     co_hash_init(&CG(function_symboltable), 2, NULL);
     co_hash_init(&CG(variable_symboltable), 2, NULL);
-    init_op_array(CG(active_op_array), IS_STRING, 1);
+    init_op_array(CG(active_op_array), 1);
 }
 
 void
-init_op_array(co_op_array *op_array, uchar type, int ops_size)
+init_op_array(co_op_array *op_array, int ops_size)
 {
-    op_array->type = type;
     op_array->size = ops_size;
     op_array->last = 0;
     op_array->ops = xrealloc(op_array->ops, (op_array->size) * sizeof(co_op));
