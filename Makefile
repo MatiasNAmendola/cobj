@@ -20,7 +20,6 @@ LIB_H += co_vm_execute.h
 LIB_H += co_llist.h
 
 LIB_OBJS += co.o
-LIB_OBJS += co_alloc.o
 LIB_OBJS += co_compile.o
 LIB_OBJS += co_hash.o
 LIB_OBJS += co_parser.o
