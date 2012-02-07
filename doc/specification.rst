@@ -1,25 +1,38 @@
-*************
 Specification
-*************
+=============
 
-********
 Notation
-********
+--------
 The syntax is specified using Extended Backus-Naur Form (EBNF):
 
-** Source code representation **
+Source code representation
+--------------------------
 
-*** Characters ***
+Characters
+~~~~~~~~~~
 
-*** Letters and digits ***
+Letters and digits    
+~~~~~~~~~~~~~~~~~~
 
-** Lexcial elements **
-*** Comments ***
+Lexcial elements   
+----------------
+
+Comments    
+~~~~~~~~
 There are only one form of comments, line comments start with the character '#' and stop at the end of the line.
-*** Tokens ***
+
+Tokens    
+~~~~~~
 Tokens form the vocabulary of the Co language. There are four classes: identifiers, keywords, operators and delimiters, and literals.
-*** Semicolons ***
-*** Identifiers ***
-*** Keywords ***
-*** Operators and delimiters ***
-*** Literals ***
+
+Semicolons    
+~~~~~~~~~~
+
+Identifiers    
+~~~~~~~~~~~
+Keywords    
+~~~~~~~~
+Operators and delimiters    
+~~~~~~~~~~~~~~~~~~~~~~~~
+Literals    
+~~~~~~~~
