@@ -61,6 +61,10 @@ FORMAT_SPACES   [ \t\n]
     return T_FUNC;
 }
 
+"print" {
+    return T_PRINT;
+}
+
 {NAME} {
     yylval->u.val.u.str.val = xstrndup(yytext, yyleng);
     yylval->u.val.u.str.len = yyleng;
