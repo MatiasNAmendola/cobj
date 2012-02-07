@@ -44,6 +44,7 @@ expression: /* express something */
     |   T_STRING    { $$ = $1; }
     |   T_NUM       { $$ = $1; }
     |   T_FNUM      { $$ = $1; }
+    |   '(' expression ')' { $$ = $2; }
     |   expression '+' expression { co_binary_op(OP_ADD, &$$, &$1, &$3); }
     |   expression '-' expression { co_binary_op(OP_SUB, &$$, &$1, &$3); }
     |   expression '*' expression { co_binary_op(OP_MUL, &$$, &$1, &$3); }
