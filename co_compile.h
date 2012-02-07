@@ -93,16 +93,15 @@ struct _co_execute_data {
 
 /* compiler */
 void init_compiler();
-
 void init_op_array(co_op_array *op_array, uchar type, int ops_size);
 
 /* parser-driven code generators */
 void co_binary_op(uchar opcode, cnode *result, const cnode *op1, const cnode *op2);
-
 void co_print(const cnode *op);
-
 void co_assign(cnode *result, cnode *variable, const cnode *op);
-
+void co_if_cond(const cnode *cond, cnode *closing_bracket_token);
+void co_if_after_statement(cnode *closing_bracket_token);
+void co_if_end(const cnode *closing_bracket_token);
 void co_end_compilation();
 
 /* opcode */
@@ -110,9 +109,7 @@ co_op *get_next_op(co_op_array *op_array);
 
 /* cval handlers */
 extern cval *getcval(const char *name);
-
 extern bool putcval(const char *name, cval *val);
-
 extern bool delcval(const char *name);
 
 #endif

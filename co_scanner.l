@@ -74,7 +74,6 @@ FORMAT_SPACES   [ \t\n]
 }
 
 "#".*   { /* ignore comments */}
-"//".*  { /* ignore comments */}
 
 {FORMAT_SPACES}   { /* blank spaces which is used to format code are ignored */}
 

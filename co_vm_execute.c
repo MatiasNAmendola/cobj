@@ -91,7 +91,8 @@ co_vm_stack_alloc(size_t size)
     return ret;
 }
 
-static op_handler_t get_op_handler(int opcode)
+static op_handler_t 
+get_op_handler(int opcode)
 {
     switch (opcode) {
     case OP_ADD:
@@ -125,14 +126,13 @@ static op_handler_t get_op_handler(int opcode)
         return co_do_exit;
         break;
     }
+    return NULL;
 }
 
 void
 co_vm_execute(co_op_array *op_array)
 {
     co_execute_data *execute_data;
-
-    bool nested = 0;
 
   vm_enter:
     /* initialize execute_data */

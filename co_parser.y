@@ -24,6 +24,8 @@
 %left   ','
 %left   '+' '-'
 %left   '*' '/' '%'
+%right  T_PRINT
+%token  T_PRINT "print (T_PRINT)"
 %token  T_NUM
 %token  T_FNUM
 %token  T_STRING
@@ -59,13 +61,14 @@ statement: /* state something */
 
 simple_statement:
         T_NAME '='  expression ';' { co_assign(&$$, &$1, &$3); }
-    |   '=' expression ';' { co_print(&$2); }
+    |   T_PRINT expression ';' { co_print(&$2); }
     |   ';' /* empty */
 ;
 
 compound_statement:
         T_IF '(' expression ')' { co_if_cond(&$3, &$4); } statement { co_if_after_statement(&$4); } optional_else { co_if_end(&$4); }
     |   '{' statement_list '}'
+    |   function_declaration
 ;
 
 function_declaration:

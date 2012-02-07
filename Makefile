@@ -12,20 +12,17 @@ bindir = $(prefix)/bin
 
 LIB_H += co.h
 LIB_H += co_compile.h
-LIB_H += co_config.h
 LIB_H += co_hash.h
 LIB_H += co_node.h
 LIB_H += co_parser.h
 LIB_H += co_scanner.h
 LIB_H += co_stack.h
 LIB_H += co_vm_execute.h
-LIB_H += co_operators.h
 LIB_H += co_llist.h
 
 LIB_OBJS += co.o
 LIB_OBJS += co_alloc.o
 LIB_OBJS += co_compile.o
-LIB_OBJS += co_config.o
 LIB_OBJS += co_hash.o
 LIB_OBJS += co_node.o
 LIB_OBJS += co_parser.o
@@ -34,7 +31,6 @@ LIB_OBJS += co_stack.o
 LIB_OBJS += co_usage.o
 LIB_OBJS += co_vm_execute.o
 LIB_OBJS += co_wrapper.o
-LIB_OBJS += co_operators.o
 LIB_OBJS += co_llist.o
 
 LIBS =
