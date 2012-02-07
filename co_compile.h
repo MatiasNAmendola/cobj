@@ -2,7 +2,6 @@
 #define CO_COMPILE_H
 
 #include "co.h"
-#include "co_node.h"
 #include "co_hash.h"
 
 #define IS_INTEGER  1

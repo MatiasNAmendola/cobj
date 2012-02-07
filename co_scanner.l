@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "co.h"
-#include "co_node.h"
 
 #define YYSTYPE cnode
 
