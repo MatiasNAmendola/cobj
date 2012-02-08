@@ -79,6 +79,7 @@ test: all
 	./t/literals.co
 	./t/ifelse.co
 	./t/function.co
+	./t/while.co
 
 indent:
 	@# try to find out all typenames defined by 'typedef' of c

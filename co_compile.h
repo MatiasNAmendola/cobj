@@ -5,11 +5,11 @@
 #include "co_hash.h"
 
 /** cval type **/
-#define CVAL_IS_NULL    0
-#define CVAL_IS_INT     1
-#define CVAL_IS_FLOAT   2
-#define CVAL_IS_BOOL    3
-#define CVAL_IS_STRING  4
+#define CVAL_IS_NONE    1
+#define CVAL_IS_INT     2
+#define CVAL_IS_FLOAT   3
+#define CVAL_IS_BOOL    4
+#define CVAL_IS_STRING  5
 
 /** cnode type **/
 #define IS_CONST        (1<<0)

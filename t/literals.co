@@ -1,7 +1,15 @@
 #!./co
 
+### None ###
+print None;
+
+### Boolean ###
+print True;
+print False;
+
 ### integer ###
 print 10;
+
 
 ### literal string ###
 # single quote

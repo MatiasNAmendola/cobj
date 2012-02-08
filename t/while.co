@@ -1,0 +1,7 @@
+#./co
+i = 1;
+while (True) {
+    if (i < 3) {
+        print i;
+    }
+}

@@ -109,6 +109,8 @@ get_op_handler(int opcode)
         break;
     case OP_MOD:
         return co_do_mod;
+    case OP_IS_SMALLER:
+        return co_do_smaller;
         break;
     case OP_ASSIGN:
         return co_do_assign;
@@ -267,6 +269,23 @@ co_do_mod(co_execute_data *execute_data)
 }
 
 int
+co_do_smaller(co_execute_data *execute_data)
+{
+    co_op *op = EX(op);
+
+    cval *val1, *val2, *result;
+
+    val1 = get_cval_ptr(&op->op1, EX(ts));
+    val2 = get_cval_ptr(&op->op2, EX(ts));
+    result = get_cval_ptr(&op->result, EX(ts));
+    result->u.ival = val1->u.ival < val2->u.ival;
+    result->type = CVAL_IS_BOOL;
+
+    EX(op)++;
+    return CO_VM_CONTINUE;
+}
+
+int
 co_do_print(co_execute_data *execute_data)
 {
     co_op *op = EX(op);
@@ -275,6 +294,16 @@ co_do_print(co_execute_data *execute_data)
 
     val1 = get_cval_ptr(&op->op1, EX(ts));
     switch (val1->type) {
+    case CVAL_IS_NONE:
+        printf("%s\n", "None");
+        break;
+    case CVAL_IS_BOOL:
+        if (val1->u.ival) {
+            printf("%s\n", "True");
+        } else {
+            printf("%s\n", "False");
+        }
+        break;
     case CVAL_IS_INT:
         printf("%ld\n", val1->u.ival);
         break;
@@ -322,9 +351,6 @@ co_do_if_cond(co_execute_data *execute_data)
     val1 = get_cval_ptr(&opline->op1, EX(ts));
 
     if (!val1->u.ival) {
-#if CO_DEBUG >= 1
-        printf("Conditional jmp to %d\n", opline->op2.u.opline_num);
-#endif
         EX(op) = &EX(op_array)->ops[opline->op2.u.opline_num];
         return CO_VM_CONTINUE;
     }
@@ -340,9 +366,6 @@ co_do_if_after_statement(co_execute_data *execute_data)
     cval *val1;
     val1 = get_cval_ptr(&opline->op1, EX(ts));
 
-#if CO_DEBUG >= 1
-    printf("Conditional jmp to %d\n", opline->op1.u.opline_num);
-#endif
     EX(op) = &EX(op_array)->ops[opline->op1.u.opline_num];
 
     return CO_VM_CONTINUE;

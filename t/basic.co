@@ -15,6 +15,12 @@ print 100 / 25;
 # '%'
 print 124 % 7;
 
+# '<'
+print 3 < 10;
+
+# '>'
+print 3 > 10;
+
 # assign
 num = 6;
 print num;

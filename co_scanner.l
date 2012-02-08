@@ -155,8 +155,8 @@ co_scan_doublequoted_string(cval *cval)
 NUM     [0-9]+
 FNUM    ([0-9]*"."[0-9]+)
 HNUM    "0x"[0-9a-fA-F]+
-NAME    [a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*
-TOKENS  [-+()=/*^,;:{}%]
+NAME    [a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]+
+TOKENS  [-+()=></*^,;:{}%]
 FORMAT_SPACES   [ \t\n]
 
 %%
@@ -206,12 +206,37 @@ FORMAT_SPACES   [ \t\n]
     return T_ELSE;
 }
 
+"while" {
+    return T_WHILE;
+}
+
 "func" {
     return T_FUNC;
 }
 
 "print" {
     return T_PRINT;
+}
+
+"None" {
+    yylval->u.val.u.ival = 1;
+    yylval->u.val.type = CVAL_IS_NONE;
+    yylval->op_type = IS_CONST;
+    return T_NONE;
+}
+
+"True" {
+    yylval->u.val.u.ival = 1;
+    yylval->u.val.type = CVAL_IS_BOOL;
+    yylval->op_type = IS_CONST;
+    return T_BOOL;
+}
+
+"False" {
+    yylval->u.val.u.ival = 0;
+    yylval->u.val.type = CVAL_IS_BOOL;
+    yylval->op_type = IS_CONST;
+    return T_BOOL;
 }
 
 {NAME} {

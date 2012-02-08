@@ -21,11 +21,14 @@
  */
 %expect 1 
 
+%left   '<' '>'
 %left   ','
 %left   '+' '-'
 %left   '*' '/' '%'
 %right  T_PRINT
 %token  T_PRINT "print (T_PRINT)"
+%token  T_NONE
+%token  T_BOOL
 %token  T_NUM
 %token  T_FNUM
 %token  T_STRING
@@ -33,6 +36,7 @@
 %token  T_IF
 %token  T_ELSE
 %token  T_FUNC
+%token  T_WHILE "while (T_WHILE)"
 
 %% /* Grammar Rules */
 
@@ -44,9 +48,13 @@ start:
 expression: /* express something */
         T_NAME      { $$ = $1; }
     |   T_STRING    { $$ = $1; }
+    |   T_BOOL      { $$ = $1; }
+    |   T_NONE      { $$ = $1; }
     |   T_NUM       { $$ = $1; }
     |   T_FNUM      { $$ = $1; }
     |   '(' expression ')' { $$ = $2; }
+    |   expression '<' expression { co_binary_op(OP_IS_SMALLER, &$$, &$1, &$3); }
+    |   expression '>' expression { co_binary_op(OP_IS_SMALLER, &$$, &$3, &$1); }
     |   expression '+' expression { co_binary_op(OP_ADD, &$$, &$1, &$3); }
     |   expression '-' expression { co_binary_op(OP_SUB, &$$, &$1, &$3); }
     |   expression '*' expression { co_binary_op(OP_MUL, &$$, &$1, &$3); }
@@ -67,6 +75,7 @@ simple_statement:
 
 compound_statement:
         T_IF '(' expression ')' { co_if_cond(&$3, &$4); } statement { co_if_after_statement(&$4); } optional_else { co_if_end(&$4); }
+    |   T_WHILE '(' expression ')' { /* TODO */ } statement { /* TODO */ }
     |   '{' statement_list '}'
     |   function_declaration
 ;
