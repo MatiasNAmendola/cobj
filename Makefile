@@ -49,7 +49,7 @@ co_scanner.c: co_scanner.l
 	flex --header-file=co_scanner.h -o $@ $^
 
 
-.PHONY: all install uninstall clean test indent tags
+.PHONY: all install uninstall clean test indent tags doc
 
 all:: co
 
@@ -72,9 +72,13 @@ clean:
 	# local header
 	$(RM) local.h
 
+doc:
+	$(MAKE) -C doc/ html
 test: all
 	./t/basic.co
+	./t/literals.co
 	./t/ifelse.co
+	./t/function.co
 
 indent:
 	@# try to find out all typenames defined by 'typedef' of c
