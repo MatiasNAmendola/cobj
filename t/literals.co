@@ -6,6 +6,9 @@ print 10;
 ### literal string ###
 # single quote
 print 'don\'t escape \\a, except single quote (\') and backslash (\\)';
+print '
+hello world after newline
+';
 
 # double quote
 print "\a";

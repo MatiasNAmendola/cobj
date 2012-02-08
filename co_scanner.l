@@ -226,9 +226,9 @@ FORMAT_SPACES   [ \t\n]
     return *yytext;
 }
 
-"#".*   { /* ignore comments */}
+"#".*   { /* ignore comments */ }
 
-{FORMAT_SPACES}   { /* blank spaces which is used to format code are ignored */}
+{FORMAT_SPACES}   { /* blank spaces which is used to format code are ignored */ }
 
 .   {
     coerror("invalid chars");
