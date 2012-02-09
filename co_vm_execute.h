@@ -30,8 +30,8 @@ extern int co_do_smaller(co_execute_data *execute_data);
 extern int co_do_print(co_execute_data *execute_data);
 extern int co_do_assign(co_execute_data *execute_data);
 extern int co_do_exit(co_execute_data *execute_data);
-extern int co_do_if_cond(co_execute_data *execute_data);
-extern int co_do_if_after_statement(co_execute_data *execute_data);
+extern int co_do_jmpz(co_execute_data *execute_data);
+extern int co_do_jmp(co_execute_data *execute_data);
 
 /* executor */
 void init_executor();

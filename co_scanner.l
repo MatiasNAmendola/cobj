@@ -155,7 +155,7 @@ co_scan_doublequoted_string(cval *cval)
 NUM     [0-9]+
 FNUM    ([0-9]*"."[0-9]+)
 HNUM    "0x"[0-9a-fA-F]+
-NAME    [a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]+
+NAME    [a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*
 TOKENS  [-+()=></*^,;:{}%]
 FORMAT_SPACES   [ \t\n]
 

@@ -118,10 +118,10 @@ get_op_handler(int opcode)
         return co_do_print;
         break;
     case OP_JMPZ:
-        return co_do_if_cond;
+        return co_do_jmpz;
         break;
     case OP_JMP:
-        return co_do_if_after_statement;
+        return co_do_jmp;
         break;
     case OP_EXIT:
         return co_do_exit;
@@ -343,7 +343,7 @@ co_do_exit(co_execute_data *execute_data)
 }
 
 int
-co_do_if_cond(co_execute_data *execute_data)
+co_do_jmpz(co_execute_data *execute_data)
 {
     co_op *opline = EX(op);
     cval *val1, *val2;
@@ -359,7 +359,7 @@ co_do_if_cond(co_execute_data *execute_data)
 }
 
 int
-co_do_if_after_statement(co_execute_data *execute_data)
+co_do_jmp(co_execute_data *execute_data)
 {
     co_op *opline = EX(op);
     cval *val1;

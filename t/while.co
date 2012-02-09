@@ -1,7 +1,12 @@
-#./co
+#!./co
 i = 1;
-while (True) {
-    if (i < 3) {
-        print i;
-    }
+
+while (i < 3) {
+    print i;
+    i = i + 1;
+}
+
+while (False) {
+    print i;
+    print "hello world";
 }

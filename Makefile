@@ -5,6 +5,10 @@ CC = gcc
 RM = rm -rf
 
 CFLAGS = -std=c99 -O2 -Wall
+ifdef CO_DEBUG
+	CFLAGS += -DCO_DEBUG
+endif
+
 LDFLAGS =
 
 prefix = /usr/local
