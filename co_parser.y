@@ -60,6 +60,7 @@ expression: /* express something */
     |   expression '*' expression { co_binary_op(OP_MUL, &$$, &$1, &$3); }
     |   expression '/' expression { co_binary_op(OP_DIV, &$$, &$1, &$3); }
     |   expression '%' expression { co_binary_op(OP_MOD, &$$, &$1, &$3); }
+    |   function_call
 ;
 
 statement: /* state something */
@@ -70,6 +71,7 @@ statement: /* state something */
 simple_statement:
         T_NAME '='  expression ';' { co_assign(&$$, &$1, &$3); }
     |   T_PRINT expression ';' { co_print(&$2); }
+    |   expression ';'
     |   ';' /* empty */
 ;
 
@@ -81,7 +83,31 @@ compound_statement:
 ;
 
 function_declaration:
-    T_FUNC T_NAME '(' ')' '{' statement '}'
+    T_FUNC T_NAME '(' parameter_list ')' '{' statement '}' { co_begin_function_declaration(&$1, &$2); }
+;
+
+parameter_list:
+        non_empty_parameter_list
+    |   /* empty */
+;
+
+non_empty_parameter_list:
+        T_NAME
+    |   T_NAME ',' non_empty_parameter_list
+;
+
+function_call_parameter_list:
+        non_empty_function_call_parameter_list { $$ = $1; }
+    |   /* empty */
+;
+
+non_empty_function_call_parameter_list:
+        expression
+    |   expression ',' non_empty_parameter_list
+;
+
+function_call:
+        T_NAME '(' function_call_parameter_list ')'
 ;
 
 optional_else:

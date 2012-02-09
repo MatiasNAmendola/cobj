@@ -3,3 +3,5 @@
 func helloworld() {
     print "hello world";
 }
+
+helloworld();

@@ -37,34 +37,4 @@ extern int co_do_jmp(co_execute_data *execute_data);
 void init_executor();
 void co_vm_execute(co_op_array *op_array);
 
-static inline cval *
-get_cval_ptr(cnode *node, const temp_variable *ts)
-{
-    cval *cvalptr;
-
-    switch (node->op_type) {
-    case IS_CONST:
-        return &node->u.val;
-        break;
-    case IS_VAR:
-        cvalptr = getcval(node->u.val.u.str.val);
-        if (!cvalptr) {
-            cval cvalnew;
-
-            putcval(node->u.val.u.str.val, &cvalnew);
-            cvalptr = getcval(node->u.val.u.str.val);
-        }
-        return cvalptr;
-        break;
-    case IS_TMP_VAR:
-        return &T(node->u.var).tmp_var;
-        break;
-    case IS_UNUSED:
-        return NULL;
-        break;
-    }
-
-    return NULL;
-}
-
 #endif

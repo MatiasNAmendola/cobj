@@ -51,6 +51,7 @@ co_parser.c: co_parser.y
 co_scanner.h: co_scanner.c
 co_scanner.c: co_scanner.l
 	flex --header-file=co_scanner.h -o $@ $^
+	#re2c -o $@ $^
 
 
 .PHONY: all install uninstall clean test indent tags doc

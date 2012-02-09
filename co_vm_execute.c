@@ -35,6 +35,36 @@ co_vm_stack_extend(size_t size)
     EG(argument_stack) = p;
 }
 
+static inline cval *
+get_cval_ptr(cnode *node, const temp_variable *ts)
+{
+    cval *cvalptr;
+
+    switch (node->op_type) {
+    case IS_CONST:
+        return &node->u.val;
+        break;
+    case IS_VAR:
+        cvalptr = getcval(node->u.val.u.str.val);
+        if (!cvalptr) {
+            cval cvalnew;
+
+            putcval(node->u.val.u.str.val, &cvalnew);
+            cvalptr = getcval(node->u.val.u.str.val);
+        }
+        return cvalptr;
+        break;
+    case IS_TMP_VAR:
+        return &T(node->u.var).tmp_var;
+        break;
+    case IS_UNUSED:
+        return NULL;
+        break;
+    }
+
+    return NULL;
+}
+
 static inline void
 co_vm_stack_init()
 {
@@ -125,9 +155,11 @@ get_op_handler(int opcode)
         break;
     case OP_EXIT:
         return co_do_exit;
+    case OP_DECLARE_FUNCTION:
+        return co_do_declare_function;
         break;
     }
-    return NULL;
+    die("unknown handle for opcode(%d)\n", opcode);
 }
 
 void
@@ -367,5 +399,12 @@ co_do_jmp(co_execute_data *execute_data)
 
     EX(op) = &EX(op_array)->ops[opline->op1.u.opline_num];
 
+    return CO_VM_CONTINUE;
+}
+
+int
+co_do_declare_function(co_execute_data *execute_data)
+{
+    co_op *opline = EX(op);
     return CO_VM_CONTINUE;
 }

@@ -178,6 +178,14 @@ co_while_end(const cnode *while_token, const cnode *closing_bracket_token)
 }
 
 void
+co_begin_function_declaration(const cnode *function_token, const cnode *function_name)
+{
+    co_op *op = get_next_op(CG(active_op_array));
+
+    op->opcode = OP_DECLARE_FUNCTION;
+}
+
+void
 co_end_compilation()
 {
     co_op *op = get_next_op(CG(active_op_array));

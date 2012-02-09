@@ -99,6 +99,7 @@ void co_if_after_statement(cnode *closing_bracket_token);
 void co_if_end(const cnode *closing_bracket_token);
 void co_while_cond(const cnode *cond, cnode *while_token, cnode *closing_bracket_token);
 void co_while_end(const cnode *while_token, const cnode *closing_bracket_token);
+void co_begin_function_declaration(const cnode *function_token, const cnode *function_name);
 void co_end_compilation();
 
 /* opcode */
