@@ -32,9 +32,10 @@ extern int co_do_assign(co_execute_data *execute_data);
 extern int co_do_exit(co_execute_data *execute_data);
 extern int co_do_jmpz(co_execute_data *execute_data);
 extern int co_do_jmp(co_execute_data *execute_data);
+extern int co_do_declare_function(co_execute_data *execute_data);
 
 /* executor */
-void init_executor();
+void co_vm_init();
 void co_vm_execute(co_op_array *op_array);
 
 #endif

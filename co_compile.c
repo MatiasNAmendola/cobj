@@ -167,23 +167,36 @@ void
 co_while_end(const cnode *while_token, const cnode *closing_bracket_token)
 {
     // add unconditional jumpback
-    co_op *opline = get_next_op(CG(active_op_array));
-    opline->opcode = OP_JMP;
-    opline->op1.u.opline_num = while_token->u.opline_num;
-    SET_UNUSED(opline->op1);
-    SET_UNUSED(opline->op2);
+    co_op *op = get_next_op(CG(active_op_array));
+    op->opcode = OP_JMP;
+    op->op1.u.opline_num = while_token->u.opline_num;
+    SET_UNUSED(op->op1);
+    SET_UNUSED(op->op2);
 
     uint while_end_stmt_op_num = CG(active_op_array)->last;
     CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num = while_end_stmt_op_num;
 }
 
 void
-co_begin_function_declaration(const cnode *function_token, const cnode *function_name)
+co_begin_function_declaration(const cnode *function_token, const cnode *function_name, cnode *closing_bracket_token)
 {
+    uint function_opline_num = CG(active_op_array)->last;
     co_op *op = get_next_op(CG(active_op_array));
-
     op->opcode = OP_DECLARE_FUNCTION;
+    op->op1.u.opline_num = function_opline_num + 1;
+    closing_bracket_token->u.opline_num = function_opline_num;
 }
+
+void
+co_end_function_declaration(const cnode *closing_bracket_token)
+{
+    CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num = CG(active_op_array)->last;
+}
+
+/*void*/
+/*co_function_call*/
+/*{*/
+/*}*/
 
 void
 co_end_compilation()

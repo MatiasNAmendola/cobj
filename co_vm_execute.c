@@ -209,7 +209,7 @@ co_vm_execute(co_op_array *op_array)
 }
 
 void
-init_executor()
+co_vm_init()
 {
     co_vm_stack_init();
 }
@@ -406,5 +406,6 @@ int
 co_do_declare_function(co_execute_data *execute_data)
 {
     co_op *opline = EX(op);
+    EX(op)++;
     return CO_VM_CONTINUE;
 }

@@ -34,7 +34,7 @@ main(int argc, const char **argv)
     }
 
     init_compiler();
-    init_executor();
+    co_vm_init();
 
     int i = coparse(yyscanner);
 
