@@ -49,8 +49,6 @@ struct _cnode {
         cval val;
         uint var;
         uint opline_num;
-        co_op_array *op_array;
-        co_op *jmp_addr;
     } u;
 };
 
@@ -60,7 +58,6 @@ struct _co_op {
     cnode result;
     cnode op1;
     cnode op2;
-    uint line;
 };
 
 /* c op array */

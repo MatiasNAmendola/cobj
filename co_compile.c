@@ -55,7 +55,6 @@ static inline void
 init_op(co_op *op)
 {
     memset(op, 0, sizeof(co_op));
-    op->line = CG(line);
     op->result.op_type = IS_UNUSED;
 }
 
@@ -183,20 +182,30 @@ co_begin_function_declaration(const cnode *function_token, const cnode *function
     uint function_opline_num = CG(active_op_array)->last;
     co_op *op = get_next_op(CG(active_op_array));
     op->opcode = OP_DECLARE_FUNCTION;
-    op->op1.u.opline_num = function_opline_num + 1;
-    closing_bracket_token->u.opline_num = function_opline_num;
+    op->op1 = *function_name;
+    op->op2.u.opline_num = function_opline_num + 1;
+    //closing_bracket_token->u.opline_num = I;
 }
 
 void
 co_end_function_declaration(const cnode *closing_bracket_token)
 {
-    CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num = CG(active_op_array)->last;
+    co_op *op = get_next_op(CG(active_op_array));
+    op->opcode = OP_RETURN;
 }
 
-/*void*/
-/*co_function_call*/
-/*{*/
-/*}*/
+void
+co_begin_function_call(cnode *function_name)
+{
+    co_op *op = get_next_op(CG(active_op_array));
+    op->opcode = OP_DO_FCALL;
+}
+
+void
+co_end_function_call(cnode *function_name, cnode *result)
+{
+    /*co_op *op = &CG(active_op_array)->ops[*/
+}
 
 void
 co_end_compilation()
@@ -207,7 +216,8 @@ co_end_compilation()
 
 #ifdef CO_DEBUG
     for (int i = 0; i < CG(active_op_array)->last; i++) {
-        printf("%d\n", CG(active_op_array)->ops[i].opcode);
+        co_op *op = &CG(active_op_array)->ops[i];
+        printf("opcode: %d\n", op->opcode);
     }
 #endif
 

@@ -5,3 +5,4 @@ func helloworld() {
 }
 
 helloworld();
+helloworld();

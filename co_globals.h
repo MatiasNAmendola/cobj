@@ -18,7 +18,6 @@ struct _co_compiler_globals {
     HashTable function_symboltable;
     HashTable variable_symboltable;
     co_op_array *active_op_array;
-    int line;
 };
 
 struct _co_executor_globals {
