@@ -4,7 +4,6 @@
 #include <string.h>
 #include "co.h"
 #include "co_globals.h"
-#include "co_globals_macros.h"
 #include "co_hash.h"
 #include "co_parser.h"
 #include "co_scanner.h"

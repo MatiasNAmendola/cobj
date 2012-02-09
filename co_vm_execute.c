@@ -1,7 +1,6 @@
 #include "co_vm_opcodes.h"
 #include "co_vm_execute.h"
 #include "co_globals.h"
-#include "co_globals_macros.h"
 #include "co_parser.h"
 
 #ifdef EX

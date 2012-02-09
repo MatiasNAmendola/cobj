@@ -1,6 +1,5 @@
 #include "co_compile.h"
 #include "co_globals.h"
-#include "co_globals_macros.h"
 #include "co_vm_opcodes.h"
 #include "co_parser.h"
 #include "co_vm_execute.h"
@@ -157,6 +156,26 @@ co_if_end(const cnode *closing_bracket_token)
 {
     uint if_end_op_num = get_next_op_num(CG(active_op_array));
     CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op1.u.opline_num = if_end_op_num;
+}
+
+void
+co_while_cond(const cnode *cond, cnode *closing_bracket_token)
+{
+    uint while_stmt_op_num = get_next_op_num(CG(active_op_array));
+    co_op *opline = get_next_op(CG(active_op_array));
+    CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num =
+        while_stmt_op_num + 1;
+    closing_bracket_token->u.opline_num = while_stmt_op_num;
+    opline->opcode = OP_JMP;
+    SET_UNUSED(opline->op1);
+    SET_UNUSED(opline->op2);
+}
+
+void
+co_while_end(const cnode *closing_bracket_token)
+{
+    uint while_end_op_num = get_next_op_num(CG(active_op_array));
+    CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op1.u.opline_num = while_end_op_num;
 }
 
 void

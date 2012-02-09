@@ -6,8 +6,11 @@
 #include "co_hash.h"
 #include "co_vm_execute.h"
 
-typedef struct _co_compiler_globals co_compiler_globals;
+#define CG(v)   compiler_globals.v
+#define EG(v)   executor_globals.v
+#define EX(v)   execute_data.v
 
+typedef struct _co_compiler_globals co_compiler_globals;
 typedef struct _co_executor_globals co_executor_globals;
 
 struct _co_compiler_globals {
@@ -26,6 +29,6 @@ struct _co_executor_globals {
 };
 
 extern co_executor_globals executor_globals;
-
 extern co_compiler_globals compiler_globals;
+
 #endif

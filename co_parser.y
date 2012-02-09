@@ -75,7 +75,7 @@ simple_statement:
 
 compound_statement:
         T_IF '(' expression ')' { co_if_cond(&$3, &$4); } statement { co_if_after_statement(&$4); } optional_else { co_if_end(&$4); }
-    |   T_WHILE '(' expression ')' { /* TODO */ } statement { /* TODO */ }
+    |   T_WHILE '(' expression ')' { co_while_cond(&$3, &$4); } statement { co_while_end(&$4); }
     |   '{' statement_list '}'
     |   function_declaration
 ;
