@@ -10,13 +10,14 @@
 #define CVAL_IS_FLOAT       3
 #define CVAL_IS_BOOL        4
 #define CVAL_IS_STRING      5
+#define CVAL_IS_FUNCTION    6
 
 /** cnode type **/
 #define IS_CONST        (1<<0)
 #define IS_TMP_VAR      (1<<1)
 #define IS_VAR          (1<<2)
 #define IS_UNUSED       (1<<3)  /* unused variable */
-#define SET_UNUSED(op)   (op).op_type = IS_UNUSED
+#define SET_UNUSED(op)  (op).op_type = IS_UNUSED
 
 typedef struct _cval cval;
 typedef struct _cnode cnode;
@@ -95,7 +96,8 @@ void co_if_after_statement(cnode *closing_bracket_token);
 void co_if_end(const cnode *closing_bracket_token);
 void co_while_cond(const cnode *cond, cnode *while_token, cnode *closing_bracket_token);
 void co_while_end(const cnode *while_token, const cnode *closing_bracket_token);
-void co_begin_function_declaration(const cnode *function_token, const cnode *function_name, cnode *closing_bracket_token);
+void co_begin_function_declaration(const cnode *function_token, const cnode *function_name,
+                                   cnode *closing_bracket_token);
 void co_end_function_declaration(const cnode *closing_bracket_token);
 void co_end_compilation();
 

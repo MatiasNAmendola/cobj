@@ -10,8 +10,8 @@
 
 #define CO_VM_STACK_PAGE_SIZE (64 * 1024)
 #define CO_VM_STACK_GROW_IF_NEEDED(size)                \
-    if (size > EG(argument_stack)->end     \
-            - EG(argument_stack)->top) {   \
+    if (size > EG(argument_stack)->end                  \
+            - EG(argument_stack)->top) {                \
             co_vm_stack_extend(size);                   \
     }
 
@@ -120,7 +120,7 @@ co_vm_stack_alloc(size_t size)
     return ret;
 }
 
-static op_handler_t 
+static op_handler_t
 get_op_handler(int opcode)
 {
     switch (opcode) {

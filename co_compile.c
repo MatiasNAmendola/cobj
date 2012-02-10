@@ -173,11 +173,13 @@ co_while_end(const cnode *while_token, const cnode *closing_bracket_token)
     SET_UNUSED(op->op2);
 
     uint while_end_stmt_op_num = CG(active_op_array)->last;
-    CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num = while_end_stmt_op_num;
+    CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num =
+        while_end_stmt_op_num;
 }
 
 void
-co_begin_function_declaration(const cnode *function_token, const cnode *function_name, cnode *closing_bracket_token)
+co_begin_function_declaration(const cnode *function_token, const cnode *function_name,
+                              cnode *closing_bracket_token)
 {
     uint function_opline_num = CG(active_op_array)->last;
     co_op *op = get_next_op(CG(active_op_array));
@@ -206,7 +208,7 @@ co_begin_function_call(cnode *function_name)
 void
 co_end_function_call(cnode *function_name, cnode *result)
 {
-    /*co_op *op = &CG(active_op_array)->ops[*/
+    /*co_op *op = &CG(active_op_array)->ops[ */
 }
 
 void

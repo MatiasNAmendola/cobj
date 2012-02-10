@@ -40,9 +40,7 @@ main(int argc, const char **argv)
 
     co_vm_execute(CG(active_op_array));
 
-#if CO_DEBUG
-#endif
-
     yylex_destroy(yyscanner);
+
     return i;
 }

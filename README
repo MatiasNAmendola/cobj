@@ -1,33 +1,6 @@
 This is co, a simple toy language.
 
-=== Routines ===
-   Source Codes -> 
-   Lexical Analyser ->
-   Tokens ->
-   Parser ->
-   Abstract Syntax Tree ->
-   Bytecodes (Opcodes) ->
-   Virtual Machine ->
-   Running Program
-
-=== Name Conventions ===
-    use general name for internal use as possible as you can, maybe specilized name for external use
-    - CO
-        C Object Compiler
-
-    - CNode
-        Node For Language Constructor
-
-    - CVal
-        Value Container
-
-    - Opcode
-       opline: opcode op1 op2
-
-=== Zen ===
-    Everything changes.
-
 == Compile/Install ===
-    $ # install bison/flex first
+    Install bison/flex first
     $ make
     $ make install

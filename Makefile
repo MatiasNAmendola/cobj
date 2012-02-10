@@ -1,6 +1,8 @@
 # The default target
 all::
 
+# Define CO_DEBUG=1 to debug
+
 CC = gcc
 RM = rm -rf
 
@@ -28,13 +30,12 @@ LIB_OBJS += co_vm_execute.o
 LIB_OBJS += co_vm_opcodes.o
 LIB_OBJS += co_wrapper.o
 LIB_OBJS += co_llist.o
-
-LIBS =
+LIB_OBJS += co_object.o
 
 local.h:
 	./genlocal.sh
 
-$(LIB_OBJS): $(LIB_H) local.h
+$(LIB_OBJS): $(LIB_H)
 
 co: $(LIB_OBJS)
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^ $(LIBS)
