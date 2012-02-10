@@ -2,8 +2,9 @@
 #define CO_OBJECT_H
 
 /**
- * Function Prototype
+ * Function
  */
 typedef struct Function {
 } Function;
+
 #endif
