@@ -11,6 +11,11 @@ co_executor_globals executor_globals;
 #endif
 #define EX(v)   execute_data->v
 
+#define CO_VM_CONTINUE 0
+#define CO_VM_RETURN   1
+#define CO_VM_ENTER    2
+#define CO_VM_LEAVE    3
+
 #define CO_VM_STACK_PAGE_SIZE (64 * 1024)
 #define CO_VM_STACK_GROW_IF_NEEDED(size)                \
     if (size > EG(argument_stack)->end                  \

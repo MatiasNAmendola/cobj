@@ -4,32 +4,26 @@
 #include "co_compile.h"
 #include "co_parser.h"
 
-#define CO_VM_CONTINUE 0
-#define CO_VM_RETURN   1
-#define CO_VM_ENTER    2
-#define CO_VM_LEAVE    3
-
 #define EX_T(offset)    (*(temp_variable *)((char*)EX(ts) + offset))
 #define T(offset)       (*(temp_variable *)((char*)ts + offset))
 
-typedef struct _co_vm_stack co_vm_stack;
-
-struct _co_vm_stack {
+typedef struct _co_vm_stack {
     void **top;
     void **end;
     struct _co_vm_stack *prev;
     void *elements[1];
-};
+} co_vm_stack;
 
-struct _co_executor_globals {
+/* vm executor globals */
+typedef struct _co_executor_globals {
     HashTable symbol_table;
     co_op_array *active_op_array;
     co_execute_data *current_execute_data;
     co_vm_stack *argument_stack;
-};
-
+} co_executor_globals;
 extern co_executor_globals executor_globals;
 
+/* vm executor opcode handlers */
 extern int co_do_add(co_execute_data *execute_data);
 extern int co_do_sub(co_execute_data *execute_data);
 extern int co_do_mul(co_execute_data *execute_data);

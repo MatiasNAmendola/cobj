@@ -115,15 +115,14 @@ co_op *get_next_op(co_op_array *op_array);
 extern cval *getcval(const char *name);
 extern bool putcval(const char *name, cval *val);
 extern bool delcval(const char *name);
-typedef struct _co_compiler_globals co_compiler_globals;
-typedef struct _co_executor_globals co_executor_globals;
 
-struct _co_compiler_globals {
+/* compiler globals */
+typedef struct _co_compiler_globals {
     co_stack function_call_stack;
     HashTable function_symboltable;
     HashTable variable_symboltable;
     co_op_array *active_op_array;
-};
+} co_compiler_globals;
 
 extern co_compiler_globals compiler_globals;
 
