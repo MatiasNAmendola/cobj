@@ -16,7 +16,7 @@ LDFLAGS =
 prefix = /usr/local
 bindir = $(prefix)/bin
 
-LIB_H = $(wildcard *.h)
+LIB_H = $(wildcard *.h) local.h co_parser.h co_scanner.h
 
 LIB_OBJS += co.o
 LIB_OBJS += co_compile.o

@@ -1,20 +1,21 @@
 #ifndef CO_H
 #define CO_H
 
-/* C99 Standand Headers */
-#include <stdlib.h>
+/* C99 */
+#include <assert.h>
+#include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+#include <limits.h>
+#include <math.h>
 #include <stdarg.h>
-#include <string.h>
-#include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <assert.h>
-#include <limits.h>
-#include <errno.h>
-#include <ctype.h>
-#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-/* local header */
+/* Local header */
 #include "local.h"
 
 #if SIZEOF_LONG == 4

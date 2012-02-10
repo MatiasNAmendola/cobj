@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
 #include "co.h"
 #include "co_globals.h"
 #include "co_hash.h"
