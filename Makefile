@@ -14,23 +14,18 @@ LDFLAGS =
 prefix = /usr/local
 bindir = $(prefix)/bin
 
-LIB_H += co.h
-LIB_H += co_compile.h
-LIB_H += co_hash.h
-LIB_H += co_parser.h
-LIB_H += co_scanner.h
-LIB_H += co_stack.h
-LIB_H += co_vm_execute.h
-LIB_H += co_llist.h
+LIB_H = $(wildcard *.h)
 
 LIB_OBJS += co.o
 LIB_OBJS += co_compile.o
+LIB_OBJS += co_debug.o
 LIB_OBJS += co_hash.o
 LIB_OBJS += co_parser.o
 LIB_OBJS += co_scanner.o
 LIB_OBJS += co_stack.o
 LIB_OBJS += co_usage.o
 LIB_OBJS += co_vm_execute.o
+LIB_OBJS += co_vm_opcodes.o
 LIB_OBJS += co_wrapper.o
 LIB_OBJS += co_llist.o
 
@@ -79,6 +74,7 @@ clean:
 
 doc:
 	$(MAKE) -C doc/ html
+
 test: all
 	./t/basic.co
 	./t/literals.co

@@ -5,11 +5,11 @@
 #include "co_hash.h"
 
 /** cval type **/
-#define CVAL_IS_NONE    1
-#define CVAL_IS_INT     2
-#define CVAL_IS_FLOAT   3
-#define CVAL_IS_BOOL    4
-#define CVAL_IS_STRING  5
+#define CVAL_IS_NONE        1
+#define CVAL_IS_INT         2
+#define CVAL_IS_FLOAT       3
+#define CVAL_IS_BOOL        4
+#define CVAL_IS_STRING      5
 
 /** cnode type **/
 #define IS_CONST        (1<<0)
@@ -37,7 +37,6 @@ struct _cval {
             char *val;
             int len;
         } str;                  /* string value */
-        HashTable *ht;          /* hash table value */
     } u;
     uchar type;
 };

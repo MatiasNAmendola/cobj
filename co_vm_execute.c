@@ -159,6 +159,8 @@ get_op_handler(int opcode)
         return co_do_declare_function;
     case OP_RETURN:
         return co_do_return;
+    case OP_DO_FCALL:
+        return co_do_fcall;
         break;
     }
     die("unknown handle for opcode(%d)\n", opcode);
@@ -409,6 +411,9 @@ co_do_declare_function(co_execute_data *execute_data)
 {
     co_op *opline = EX(op);
     EX(op)++;
+    cval *val1;
+    val1 = get_cval_ptr(&opline->op1, EX(ts));
+    val1->u.ival = opline->op2.u.val.u.ival;
     return CO_VM_CONTINUE;
 }
 
@@ -417,5 +422,16 @@ co_do_return(co_execute_data *execute_data)
 {
     co_op *opline = EX(op);
     EX(op)++;
+    return CO_VM_CONTINUE;
+}
+
+int
+co_do_fcall(co_execute_data *execute_data)
+{
+    co_op *opline = EX(op);
+    cval *val1;
+    val1 = get_cval_ptr(&opline->op1, EX(ts));
+    // jump to funcation start point
+    EX(op) = &EX(op_array)->ops[val1->u.ival];
     return CO_VM_CONTINUE;
 }

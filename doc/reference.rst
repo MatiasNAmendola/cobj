@@ -75,6 +75,20 @@ Notes:
 
 (2) Unlike in Standard C, exactly two hex digits are required.
 
+Constants
+---------
+
+
+Varaible Types
+--------------
+Object
+  None
+  Boolean
+  Integer
+  Float
+  String
+  Function
+
 The Full Grammar Specification
 ------------------------------
 unary_op   ::= '-'

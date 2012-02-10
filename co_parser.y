@@ -107,7 +107,7 @@ non_empty_function_call_parameter_list:
 ;
 
 function_call:
-        T_NAME '(' function_call_parameter_list ')'
+        T_NAME '(' { co_begin_function_call(&$1); } function_call_parameter_list ')' { co_end_function_call(&$1, &$$); }
 ;
 
 optional_else:

@@ -34,6 +34,7 @@ extern int co_do_jmpz(co_execute_data *execute_data);
 extern int co_do_jmp(co_execute_data *execute_data);
 extern int co_do_declare_function(co_execute_data *execute_data);
 extern int co_do_return(co_execute_data *execute_data);
+extern int co_do_fcall(co_execute_data *execute_data);
 
 /* executor */
 void co_vm_init();
