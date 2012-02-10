@@ -1,7 +1,8 @@
 # The default target
 all::
 
-# Define CO_DEBUG=1 to debug
+# Define CO_DEBUG=1 to debug (Defaults: 0)
+# Define CC=clang to use clang to compile (Defaults: gcc)
 
 CC = gcc
 RM = rm -rf

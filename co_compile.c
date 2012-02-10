@@ -1,11 +1,9 @@
 #include "co_compile.h"
-#include "co_globals.h"
 #include "co_vm_opcodes.h"
 #include "co_parser.h"
 #include "co_vm_execute.h"
 
 co_compiler_globals compiler_globals;
-co_executor_globals executor_globals;
 
 cval *
 getcval(const char *name)

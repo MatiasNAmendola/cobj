@@ -1,7 +1,10 @@
-#include "co_vm_opcodes.h"
 #include "co_vm_execute.h"
-#include "co_globals.h"
+#include "co_vm_opcodes.h"
+#include "co_compile.h"
 #include "co_parser.h"
+#include "co_object.h"
+
+co_executor_globals executor_globals;
 
 #ifdef EX
 #undef EX
@@ -164,6 +167,7 @@ get_op_handler(int opcode)
         break;
     }
     die("unknown handle for opcode(%d)\n", opcode);
+    return NULL;
 }
 
 void
@@ -382,7 +386,7 @@ int
 co_do_jmpz(co_execute_data *execute_data)
 {
     co_op *opline = EX(op);
-    cval *val1, *val2;
+    cval *val1;
     val1 = get_cval_ptr(&opline->op1, EX(ts));
 
     if (!val1->u.ival) {
@@ -420,7 +424,6 @@ co_do_declare_function(co_execute_data *execute_data)
 int
 co_do_return(co_execute_data *execute_data)
 {
-    co_op *opline = EX(op);
     EX(op)++;
     return CO_VM_CONTINUE;
 }

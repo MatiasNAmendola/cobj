@@ -3,6 +3,7 @@
 
 #include "co.h"
 #include "co_hash.h"
+#include "co_stack.h"
 
 /** cval type **/
 #define CVAL_IS_NONE        1
@@ -16,8 +17,12 @@
 #define IS_CONST        (1<<0)
 #define IS_TMP_VAR      (1<<1)
 #define IS_VAR          (1<<2)
-#define IS_UNUSED       (1<<3)  /* unused variable */
+#define IS_UNUSED       (1<<3)
 #define SET_UNUSED(op)  (op).op_type = IS_UNUSED
+
+#define CG(v)   compiler_globals.v
+#define EG(v)   executor_globals.v
+#define EX(v)   execute_data.v
 
 typedef struct _cval cval;
 typedef struct _cnode cnode;
@@ -99,6 +104,8 @@ void co_while_end(const cnode *while_token, const cnode *closing_bracket_token);
 void co_begin_function_declaration(const cnode *function_token, const cnode *function_name,
                                    cnode *closing_bracket_token);
 void co_end_function_declaration(const cnode *closing_bracket_token);
+void co_begin_function_call(cnode *function_name);
+void co_end_function_call(cnode *function_name, cnode *result);
 void co_end_compilation();
 
 /* opcode */
@@ -108,5 +115,16 @@ co_op *get_next_op(co_op_array *op_array);
 extern cval *getcval(const char *name);
 extern bool putcval(const char *name, cval *val);
 extern bool delcval(const char *name);
+typedef struct _co_compiler_globals co_compiler_globals;
+typedef struct _co_executor_globals co_executor_globals;
+
+struct _co_compiler_globals {
+    co_stack function_call_stack;
+    HashTable function_symboltable;
+    HashTable variable_symboltable;
+    co_op_array *active_op_array;
+};
+
+extern co_compiler_globals compiler_globals;
 
 #endif
