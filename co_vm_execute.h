@@ -28,7 +28,8 @@ typedef struct _co_executor_globals {
     HashTable symbol_table;
     co_op_array *active_op_array;
     co_execute_data *current_execute_data;
-    co_vm_stack *argument_stack;
+    co_vm_stack *vm_stack;
+    co_stack argument_stack;
     co_stack function_call_stack;
 } co_executor_globals;
 extern co_executor_globals executor_globals;
@@ -52,6 +53,7 @@ extern int co_do_declare_function(co_execute_data *execute_data);
 extern int co_do_return(co_execute_data *execute_data);
 extern int co_do_fcall(co_execute_data *execute_data);
 extern int co_do_pass_param(co_execute_data *execute_data);
+extern int co_do_recv_param(co_execute_data *execute_data);
 
 extern void co_vm_init();
 extern void co_vm_execute(co_op_array *op_array);

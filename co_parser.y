@@ -83,7 +83,7 @@ compound_statement:
 ;
 
 function_declaration:
-    T_FUNC T_NAME '(' parameter_list ')' { co_begin_function_declaration(&$1, &$2, &$5); } '{' statement '}' { co_end_function_declaration(&$5); }
+    T_FUNC T_NAME { co_begin_function_declaration(&$2); } '(' parameter_list ')' '{' statement_list '}' { co_end_function_declaration(&$2); }
 ;
 
 parameter_list:
@@ -92,7 +92,7 @@ parameter_list:
 ;
 
 non_empty_parameter_list:
-        T_NAME
+        T_NAME { co_recv_param(&$1); }
     |   T_NAME ',' non_empty_parameter_list
 ;
 

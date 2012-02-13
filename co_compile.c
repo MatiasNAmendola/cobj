@@ -174,28 +174,32 @@ co_while_end(const cnode *while_token, const cnode *closing_bracket_token)
 }
 
 void
-co_begin_function_declaration(const cnode *function_token, const cnode *function_name,
-                              cnode *closing_bracket_token)
+co_begin_function_declaration(cnode *function_name)
 {
     uint function_opline_num = CG(active_op_array)->last;
     co_op *op = get_next_op(CG(active_op_array));
     op->opcode = OP_DECLARE_FUNCTION;
     op->op1 = *function_name;
-    closing_bracket_token->u.opline_num = function_opline_num;
+    function_name->u.opline_num = function_opline_num;
 }
 
 void
-co_end_function_declaration(const cnode *closing_bracket_token)
+co_end_function_declaration(const cnode *function_token)
 {
     co_op *op = get_next_op(CG(active_op_array));
     op->opcode = OP_RETURN;
 
     uint function_end_opline_num = CG(active_op_array)->last;
-    CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num = function_end_opline_num - closing_bracket_token->u.opline_num - 1;
+    CG(active_op_array)->ops[function_token->u.opline_num].op2.u.opline_num = function_end_opline_num - function_token->u.opline_num - 1;
 }
 
 void
 co_begin_function_call(cnode *function_name)
+{
+}
+
+void
+co_end_function_call(cnode *function_name, cnode *result)
 {
     co_op *op = get_next_op(CG(active_op_array));
     op->opcode = OP_DO_FCALL;
@@ -203,8 +207,11 @@ co_begin_function_call(cnode *function_name)
 }
 
 void
-co_end_function_call(cnode *function_name, cnode *result)
+co_recv_param(cnode *param)
 {
+    co_op *op = get_next_op(CG(active_op_array));
+    op->opcode = OP_RECV_PARAM;
+    op->op1 = *param;
 }
 
 void

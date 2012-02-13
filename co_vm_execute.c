@@ -14,8 +14,8 @@ co_executor_globals executor_globals;
 
 #define CO_VM_STACK_PAGE_SIZE (64 * 1024)
 #define CO_VM_STACK_GROW_IF_NEEDED(size)                \
-    if (size > EG(argument_stack)->end                  \
-            - EG(argument_stack)->top) {                \
+    if (size > EG(vm_stack)->end                  \
+            - EG(vm_stack)->top) {                \
             co_vm_stack_extend(size);                   \
     }
 
@@ -35,14 +35,14 @@ co_vm_stack_extend(size_t size)
 {
     co_vm_stack *p =
         co_vm_stack_new_page(size >= CO_VM_STACK_PAGE_SIZE ? size : CO_VM_STACK_PAGE_SIZE);
-    p->prev = EG(argument_stack);
-    EG(argument_stack) = p;
+    p->prev = EG(vm_stack);
+    EG(vm_stack) = p;
 }
 
 static inline void
 co_vm_stack_destory()
 {
-    co_vm_stack *stack = EG(argument_stack);
+    co_vm_stack *stack = EG(vm_stack);
 
     while (stack != NULL) {
         co_vm_stack *p = stack->prev;
@@ -56,18 +56,18 @@ static inline void
 co_vm_stack_push(void *ptr)
 {
     CO_VM_STACK_GROW_IF_NEEDED(1);
-    *(EG(argument_stack)->top++) = ptr;
+    *(EG(vm_stack)->top++) = ptr;
 }
 
 static inline void *
 co_vm_stack_pop()
 {
-    void *e = *(--EG(argument_stack)->top);
+    void *e = *(--EG(vm_stack)->top);
 
-    if (EG(argument_stack)->top == EG(argument_stack)->elements) {
-        co_vm_stack *p = EG(argument_stack);
+    if (EG(vm_stack)->top == EG(vm_stack)->elements) {
+        co_vm_stack *p = EG(vm_stack);
 
-        EG(argument_stack) = p->prev;
+        EG(vm_stack) = p->prev;
         free(p);
     }
 
@@ -83,8 +83,8 @@ co_vm_stack_alloc(size_t size)
 
     CO_VM_STACK_GROW_IF_NEEDED(size);
 
-    ret = (void *)EG(argument_stack)->top;
-    EG(argument_stack)->top += size;
+    ret = (void *)EG(vm_stack)->top;
+    EG(vm_stack)->top += size;
     return ret;
 }
 
@@ -162,6 +162,9 @@ get_op_handler(int opcode)
     case OP_PASS_PARAM:
         return co_do_pass_param;
         break;
+    case OP_RECV_PARAM:
+        return co_do_recv_param;
+        break;
     }
     die("unknown handle for opcode(%d)\n", opcode);
     return NULL;
@@ -212,7 +215,7 @@ co_vm_execute(co_op_array *op_array)
 void
 co_vm_init()
 {
-    EG(argument_stack) = co_vm_stack_new_page(CO_VM_STACK_PAGE_SIZE);
+    EG(vm_stack) = co_vm_stack_new_page(CO_VM_STACK_PAGE_SIZE);
     co_stack_init(&EG(function_call_stack));
 }
 
@@ -431,6 +434,7 @@ int
 co_do_return(co_execute_data *execute_data)
 {
     co_stack_top(&EG(function_call_stack), (void**)&EG(current_execute_data));
+    co_stack_pop(&EG(function_call_stack));
     return CO_VM_LEAVE;
 }
 
@@ -455,7 +459,19 @@ co_do_pass_param(co_execute_data *execute_data)
     co_op *opline = EX(op);
     cval *val1;
     val1 = get_cval_ptr(&opline->op1, EX(ts));
-    cval_print(val1);
+    co_stack_push(&EG(argument_stack), &val1, sizeof(cval*));
+    EX(op)++;
+    return CO_VM_CONTINUE;
+}
+
+int
+co_do_recv_param(co_execute_data *execute_data)
+{
+    co_op *opline = EX(op);
+    cval **val;
+    co_stack_top(&EG(argument_stack), &val);
+    putcval(opline->op1.u.val.u.str.val, *val);
+    
     EX(op)++;
     return CO_VM_CONTINUE;
 }

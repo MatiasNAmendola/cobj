@@ -5,6 +5,7 @@ func helloworld() {
 }
 
 func hello(str) {
+    print "hello,";
     print str;
 }
 
