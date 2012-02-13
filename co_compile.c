@@ -197,11 +197,9 @@ co_end_function_declaration(const cnode *closing_bracket_token)
 void
 co_begin_function_call(cnode *function_name)
 {
-    uint fcall_opline_num = CG(active_op_array)->last;
     co_op *op = get_next_op(CG(active_op_array));
     op->opcode = OP_DO_FCALL;
     op->op1 = *function_name;
-    op->op2.u.opline_num = fcall_opline_num + 1;
 }
 
 void

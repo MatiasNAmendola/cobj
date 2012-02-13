@@ -318,6 +318,31 @@ co_do_smaller(co_execute_data *execute_data)
     return CO_VM_CONTINUE;
 }
 
+void
+cval_print(cval *val)
+{
+    switch (val->type) {
+    case CVAL_IS_NONE:
+        printf("%s\n", "None");
+        break;
+    case CVAL_IS_BOOL:
+        if (val->u.ival) {
+            printf("%s\n", "True");
+        } else {
+            printf("%s\n", "False");
+        }
+        break;
+    case CVAL_IS_INT:
+        printf("%ld\n", val->u.ival);
+        break;
+    case CVAL_IS_STRING:
+        printf("%s\n", val->u.str.val);
+        break;
+    default:
+        die("do print error (type: %d)", val->type);
+    }
+}
+
 int
 co_do_print(co_execute_data *execute_data)
 {
@@ -326,26 +351,7 @@ co_do_print(co_execute_data *execute_data)
     cval *val1;
 
     val1 = get_cval_ptr(&op->op1, EX(ts));
-    switch (val1->type) {
-    case CVAL_IS_NONE:
-        printf("%s\n", "None");
-        break;
-    case CVAL_IS_BOOL:
-        if (val1->u.ival) {
-            printf("%s\n", "True");
-        } else {
-            printf("%s\n", "False");
-        }
-        break;
-    case CVAL_IS_INT:
-        printf("%ld\n", val1->u.ival);
-        break;
-    case CVAL_IS_STRING:
-        printf("%s\n", val1->u.str.val);
-        break;
-    default:
-        die("do print error (type: %d)", val1->type);
-    }
+    cval_print(val1);
 
     EX(op)++;
     return CO_VM_CONTINUE;
@@ -446,6 +452,10 @@ co_do_fcall(co_execute_data *execute_data)
 int
 co_do_pass_param(co_execute_data *execute_data)
 {
+    co_op *opline = EX(op);
+    cval *val1;
+    val1 = get_cval_ptr(&opline->op1, EX(ts));
+    cval_print(val1);
     EX(op)++;
     return CO_VM_CONTINUE;
 }
