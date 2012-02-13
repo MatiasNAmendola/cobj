@@ -102,7 +102,7 @@ function_call_parameter_list:
 ;
 
 non_empty_function_call_parameter_list:
-        expression
+        expression { co_pass_param(&$1); }
     |   expression ',' non_empty_parameter_list
 ;
 

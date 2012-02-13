@@ -207,7 +207,14 @@ co_begin_function_call(cnode *function_name)
 void
 co_end_function_call(cnode *function_name, cnode *result)
 {
-    /*co_op *op = &CG(active_op_array)->ops[ */
+}
+
+void
+co_pass_param(cnode *param)
+{
+    co_op *op = get_next_op(CG(active_op_array));
+    op->opcode = OP_PASS_PARAM,
+    op->op1 = *param;
 }
 
 void

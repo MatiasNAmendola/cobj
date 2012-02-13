@@ -159,6 +159,8 @@ get_op_handler(int opcode)
         return co_do_return;
     case OP_DO_FCALL:
         return co_do_fcall;
+    case OP_PASS_PARAM:
+        return co_do_pass_param;
         break;
     }
     die("unknown handle for opcode(%d)\n", opcode);
@@ -439,4 +441,11 @@ co_do_fcall(co_execute_data *execute_data)
     co_stack_push(&EG(function_call_stack), EG(current_execute_data), sizeof(co_execute_data));
     EG(active_op_array) = val1->u.func->op_array;
     return CO_VM_ENTER;
+}
+
+int
+co_do_pass_param(co_execute_data *execute_data)
+{
+    EX(op)++;
+    return CO_VM_CONTINUE;
 }

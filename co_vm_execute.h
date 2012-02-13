@@ -51,6 +51,7 @@ extern int co_do_jmp(co_execute_data *execute_data);
 extern int co_do_declare_function(co_execute_data *execute_data);
 extern int co_do_return(co_execute_data *execute_data);
 extern int co_do_fcall(co_execute_data *execute_data);
+extern int co_do_pass_param(co_execute_data *execute_data);
 
 extern void co_vm_init();
 extern void co_vm_execute(co_op_array *op_array);

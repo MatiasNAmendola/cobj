@@ -100,6 +100,7 @@ void co_begin_function_declaration(const cnode *function_token, const cnode *fun
 void co_end_function_declaration(const cnode *closing_bracket_token);
 void co_begin_function_call(cnode *function_name);
 void co_end_function_call(cnode *function_name, cnode *result);
+void co_pass_param(cnode *param);
 void co_end_compilation();
 
 /* opcode */
