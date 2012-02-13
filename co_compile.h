@@ -22,7 +22,6 @@
 
 #define CG(v)   compiler_globals.v
 #define EG(v)   executor_globals.v
-#define EX(v)   execute_data.v
 
 typedef struct _cval cval;
 typedef struct _cnode cnode;

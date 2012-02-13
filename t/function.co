@@ -4,5 +4,9 @@ func helloworld() {
     print "hello world";
 }
 
+func hello(str) {
+    print str;
+}
+
 helloworld();
-helloworld();
+hello("world");

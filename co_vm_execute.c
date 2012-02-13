@@ -5,9 +5,6 @@
 
 co_executor_globals executor_globals;
 
-#ifdef EX
-#undef EX
-#endif
 #define EX(v)   execute_data->v
 
 #define CO_VM_CONTINUE 0
@@ -40,42 +37,6 @@ co_vm_stack_extend(size_t size)
         co_vm_stack_new_page(size >= CO_VM_STACK_PAGE_SIZE ? size : CO_VM_STACK_PAGE_SIZE);
     p->prev = EG(argument_stack);
     EG(argument_stack) = p;
-}
-
-static inline cval *
-get_cval_ptr(cnode *node, const temp_variable *ts)
-{
-    cval *cvalptr;
-
-    switch (node->op_type) {
-    case IS_CONST:
-        return &node->u.val;
-        break;
-    case IS_VAR:
-        cvalptr = getcval(node->u.val.u.str.val);
-        if (!cvalptr) {
-            cval cvalnew;
-
-            putcval(node->u.val.u.str.val, &cvalnew);
-            cvalptr = getcval(node->u.val.u.str.val);
-        }
-        return cvalptr;
-        break;
-    case IS_TMP_VAR:
-        return &T(node->u.var).tmp_var;
-        break;
-    case IS_UNUSED:
-        return NULL;
-        break;
-    }
-
-    return NULL;
-}
-
-static inline void
-co_vm_stack_init()
-{
-    EG(argument_stack) = co_vm_stack_new_page(CO_VM_STACK_PAGE_SIZE);
 }
 
 static inline void
@@ -125,6 +86,36 @@ co_vm_stack_alloc(size_t size)
     ret = (void *)EG(argument_stack)->top;
     EG(argument_stack)->top += size;
     return ret;
+}
+
+static inline cval *
+get_cval_ptr(cnode *node, const temp_variable *ts)
+{
+    cval *cvalptr;
+
+    switch (node->op_type) {
+    case IS_CONST:
+        return &node->u.val;
+        break;
+    case IS_VAR:
+        cvalptr = getcval(node->u.val.u.str.val);
+        if (!cvalptr) {
+            cval cvalnew;
+
+            putcval(node->u.val.u.str.val, &cvalnew);
+            cvalptr = getcval(node->u.val.u.str.val);
+        }
+        return cvalptr;
+        break;
+    case IS_TMP_VAR:
+        return &T(node->u.var).tmp_var;
+        break;
+    case IS_UNUSED:
+        return NULL;
+        break;
+    }
+
+    return NULL;
 }
 
 static op_handler_t
@@ -219,7 +210,7 @@ co_vm_execute(co_op_array *op_array)
 void
 co_vm_init()
 {
-    co_vm_stack_init();
+    EG(argument_stack) = co_vm_stack_new_page(CO_VM_STACK_PAGE_SIZE);
     co_stack_init(&EG(function_call_stack));
 }
 
