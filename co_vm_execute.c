@@ -2,7 +2,6 @@
 #include "co_vm_opcodes.h"
 #include "co_compile.h"
 #include "co_parser.h"
-#include "co_object.h"
 
 co_executor_globals executor_globals;
 
@@ -185,9 +184,7 @@ co_vm_execute(co_op_array *op_array)
     execute_data =
         (co_execute_data *)co_vm_stack_alloc(sizeof(co_execute_data) +
                                              sizeof(temp_variable) * op_array->t);
-
     EX(ts) = (temp_variable *)((char *)execute_data + sizeof(co_execute_data));
-
     EX(op_array) = op_array;
 
     EG(current_execute_data) = execute_data;
@@ -217,14 +214,13 @@ co_vm_execute(co_op_array *op_array)
             break;
         }
     }
-
-    die("Arrived at end of main loop which shouldn't happen");
 }
 
 void
 co_vm_init()
 {
     co_vm_stack_init();
+    co_stack_init(&EG(function_call_stack));
 }
 
 int
@@ -419,18 +415,24 @@ int
 co_do_declare_function(co_execute_data *execute_data)
 {
     co_op *opline = EX(op);
-    EX(op)++;
     cval *val1;
     val1 = get_cval_ptr(&opline->op1, EX(ts));
-    val1->u.ival = opline->op2.u.val.u.ival;
+    Function *func = xmalloc(sizeof(Function));
+    func->op_array = xmalloc(sizeof(co_op_array));
+    func->op_array->start_op = NULL;
+    func->op_array->ops = EX(op) + 1;
+    func->op_array->last = opline->op2.u.opline_num;
+    val1->u.func = func;
+    val1->type = CVAL_IS_FUNCTION;
+    EX(op) += opline->op2.u.opline_num + 1;
     return CO_VM_CONTINUE;
 }
 
 int
 co_do_return(co_execute_data *execute_data)
 {
-    EX(op)++;
-    return CO_VM_CONTINUE;
+    co_stack_top(&EG(function_call_stack), (void**)&EG(current_execute_data));
+    return CO_VM_LEAVE;
 }
 
 int
@@ -439,7 +441,11 @@ co_do_fcall(co_execute_data *execute_data)
     co_op *opline = EX(op);
     cval *val1;
     val1 = get_cval_ptr(&opline->op1, EX(ts));
-    // jump to funcation start point
-    EX(op) = &EX(op_array)->ops[val1->u.ival];
-    return CO_VM_CONTINUE;
+    if (val1->type != CVAL_IS_FUNCTION) {
+        die("not a function");
+    }
+    EX(op)++;
+    co_stack_push(&EG(function_call_stack), EG(current_execute_data), sizeof(co_execute_data));
+    EG(active_op_array) = val1->u.func->op_array;
+    return CO_VM_ENTER;
 }

@@ -33,10 +33,8 @@ void
 init_compiler()
 {
     CG(active_op_array) = xmalloc(sizeof(co_op_array));
-    co_stack_init(&CG(function_call_stack));
-    co_hash_init(&CG(function_symboltable), 2, NULL);
-    co_hash_init(&CG(variable_symboltable), 2, NULL);
     init_op_array(CG(active_op_array), 1);
+    co_hash_init(&CG(variable_symboltable), 2, NULL);
 }
 
 void
@@ -183,7 +181,7 @@ co_begin_function_declaration(const cnode *function_token, const cnode *function
     co_op *op = get_next_op(CG(active_op_array));
     op->opcode = OP_DECLARE_FUNCTION;
     op->op1 = *function_name;
-    op->op2.u.opline_num = function_opline_num + 1;
+    closing_bracket_token->u.opline_num = function_opline_num;
 }
 
 void
@@ -191,6 +189,9 @@ co_end_function_declaration(const cnode *closing_bracket_token)
 {
     co_op *op = get_next_op(CG(active_op_array));
     op->opcode = OP_RETURN;
+
+    uint function_end_opline_num = CG(active_op_array)->last;
+    CG(active_op_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num = function_end_opline_num - closing_bracket_token->u.opline_num - 1;
 }
 
 void
@@ -219,7 +220,7 @@ co_end_compilation()
 #ifdef CO_DEBUG
     for (int i = 0; i < CG(active_op_array)->last; i++) {
         co_op *op = &CG(active_op_array)->ops[i];
-        printf("opcode: %d\n", op->opcode);
+        printf("opcode[%d]: %d\n", i, op->opcode);
     }
 #endif
 

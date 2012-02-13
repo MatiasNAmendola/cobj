@@ -28,11 +28,14 @@ typedef struct _cval cval;
 typedef struct _cnode cnode;
 typedef struct _co_op co_op;
 typedef struct _co_op_array co_op_array;
-typedef struct _co_execute_data co_execute_data;
 typedef union _temp_variable temp_variable;
 
-/* c op handler */
-typedef int (*op_handler_t) (co_execute_data *execute_data);
+/**
+ * Function
+ */
+typedef struct Function {
+    co_op_array *op_array;
+} Function;
 
 /* c value container */
 struct _cval {
@@ -43,6 +46,7 @@ struct _cval {
             char *val;
             int len;
         } str;                  /* string value */
+        Function *func;
     } u;
     uchar type;
 };
@@ -70,22 +74,13 @@ struct _co_op_array {
     uchar type;
     co_op *ops;
     co_op *start_op;
-    uint t;
     uint last, size;
+    uint t; // number of temp variables
 };
 
 /* temp variable */
 union _temp_variable {
     cval tmp_var;
-};
-
-/* execute data */
-struct _co_execute_data {
-    co_op *op;
-    HashTable *symboltable;
-    temp_variable *ts;
-    co_op_array *op_array;
-    bool nested;
 };
 
 /* compiler */
@@ -118,8 +113,6 @@ extern bool delcval(const char *name);
 
 /* compiler globals */
 typedef struct _co_compiler_globals {
-    co_stack function_call_stack;
-    HashTable function_symboltable;
     HashTable variable_symboltable;
     co_op_array *active_op_array;
 } co_compiler_globals;

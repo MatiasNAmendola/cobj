@@ -31,7 +31,6 @@ LIB_OBJS += co_vm_execute.o
 LIB_OBJS += co_vm_opcodes.o
 LIB_OBJS += co_wrapper.o
 LIB_OBJS += co_llist.o
-LIB_OBJS += co_object.o
 
 local.h:
 	./genlocal.sh
