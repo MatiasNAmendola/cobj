@@ -20,7 +20,7 @@ typedef struct _co_execute_data {
     HashTable *symboltable;
     temp_variable *ts;
     co_op_array *op_array;
-    struct _co_executor_data *prev_execute_data;
+    struct _co_execute_data *prev_execute_data;
 } co_execute_data;
 
 /* vm executor globals */

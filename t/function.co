@@ -11,3 +11,4 @@ func hello(str) {
 
 helloworld();
 hello("world");
+hello(10);
