@@ -5,8 +5,7 @@
 #include "co_compile.h"
 #include "co_vm_opcodes.h"
 
-#define yyerror coerror
-#define yyparse coparse
+#define yyerror die
 #define YYERROR_VERBOSE
 #define YYSTYPE cnode
 #define YYPARSE_PARAM yyscanner

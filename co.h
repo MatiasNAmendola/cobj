@@ -34,10 +34,6 @@ typedef unsigned long ulong;
 
 typedef unsigned char uchar;
 
-/* Compiler */
-extern int coparse(void *compiler_globals);
-extern void coerror(const char *str);
-
 /* Wrapper Functions */
 extern void *xmalloc(size_t size);
 extern void *xrealloc(void *ptr, size_t size);

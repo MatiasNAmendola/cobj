@@ -5,17 +5,10 @@
 #include "co_compile.h"
 #include "co_vm_execute.h"
 
-void
-coerror(const char *str)
-{
-    printf("syntax error: %s\n", str);
-}
-
 int
 main(int argc, const char **argv)
 {
     yyscan_t yyscanner;
-
     yylex_init(&yyscanner);
 
     if (argc > 1) {
@@ -29,13 +22,10 @@ main(int argc, const char **argv)
     }
 
     init_compiler();
-    co_vm_init();
-
-    int i = coparse(yyscanner);
-
-    co_vm_execute(CG(active_op_array));
-
+    yyparse(yyscanner);
     yylex_destroy(yyscanner);
 
-    return i;
+    co_vm_init();
+    co_vm_execute(CG(active_op_array));
+    return 0;
 }

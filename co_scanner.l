@@ -256,7 +256,7 @@ FORMAT_SPACES   [ \t\n]
 {FORMAT_SPACES}   { /* blank spaces which is used to format code are ignored */ }
 
 .   {
-    coerror("invalid chars");
+    die("invalid chars");
 }
 
 %%
