@@ -19,7 +19,7 @@ co_executor_globals executor_globals;
             co_vm_stack_extend(size);                   \
     }
 
-static inline co_vm_stack *
+static co_vm_stack *
 co_vm_stack_new_page(size_t size)
 {
     co_vm_stack *page =
@@ -30,7 +30,7 @@ co_vm_stack_new_page(size_t size)
     return page;
 }
 
-static inline void
+static void
 co_vm_stack_extend(size_t size)
 {
     co_vm_stack *p =
@@ -39,7 +39,7 @@ co_vm_stack_extend(size_t size)
     EG(vm_stack) = p;
 }
 
-static inline void
+static void
 co_vm_stack_destory()
 {
     co_vm_stack *stack = EG(vm_stack);
@@ -52,14 +52,14 @@ co_vm_stack_destory()
     }
 }
 
-static inline void
+static void
 co_vm_stack_push(void *ptr)
 {
     CO_VM_STACK_GROW_IF_NEEDED(1);
     *(EG(vm_stack)->top++) = ptr;
 }
 
-static inline void *
+static void *
 co_vm_stack_pop()
 {
     void *e = *(--EG(vm_stack)->top);
@@ -74,7 +74,7 @@ co_vm_stack_pop()
     return e;
 }
 
-static inline void *
+static void *
 co_vm_stack_alloc(size_t size)
 {
     void *ret;
@@ -86,6 +86,18 @@ co_vm_stack_alloc(size_t size)
     ret = (void *)EG(vm_stack)->top;
     EG(vm_stack)->top += size;
     return ret;
+}
+
+static void
+co_vm_stack_free(void *ptr)
+{
+    if ((void**)EG(vm_stack) == (void**)ptr) {
+        co_vm_stack *p = EG(vm_stack);
+        EG(vm_stack) = p->prev;
+        free(p);
+    } else {
+        EG(vm_stack)->top = (void**)ptr;
+    }
 }
 
 static void
@@ -113,7 +125,7 @@ cval_print(cval *val)
     }
 }
 
-static inline cval *
+static cval *
 get_cval_ptr(cnode *node, const temp_variable *ts)
 {
     cval *cvalptr;
@@ -210,6 +222,7 @@ co_vm_execute(co_op_array *op_array)
     EX(ts) = (temp_variable *)((char *)execute_data + sizeof(co_execute_data));
     EX(op_array) = op_array;
 
+    EX(prev_execute_data) = EG(current_execute_data);
     EG(current_execute_data) = execute_data;
 
     if (op_array->start_op) {
@@ -243,7 +256,6 @@ void
 co_vm_init()
 {
     EG(vm_stack) = co_vm_stack_new_page(CO_VM_STACK_PAGE_SIZE);
-    co_stack_init(&EG(function_call_stack));
 }
 
 int
@@ -435,8 +447,9 @@ co_do_declare_function(co_execute_data *execute_data)
 int
 co_do_return(co_execute_data *execute_data)
 {
-    co_stack_top(&EG(function_call_stack), (void**)&EG(current_execute_data));
-    co_stack_pop(&EG(function_call_stack));
+    EG(current_execute_data) = EX(prev_execute_data);
+    co_vm_stack_free(execute_data);
+    execute_data = EG(current_execute_data);
     return CO_VM_LEAVE;
 }
 
@@ -457,7 +470,6 @@ co_do_fcall(co_execute_data *execute_data)
         die("not a function");
     }
     EX(op)++;
-    co_stack_push(&EG(function_call_stack), EG(current_execute_data), sizeof(co_execute_data));
     EG(active_op_array) = val1->u.func->op_array;
     return CO_VM_ENTER;
 }
@@ -478,7 +490,7 @@ co_do_recv_param(co_execute_data *execute_data)
 {
     co_op *opline = EX(op);
     cval **val;
-    co_stack_top(&EG(argument_stack), &val);
+    co_stack_top(&EG(argument_stack), (void **)&val);
     putcval(opline->op1.u.val.u.str.val, *val);
     
     EX(op)++;

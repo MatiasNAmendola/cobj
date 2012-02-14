@@ -20,7 +20,7 @@ typedef struct _co_execute_data {
     HashTable *symboltable;
     temp_variable *ts;
     co_op_array *op_array;
-    bool nested;
+    struct _co_executor_data *prev_execute_data;
 } co_execute_data;
 
 /* vm executor globals */
@@ -30,7 +30,6 @@ typedef struct _co_executor_globals {
     co_execute_data *current_execute_data;
     co_vm_stack *vm_stack;
     co_stack argument_stack;
-    co_stack function_call_stack;
 } co_executor_globals;
 extern co_executor_globals executor_globals;
 
