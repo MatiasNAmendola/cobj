@@ -3,4 +3,7 @@
 /**
  * Auxiliary functions from Debug Interface module
  */
+#include "co_compile.h"
+
+void co_print_opcode(co_op_array *op_array);
 #endif

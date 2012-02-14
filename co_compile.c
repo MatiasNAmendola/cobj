@@ -2,6 +2,7 @@
 #include "co_vm_opcodes.h"
 #include "co_parser.h"
 #include "co_vm_execute.h"
+#include "co_debug.h"
 
 co_compiler_globals compiler_globals;
 
@@ -196,6 +197,9 @@ co_end_function_declaration(const cnode *function_token)
 void
 co_begin_function_call(cnode *function_name)
 {
+    co_op *op = get_next_op(CG(active_op_array));
+    op->opcode = OP_INIT_FCALL;
+    op->op1 = *function_name;
 }
 
 void
@@ -230,10 +234,7 @@ co_end_compilation()
     op->opcode = OP_EXIT;
 
 #ifdef CO_DEBUG
-    for (int i = 0; i < CG(active_op_array)->last; i++) {
-        co_op *op = &CG(active_op_array)->ops[i];
-        printf("opcode[%d]: %d\n", i, op->opcode);
-    }
+    co_print_opcode(CG(active_op_array));
 #endif
 
     SET_UNUSED(op->op1);

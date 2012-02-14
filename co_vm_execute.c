@@ -88,6 +88,31 @@ co_vm_stack_alloc(size_t size)
     return ret;
 }
 
+static void
+cval_print(cval *val)
+{
+    switch (val->type) {
+    case CVAL_IS_NONE:
+        printf("%s\n", "None");
+        break;
+    case CVAL_IS_BOOL:
+        if (val->u.ival) {
+            printf("%s\n", "True");
+        } else {
+            printf("%s\n", "False");
+        }
+        break;
+    case CVAL_IS_INT:
+        printf("%ld\n", val->u.ival);
+        break;
+    case CVAL_IS_STRING:
+        printf("%s\n", val->u.str.val);
+        break;
+    default:
+        die("do print error (type: %d)", val->type);
+    }
+}
+
 static inline cval *
 get_cval_ptr(cnode *node, const temp_variable *ts)
 {
@@ -157,6 +182,8 @@ get_op_handler(int opcode)
         return co_do_declare_function;
     case OP_RETURN:
         return co_do_return;
+    case OP_INIT_FCALL:
+        return co_do_init_fcall;
     case OP_DO_FCALL:
         return co_do_fcall;
     case OP_PASS_PARAM:
@@ -321,31 +348,6 @@ co_do_smaller(co_execute_data *execute_data)
     return CO_VM_CONTINUE;
 }
 
-void
-cval_print(cval *val)
-{
-    switch (val->type) {
-    case CVAL_IS_NONE:
-        printf("%s\n", "None");
-        break;
-    case CVAL_IS_BOOL:
-        if (val->u.ival) {
-            printf("%s\n", "True");
-        } else {
-            printf("%s\n", "False");
-        }
-        break;
-    case CVAL_IS_INT:
-        printf("%ld\n", val->u.ival);
-        break;
-    case CVAL_IS_STRING:
-        printf("%s\n", val->u.str.val);
-        break;
-    default:
-        die("do print error (type: %d)", val->type);
-    }
-}
-
 int
 co_do_print(co_execute_data *execute_data)
 {
@@ -436,6 +438,13 @@ co_do_return(co_execute_data *execute_data)
     co_stack_top(&EG(function_call_stack), (void**)&EG(current_execute_data));
     co_stack_pop(&EG(function_call_stack));
     return CO_VM_LEAVE;
+}
+
+int
+co_do_init_fcall(co_execute_data *execute_data)
+{
+    EX(op)++;
+    return CO_VM_CONTINUE;
 }
 
 int
