@@ -8,6 +8,7 @@
 int
 main(int argc, const char **argv)
 {
+    /* read source */
     yyscan_t yyscanner;
     yylex_init(&yyscanner);
 
@@ -21,10 +22,12 @@ main(int argc, const char **argv)
         yyset_in(myin, yyscanner);
     }
 
+    /* compilation */
     init_compiler();
-    yyparse(yyscanner);
+    coparse(yyscanner);
     yylex_destroy(yyscanner);
 
+    /* vm execution */
     co_vm_init();
     co_vm_execute(CG(active_op_array));
     return 0;

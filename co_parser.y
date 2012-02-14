@@ -1,10 +1,10 @@
 %{
 
-#include <stdio.h>
 #include "co.h"
 #include "co_compile.h"
 #include "co_vm_opcodes.h"
 
+#define yyparse coparse
 #define yyerror die
 #define YYERROR_VERBOSE
 #define YYSTYPE cnode
