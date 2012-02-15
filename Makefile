@@ -64,13 +64,14 @@ clean:
 	# indent backup files
 	$(RM) *~
 	# library objects
-	$(RM) $(LIB_OBJS)
+	$(RM) *.o
 	# parser source files
 	$(RM) parser.[ch]
 	# scan source files
 	$(RM) scanner.[ch]
 	# local header
 	$(RM) local.h
+	$(RM) *.output
 
 doc:
 	$(MAKE) -C doc/ html
