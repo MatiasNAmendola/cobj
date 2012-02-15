@@ -250,6 +250,8 @@ again:
     retval = co_scanner_lex(colval, compiler_globals);
     switch (retval) {
         case T_WHITESPACE:
+        case T_COMMENT:
+        case T_IGNORED:
             goto again;
         default:
             break;

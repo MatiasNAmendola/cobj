@@ -35,6 +35,8 @@
 %token  T_FUNC
 %token  T_WHILE "while (T_WHILE)"
 %token  T_WHITESPACE
+%token  T_COMMENT
+%token  T_IGNORED
 
 %% /* Grammar Rules */
 

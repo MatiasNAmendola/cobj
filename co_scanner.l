@@ -5,8 +5,7 @@
 #include "dstring.h"
 
 struct co_scanner_globals {
-    FILE *yy_in;
-    FILE *yy_out;
+    int yy_in;
 
     unsigned int yy_leng;
     char *yy_start;
@@ -28,14 +27,19 @@ struct co_scanner_globals scanner_globals;
 #define YYCURSOR    scanner_globals.yy_cursor
 #define YYLIMIT     scanner_globals.yy_limit
 #define YYMARKER    scanner_globals.yy_marker
+#define YYGETCONDITION()  scanner_globals.yy_state
+#define YYSETCONDITION(s) scanner_globals.yy_state = s
 #ifdef CO_DEBUG
 # define YYDEBUG(s, c)   printf("state: %d char: %c\n", s, c)
 #else
 # define YYDEBUG(s, c)
 #endif
+#define STATE(name) yyc##name
 /*** E re2c interface code ***/
 
 /*** S emulate flex constructs */
+#define BEGIN(state)    YYSETCONDITION(STATE(state))
+#define YYSTATE         YYGETCONDITION()
 #define yytext      ((char*)scanner_globals.yy_text)
 #define yyleng      scanner_globals.yy_leng
 /*** E emulate flex constructs */
@@ -212,18 +216,18 @@ restart:
 /*!re2c
 re2c:yyfill:check = 0;
 
-NUM     [0-9]+
-FNUM    ([0-9]*"."[0-9]+)
-HNUM    "0x"[0-9a-fA-F]+
-NAME    [a-zA-Z_][a-zA-Z0-9_]*
-TOKENS  [-+()=>/<*^,;:{}%]
-WHITESPACE   [ \t\n]+
-ANY_CHAR [^]
+NUM         = [0-9]+;
+FNUM        = ([0-9]*"."[0-9]+);
+HNUM        = "0x"[0-9a-fA-F]+;
+NAME        = [a-zA-Z_][a-zA-Z0-9_]*;
+TOKENS      = [-+()=>/<*^,;:{}%];
+WHITESPACE  = [ \t\n]+;
+ANY_CHAR    = [^];
 
 /* compute yyleng before each rule */
 <!*> := yyleng = YYCURSOR - scanner_globals.yy_text;
 
-<SC_INIT>{NUM} {
+<SC_INIT>NUM {
     if (yyleng < MAX_LENGTH_OF_LONG - 1) { /* Won't overflow */
         yylval->u.val.u.ival = strtol(yytext, NULL, 0); 
     } else { /* Maybe overflow */
@@ -235,8 +239,11 @@ ANY_CHAR [^]
     return T_NUM;
 }
 
-<SC_INIT>{FNUM} {
-    // TODO
+<SC_INIT>FNUM {
+    yylval->u.val.u.fval = strtof(yytext, NULL);
+    yylval->u.val.type = CVAL_IS_FLOAT;
+    yylval->op_type = IS_CONST;
+    return T_FNUM;
 }
 
 <SC_INIT>"if" {
@@ -260,33 +267,111 @@ ANY_CHAR [^]
 }
 
 <SC_INIT>"None" {
-    // TODO
+    yylval->u.val.u.ival = 1;
+    yylval->u.val.type = CVAL_IS_NONE;
+    yylval->op_type = IS_CONST;
+    return T_NONE;
 }
 
 <SC_INIT>"True" {
-    // TODO
+    yylval->u.val.u.ival = 1;
+    yylval->u.val.type = CVAL_IS_BOOL;
+    yylval->op_type = IS_CONST;
+    return T_BOOL;
 }
 
 <SC_INIT>"False" {
-    // TODO
+    yylval->u.val.u.ival = 0;
+    yylval->u.val.type = CVAL_IS_BOOL;
+    yylval->op_type = IS_CONST;
+    return T_BOOL;
 }
 
-<SC_INIT>{NAME} {
-    // TODO
+<SC_INIT>["] {
+    BEGIN(SC_DOUBLE_QUOTES);
+    return T_IGNORED;
 }
 
-<SC_INIT>{TOKENS} {
+<SC_DOUBLE_QUOTES>["] {
+    BEGIN(SC_INIT);
+    return T_IGNORED;
+}
+
+<SC_DOUBLE_QUOTES>ANY_CHAR {
+    if (YYCURSOR > YYLIMIT) {
+        return 0;
+    }
+    if (yytext[0] == '\\' && YYCURSOR < YYLIMIT) {
+        YYCURSOR++;
+    }
+    while (YYCURSOR < YYLIMIT) {
+        switch (*YYCURSOR++) {
+            case '"':
+                break;
+            case '\\':
+                if (YYCURSOR < YYLIMIT) {
+                    YYCURSOR++;
+                }
+                /* fall through */
+            default:
+                continue;
+        }
+
+        YYCURSOR--;
+        break;
+    }
+    yyleng = YYCURSOR - scanner_globals.yy_text;
+    yylval->u.val.u.str.val = xstrndup(yytext, yyleng);
+    yylval->u.val.u.str.len = yyleng;
+    co_scan_doublequoted_string(&yylval->u.val);
+    yylval->u.val.type = CVAL_IS_STRING;
+    yylval->op_type = IS_CONST;
+    return T_STRING;
+}
+
+<SC_INIT>['] {
+    while (1) {
+        if (YYCURSOR > YYLIMIT) {
+            return 0;
+        }
+        if (*YYCURSOR == '\'') {
+            YYCURSOR++;
+            yyleng = YYCURSOR - scanner_globals.yy_text;
+            break;
+        } else if (*YYCURSOR++ == '\\') {
+            YYCURSOR++;
+        }
+    } 
+    yylval->u.val.u.str.val = xstrndup(yytext + 1, yyleng - 2);
+    yylval->u.val.u.str.len = yyleng;
+    co_scan_singlequoted_string(&yylval->u.val);
+    yylval->u.val.type = CVAL_IS_STRING;
+    yylval->op_type = IS_CONST;
+    return T_STRING;
+}
+
+<SC_INIT>NAME {
+    yylval->u.val.u.str.val = xstrndup(yytext, yyleng);
+    yylval->u.val.u.str.len = yyleng;
+    yylval->u.val.type = CVAL_IS_STRING;
+    yylval->op_type = IS_VAR;
+    return T_NAME;
+}
+
+<SC_INIT>TOKENS {
     return yytext[0];
 }
 
-<SC_INIT>"#".*   { /* ignore comments */ }
+<SC_INIT>"#".*   {
+    return T_COMMENT;
+}
 
-<SC_INIT>{WHITESPACE}   { 
+<SC_INIT>WHITESPACE   { 
     return T_WHITESPACE;
 }
 
-<SC_INIT>{ANY_CHAR}   {
-    // TODO
+<SC_INIT>ANY_CHAR   {
+    die("invalid token: %s", yytext);
 }
 */
 }

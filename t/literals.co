@@ -14,9 +14,9 @@ print 10;
 ### literal string ###
 # single quote
 print 'don\'t escape \\a, except single quote (\') and backslash (\\)';
-#print '
-#hello world after newline
-#';
+print '
+hello world after newline
+';
 
 # double quote
 print "\a";
@@ -30,3 +30,7 @@ print "hello \"world\"";
 print "\\";
 print "\141";
 print "\x61";
+print " span
+    many
+    lines double-
+    quoted string";

@@ -47,7 +47,7 @@ co_parser.c: co_parser.y
 
 co_scanner.h: co_scanner.c
 co_scanner.c: co_scanner.l
-	re2c -cbdFt co_scanner.h -o $@ $^
+	re2c -cbdt co_scanner.h -o $@ $^
 
 .PHONY: all install uninstall clean test indent tags doc
 
