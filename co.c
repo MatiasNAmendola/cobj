@@ -10,14 +10,15 @@ main(int argc, const char **argv)
 {
     if (argc > 1) {
         argv++;
-        FILE *myin = fopen(*argv, "r");
-        if (!myin) {
-            exit(2);
+        int fd;
+        fd = open(*argv, O_RDONLY);
+        if (fd < 0) {
+            die("open %s failed", *argv);
         }
 
         /* compilation */
         co_scanner_startup();
-        co_scanner_openfile(myin);
+        co_scanner_openfile(fd);
         init_compiler();
         coparse(&compiler_globals);
         co_scanner_shutdown();

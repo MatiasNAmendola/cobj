@@ -2,6 +2,7 @@
 #include "co_compile.h"
 #include "co_scanner.h"
 #include "co_parser.h"
+#include "dstring.h"
 
 struct co_scanner_globals {
     FILE *yy_in;
@@ -188,11 +189,11 @@ co_scanner_shutdown()
 }
 
 int
-co_scanner_openfile(FILE *in)
+co_scanner_openfile(int fd)
 {
-    scanner_globals.yy_in = in;
+    scanner_globals.yy_in = fd;
     scanner_globals.yy_start = NULL;
-    static char *code = "print 10;";
+    dstring code = dstring_readfd(fd);
     scanner_globals.yy_cursor = code;
     scanner_globals.yy_limit = code + strlen(code);
 
