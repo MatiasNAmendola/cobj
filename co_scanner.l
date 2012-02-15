@@ -1,14 +1,38 @@
-%{
-#include <stdlib.h>
-#include <stdio.h>
 #include "co.h"
-
-#define YYSTYPE cnode
-
-#include "co_parser.h"
 #include "co_compile.h"
+#include "co_scanner.h"
+#include "co_parser.h"
 
-extern int fileno(FILE *);  /* avoids gcc warning */
+struct co_scanner_globals {
+    FILE *yy_in;
+    FILE *yy_out;
+
+    unsigned int yy_leng;
+    unsigned char *yy_start;
+    unsigned char *yy_text;
+    unsigned char *yy_cursor;
+    unsigned char *yy_marker;
+    unsigned char *yy_limit;
+    int yy_state;
+    co_stack state_stack;
+};
+
+struct co_scanner_globals scanner_globals;
+
+/*!max:re2c*/
+
+/*** S re2c interface code ***/
+#define YYCTYPE     unsigned char
+#define YYFILL(n)   { if ((YYCURSOR + n) >= (YYLIMIT + YYMAXFILL)) { return 0; }}
+#define YYCURSOR    scanner_globals.yy_cursor
+#define YYLIMIT     scanner_globals.yy_limit
+#define YYMARKER    scanner_globals.yy_marker
+#ifdef CO_DEBUG
+# define YYDEBUG(s, c)   printf("state: %d char: %c\n", s, c)
+#else
+# define YYDEBUG(s, c)
+#endif
+/*** E re2c interface code ***/
 
 #define CO_IS_OCT(c)    ((c)>='0' && (c)<='7')
 #define CO_IS_HEX(c)    (((c)>='0' && (c)<='9') || ((c)>='a' && (c)<='f') || ((c)>='A' && (c)<='F'))
@@ -146,117 +170,93 @@ co_scan_doublequoted_string(cval *cval)
     *t = 0;
 }
 
-%}
+void
+co_scanner_startup()
+{
+    co_stack_init(&scanner_globals.state_stack);
+}
 
-%option bison-bridge
-%option reentrant
-%option noyywrap
+void
+co_scanner_shutdown()
+{
+    co_stack_destory(&scanner_globals.state_stack);
+}
+
+int
+co_scanner_openfile(FILE *in)
+{
+    scanner_globals.yy_in = in;
+    scanner_globals.yy_start = NULL;
+    
+}
+
+int
+co_scanner_lex(cval *cval)
+{
+/*!re2c
+re2c:yyfill:check = 0;
 
 NUM     [0-9]+
 FNUM    ([0-9]*"."[0-9]+)
 HNUM    "0x"[0-9a-fA-F]+
-NAME    [a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*
-TOKENS  [-+()=></*^,;:{}%]
-FORMAT_SPACES   [ \t\n]
+NAME    [a-zA-Z_][a-zA-Z0-9_]*
+TOKENS  [-+()=>/<*^,;:{}%]
+WHITESPACE   [ \t\n]+
+ANY_CHAR [^]
 
-%%
-
-{NUM} {
-    if (yyleng < MAX_LENGTH_OF_LONG - 1) { /* Won't overflow */
-        yylval->u.val.u.ival = strtol(yytext, NULL, 0);
-    } else { /* Maybe overflow */
-        errno = 0;
-        yylval->u.val.u.ival = strtol(yytext, NULL, 0);
-    }
-    yylval->u.val.type = CVAL_IS_INT;
-    yylval->op_type = IS_CONST;
-    return T_NUM;
+<SC_INIT>{NUM} {
+    // TODO
 }
 
-{FNUM} {
-    yylval->u.val.u.fval = strtof(yytext, NULL);
-    yylval->u.val.type = CVAL_IS_FLOAT;
-    yylval->op_type = IS_CONST;
-    return T_FNUM;
+<SC_INIT>{FNUM} {
+    // TODO
 }
 
-"'".*"'" {
-    yylval->u.val.u.str.val = xstrndup(yytext + 1, yyleng - 2);
-    yylval->u.val.u.str.len = yyleng - 2;
-    co_scan_singlequoted_string(&yylval->u.val);
-    yylval->u.val.type = CVAL_IS_STRING;
-    yylval->op_type = IS_CONST;
-    return T_STRING;
-}
-
-"\"".*"\"" {
-    yylval->u.val.u.str.val = xstrndup(yytext + 1, yyleng - 2);
-    yylval->u.val.u.str.len = yyleng - 2;
-    co_scan_doublequoted_string(&yylval->u.val);
-    yylval->u.val.type = CVAL_IS_STRING;
-    yylval->op_type = IS_CONST;
-    return T_STRING;
-}
-
-"if"    {
+<SC_INIT>"if" {
     return T_IF;
 }
 
-"else"  {
+<SC_INIT>"else" {
     return T_ELSE;
 }
 
-"while" {
+<SC_INIT>"while" {
     return T_WHILE;
 }
 
-"func" {
+<SC_INIT>"func" {
     return T_FUNC;
 }
 
-"print" {
+<SC_INIT>"print" {
     return T_PRINT;
 }
 
-"None" {
-    yylval->u.val.u.ival = 1;
-    yylval->u.val.type = CVAL_IS_NONE;
-    yylval->op_type = IS_CONST;
-    return T_NONE;
+<SC_INIT>"None" {
+    // TODO
 }
 
-"True" {
-    yylval->u.val.u.ival = 1;
-    yylval->u.val.type = CVAL_IS_BOOL;
-    yylval->op_type = IS_CONST;
-    return T_BOOL;
+<SC_INIT>"True" {
+    // TODO
 }
 
-"False" {
-    yylval->u.val.u.ival = 0;
-    yylval->u.val.type = CVAL_IS_BOOL;
-    yylval->op_type = IS_CONST;
-    return T_BOOL;
+<SC_INIT>"False" {
+    // TODO
 }
 
-{NAME} {
-    yylval->u.val.u.str.val = xstrndup(yytext, yyleng);
-    yylval->u.val.u.str.len = yyleng;
-    yylval->u.val.type = CVAL_IS_STRING;
-    yylval->op_type = IS_VAR;
-    return T_NAME;
+<SC_INIT>{NAME} {
+    // TODO
 }
 
-{TOKENS} {
-    return *yytext;
+<SC_INIT>{TOKENS} {
 }
 
-"#".*   { /* ignore comments */ }
+<SC_INIT>"#".*   { /* ignore comments */ }
 
-{FORMAT_SPACES}   { /* blank spaces which is used to format code are ignored */ }
+<SC_INIT>{WHITESPACE}   { /* blank spaces which is used to format code are ignored */ }
 
-.   {
-    die("invalid chars");
+<SC_INIT>{ANY_CHAR}   {
+    // TODO
 }
-
-%%
+*/
+}

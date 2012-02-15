@@ -9,23 +9,19 @@ int
 main(int argc, const char **argv)
 {
     /* read source */
-    yyscan_t yyscanner;
-    yylex_init(&yyscanner);
 
     if (argc > 1) {
         argv++;
         FILE *myin = fopen(*argv, "r");
-
         if (!myin) {
             exit(2);
         }
-        yyset_in(myin, yyscanner);
+//        yyset_in(myin, yyscanner);
     }
 
     /* compilation */
     init_compiler();
-    coparse(yyscanner);
-    yylex_destroy(yyscanner);
+    coparse(&compiler_globals);
 
     /* vm execution */
     co_vm_init();

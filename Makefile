@@ -25,7 +25,6 @@ LIB_OBJS += co_debug.o
 LIB_OBJS += co_hash.o
 LIB_OBJS += co_parser.o
 LIB_OBJS += co_scanner.o
-LIB_OBJS += co_re2c_scanner.o
 LIB_OBJS += co_stack.o
 LIB_OBJS += co_usage.o
 LIB_OBJS += co_vm_execute.o
@@ -43,16 +42,11 @@ co: $(LIB_OBJS)
 
 co_parser.h: co_parser.c
 co_parser.c: co_parser.y
-	bison -d $^ -o $@
+	bison -p co -v -d $^ -o $@
 
 co_scanner.h: co_scanner.c
 co_scanner.c: co_scanner.l
-	flex --header-file=co_scanner.h -o $@ $^
-	#re2c -o $@ $^
-
-co_re2c_scanner.c: co_re2c_scanner.l
-	re2c -cbdFt co_re2c_scanner.h -o $@ $^
-
+	re2c -cbdFt co_scanner.h -o $@ $^
 
 .PHONY: all install uninstall clean test indent tags doc
 

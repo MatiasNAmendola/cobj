@@ -112,11 +112,23 @@ extern cval *getcval(const char *name);
 extern bool putcval(const char *name, cval *val);
 extern bool delcval(const char *name);
 
-/* compiler globals */
+/* Compiler */
+
+// compiler globals
 typedef struct _co_compiler_globals {
     HashTable variable_symboltable;
     co_op_array *active_op_array;
 } co_compiler_globals;
+
+// parser
+int coparse(void *compiler_globals);
+#define coerror die
+
+// scanner
+int colex(cnode *colval, void *compiler_globals);
+int co_scanner_lex(cval *coval);
+void co_scanner_startup(void);
+void co_scanner_shutdown(void);
 
 extern co_compiler_globals compiler_globals;
 

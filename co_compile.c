@@ -240,3 +240,11 @@ co_end_compilation()
     SET_UNUSED(op->op1);
     SET_UNUSED(op->op2);
 }
+
+int
+colex(cnode *colval, void *compiler_globals)
+{
+    int retval;
+
+    return retval;
+}

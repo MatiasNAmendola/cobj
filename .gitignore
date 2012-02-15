@@ -7,3 +7,4 @@ co
 co_parser.[ch]
 co_scanner.[ch]
 co_re2c_scanner.[ch]
+*.output
