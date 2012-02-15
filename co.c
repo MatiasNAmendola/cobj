@@ -8,23 +8,26 @@
 int
 main(int argc, const char **argv)
 {
-    /* read source */
-
     if (argc > 1) {
         argv++;
         FILE *myin = fopen(*argv, "r");
         if (!myin) {
             exit(2);
         }
-//        yyset_in(myin, yyscanner);
+
+        /* compilation */
+        co_scanner_startup();
+        co_scanner_openfile(myin);
+        init_compiler();
+        coparse(&compiler_globals);
+        co_scanner_shutdown();
+
+        /* vm execution */
+        co_vm_init();
+        co_vm_execute(CG(active_op_array));
+    } else {
+        printf("no file to execute\n");
     }
 
-    /* compilation */
-    init_compiler();
-    coparse(&compiler_globals);
-
-    /* vm execution */
-    co_vm_init();
-    co_vm_execute(CG(active_op_array));
     return 0;
 }

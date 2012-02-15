@@ -246,5 +246,14 @@ colex(cnode *colval, void *compiler_globals)
 {
     int retval;
 
+again:
+    retval = co_scanner_lex(colval, compiler_globals);
+    switch (retval) {
+        case T_WHITESPACE:
+            goto again;
+        default:
+            break;
+    }
+
     return retval;
 }

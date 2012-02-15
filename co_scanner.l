@@ -8,11 +8,11 @@ struct co_scanner_globals {
     FILE *yy_out;
 
     unsigned int yy_leng;
-    unsigned char *yy_start;
-    unsigned char *yy_text;
-    unsigned char *yy_cursor;
-    unsigned char *yy_marker;
-    unsigned char *yy_limit;
+    char *yy_start;
+    char *yy_text;
+    char *yy_cursor;
+    char *yy_marker;
+    char *yy_limit;
     int yy_state;
     co_stack state_stack;
 };
@@ -33,6 +33,11 @@ struct co_scanner_globals scanner_globals;
 # define YYDEBUG(s, c)
 #endif
 /*** E re2c interface code ***/
+
+/*** S emulate flex constructs */
+#define yytext      ((char*)scanner_globals.yy_text)
+#define yyleng      scanner_globals.yy_leng
+/*** E emulate flex constructs */
 
 #define CO_IS_OCT(c)    ((c)>='0' && (c)<='7')
 #define CO_IS_HEX(c)    (((c)>='0' && (c)<='9') || ((c)>='a' && (c)<='f') || ((c)>='A' && (c)<='F'))
@@ -187,12 +192,22 @@ co_scanner_openfile(FILE *in)
 {
     scanner_globals.yy_in = in;
     scanner_globals.yy_start = NULL;
-    
+    static char *code = "print 10;";
+    scanner_globals.yy_cursor = code;
+    scanner_globals.yy_limit = code + strlen(code);
+
+    return 0;
 }
 
 int
-co_scanner_lex(cval *cval)
+co_scanner_lex(cnode *yylval, void *compiler_globals)
 {
+#ifdef CO_DEBUG
+printf("DEBUG: %s\n", YYCURSOR);
+#endif
+restart:
+    scanner_globals.yy_text = YYCURSOR;
+
 /*!re2c
 re2c:yyfill:check = 0;
 
@@ -204,8 +219,19 @@ TOKENS  [-+()=>/<*^,;:{}%]
 WHITESPACE   [ \t\n]+
 ANY_CHAR [^]
 
+/* compute yyleng before each rule */
+<!*> := yyleng = YYCURSOR - scanner_globals.yy_text;
+
 <SC_INIT>{NUM} {
-    // TODO
+    if (yyleng < MAX_LENGTH_OF_LONG - 1) { /* Won't overflow */
+        yylval->u.val.u.ival = strtol(yytext, NULL, 0); 
+    } else { /* Maybe overflow */
+        errno = 0;
+        yylval->u.val.u.ival = strtol(yytext, NULL, 0); 
+    }   
+    yylval->u.val.type = CVAL_IS_INT;
+    yylval->op_type = IS_CONST;
+    return T_NUM;
 }
 
 <SC_INIT>{FNUM} {
@@ -249,11 +275,14 @@ ANY_CHAR [^]
 }
 
 <SC_INIT>{TOKENS} {
+    return yytext[0];
 }
 
 <SC_INIT>"#".*   { /* ignore comments */ }
 
-<SC_INIT>{WHITESPACE}   { /* blank spaces which is used to format code are ignored */ }
+<SC_INIT>{WHITESPACE}   { 
+    return T_WHITESPACE;
+}
 
 <SC_INIT>{ANY_CHAR}   {
     // TODO

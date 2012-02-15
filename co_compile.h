@@ -126,9 +126,10 @@ int coparse(void *compiler_globals);
 
 // scanner
 int colex(cnode *colval, void *compiler_globals);
-int co_scanner_lex(cval *coval);
+int co_scanner_lex(cnode *yylval, void *compiler_globals);
 void co_scanner_startup(void);
 void co_scanner_shutdown(void);
+int co_scanner_openfile(FILE *in);
 
 extern co_compiler_globals compiler_globals;
 

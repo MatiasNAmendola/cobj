@@ -34,6 +34,7 @@
 %token  T_ELSE
 %token  T_FUNC
 %token  T_WHILE "while (T_WHILE)"
+%token  T_WHITESPACE
 
 %% /* Grammar Rules */
 
