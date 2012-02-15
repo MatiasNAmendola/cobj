@@ -1,6 +1,6 @@
-This is co, a simple toy language.
+This is co, a simple program language.
 
 == Compile/Install ===
-    Install bison/flex first
+    Install bison first
     $ make
     $ make install

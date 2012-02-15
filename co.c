@@ -1,9 +1,9 @@
 #include "co.h"
-#include "co_hash.h"
-#include "co_parser.h"
-#include "co_scanner.h"
-#include "co_compile.h"
-#include "co_vm_execute.h"
+#include "hash.h"
+#include "parser.h"
+#include "scanner.h"
+#include "compile.h"
+#include "vm_execute.h"
 
 int
 main(int argc, const char **argv)

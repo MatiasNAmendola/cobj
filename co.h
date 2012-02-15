@@ -19,8 +19,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-/* Local header */
 #include "local.h"
+#include "usage.h"
+#include "wrapper.h"
 
 #if SIZEOF_LONG == 4
 #define MAX_LENGTH_OF_LONG 11
@@ -33,24 +34,10 @@
 #define MAX_LENGTH_OF_DOUBLE 32
 
 typedef unsigned int uint;
-
 typedef unsigned long ulong;
-
 typedef unsigned char uchar;
 
-/* Wrapper Functions */
-extern void *xmalloc(size_t size);
-extern void *xrealloc(void *ptr, size_t size);
-extern void *xcalloc(size_t nmemb, size_t size);
-extern char *xstrndup(const char *str, size_t len);
-extern bool safe_strtol(const char *str, long int *out);
-
 /* Helper Functions */
-extern void die(const char *err, ...);
-extern void usage(const char *err);
-extern int error(const char *err, ...);
-extern void warning(const char *err, ...);
-
 static inline ssize_t
 xread(int fd, void *buf, size_t len)
 {

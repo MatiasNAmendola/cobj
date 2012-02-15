@@ -1,15 +1,15 @@
 %{
 
 #include "co.h"
-#include "co_compile.h"
-#include "co_vm_opcodes.h"
+#include "compile.h"
+#include "vm_opcodes.h"
 
 #define YYERROR_VERBOSE
 #define YYSTYPE cnode
 #define YYPARSE_PARAM yyscanner
 #define YYLEX_PARAM yyscanner
 
-#include "co_scanner.h"
+#include "scanner.h"
 %}
 
 %pure_parser

@@ -17,20 +17,20 @@ LDFLAGS =
 prefix = /usr/local
 bindir = $(prefix)/bin
 
-LIB_H = $(wildcard *.h) local.h co_parser.h co_scanner.h
+LIB_H = $(wildcard *.h) local.h parser.h scanner.h
 
 LIB_OBJS += co.o
-LIB_OBJS += co_compile.o
-LIB_OBJS += co_debug.o
-LIB_OBJS += co_hash.o
-LIB_OBJS += co_parser.o
-LIB_OBJS += co_scanner.o
-LIB_OBJS += co_stack.o
-LIB_OBJS += co_usage.o
-LIB_OBJS += co_vm_execute.o
-LIB_OBJS += co_vm_opcodes.o
-LIB_OBJS += co_wrapper.o
-LIB_OBJS += co_llist.o
+LIB_OBJS += compile.o
+LIB_OBJS += debug.o
+LIB_OBJS += hash.o
+LIB_OBJS += parser.o
+LIB_OBJS += scanner.o
+LIB_OBJS += stack.o
+LIB_OBJS += usage.o
+LIB_OBJS += vm_execute.o
+LIB_OBJS += vm_opcodes.o
+LIB_OBJS += wrapper.o
+LIB_OBJS += llist.o
 LIB_OBJS += dstring.o
 
 local.h:
@@ -41,13 +41,13 @@ $(LIB_OBJS): $(LIB_H)
 co: $(LIB_OBJS)
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^ $(LIBS)
 
-co_parser.h: co_parser.c
-co_parser.c: co_parser.y
+parser.h: parser.c
+parser.c: parser.y
 	bison -p co -v -d $^ -o $@
 
-co_scanner.h: co_scanner.c
-co_scanner.c: co_scanner.l
-	re2c -cbdt co_scanner.h -o $@ $^
+scanner.h: scanner.c
+scanner.c: scanner.l
+	re2c -cbdt scanner.h -o $@ $^
 
 .PHONY: all install uninstall clean test indent tags doc
 
@@ -66,9 +66,9 @@ clean:
 	# library objects
 	$(RM) $(LIB_OBJS)
 	# parser source files
-	$(RM) co_parser.[ch]
+	$(RM) parser.[ch]
 	# scan source files
-	$(RM) co_scanner.[ch]
+	$(RM) scanner.[ch]
 	# local header
 	$(RM) local.h
 

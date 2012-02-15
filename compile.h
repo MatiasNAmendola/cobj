@@ -1,9 +1,9 @@
-#ifndef CO_COMPILE_H
-#define CO_COMPILE_H
+#ifndef COMPILE_H
+#define COMPILE_H
 
 #include "co.h"
-#include "co_hash.h"
-#include "co_stack.h"
+#include "hash.h"
+#include "stack.h"
 
 /** cval type **/
 #define CVAL_IS_NONE        1

@@ -1,8 +1,8 @@
-#include "co_compile.h"
-#include "co_vm_opcodes.h"
-#include "co_parser.h"
-#include "co_vm_execute.h"
-#include "co_debug.h"
+#include "compile.h"
+#include "vm_opcodes.h"
+#include "parser.h"
+#include "vm_execute.h"
+#include "debug.h"
 
 co_compiler_globals compiler_globals;
 

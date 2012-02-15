@@ -1,5 +1,5 @@
-#include "co_debug.h"
-#include "co_compile.h"
+#include "debug.h"
+#include "compile.h"
 
 void
 co_print_opcode(co_op_array *op_array)

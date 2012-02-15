@@ -1,4 +1,4 @@
-#include "co_vm_opcodes.h"
+#include "vm_opcodes.h"
 
 int
 co_vm_opcodes_dump(char *str /* TODO */ )

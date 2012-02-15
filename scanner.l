@@ -1,7 +1,7 @@
 #include "co.h"
-#include "co_compile.h"
-#include "co_scanner.h"
-#include "co_parser.h"
+#include "compile.h"
+#include "scanner.h"
+#include "parser.h"
 #include "dstring.h"
 
 struct co_scanner_globals {

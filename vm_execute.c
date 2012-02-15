@@ -1,7 +1,7 @@
-#include "co_vm_execute.h"
-#include "co_vm_opcodes.h"
-#include "co_compile.h"
-#include "co_parser.h"
+#include "vm_execute.h"
+#include "vm_opcodes.h"
+#include "compile.h"
+#include "parser.h"
 
 co_executor_globals executor_globals;
 

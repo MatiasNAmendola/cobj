@@ -1,8 +1,8 @@
 #ifndef CO_EXECUTE_H
 #define CO_EXECUTE_H
 
-#include "co_compile.h"
-#include "co_parser.h"
+#include "compile.h"
+#include "parser.h"
 
 #define EX_T(offset)    (*(temp_variable *)((char*)EX(ts) + offset))
 #define T(offset)       (*(temp_variable *)((char*)ts + offset))
