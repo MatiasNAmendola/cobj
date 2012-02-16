@@ -17,7 +17,7 @@ LDFLAGS =
 prefix = /usr/local
 bindir = $(prefix)/bin
 
-LIB_H = $(wildcard *.h) local.h parser.h scanner.h
+LIB_H = $(wildcard *.h) parser.h scanner.h
 
 LIB_OBJS += co.o
 LIB_OBJS += compile.o
@@ -32,9 +32,6 @@ LIB_OBJS += vm_opcodes.o
 LIB_OBJS += wrapper.o
 LIB_OBJS += llist.o
 LIB_OBJS += dstring.o
-
-local.h:
-	./genlocal.sh
 
 $(LIB_OBJS): $(LIB_H)
 
@@ -69,8 +66,6 @@ clean:
 	$(RM) parser.[ch]
 	# scan source files
 	$(RM) scanner.[ch]
-	# local header
-	$(RM) local.h
 	$(RM) *.output
 
 doc:

@@ -19,19 +19,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include "local.h"
 #include "usage.h"
 #include "wrapper.h"
-
-#if SIZEOF_LONG == 4
-#define MAX_LENGTH_OF_LONG 11
-#elif SIZEOF_LONG == 8
-#define MAX_LENGTH_OF_LONG 22
-#else
-#error "Unknow SIZEOF_LONG"
-#endif
-
-#define MAX_LENGTH_OF_DOUBLE 32
 
 typedef unsigned int uint;
 typedef unsigned long ulong;

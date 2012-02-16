@@ -228,12 +228,7 @@ ANY_CHAR    = [^];
 <!*> := yyleng = YYCURSOR - scanner_globals.yy_text;
 
 <SC_INIT>NUM {
-    if (yyleng < MAX_LENGTH_OF_LONG - 1) { /* Won't overflow */
-        yylval->u.val.u.ival = strtol(yytext, NULL, 0); 
-    } else { /* Maybe overflow */
-        errno = 0;
-        yylval->u.val.u.ival = strtol(yytext, NULL, 0); 
-    }   
+    yylval->u.val.u.ival = strtol(yytext, NULL, 0); 
     yylval->u.val.type = CVAL_IS_INT;
     yylval->op_type = IS_CONST;
     return T_NUM;
