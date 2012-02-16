@@ -207,10 +207,6 @@ co_scanner_openfile(int fd)
 int
 co_scanner_lex(cnode *yylval, void *compiler_globals)
 {
-#ifdef CO_DEBUG
-printf("DEBUG: %s\n", YYCURSOR);
-#endif
-restart:
     scanner_globals.yy_text = YYCURSOR;
 
 /*!re2c

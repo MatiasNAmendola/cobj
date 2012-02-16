@@ -1,6 +1,6 @@
-This is co, a simple program language.
+This is co, a object-oriented program language.
 
 == Compile/Install ===
-    Install bison first
+    Install bison/re2c first
     $ make
     $ make install

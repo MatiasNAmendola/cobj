@@ -108,9 +108,9 @@ void co_end_compilation();
 co_op *get_next_op(co_op_array *op_array);
 
 /* cval handlers */
-extern cval *getcval(const char *name);
-extern bool putcval(const char *name, cval *val);
-extern bool delcval(const char *name);
+cval *getcval(const char *name);
+bool putcval(const char *name, cval *val);
+bool delcval(const char *name);
 
 // compiler globals
 typedef struct _co_compiler_globals {
@@ -129,6 +129,6 @@ void co_scanner_startup(void);
 void co_scanner_shutdown(void);
 int co_scanner_openfile(int fd);
 
-extern co_compiler_globals compiler_globals;
+co_compiler_globals compiler_globals;
 
 #endif
