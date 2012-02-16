@@ -205,7 +205,7 @@ co_scanner_openfile(int fd)
 }
 
 int
-co_scanner_lex(cnode *yylval, void *compiler_globals)
+co_scanner_lex(cnode *yylval)
 {
     scanner_globals.yy_text = YYCURSOR;
 

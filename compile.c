@@ -242,12 +242,12 @@ co_end_compilation()
 }
 
 int
-colex(cnode *colval, void *compiler_globals)
+colex(cnode *colval)
 {
     int retval;
 
 again:
-    retval = co_scanner_lex(colval, compiler_globals);
+    retval = co_scanner_lex(colval);
     switch (retval) {
         case T_WHITESPACE:
         case T_COMMENT:

@@ -6,8 +6,6 @@
 
 #define YYERROR_VERBOSE
 #define YYSTYPE cnode
-#define YYPARSE_PARAM yyscanner
-#define YYLEX_PARAM yyscanner
 
 #include "scanner.h"
 %}
