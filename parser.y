@@ -4,7 +4,8 @@
 #include "compile.h"
 #include "vm_opcodes.h"
 
-#define YYERROR_VERBOSE
+#define YYDEBUG 1
+#define YYERROR_VERBOSE 1
 #define YYSTYPE cnode
 
 #include "scanner.h"
