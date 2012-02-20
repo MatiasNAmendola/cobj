@@ -1,21 +1,21 @@
 %{
-
 #include "co.h"
 #include "compile.h"
 #include "vm_opcodes.h"
 
+#define YYSTYPE cnode
 #define YYDEBUG 1
 #define YYERROR_VERBOSE 1
-#define YYSTYPE cnode
 
 #include "scanner.h"
 %}
 
 %pure_parser
+
 /*
  * Dangling else statment cause one shift/reduce conflict
  */
-%expect 1 
+%expect 1
 
 %left   '<' '>'
 %left   ','
@@ -37,7 +37,7 @@
 %token  T_COMMENT
 %token  T_IGNORED
 
-%% /* Grammar Rules */
+%% /* Context-Free Grammar (BNF) */
 
 start:
         statement_list { co_end_compilation(); }
@@ -45,13 +45,13 @@ start:
 ;
 
 expression: /* express something */
-        T_NAME      { $$ = $1; }
-    |   T_STRING    { $$ = $1; }
-    |   T_BOOL      { $$ = $1; }
-    |   T_NONE      { $$ = $1; }
-    |   T_NUM       { $$ = $1; }
-    |   T_FNUM      { $$ = $1; }
-    |   '(' expression ')' { $$ = $2; }
+        T_NAME
+    |   T_STRING
+    |   T_BOOL
+    |   T_NONE
+    |   T_NUM
+    |   T_FNUM 
+    |    '(' expression ')' { $$ = $2; }
     |   expression '<' expression { co_binary_op(OP_IS_SMALLER, &$$, &$1, &$3); }
     |   expression '>' expression { co_binary_op(OP_IS_SMALLER, &$$, &$3, &$1); }
     |   expression '+' expression { co_binary_op(OP_ADD, &$$, &$1, &$3); }
@@ -96,7 +96,7 @@ non_empty_parameter_list:
 ;
 
 function_call_parameter_list:
-        non_empty_function_call_parameter_list { $$ = $1; }
+        non_empty_function_call_parameter_list
     |   /* empty */
 ;
 
@@ -110,8 +110,8 @@ function_call:
 ;
 
 optional_else:
-        /* empty */
-   |   T_ELSE statement
+       /* empty */
+    |   T_ELSE statement
 ;
 
 statement_list:
