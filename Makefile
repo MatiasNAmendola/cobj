@@ -72,11 +72,7 @@ doc:
 	$(MAKE) -C doc/ html
 
 test: all
-	./t/basic.co
-	./t/literals.co
-	./t/ifelse.co
-	./t/function.co
-	./t/while.co
+	@$(MAKE) -C t/ all
 
 indent:
 	@# try to find out all typenames defined by 'typedef' of c

@@ -117,6 +117,9 @@ cval_print(cval *val)
     case CVAL_IS_INT:
         printf("%ld\n", val->u.ival);
         break;
+    case CVAL_IS_FLOAT:
+        printf("%g\n", val->u.fval);
+        break;
     case CVAL_IS_STRING:
         printf("%s\n", val->u.str.val);
         break;
