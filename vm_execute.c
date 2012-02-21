@@ -386,11 +386,10 @@ co_do_assign(co_execute_data *execute_data)
 
     val1 = get_cval_ptr(&op->op1, EX(ts));
     val2 = get_cval_ptr(&op->op2, EX(ts));
-
     result = get_cval_ptr(&op->result, EX(ts));
+
     result->u.ival = val1->u.ival = val2->u.ival;
-    val1->type = CVAL_IS_INT;
-    result->type = CVAL_IS_INT;
+    result->type = val1->type = val2->type;
 
     EX(op)++;
     return CO_VM_CONTINUE;
