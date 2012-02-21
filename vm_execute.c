@@ -217,7 +217,7 @@ co_vm_execute(co_op_array *op_array)
 {
     co_execute_data *execute_data;
 
-  vm_enter:
+vm_enter:
     /* initialize execute_data */
     execute_data =
         (co_execute_data *) co_vm_stack_alloc(sizeof(co_execute_data) +

@@ -246,7 +246,7 @@ colex(cnode *colval)
 {
     int retval;
 
-  again:
+again:
     retval = co_scanner_lex(colval);
     switch (retval) {
     case T_WHITESPACE:
