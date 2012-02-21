@@ -45,4 +45,4 @@ def test_expect_result(result, code, comment=None):
     xprocess = subprocess.Popen(__get_co_path(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     xprocess.stdin.write(code)
     xprocess.stdin.close()
-    eq_ok(xprocess.stdout.read(), result, comment)
+    eq_ok(xprocess.stdout.read() + xprocess.stderr.read(), result, comment)
