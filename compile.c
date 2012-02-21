@@ -191,7 +191,8 @@ co_end_function_declaration(const cnode *function_token)
     op->opcode = OP_RETURN;
 
     uint function_end_opline_num = CG(active_op_array)->last;
-    CG(active_op_array)->ops[function_token->u.opline_num].op2.u.opline_num = function_end_opline_num - function_token->u.opline_num - 1;
+    CG(active_op_array)->ops[function_token->u.opline_num].op2.u.opline_num =
+        function_end_opline_num - function_token->u.opline_num - 1;
 }
 
 void
@@ -222,8 +223,7 @@ void
 co_pass_param(cnode *param)
 {
     co_op *op = get_next_op(CG(active_op_array));
-    op->opcode = OP_PASS_PARAM,
-    op->op1 = *param;
+    op->opcode = OP_PASS_PARAM, op->op1 = *param;
 }
 
 void
@@ -246,15 +246,15 @@ colex(cnode *colval)
 {
     int retval;
 
-again:
+  again:
     retval = co_scanner_lex(colval);
     switch (retval) {
-        case T_WHITESPACE:
-        case T_COMMENT:
-        case T_IGNORED:
-            goto again;
-        default:
-            break;
+    case T_WHITESPACE:
+    case T_COMMENT:
+    case T_IGNORED:
+        goto again;
+    default:
+        break;
     }
 
     return retval;

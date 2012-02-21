@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from TAP.Simple import *
 
-plan(1)
+plan(2)
 
 test_expect_result("""hello world
 hello,
@@ -20,4 +20,17 @@ func hello(str) {
 helloworld();
 hello("world");
 hello(10);
+""")
+
+test_expect_result("""outside a
+outside str
+""", """
+a = "outside a";
+str = "outside str";
+func hello() {
+    print a; 
+    print str;
+}
+
+hello();
 """)

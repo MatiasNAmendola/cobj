@@ -23,7 +23,7 @@ static co_vm_stack *
 co_vm_stack_new_page(size_t size)
 {
     co_vm_stack *page =
-        (co_vm_stack *)xmalloc(sizeof(co_vm_stack) + sizeof(page->elements[0]) * (size - 1));
+        (co_vm_stack *) xmalloc(sizeof(co_vm_stack) + sizeof(page->elements[0]) * (size - 1));
     page->top = page->elements;
     page->end = page->elements + size;
     page->prev = NULL;
@@ -91,12 +91,12 @@ co_vm_stack_alloc(size_t size)
 static void
 co_vm_stack_free(void *ptr)
 {
-    if ((void**)EG(vm_stack) == (void**)ptr) {
+    if ((void **)EG(vm_stack) == (void **)ptr) {
         co_vm_stack *p = EG(vm_stack);
         EG(vm_stack) = p->prev;
         free(p);
     } else {
-        EG(vm_stack)->top = (void**)ptr;
+        EG(vm_stack)->top = (void **)ptr;
     }
 }
 
@@ -220,8 +220,8 @@ co_vm_execute(co_op_array *op_array)
   vm_enter:
     /* initialize execute_data */
     execute_data =
-        (co_execute_data *)co_vm_stack_alloc(sizeof(co_execute_data) +
-                                             sizeof(temp_variable) * op_array->t);
+        (co_execute_data *) co_vm_stack_alloc(sizeof(co_execute_data) +
+                                              sizeof(temp_variable) * op_array->t);
     EX(ts) = (temp_variable *)((char *)execute_data + sizeof(co_execute_data));
     EX(op_array) = op_array;
 
@@ -262,7 +262,7 @@ co_vm_init()
 }
 
 int
-co_do_add(co_execute_data *execute_data)
+co_do_add(co_execute_data * execute_data)
 {
     co_op *op = EX(op);
 
@@ -279,7 +279,7 @@ co_do_add(co_execute_data *execute_data)
 }
 
 int
-co_do_sub(co_execute_data *execute_data)
+co_do_sub(co_execute_data * execute_data)
 {
     co_op *op = EX(op);
 
@@ -296,7 +296,7 @@ co_do_sub(co_execute_data *execute_data)
 }
 
 int
-co_do_mul(co_execute_data *execute_data)
+co_do_mul(co_execute_data * execute_data)
 {
     co_op *op = EX(op);
 
@@ -313,7 +313,7 @@ co_do_mul(co_execute_data *execute_data)
 }
 
 int
-co_do_div(co_execute_data *execute_data)
+co_do_div(co_execute_data * execute_data)
 {
     co_op *op = EX(op);
 
@@ -330,7 +330,7 @@ co_do_div(co_execute_data *execute_data)
 }
 
 int
-co_do_mod(co_execute_data *execute_data)
+co_do_mod(co_execute_data * execute_data)
 {
     co_op *op = EX(op);
 
@@ -347,7 +347,7 @@ co_do_mod(co_execute_data *execute_data)
 }
 
 int
-co_do_smaller(co_execute_data *execute_data)
+co_do_smaller(co_execute_data * execute_data)
 {
     co_op *op = EX(op);
 
@@ -364,7 +364,7 @@ co_do_smaller(co_execute_data *execute_data)
 }
 
 int
-co_do_print(co_execute_data *execute_data)
+co_do_print(co_execute_data * execute_data)
 {
     co_op *op = EX(op);
 
@@ -378,7 +378,7 @@ co_do_print(co_execute_data *execute_data)
 }
 
 int
-co_do_assign(co_execute_data *execute_data)
+co_do_assign(co_execute_data * execute_data)
 {
     co_op *op = EX(op);
 
@@ -396,13 +396,13 @@ co_do_assign(co_execute_data *execute_data)
 }
 
 int
-co_do_exit(co_execute_data *execute_data)
+co_do_exit(co_execute_data * execute_data)
 {
     return CO_VM_RETURN;
 }
 
 int
-co_do_jmpz(co_execute_data *execute_data)
+co_do_jmpz(co_execute_data * execute_data)
 {
     co_op *opline = EX(op);
     cval *val1;
@@ -418,7 +418,7 @@ co_do_jmpz(co_execute_data *execute_data)
 }
 
 int
-co_do_jmp(co_execute_data *execute_data)
+co_do_jmp(co_execute_data * execute_data)
 {
     co_op *opline = EX(op);
     cval *val1;
@@ -430,7 +430,7 @@ co_do_jmp(co_execute_data *execute_data)
 }
 
 int
-co_do_declare_function(co_execute_data *execute_data)
+co_do_declare_function(co_execute_data * execute_data)
 {
     co_op *opline = EX(op);
     cval *val1;
@@ -447,7 +447,7 @@ co_do_declare_function(co_execute_data *execute_data)
 }
 
 int
-co_do_return(co_execute_data *execute_data)
+co_do_return(co_execute_data * execute_data)
 {
     EG(current_execute_data) = EX(prev_execute_data);
     co_vm_stack_free(execute_data);
@@ -456,14 +456,14 @@ co_do_return(co_execute_data *execute_data)
 }
 
 int
-co_do_init_fcall(co_execute_data *execute_data)
+co_do_init_fcall(co_execute_data * execute_data)
 {
     EX(op)++;
     return CO_VM_CONTINUE;
 }
 
 int
-co_do_fcall(co_execute_data *execute_data)
+co_do_fcall(co_execute_data * execute_data)
 {
     co_op *opline = EX(op);
     cval *val1;
@@ -477,24 +477,24 @@ co_do_fcall(co_execute_data *execute_data)
 }
 
 int
-co_do_pass_param(co_execute_data *execute_data)
+co_do_pass_param(co_execute_data * execute_data)
 {
     co_op *opline = EX(op);
     cval *val1;
     val1 = get_cval_ptr(&opline->op1, EX(ts));
-    co_stack_push(&EG(argument_stack), &val1, sizeof(cval*));
+    co_stack_push(&EG(argument_stack), &val1, sizeof(cval *));
     EX(op)++;
     return CO_VM_CONTINUE;
 }
 
 int
-co_do_recv_param(co_execute_data *execute_data)
+co_do_recv_param(co_execute_data * execute_data)
 {
     co_op *opline = EX(op);
     cval **val;
     co_stack_top(&EG(argument_stack), (void **)&val);
     putcval(opline->op1.u.val.u.str.val, *val);
-    
+
     EX(op)++;
     return CO_VM_CONTINUE;
 }

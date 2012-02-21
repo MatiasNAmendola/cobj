@@ -104,7 +104,7 @@ dstring_copy(dstring s, char *t)
 }
 
 dstring
-dstring_getline(FILE *fp)
+dstring_getline(FILE * fp)
 {
     int ch;
     struct dstringhdr *hdr;

@@ -3,7 +3,7 @@
 
 /* Instruction opcodes for compiled code */
 #define OP_PASS             0
-#define OP_ADD              1 
+#define OP_ADD              1
 #define OP_SUB              2
 #define OP_MUL              3
 #define OP_DIV              4

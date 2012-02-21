@@ -34,7 +34,7 @@ typedef union _temp_variable temp_variable;
  */
 typedef struct Function {
     co_op_array *op_array;
-    int numparams;  /* number of positional parameters */
+    int numparams;              /* number of positional parameters */
 } Function;
 
 /* c value container */
@@ -75,7 +75,7 @@ struct _co_op_array {
     co_op *ops;
     co_op *start_op;
     uint last, size;
-    uint t; // number of temp variables
+    uint t;                     // number of temp variables
 };
 
 /* temp variable */

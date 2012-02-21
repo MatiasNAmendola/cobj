@@ -4,9 +4,9 @@
 void
 co_print_opcode(co_op_array *op_array)
 {
-    static const char* opcode_names[] = {
+    static const char *opcode_names[] = {
         "OP_PASS",
-        "OP_ADD", 
+        "OP_ADD",
         "OP_SUB",
         "OP_MUL",
         "OP_DIV",

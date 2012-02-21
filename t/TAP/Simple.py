@@ -2,6 +2,7 @@ import TAP
 import re
 import subprocess
 import sys
+import os
 
 builder = TAP.Builder()
 
@@ -37,8 +38,11 @@ def isa_ok(object, cls, object_name="the object"):
      diag("have id: %s" % id(have))
   return okness
 
+def __get_co_path():
+    return os.path.realpath(__file__ + "../../../../co")
+
 def test_expect_result(result, code, comment=None):
-    xprocess = subprocess.Popen("../co", stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    xprocess = subprocess.Popen(__get_co_path(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     xprocess.stdin.write(code)
     xprocess.stdin.close()
     eq_ok(xprocess.stdout.read(), result, comment)
