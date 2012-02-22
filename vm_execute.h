@@ -3,6 +3,7 @@
 
 #include "compile.h"
 #include "parser.h"
+#include "error.h"
 
 #define EX_T(offset)    (*(temp_variable *)((char*)EX(ts) + offset))
 #define T(offset)       (*(temp_variable *)((char*)ts + offset))
@@ -30,6 +31,7 @@ typedef struct _co_executor_globals {
     co_execute_data *current_execute_data;
     co_vm_stack *vm_stack;
     co_stack argument_stack;
+    struct co_exception_buf exception_buf;
 } co_executor_globals;
 extern co_executor_globals executor_globals;
 

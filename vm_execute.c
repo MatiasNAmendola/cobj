@@ -2,6 +2,7 @@
 #include "vm_opcodes.h"
 #include "compile.h"
 #include "parser.h"
+#include "error.h"
 
 co_executor_globals executor_globals;
 
@@ -124,7 +125,8 @@ cval_print(cval *val)
         printf("%s\n", val->u.str.val);
         break;
     default:
-        coerror("NameError: name '%s' is not define");
+        CO_THROW(&EG(exception_buf), 1)
+        coerror("error print (%d)", val->type);
     }
 }
 
