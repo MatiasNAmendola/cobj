@@ -362,7 +362,7 @@ ANY_CHAR    = [^];
 }
 
 <SC_INIT>ANY_CHAR   {
-    die("invalid token: %s", yytext);
+    coerror("invalid token: %s", yytext);
 }
 */
 }

@@ -124,7 +124,7 @@ cval_print(cval *val)
         printf("%s\n", val->u.str.val);
         break;
     default:
-        die("do print error (type: %d)", val->type);
+        coerror("NameError: name '%s' is not define");
     }
 }
 
@@ -208,7 +208,7 @@ get_op_handler(int opcode)
         return co_do_recv_param;
         break;
     }
-    die("unknown handle for opcode(%d)\n", opcode);
+    coerror("unknown handle for opcode(%d)\n", opcode);
     return NULL;
 }
 
@@ -469,7 +469,7 @@ co_do_fcall(co_execute_data * execute_data)
     cval *val1;
     val1 = get_cval_ptr(&opline->op1, EX(ts));
     if (val1->type != CVAL_IS_FUNCTION) {
-        die("not a function");
+        coerror("not a function");
     }
     EX(op)++;
     EG(active_op_array) = val1->u.func->op_array;

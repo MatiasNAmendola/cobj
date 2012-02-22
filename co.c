@@ -13,7 +13,7 @@ main(int argc, const char **argv)
         argv++;
         fd = open(*argv, O_RDONLY);
         if (fd < 0) {
-            die("open %s failed", *argv);
+            coerror("open %s failed", *argv);
         }
     }
 

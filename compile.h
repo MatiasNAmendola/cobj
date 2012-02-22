@@ -120,7 +120,6 @@ typedef struct _co_compiler_globals {
 
 // parser
 int coparse();
-#define coerror die
 
 // scanner
 int colex(cnode *colval);
@@ -129,6 +128,8 @@ void co_scanner_startup(void);
 void co_scanner_shutdown(void);
 int co_scanner_openfile(int fd);
 
+// compiler
+void coerror(const char *err, ...);
 co_compiler_globals compiler_globals;
 
 #endif

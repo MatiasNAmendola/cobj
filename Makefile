@@ -26,7 +26,6 @@ LIB_OBJS += hash.o
 LIB_OBJS += parser.o
 LIB_OBJS += scanner.o
 LIB_OBJS += stack.o
-LIB_OBJS += usage.o
 LIB_OBJS += vm_execute.o
 LIB_OBJS += vm_opcodes.o
 LIB_OBJS += wrapper.o
@@ -72,7 +71,7 @@ doc:
 	$(MAKE) -C doc/ html
 
 test: all
-	@$(MAKE) -C t/ all
+	@$(MAKE) -C test/ all
 
 indent:
 	@# try to find out all typenames defined by 'typedef' of c
