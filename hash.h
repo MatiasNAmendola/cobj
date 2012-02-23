@@ -31,12 +31,12 @@ typedef struct hashTable {
     Bucket **arBuckets;
 } HashTable;
 
-extern bool co_hash_init(HashTable * ht, uint nSize, hash_func_t pHashFunction);
-extern bool co_hash_rehash(HashTable * ht);
-extern void co_hash_destory(HashTable * ht);
-extern void co_hash_clean(HashTable * ht);
-extern bool co_hash_find(const HashTable * ht, const char *arKey, uint nKeyLen, void **pData);
-extern bool _co_hash_insert_or_update(HashTable * ht, const char *arKey, uint nKeyLen, void *pData,
+extern bool co_hash_init(HashTable *ht, uint nSize, hash_func_t pHashFunction);
+extern bool co_hash_rehash(HashTable *ht);
+extern void co_hash_destory(HashTable *ht);
+extern void co_hash_clean(HashTable *ht);
+extern bool co_hash_find(const HashTable *ht, const char *arKey, uint nKeyLen, void **pData);
+extern bool _co_hash_insert_or_update(HashTable *ht, const char *arKey, uint nKeyLen, void *pData,
                                       uint nDataSize, int flag);
 
 #define co_hash_insert(ht, arKey, nKeyLen, pData, nDataSize) \
@@ -44,27 +44,27 @@ extern bool _co_hash_insert_or_update(HashTable * ht, const char *arKey, uint nK
 #define co_hash_update(ht, arKey, nKeyLen, pData, nDataSize) \
         _co_hash_insert_or_update(ht, arKey, nKeyLen, pData, nDataSize, HASH_UPDATE)
 
-extern bool co_hash_del(HashTable * ht, const char *arKey, uint nKeyLen);
+extern bool co_hash_del(HashTable *ht, const char *arKey, uint nKeyLen);
 
 #if CO_DEBUG
-void co_hash_display(const HashTable * ht);
+void co_hash_display(const HashTable *ht);
 #endif
 
 /* Symbol Table */
 static inline bool
-co_symtable_update(HashTable * ht, const char *arKey, uint nKeyLen, void *pData, uint nDateSize)
+co_symtable_update(HashTable *ht, const char *arKey, uint nKeyLen, void *pData, uint nDateSize)
 {
     return co_hash_update(ht, arKey, nKeyLen, pData, nDateSize);
 }
 
 static inline bool
-co_symtable_del(HashTable * ht, const char *arKey, uint nKeyLen)
+co_symtable_del(HashTable *ht, const char *arKey, uint nKeyLen)
 {
     return co_hash_del(ht, arKey, nKeyLen);
 }
 
 static inline bool
-co_symtable_find(HashTable * ht, const char *arKey, uint nKeyLen, void **pData)
+co_symtable_find(HashTable *ht, const char *arKey, uint nKeyLen, void **pData)
 {
     return co_hash_find(ht, arKey, nKeyLen, pData);
 }

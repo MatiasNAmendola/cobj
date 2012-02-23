@@ -75,13 +75,7 @@ test: all
 	@$(MAKE) -C t/ all
 
 indent:
-	@# try to find out all typenames defined by 'typedef' of c
-	@test -e ~/.indent.pro && cp ~/.indent.pro .indent.pro
-	@sed -n 's/.*typedef\s.*\s\([a-zA-Z_]\+\);/\1/p' *.[ch] | xargs \
-		-Itype echo -T type >> .indent.pro
-	@indent *.[ch]
-	@$(RM) .indent.pro
-	@$(RM) *~
+	@./indent.sh
 
 tags:
 	ctags -R --c-kinds=+p --fields=+S .

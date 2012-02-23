@@ -21,10 +21,10 @@
         (ht)->pCursor = (element);                      \
     }
 
-static bool co_hash_do_resize(HashTable * ht);
+static bool co_hash_do_resize(HashTable *ht);
 
 bool
-co_hash_init(HashTable * ht, uint nSize, hash_func_t pHashFunction)
+co_hash_init(HashTable *ht, uint nSize, hash_func_t pHashFunction)
 {
     uint i = 3;
 
@@ -45,19 +45,19 @@ co_hash_init(HashTable * ht, uint nSize, hash_func_t pHashFunction)
     ht->arBuckets = NULL;
     ht->nNumOfElements = 0;
     ht->nNextFreeElement = 0;
-    tmp = (Bucket **) xcalloc(ht->nTableSize, sizeof(Bucket *));
+    tmp = (Bucket **)xcalloc(ht->nTableSize, sizeof(Bucket *));
     ht->arBuckets = tmp;
 
     return true;
 }
 
 static bool
-co_hash_do_resize(HashTable * ht)
+co_hash_do_resize(HashTable *ht)
 {
     Bucket **t;
 
     if ((ht->nTableSize << 1) > 0) {    // double the table size
-        t = (Bucket **) xrealloc(ht->arBuckets, (ht->nTableSize << 1) * sizeof(Bucket *));
+        t = (Bucket **)xrealloc(ht->arBuckets, (ht->nTableSize << 1) * sizeof(Bucket *));
         ht->arBuckets = t;
         ht->nTableSize = ht->nTableSize << 1;
         ht->nTableMask = ht->nTableSize - 1;
@@ -69,7 +69,7 @@ co_hash_do_resize(HashTable * ht)
 }
 
 bool
-co_hash_rehash(HashTable * ht)
+co_hash_rehash(HashTable *ht)
 {
     Bucket *p;
 
@@ -86,7 +86,7 @@ co_hash_rehash(HashTable * ht)
 }
 
 bool
-_co_hash_insert_or_update(HashTable * ht, const char *arKey, uint nKeyLen, void *pData,
+_co_hash_insert_or_update(HashTable *ht, const char *arKey, uint nKeyLen, void *pData,
                           uint nDataSize, int flag)
 {
     ulong h;
@@ -128,7 +128,7 @@ _co_hash_insert_or_update(HashTable * ht, const char *arKey, uint nKeyLen, void 
     }
 
     // add
-    p = (Bucket *) xmalloc(sizeof(Bucket) - 1 + nKeyLen);
+    p = (Bucket *)xmalloc(sizeof(Bucket) - 1 + nKeyLen);
     memcpy(p->arKey, arKey, nKeyLen);
     p->nKeyLen = nKeyLen;
 
@@ -150,7 +150,7 @@ _co_hash_insert_or_update(HashTable * ht, const char *arKey, uint nKeyLen, void 
 }
 
 void
-co_hash_destory(HashTable * ht)
+co_hash_destory(HashTable *ht)
 {
     Bucket *p, *q;
 
@@ -165,7 +165,7 @@ co_hash_destory(HashTable * ht)
 }
 
 void
-co_hash_clean(HashTable * ht)
+co_hash_clean(HashTable *ht)
 {
     Bucket *p, *q;
 
@@ -189,7 +189,7 @@ co_hash_clean(HashTable * ht)
  * The pointer to the data is returned in pData
  */
 bool
-co_hash_find(const HashTable * ht, const char *arKey, uint nKeyLen, void **pData)
+co_hash_find(const HashTable *ht, const char *arKey, uint nKeyLen, void **pData)
 {
     ulong h;
 
@@ -216,7 +216,7 @@ co_hash_find(const HashTable * ht, const char *arKey, uint nKeyLen, void **pData
 }
 
 bool
-co_hash_del(HashTable * ht, const char *arKey, uint nKeyLen)
+co_hash_del(HashTable *ht, const char *arKey, uint nKeyLen)
 {
     uint nIndex;
 
@@ -267,7 +267,7 @@ co_hash_del(HashTable * ht, const char *arKey, uint nKeyLen)
 
 #if CO_DEBUG
 void
-co_hash_display(const HashTable * ht)
+co_hash_display(const HashTable *ht)
 {
     Bucket *p;
 

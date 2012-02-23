@@ -25,7 +25,7 @@ dstring dstring_copy(dstring s, char *t);
 dstring dstring_copyl(dstring s, void *t, size_t len);
 dstring dstring_cat(dstring s, char *t);
 dstring dstring_catl(dstring s, char *t, size_t len);
-dstring dstring_getline(FILE * fp);
+dstring dstring_getline(FILE *fp);
 dstring dstring_readfd(int fd);
 dstring dstring_readfile(const char *path);
 

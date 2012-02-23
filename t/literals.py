@@ -2,7 +2,7 @@
 # coding: utf-8
 from TAP.Simple import *
 
-plan(12)
+plan(13)
 
 test_expect_result("None\n", "print None;")
 test_expect_result("True\n", "print True;")

@@ -1,7 +1,7 @@
 #include "stack.h"
 
 bool
-co_stack_init(co_stack * stack)
+co_stack_init(co_stack *stack)
 {
     stack->top = 0;
     stack->elements = (void **)xmalloc(sizeof(void *) * STACK_BLOCK_SIZE);
@@ -14,7 +14,7 @@ co_stack_init(co_stack * stack)
 }
 
 bool
-co_stack_push(co_stack * stack, const void *element, int size)
+co_stack_push(co_stack *stack, const void *element, int size)
 {
     if (stack->top >= stack->max) {     /* we need to allocate more memory */
         stack->max += STACK_BLOCK_SIZE;
@@ -30,7 +30,7 @@ co_stack_push(co_stack * stack, const void *element, int size)
 }
 
 bool
-co_stack_top(const co_stack * stack, void **element)
+co_stack_top(const co_stack *stack, void **element)
 {
     if (stack->top > 0) {
         *element = stack->elements[stack->top - 1];
@@ -42,7 +42,7 @@ co_stack_top(const co_stack * stack, void **element)
 }
 
 bool
-co_stack_pop(co_stack * stack)
+co_stack_pop(co_stack *stack)
 {
     if (stack->top > 0) {
         free(stack->elements[--stack->top]);
@@ -51,7 +51,7 @@ co_stack_pop(co_stack * stack)
 }
 
 bool
-co_stack_is_empty(const co_stack * stack)
+co_stack_is_empty(const co_stack *stack)
 {
     if (stack->top == 0) {
         return true;
@@ -61,7 +61,7 @@ co_stack_is_empty(const co_stack * stack)
 }
 
 bool
-co_stack_destory(co_stack * stack)
+co_stack_destory(co_stack *stack)
 {
     if (stack->elements) {
         while (--stack->top >= 0) {
@@ -73,19 +73,19 @@ co_stack_destory(co_stack * stack)
 }
 
 void **
-co_stack_base(const co_stack * stack)
+co_stack_base(const co_stack *stack)
 {
     return stack->elements;
 }
 
 int
-co_stack_count(const co_stack * stack)
+co_stack_count(const co_stack *stack)
 {
     return stack->top;
 }
 
 void
-co_stack_apply(co_stack * stack, int type, int (*apply_function) (void *element))
+co_stack_apply(co_stack *stack, int type, int (*apply_function) (void *element))
 {
     int i;
 

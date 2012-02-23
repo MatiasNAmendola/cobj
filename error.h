@@ -16,7 +16,7 @@
 struct co_exception_buf {
     struct co_exception_buf *prev;
     jmp_buf buf;
-    volatile int status; /* error code */
+    volatile int status;        /* error code */
 };
 
 #endif
