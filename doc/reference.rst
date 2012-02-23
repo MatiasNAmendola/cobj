@@ -8,6 +8,12 @@ The syntax is specified using Extended Backus-Naur Form (EBNF):
 Lexical elements   
 ----------------
 
+The lexical analysis is independent of the syntax parsing and semantic analysis. The lexical analyser splits the source text up into tokens. The lexical grammar describes what those tokens are. The grammar is designed to be suitable for high speed scanning, it has a minimu of special case rules, there is only one phase of translation, and to make it easy to write a correct scanner for.
+
+Source Text
+~~~~~~~~~~
+CO source text can be in one of the following formats: ASCII, UTF-8.
+
 Comments    
 ~~~~~~~~
 There are only one form of comments, line comments start with the character '#' and stop at the end of the line.

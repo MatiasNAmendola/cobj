@@ -12,7 +12,6 @@
         longjmp((b)->buf, 1);      \
     }
 
-
 /* chain list of exception buffers */
 struct co_exception_buf {
     struct co_exception_buf *prev;
