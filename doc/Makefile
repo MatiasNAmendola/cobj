@@ -1,3 +1,5 @@
+all:: html
+
 .PHONY: help build clean
 
 SVNROOT	= http://svn.python.org/projects
