@@ -36,6 +36,10 @@
 %token  T_WHITESPACE
 %token  T_COMMENT
 %token  T_IGNORED
+%token  T_TRY
+%token  T_THROW
+%token  T_CATCH
+%token  T_FINALLY
 
 %% /* Context-Free Grammar (BNF) */
 
@@ -50,7 +54,7 @@ expression: /* express something */
     |   T_BOOL
     |   T_NONE
     |   T_NUM
-    |   T_FNUM 
+    |   T_FNUM
     |    '(' expression ')' { $$ = $2; }
     |   expression '<' expression { co_binary_op(OP_IS_SMALLER, &$$, &$1, &$3); }
     |   expression '>' expression { co_binary_op(OP_IS_SMALLER, &$$, &$3, &$1); }
@@ -71,6 +75,7 @@ simple_statement:
         T_NAME '='  expression ';' { co_assign(&$$, &$1, &$3); }
     |   T_PRINT expression ';' { co_print(&$2); }
     |   expression ';'
+    |   T_THROW expression ';'
     |   ';' /* empty */
 ;
 
@@ -78,7 +83,35 @@ compound_statement:
         T_IF '(' expression ')' { co_if_cond(&$3, &$4); } statement { co_if_after_statement(&$4); } optional_else { co_if_end(&$4); }
     |   T_WHILE '(' expression ')' { co_while_cond(&$3, &$1, &$4); } statement { co_while_end(&$1, &$4); }
     |   '{' statement_list '}'
+    |   try_catch_finally_stmt
     |   function_declaration
+;
+
+try_catch_finally_stmt:
+        try_block non_empty_catch_list
+    |   try_block catch_list finally_block
+;
+
+try_block:
+        T_TRY '{' statement_list '}'
+;
+    
+catch_block:
+        T_CATCH '(' expression ')' '{' statement_list '}'
+;
+
+catch_list:
+         non_empty_catch_list { $$ = $1; }
+    |   /* empty */
+;
+
+non_empty_catch_list:
+        catch_block
+    |   catch_block non_empty_catch_list
+;
+
+finally_block:
+        T_FINALLY '{' statement_list '}'
 ;
 
 function_declaration:

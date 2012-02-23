@@ -257,6 +257,22 @@ ANY_CHAR    = [^];
     return T_PRINT;
 }
 
+<SC_INIT>"try" {
+    return T_TRY;
+}
+
+<SC_INIT>"catch" {
+    return T_CATCH;
+}
+
+<SC_INIT>"throw" {
+    return T_THROW;
+}
+
+<SC_INIT>"finally" {
+    return T_FINALLY;
+}
+
 <SC_INIT>"None" {
     yylval->u.val.u.ival = 1;
     yylval->u.val.type = CVAL_IS_NONE;
