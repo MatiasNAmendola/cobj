@@ -31,7 +31,7 @@ typedef struct _co_executor_globals {
     co_execute_data *current_execute_data;
     co_vm_stack *vm_stack;
     co_stack argument_stack;
-    struct co_exception_buf exception_buf;
+    struct co_exception_buf *exception_buf;
 } co_executor_globals;
 extern co_executor_globals executor_globals;
 

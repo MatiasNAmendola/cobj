@@ -20,5 +20,8 @@
 #define OP_RECV_PARAM       15
 #define OP_PASS_PARAM       16
 #define OP_EXIT             17
+#define OP_TRY              18
+#define OP_THROW            19
+#define OP_CATCH            20
 
 #endif

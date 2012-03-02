@@ -125,7 +125,7 @@ cval_print(cval *val)
         printf("%s\n", val->u.str.val);
         break;
     default:
-        co_throw(&EG(exception_buf), 1);
+        co_throw(EG(exception_buf), 1);
     }
 }
 
@@ -342,4 +342,5 @@ void
 co_vm_init()
 {
     EG(vm_stack) = co_vm_stack_new_page(CO_VM_STACK_PAGE_SIZE);
+    EG(exception_buf) = NULL;
 }
