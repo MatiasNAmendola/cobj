@@ -35,9 +35,6 @@ typedef struct _co_executor_globals {
 } co_executor_globals;
 extern co_executor_globals executor_globals;
 
-/* vm opcode handler */
-typedef int (*op_handler_t) (co_execute_data *execute_data);
-
 /* vm executor opcode handlers */
 extern int co_do_add(co_execute_data *execute_data);
 extern int co_do_sub(co_execute_data *execute_data);

@@ -160,58 +160,144 @@ get_cval_ptr(cnode *node, const temp_variable *ts)
     return NULL;
 }
 
-static op_handler_t
-get_op_handler(int opcode)
+int
+co_vm_handler(int opcode, co_execute_data *execute_data)
 {
+    co_opline *op = EX(op);
+    cval *val1, *val2, *result;
     switch (opcode) {
     case OP_ADD:
-        return co_do_add;
-        break;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+        val2 = get_cval_ptr(&op->op2, EX(ts));
+        result = get_cval_ptr(&op->result, EX(ts));
+        result->u.ival = val1->u.ival + val2->u.ival;
+        result->type = CVAL_IS_INT;
+        EX(op)++;
+        return CO_VM_CONTINUE;
     case OP_SUB:
-        return co_do_sub;
-        break;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+        val2 = get_cval_ptr(&op->op2, EX(ts));
+        result = get_cval_ptr(&op->result, EX(ts));
+        result->u.ival = val1->u.ival - val2->u.ival;
+        result->type = CVAL_IS_INT;
+
+        EX(op)++;
+        return CO_VM_CONTINUE;
     case OP_MUL:
-        return co_do_mul;
-        break;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+        val2 = get_cval_ptr(&op->op2, EX(ts));
+        result = get_cval_ptr(&op->result, EX(ts));
+        result->u.ival = val1->u.ival * val2->u.ival;
+        result->type = CVAL_IS_INT;
+
+        EX(op)++;
+        return CO_VM_CONTINUE;
     case OP_DIV:
-        return co_do_div;
-        break;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+        val2 = get_cval_ptr(&op->op2, EX(ts));
+        result = get_cval_ptr(&op->result, EX(ts));
+        result->u.ival = val1->u.ival / val2->u.ival;
+        result->type = CVAL_IS_INT;
+
+        EX(op)++;
+        return CO_VM_CONTINUE;
     case OP_MOD:
-        return co_do_mod;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+        val2 = get_cval_ptr(&op->op2, EX(ts));
+        result = get_cval_ptr(&op->result, EX(ts));
+        result->u.ival = val1->u.ival % val2->u.ival;
+        result->type = CVAL_IS_INT;
+
+        EX(op)++;
+        return CO_VM_CONTINUE;
     case OP_IS_SMALLER:
-        return co_do_smaller;
-        break;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+        val2 = get_cval_ptr(&op->op2, EX(ts));
+        result = get_cval_ptr(&op->result, EX(ts));
+        result->u.ival = val1->u.ival < val2->u.ival;
+        result->type = CVAL_IS_BOOL;
+
+        EX(op)++;
+        return CO_VM_CONTINUE;
     case OP_ASSIGN:
-        return co_do_assign;
-        break;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+        val2 = get_cval_ptr(&op->op2, EX(ts));
+        result = get_cval_ptr(&op->result, EX(ts));
+
+        result->u.ival = val1->u.ival = val2->u.ival;
+        result->type = val1->type = val2->type;
+
+        EX(op)++;
+        return CO_VM_CONTINUE;
     case OP_PRINT:
-        return co_do_print;
-        break;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+        cval_print(val1);
+
+        EX(op)++;
+        return CO_VM_CONTINUE;
     case OP_JMPZ:
-        return co_do_jmpz;
-        break;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+
+        if (!val1->u.ival) {
+            EX(op) = &EX(op_array)->ops[op->op2.u.opline_num];
+            return CO_VM_CONTINUE;
+        }
+
+        EX(op)++;
+        return CO_VM_CONTINUE;
     case OP_JMP:
-        return co_do_jmp;
-        break;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+
+        EX(op) = &EX(op_array)->ops[op->op1.u.opline_num];
+
+        return CO_VM_CONTINUE;
     case OP_EXIT:
-        return co_do_exit;
+        return CO_VM_RETURN;
     case OP_DECLARE_FUNCTION:
-        return co_do_declare_function;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+        Function *func = xmalloc(sizeof(Function));
+        func->op_array = xmalloc(sizeof(co_opline_array));
+        func->op_array->start_op = NULL;
+        func->op_array->ops = EX(op) + 1;
+        func->op_array->last = op->op2.u.opline_num;
+        val1->u.func = func;
+        val1->type = CVAL_IS_FUNCTION;
+        EX(op) += op->op2.u.opline_num + 1;
+        return CO_VM_CONTINUE;
     case OP_RETURN:
-        return co_do_return;
+        EG(current_execute_data) = EX(prev_execute_data);
+        co_vm_stack_free(execute_data);
+        execute_data = EG(current_execute_data);
+        return CO_VM_LEAVE;
     case OP_INIT_FCALL:
-        return co_do_init_fcall;
+        EX(op)++;
+        return CO_VM_CONTINUE;
     case OP_DO_FCALL:
-        return co_do_fcall;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+        if (val1->type != CVAL_IS_FUNCTION) {
+            coerror("not a function");
+        }
+        EX(op)++;
+        EG(active_op_array) = val1->u.func->op_array;
+        return CO_VM_ENTER;
     case OP_PASS_PARAM:
-        return co_do_pass_param;
-        break;
+        val1 = get_cval_ptr(&op->op1, EX(ts));
+        co_stack_push(&EG(argument_stack), &val1, sizeof(cval *));
+        EX(op)++;
+        return CO_VM_CONTINUE;
     case OP_RECV_PARAM:
-        return co_do_recv_param;
-        break;
+        do {
+            cval **val;
+            co_stack_top(&EG(argument_stack), (void **)&val);
+            putcval(op->op1.u.val.u.str.val, *val);
+
+            EX(op)++;
+            return CO_VM_CONTINUE;
+        } while (false);
+    default:
+        coerror("unknown handle for opcode(%d)\n", opcode);
+        return -1;
     }
-    coerror("unknown handle for opcode(%d)\n", opcode);
-    return NULL;
 }
 
 void
@@ -237,11 +323,7 @@ vm_enter:
     }
 
     while (true) {
-        int ret;
-        op_handler_t handler = get_op_handler(EX(op)->opcode);
-        ret = handler(execute_data);
-
-        switch (ret) {
+        switch (co_vm_handler(EX(op)->opcode, execute_data)) {
         case CO_VM_CONTINUE:
             break;
         case CO_VM_RETURN:
@@ -261,242 +343,4 @@ void
 co_vm_init()
 {
     EG(vm_stack) = co_vm_stack_new_page(CO_VM_STACK_PAGE_SIZE);
-}
-
-int
-co_do_add(co_execute_data *execute_data)
-{
-    co_opline *op = EX(op);
-
-    cval *val1, *val2, *result;
-
-    val1 = get_cval_ptr(&op->op1, EX(ts));
-    val2 = get_cval_ptr(&op->op2, EX(ts));
-    result = get_cval_ptr(&op->result, EX(ts));
-    result->u.ival = val1->u.ival + val2->u.ival;
-    result->type = CVAL_IS_INT;
-
-    EX(op)++;
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_sub(co_execute_data *execute_data)
-{
-    co_opline *op = EX(op);
-
-    cval *val1, *val2, *result;
-
-    val1 = get_cval_ptr(&op->op1, EX(ts));
-    val2 = get_cval_ptr(&op->op2, EX(ts));
-    result = get_cval_ptr(&op->result, EX(ts));
-    result->u.ival = val1->u.ival - val2->u.ival;
-    result->type = CVAL_IS_INT;
-
-    EX(op)++;
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_mul(co_execute_data *execute_data)
-{
-    co_opline *op = EX(op);
-
-    cval *val1, *val2, *result;
-
-    val1 = get_cval_ptr(&op->op1, EX(ts));
-    val2 = get_cval_ptr(&op->op2, EX(ts));
-    result = get_cval_ptr(&op->result, EX(ts));
-    result->u.ival = val1->u.ival * val2->u.ival;
-    result->type = CVAL_IS_INT;
-
-    EX(op)++;
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_div(co_execute_data *execute_data)
-{
-    co_opline *op = EX(op);
-
-    cval *val1, *val2, *result;
-
-    val1 = get_cval_ptr(&op->op1, EX(ts));
-    val2 = get_cval_ptr(&op->op2, EX(ts));
-    result = get_cval_ptr(&op->result, EX(ts));
-    result->u.ival = val1->u.ival / val2->u.ival;
-    result->type = CVAL_IS_INT;
-
-    EX(op)++;
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_mod(co_execute_data *execute_data)
-{
-    co_opline *op = EX(op);
-
-    cval *val1, *val2, *result;
-
-    val1 = get_cval_ptr(&op->op1, EX(ts));
-    val2 = get_cval_ptr(&op->op2, EX(ts));
-    result = get_cval_ptr(&op->result, EX(ts));
-    result->u.ival = val1->u.ival % val2->u.ival;
-    result->type = CVAL_IS_INT;
-
-    EX(op)++;
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_smaller(co_execute_data *execute_data)
-{
-    co_opline *op = EX(op);
-
-    cval *val1, *val2, *result;
-
-    val1 = get_cval_ptr(&op->op1, EX(ts));
-    val2 = get_cval_ptr(&op->op2, EX(ts));
-    result = get_cval_ptr(&op->result, EX(ts));
-    result->u.ival = val1->u.ival < val2->u.ival;
-    result->type = CVAL_IS_BOOL;
-
-    EX(op)++;
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_print(co_execute_data *execute_data)
-{
-    co_opline *op = EX(op);
-
-    cval *val1;
-
-    val1 = get_cval_ptr(&op->op1, EX(ts));
-    cval_print(val1);
-
-    EX(op)++;
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_assign(co_execute_data *execute_data)
-{
-    co_opline *op = EX(op);
-
-    cval *val1, *val2, *result;
-
-    val1 = get_cval_ptr(&op->op1, EX(ts));
-    val2 = get_cval_ptr(&op->op2, EX(ts));
-    result = get_cval_ptr(&op->result, EX(ts));
-
-    result->u.ival = val1->u.ival = val2->u.ival;
-    result->type = val1->type = val2->type;
-
-    EX(op)++;
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_exit(co_execute_data *execute_data)
-{
-    return CO_VM_RETURN;
-}
-
-int
-co_do_jmpz(co_execute_data *execute_data)
-{
-    co_opline *opline = EX(op);
-    cval *val1;
-    val1 = get_cval_ptr(&opline->op1, EX(ts));
-
-    if (!val1->u.ival) {
-        EX(op) = &EX(op_array)->ops[opline->op2.u.opline_num];
-        return CO_VM_CONTINUE;
-    }
-
-    EX(op)++;
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_jmp(co_execute_data *execute_data)
-{
-    co_opline *opline = EX(op);
-    cval *val1;
-    val1 = get_cval_ptr(&opline->op1, EX(ts));
-
-    EX(op) = &EX(op_array)->ops[opline->op1.u.opline_num];
-
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_declare_function(co_execute_data *execute_data)
-{
-    co_opline *opline = EX(op);
-    cval *val1;
-    val1 = get_cval_ptr(&opline->op1, EX(ts));
-    Function *func = xmalloc(sizeof(Function));
-    func->op_array = xmalloc(sizeof(co_opline_array));
-    func->op_array->start_op = NULL;
-    func->op_array->ops = EX(op) + 1;
-    func->op_array->last = opline->op2.u.opline_num;
-    val1->u.func = func;
-    val1->type = CVAL_IS_FUNCTION;
-    EX(op) += opline->op2.u.opline_num + 1;
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_return(co_execute_data *execute_data)
-{
-    EG(current_execute_data) = EX(prev_execute_data);
-    co_vm_stack_free(execute_data);
-    execute_data = EG(current_execute_data);
-    return CO_VM_LEAVE;
-}
-
-int
-co_do_init_fcall(co_execute_data *execute_data)
-{
-    EX(op)++;
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_fcall(co_execute_data *execute_data)
-{
-    co_opline *opline = EX(op);
-    cval *val1;
-    val1 = get_cval_ptr(&opline->op1, EX(ts));
-    if (val1->type != CVAL_IS_FUNCTION) {
-        coerror("not a function");
-    }
-    EX(op)++;
-    EG(active_op_array) = val1->u.func->op_array;
-    return CO_VM_ENTER;
-}
-
-int
-co_do_pass_param(co_execute_data *execute_data)
-{
-    co_opline *opline = EX(op);
-    cval *val1;
-    val1 = get_cval_ptr(&opline->op1, EX(ts));
-    co_stack_push(&EG(argument_stack), &val1, sizeof(cval *));
-    EX(op)++;
-    return CO_VM_CONTINUE;
-}
-
-int
-co_do_recv_param(co_execute_data *execute_data)
-{
-    co_opline *opline = EX(op);
-    cval **val;
-    co_stack_top(&EG(argument_stack), (void **)&val);
-    putcval(opline->op1.u.val.u.str.val, *val);
-
-    EX(op)++;
-    return CO_VM_CONTINUE;
 }
