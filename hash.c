@@ -86,8 +86,8 @@ co_hash_rehash(HashTable *ht)
 }
 
 bool
-_co_hash_insert_or_update(HashTable *ht, const char *arKey, uint nKeyLen, void *pData,
-                          uint nDataSize, int flag)
+_co_hash_insert_or_update(HashTable *ht, const char *arKey, uint nKeyLen,
+                          void *pData, uint nDataSize, int flag)
 {
     ulong h;
 

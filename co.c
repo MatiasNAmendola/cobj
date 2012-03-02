@@ -27,7 +27,8 @@ main(int argc, const char **argv)
 
     /* vm execution */
     co_vm_init();
-    CO_TRY(&EG(exception_buf), co_vm_execute(CG(active_op_array)););
+    CO_TRY(&EG(exception_buf), co_vm_execute(CG(active_op_array));
+        );
     if (EG(exception_buf).status == 1) {
         printf("NameError: name 'unknown' is not defined\n");
     }

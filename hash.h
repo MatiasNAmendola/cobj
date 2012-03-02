@@ -36,8 +36,8 @@ extern bool co_hash_rehash(HashTable *ht);
 extern void co_hash_destory(HashTable *ht);
 extern void co_hash_clean(HashTable *ht);
 extern bool co_hash_find(const HashTable *ht, const char *arKey, uint nKeyLen, void **pData);
-extern bool _co_hash_insert_or_update(HashTable *ht, const char *arKey, uint nKeyLen, void *pData,
-                                      uint nDataSize, int flag);
+extern bool _co_hash_insert_or_update(HashTable *ht, const char *arKey,
+                                      uint nKeyLen, void *pData, uint nDataSize, int flag);
 
 #define co_hash_insert(ht, arKey, nKeyLen, pData, nDataSize) \
         _co_hash_insert_or_update(ht, arKey, nKeyLen, pData, nDataSize, HASH_INSERT)
