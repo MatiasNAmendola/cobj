@@ -125,8 +125,7 @@ cval_print(cval *val)
         printf("%s\n", val->u.str.val);
         break;
     default:
-        CO_THROW(&EG(exception_buf), 1)
-            coerror("error print (%d)", val->type);
+        co_throw(&EG(exception_buf), 1);
     }
 }
 

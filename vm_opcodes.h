@@ -1,7 +1,7 @@
 #ifndef CO_OPCODE_H
 #define CO_OPCODE_H
 
-/* Instruction opcodes for compiled code */
+/* Instruction opcodes */
 #define OP_PASS             0
 #define OP_ADD              1
 #define OP_SUB              2

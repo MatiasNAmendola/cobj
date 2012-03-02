@@ -2,22 +2,24 @@
 
 try {
     print "try-catch: try";
-    throw "E";
-} catch ("E") {
+    throw 1
+} catch (1) {
     print "try-catch: catch";
 }
 
-try {
-    print "try-finally: try";
-} finally {
-    print "try-finally: finally";
-}
+#try {
+    #print "try-finally: try";
+#} finally {
+    #print "try-finally: finally";
+#}
 
-try {
-    print "try-catch-finally: try";
-    throw "E";
-} catch ("E") {
-    print "try-catch-finally: catch";
-} finally {
-    print "try-catch-finally: finally";
-}
+#try {
+    #print "try-catch-finally: try";
+    #throw 2
+#} catch (1) {
+    #print "try-catch-finally: catch 1";
+#} catch (2) {
+    #print "try-catch-finally: catch 2";
+#} finally {
+    #print "try-catch-finally: finally";
+#}

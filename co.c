@@ -26,11 +26,11 @@ main(int argc, const char **argv)
     co_scanner_shutdown();
 
     /* vm execution */
-    co_vm_init();
-    CO_TRY(&EG(exception_buf), co_vm_execute(CG(active_op_array));
-        );
-    if (EG(exception_buf).status == 1) {
+    co_try(&EG(exception_buf)) {
+        co_vm_init();
+        co_vm_execute(CG(active_op_array));
+    } co_catch(&EG(exception_buf), 1) {
         printf("NameError: name 'unknown' is not defined\n");
-    }
+    } co_end_try;
     return 0;
 }
