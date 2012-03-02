@@ -17,17 +17,17 @@ typedef struct _co_vm_stack {
 
 /* execute data */
 typedef struct _co_execute_data {
-    co_op *op;
+    co_opline *op;
     HashTable *symboltable;
     temp_variable *ts;
-    co_op_array *op_array;
+    co_opline_array *op_array;
     struct _co_execute_data *prev_execute_data;
 } co_execute_data;
 
 /* vm executor globals */
 typedef struct _co_executor_globals {
     HashTable symbol_table;
-    co_op_array *active_op_array;
+    co_opline_array *active_op_array;
     co_execute_data *current_execute_data;
     co_vm_stack *vm_stack;
     co_stack argument_stack;
@@ -58,6 +58,6 @@ extern int co_do_pass_param(co_execute_data *execute_data);
 extern int co_do_recv_param(co_execute_data *execute_data);
 
 extern void co_vm_init();
-extern void co_vm_execute(co_op_array *op_array);
+extern void co_vm_execute(co_opline_array *op_array);
 
 #endif

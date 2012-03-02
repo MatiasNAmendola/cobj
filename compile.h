@@ -25,15 +25,15 @@
 
 typedef struct _cval cval;
 typedef struct _cnode cnode;
-typedef struct _co_op co_op;
-typedef struct _co_op_array co_op_array;
+typedef struct _co_opline co_opline;
+typedef struct _co_opline_array co_opline_array;
 typedef union _temp_variable temp_variable;
 
 /**
  * Function
  */
 typedef struct Function {
-    co_op_array *op_array;
+    co_opline_array *op_array;
     int numparams;              /* number of positional parameters */
 } Function;
 
@@ -62,7 +62,7 @@ struct _cnode {
 };
 
 /* c op for opcode */
-struct _co_op {
+struct _co_opline {
     uchar opcode;
     cnode result;
     cnode op1;
@@ -70,10 +70,10 @@ struct _co_op {
 };
 
 /* c op array */
-struct _co_op_array {
+struct _co_opline_array {
     uchar type;
-    co_op *ops;
-    co_op *start_op;
+    co_opline *ops;
+    co_opline *start_op;
     uint last, size;
     uint t;                     // number of temp variables
 };
@@ -85,7 +85,7 @@ union _temp_variable {
 
 /* compiler */
 void init_compiler();
-void init_op_array(co_op_array *op_array, int ops_size);
+void init_op_array(co_opline_array *op_array, int ops_size);
 
 /* parser-driven code generators */
 void co_binary_op(uchar opcode, cnode *result, const cnode *op1, const cnode *op2);
@@ -105,7 +105,7 @@ void co_recv_param(cnode *param);
 void co_end_compilation();
 
 /* opcode */
-co_op *get_next_op(co_op_array *op_array);
+co_opline *get_next_op(co_opline_array *op_array);
 
 /* cval handlers */
 cval *getcval(const char *name);
@@ -115,7 +115,7 @@ bool delcval(const char *name);
 // compiler globals
 typedef struct _co_compiler_globals {
     HashTable variable_symboltable;
-    co_op_array *active_op_array;
+    co_opline_array *active_op_array;
 } co_compiler_globals;
 
 // parser

@@ -215,7 +215,7 @@ get_op_handler(int opcode)
 }
 
 void
-co_vm_execute(co_op_array *op_array)
+co_vm_execute(co_opline_array *op_array)
 {
     co_execute_data *execute_data;
 
@@ -266,7 +266,7 @@ co_vm_init()
 int
 co_do_add(co_execute_data *execute_data)
 {
-    co_op *op = EX(op);
+    co_opline *op = EX(op);
 
     cval *val1, *val2, *result;
 
@@ -283,7 +283,7 @@ co_do_add(co_execute_data *execute_data)
 int
 co_do_sub(co_execute_data *execute_data)
 {
-    co_op *op = EX(op);
+    co_opline *op = EX(op);
 
     cval *val1, *val2, *result;
 
@@ -300,7 +300,7 @@ co_do_sub(co_execute_data *execute_data)
 int
 co_do_mul(co_execute_data *execute_data)
 {
-    co_op *op = EX(op);
+    co_opline *op = EX(op);
 
     cval *val1, *val2, *result;
 
@@ -317,7 +317,7 @@ co_do_mul(co_execute_data *execute_data)
 int
 co_do_div(co_execute_data *execute_data)
 {
-    co_op *op = EX(op);
+    co_opline *op = EX(op);
 
     cval *val1, *val2, *result;
 
@@ -334,7 +334,7 @@ co_do_div(co_execute_data *execute_data)
 int
 co_do_mod(co_execute_data *execute_data)
 {
-    co_op *op = EX(op);
+    co_opline *op = EX(op);
 
     cval *val1, *val2, *result;
 
@@ -351,7 +351,7 @@ co_do_mod(co_execute_data *execute_data)
 int
 co_do_smaller(co_execute_data *execute_data)
 {
-    co_op *op = EX(op);
+    co_opline *op = EX(op);
 
     cval *val1, *val2, *result;
 
@@ -368,7 +368,7 @@ co_do_smaller(co_execute_data *execute_data)
 int
 co_do_print(co_execute_data *execute_data)
 {
-    co_op *op = EX(op);
+    co_opline *op = EX(op);
 
     cval *val1;
 
@@ -382,7 +382,7 @@ co_do_print(co_execute_data *execute_data)
 int
 co_do_assign(co_execute_data *execute_data)
 {
-    co_op *op = EX(op);
+    co_opline *op = EX(op);
 
     cval *val1, *val2, *result;
 
@@ -406,7 +406,7 @@ co_do_exit(co_execute_data *execute_data)
 int
 co_do_jmpz(co_execute_data *execute_data)
 {
-    co_op *opline = EX(op);
+    co_opline *opline = EX(op);
     cval *val1;
     val1 = get_cval_ptr(&opline->op1, EX(ts));
 
@@ -422,7 +422,7 @@ co_do_jmpz(co_execute_data *execute_data)
 int
 co_do_jmp(co_execute_data *execute_data)
 {
-    co_op *opline = EX(op);
+    co_opline *opline = EX(op);
     cval *val1;
     val1 = get_cval_ptr(&opline->op1, EX(ts));
 
@@ -434,11 +434,11 @@ co_do_jmp(co_execute_data *execute_data)
 int
 co_do_declare_function(co_execute_data *execute_data)
 {
-    co_op *opline = EX(op);
+    co_opline *opline = EX(op);
     cval *val1;
     val1 = get_cval_ptr(&opline->op1, EX(ts));
     Function *func = xmalloc(sizeof(Function));
-    func->op_array = xmalloc(sizeof(co_op_array));
+    func->op_array = xmalloc(sizeof(co_opline_array));
     func->op_array->start_op = NULL;
     func->op_array->ops = EX(op) + 1;
     func->op_array->last = opline->op2.u.opline_num;
@@ -467,7 +467,7 @@ co_do_init_fcall(co_execute_data *execute_data)
 int
 co_do_fcall(co_execute_data *execute_data)
 {
-    co_op *opline = EX(op);
+    co_opline *opline = EX(op);
     cval *val1;
     val1 = get_cval_ptr(&opline->op1, EX(ts));
     if (val1->type != CVAL_IS_FUNCTION) {
@@ -481,7 +481,7 @@ co_do_fcall(co_execute_data *execute_data)
 int
 co_do_pass_param(co_execute_data *execute_data)
 {
-    co_op *opline = EX(op);
+    co_opline *opline = EX(op);
     cval *val1;
     val1 = get_cval_ptr(&opline->op1, EX(ts));
     co_stack_push(&EG(argument_stack), &val1, sizeof(cval *));
@@ -492,7 +492,7 @@ co_do_pass_param(co_execute_data *execute_data)
 int
 co_do_recv_param(co_execute_data *execute_data)
 {
-    co_op *opline = EX(op);
+    co_opline *opline = EX(op);
     cval **val;
     co_stack_top(&EG(argument_stack), (void **)&val);
     putcval(opline->op1.u.val.u.str.val, *val);
