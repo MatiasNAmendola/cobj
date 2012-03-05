@@ -102,7 +102,7 @@ co_vm_stack_free(void *ptr)
 }
 
 cval *
-getcval(const char *name)
+cval_get(const char *name)
 {
     cval *val;
 
@@ -114,18 +114,18 @@ getcval(const char *name)
 }
 
 bool
-putcval(const char *name, cval *val)
+cval_put(const char *name, cval *val)
 {
     return co_symtable_update(&EG(variable_symboltable), name, strlen(name), val, sizeof(cval));
 }
 
 bool
-delcval(const char *name)
+cval_del(const char *name)
 {
     return co_symtable_del(&EG(variable_symboltable), name, strlen(name));
 }
 
-static void
+void
 cval_print(cval *val)
 {
     switch (val->type) {
@@ -163,17 +163,17 @@ get_cval_ptr(cnode *node, const temp_variable *ts)
         return &node->u.val;
         break;
     case IS_VAR:
-        cvalptr = getcval(node->u.val.u.str.val);
+        cvalptr = cval_get(node->u.val.u.str.val);
         if (!cvalptr) {
             cval cvalnew;
 
-            putcval(node->u.val.u.str.val, &cvalnew);
-            cvalptr = getcval(node->u.val.u.str.val);
+            cval_put(node->u.val.u.str.val, &cvalnew);
+            cvalptr = cval_get(node->u.val.u.str.val);
         }
         return cvalptr;
         break;
     case IS_TMP_VAR:
-        return &T(node->u.var).tmp_var;
+        return (temp_variable *)((char*)ts + node->u.var);
         break;
     case IS_UNUSED:
         return NULL;
@@ -312,7 +312,7 @@ co_vm_handler(int opcode, co_execute_data *execute_data)
         do {
             cval **val;
             co_stack_top(&EG(argument_stack), (void **)&val);
-            putcval(op->op1.u.val.u.str.val, *val);
+            cval_put(op->op1.u.val.u.str.val, *val);
 
             EX(op)++;
             return CO_VM_CONTINUE;

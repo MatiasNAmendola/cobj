@@ -5,9 +5,6 @@
 #include "parser.h"
 #include "error.h"
 
-#define EX_T(offset)    (*(temp_variable *)((char*)EX(ts) + offset))
-#define T(offset)       (*(temp_variable *)((char*)ts + offset))
-
 typedef struct _co_vm_stack {
     void **top;
     void **end;
@@ -15,18 +12,14 @@ typedef struct _co_vm_stack {
     void *elements[1];
 } co_vm_stack;
 
-/* execute data */
 typedef struct _co_execute_data {
     co_opline *op;
-    HashTable *symboltable;
     temp_variable *ts;
     co_opline_array *op_array;
     struct _co_execute_data *prev_execute_data;
 } co_execute_data;
 
-/* vm executor globals */
 typedef struct _co_executor_globals {
-    HashTable symbol_table;
     co_opline_array *active_op_array;
     co_execute_data *current_execute_data;
     co_vm_stack *vm_stack;
@@ -40,8 +33,9 @@ extern void co_vm_init();
 extern void co_vm_execute(co_opline_array *op_array);
 
 /* cval handlers */
-cval *getcval(const char *name);
-bool putcval(const char *name, cval *val);
-bool delcval(const char *name);
+extern cval *cval_get(const char *name);
+extern bool cval_put(const char *name, cval *val);
+extern bool cval_del(const char *name);
+extern void cval_print(cval *val);
 
 #endif
