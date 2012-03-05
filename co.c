@@ -14,7 +14,7 @@ main(int argc, const char **argv)
         argv++;
         fd = open(*argv, O_RDONLY);
         if (fd < 0) {
-            coerror("open %s failed", *argv);
+            error("open %s failed", *argv);
         }
     }
 

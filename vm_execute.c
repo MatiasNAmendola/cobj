@@ -79,6 +79,7 @@ co_vm_stack_alloc(size_t size)
 {
     void *ret;
 
+    // ceil(size / sizeof(void*))
     size = (size + (sizeof(void *) - 1)) / sizeof(void *);
 
     CO_VM_STACK_GROW_IF_NEEDED(size);
@@ -92,10 +93,12 @@ static void
 co_vm_stack_free(void *ptr)
 {
     if ((void **)EG(vm_stack) == (void **)ptr) {
+        // free if it's current stack frame
         struct co_vm_stack *p = EG(vm_stack);
         EG(vm_stack) = p->prev;
         free(p);
     } else {
+        // else only mark it free
         EG(vm_stack)->top = (void **)ptr;
     }
 }
@@ -298,7 +301,7 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
     case OP_DO_FCALL:
         val1 = get_cval_ptr(&op->op1, exec_data->ts);
         if (val1->type != CVAL_IS_FUNCTION) {
-            coerror("not a function");
+            error("not a function");
         }
         exec_data->op++;
         EG(active_op_array) = val1->u.func->op_array;
@@ -318,7 +321,7 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
             return CO_VM_CONTINUE;
         } while (false);
     default:
-        coerror("unknown handle for opcode(%d)\n", opcode);
+        error("unknown handle for opcode(%d)\n", opcode);
         return -1;
     }
 }

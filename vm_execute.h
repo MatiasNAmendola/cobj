@@ -27,6 +27,7 @@ struct co_executor_globals {
     struct co_exception_buf *exception_buf;
     HashTable variable_symboltable;
 };
+
 extern struct co_executor_globals executor_globals;
 #define EG(v)   executor_globals.v
 
