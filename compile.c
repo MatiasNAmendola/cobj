@@ -117,7 +117,8 @@ co_if_end(const struct cnode *closing_bracket_token)
 }
 
 void
-co_while_cond(const struct cnode *cond, struct cnode *while_token, struct cnode *closing_bracket_token)
+co_while_cond(const struct cnode *cond, struct cnode *while_token,
+              struct cnode *closing_bracket_token)
 {
     uint while_cond_opline_num = CG(active_op_array)->last;
     struct co_opline *opline = get_next_op(CG(active_op_array));

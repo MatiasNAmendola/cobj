@@ -29,8 +29,10 @@ main(int argc, const char **argv)
     co_vm_init();
     co_try(EG(exception_buf)) {
         co_vm_execute(CG(active_op_array));
-    } co_catch(EG(exception_buf), 1) {
+    }
+    co_catch(EG(exception_buf), 1) {
         printf("NameError: name 'unknown' is not defined\n");
-    } co_end_try(EG(exception_buf));
+    }
+    co_end_try(EG(exception_buf));
     return 0;
 }

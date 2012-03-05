@@ -12,16 +12,16 @@ struct co_vm_stack {
     void *elements[1];
 };
 
-struct co_execute_data {
+struct co_exec_data {
     struct co_opline *op;
     union temp_variable *ts;
     struct co_opline_array *op_array;
-    struct co_execute_data *prev_execute_data;
+    struct co_exec_data *prev_exec_data;
 };
 
 struct co_executor_globals {
     struct co_opline_array *active_op_array;
-    struct co_execute_data *current_execute_data;
+    struct co_exec_data *current_exec_data;
     struct co_vm_stack *vm_stack;
     co_stack argument_stack;
     struct co_exception_buf *exception_buf;

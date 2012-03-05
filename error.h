@@ -35,7 +35,7 @@ struct co_exception_buf {
         ex_buf.prev = (b);              \
         (b) = &ex_buf;                  \
         switch (setjmp((b)->buf)) {     \
-        case 0:                         
+        case 0:
 #define co_throw(b,x)   longjmp((b)->buf, x)
 #define co_catch(b,x)               \
     break;                          \
