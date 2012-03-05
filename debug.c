@@ -2,7 +2,7 @@
 #include "compile.h"
 
 void
-co_print_opcode(co_opline_array *op_array)
+co_print_opcode(struct co_opline_array *op_array)
 {
     static const char *opcode_names[] = {
         "OP_PASS",
@@ -25,7 +25,7 @@ co_print_opcode(co_opline_array *op_array)
         "OP_EXIT",
     };
     for (int i = 0; i < op_array->last; i++) {
-        co_opline *op = &op_array->ops[i];
+        struct co_opline *op = &op_array->ops[i];
         printf("opcode[%d]: %s\n", i, opcode_names[op->opcode]);
     }
 }

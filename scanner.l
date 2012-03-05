@@ -48,7 +48,7 @@ struct co_scanner_globals scanner_globals;
 #define CO_IS_HEX(c)    (((c)>='0' && (c)<='9') || ((c)>='a' && (c)<='f') || ((c)>='A' && (c)<='F'))
 
 static void
-co_scan_singlequoted_string(cval *cval)
+co_scan_singlequoted_string(struct cval *cval)
 {
     register char *s, *t;
     char *end;
@@ -85,7 +85,7 @@ co_scan_singlequoted_string(cval *cval)
 }
 
 static void
-co_scan_doublequoted_string(cval *cval)
+co_scan_doublequoted_string(struct cval *cval)
 {
     register char *s, *t;
     char *end;
@@ -205,7 +205,7 @@ co_scanner_openfile(int fd)
 }
 
 int
-co_scanner_lex(cnode *yylval)
+co_scanner_lex(struct cnode *yylval)
 {
     scanner_globals.yy_text = YYCURSOR;
 
@@ -226,14 +226,14 @@ ANY_CHAR    = [^];
 <SC_INIT>NUM {
     yylval->u.val.u.ival = strtol(yytext, NULL, 0); 
     yylval->u.val.type = CVAL_IS_INT;
-    yylval->op_type = IS_CONST;
+    yylval->type = IS_CONST;
     return T_NUM;
 }
 
 <SC_INIT>FNUM {
     yylval->u.val.u.fval = strtof(yytext, NULL);
     yylval->u.val.type = CVAL_IS_FLOAT;
-    yylval->op_type = IS_CONST;
+    yylval->type = IS_CONST;
     return T_FNUM;
 }
 
@@ -276,21 +276,21 @@ ANY_CHAR    = [^];
 <SC_INIT>"None" {
     yylval->u.val.u.ival = 1;
     yylval->u.val.type = CVAL_IS_NONE;
-    yylval->op_type = IS_CONST;
+    yylval->type = IS_CONST;
     return T_NONE;
 }
 
 <SC_INIT>"True" {
     yylval->u.val.u.ival = 1;
     yylval->u.val.type = CVAL_IS_BOOL;
-    yylval->op_type = IS_CONST;
+    yylval->type = IS_CONST;
     return T_BOOL;
 }
 
 <SC_INIT>"False" {
     yylval->u.val.u.ival = 0;
     yylval->u.val.type = CVAL_IS_BOOL;
-    yylval->op_type = IS_CONST;
+    yylval->type = IS_CONST;
     return T_BOOL;
 }
 
@@ -332,7 +332,7 @@ ANY_CHAR    = [^];
     yylval->u.val.u.str.len = yyleng;
     co_scan_doublequoted_string(&yylval->u.val);
     yylval->u.val.type = CVAL_IS_STRING;
-    yylval->op_type = IS_CONST;
+    yylval->type = IS_CONST;
     return T_STRING;
 }
 
@@ -353,7 +353,7 @@ ANY_CHAR    = [^];
     yylval->u.val.u.str.len = yyleng;
     co_scan_singlequoted_string(&yylval->u.val);
     yylval->u.val.type = CVAL_IS_STRING;
-    yylval->op_type = IS_CONST;
+    yylval->type = IS_CONST;
     return T_STRING;
 }
 
@@ -361,7 +361,7 @@ ANY_CHAR    = [^];
     yylval->u.val.u.str.val = xstrndup(yytext, yyleng);
     yylval->u.val.u.str.len = yyleng;
     yylval->u.val.type = CVAL_IS_STRING;
-    yylval->op_type = IS_VAR;
+    yylval->type = IS_VAR;
     return T_NAME;
 }
 

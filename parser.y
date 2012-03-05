@@ -3,7 +3,7 @@
 #include "compile.h"
 #include "vm_opcodes.h"
 
-#define YYSTYPE cnode
+#define YYSTYPE struct cnode
 #define YYDEBUG 1
 #define YYERROR_VERBOSE 1
 

@@ -4,7 +4,7 @@
 #include "parser.h"
 #include "error.h"
 
-co_executor_globals executor_globals;
+struct co_executor_globals executor_globals;
 
 #define EX(v)   execute_data->v
 
@@ -20,11 +20,11 @@ co_executor_globals executor_globals;
             co_vm_stack_extend(size);                   \
     }
 
-static co_vm_stack *
+static struct co_vm_stack *
 co_vm_stack_new_page(size_t size)
 {
-    co_vm_stack *page =
-        (co_vm_stack *)xmalloc(sizeof(co_vm_stack) + sizeof(page->elements[0]) * (size - 1));
+    struct co_vm_stack *page =
+        (struct co_vm_stack *)xmalloc(sizeof(struct co_vm_stack) + sizeof(page->elements[0]) * (size - 1));
     page->top = page->elements;
     page->end = page->elements + size;
     page->prev = NULL;
@@ -34,7 +34,7 @@ co_vm_stack_new_page(size_t size)
 static void
 co_vm_stack_extend(size_t size)
 {
-    co_vm_stack *p =
+    struct co_vm_stack *p =
         co_vm_stack_new_page(size >= CO_VM_STACK_PAGE_SIZE ? size : CO_VM_STACK_PAGE_SIZE);
     p->prev = EG(vm_stack);
     EG(vm_stack) = p;
@@ -43,10 +43,10 @@ co_vm_stack_extend(size_t size)
 static void
 co_vm_stack_destory()
 {
-    co_vm_stack *stack = EG(vm_stack);
+    struct co_vm_stack *stack = EG(vm_stack);
 
     while (stack != NULL) {
-        co_vm_stack *p = stack->prev;
+        struct co_vm_stack *p = stack->prev;
 
         free(stack);
         stack = p;
@@ -66,7 +66,7 @@ co_vm_stack_pop()
     void *e = *(--EG(vm_stack)->top);
 
     if (EG(vm_stack)->top == EG(vm_stack)->elements) {
-        co_vm_stack *p = EG(vm_stack);
+        struct co_vm_stack *p = EG(vm_stack);
 
         EG(vm_stack) = p->prev;
         free(p);
@@ -93,7 +93,7 @@ static void
 co_vm_stack_free(void *ptr)
 {
     if ((void **)EG(vm_stack) == (void **)ptr) {
-        co_vm_stack *p = EG(vm_stack);
+        struct co_vm_stack *p = EG(vm_stack);
         EG(vm_stack) = p->prev;
         free(p);
     } else {
@@ -101,10 +101,10 @@ co_vm_stack_free(void *ptr)
     }
 }
 
-cval *
+struct cval *
 cval_get(const char *name)
 {
-    cval *val;
+    struct cval *val;
 
     if (co_symtable_find(&EG(variable_symboltable), name, strlen(name), (void **)&val)) {
         return val;
@@ -114,9 +114,9 @@ cval_get(const char *name)
 }
 
 bool
-cval_put(const char *name, cval *val)
+cval_put(const char *name, struct cval *val)
 {
-    return co_symtable_update(&EG(variable_symboltable), name, strlen(name), val, sizeof(cval));
+    return co_symtable_update(&EG(variable_symboltable), name, strlen(name), val, sizeof(struct cval));
 }
 
 bool
@@ -126,7 +126,7 @@ cval_del(const char *name)
 }
 
 void
-cval_print(cval *val)
+cval_print(struct cval *val)
 {
     switch (val->type) {
     case CVAL_IS_NONE:
@@ -153,19 +153,19 @@ cval_print(cval *val)
     }
 }
 
-static cval *
-get_cval_ptr(cnode *node, const temp_variable *ts)
+static struct cval *
+get_cval_ptr(struct cnode *node, const union temp_variable *ts)
 {
-    cval *cvalptr;
+    struct cval *cvalptr;
 
-    switch (node->op_type) {
+    switch (node->type) {
     case IS_CONST:
         return &node->u.val;
         break;
     case IS_VAR:
         cvalptr = cval_get(node->u.val.u.str.val);
         if (!cvalptr) {
-            cval cvalnew;
+            struct cval cvalnew;
 
             cval_put(node->u.val.u.str.val, &cvalnew);
             cvalptr = cval_get(node->u.val.u.str.val);
@@ -173,7 +173,7 @@ get_cval_ptr(cnode *node, const temp_variable *ts)
         return cvalptr;
         break;
     case IS_TMP_VAR:
-        return (temp_variable *)((char*)ts + node->u.var);
+        return (struct cval *)(union temp_variable *)((char*)ts + node->u.var);
         break;
     case IS_UNUSED:
         return NULL;
@@ -184,10 +184,10 @@ get_cval_ptr(cnode *node, const temp_variable *ts)
 }
 
 int
-co_vm_handler(int opcode, co_execute_data *execute_data)
+co_vm_handler(int opcode, struct co_execute_data *execute_data)
 {
-    co_opline *op = EX(op);
-    cval *val1, *val2, *result;
+    struct co_opline *op = EX(op);
+    struct cval *val1, *val2, *result;
     switch (opcode) {
     case OP_ADD:
         val1 = get_cval_ptr(&op->op1, EX(ts));
@@ -278,8 +278,8 @@ co_vm_handler(int opcode, co_execute_data *execute_data)
         return CO_VM_RETURN;
     case OP_DECLARE_FUNCTION:
         val1 = get_cval_ptr(&op->op1, EX(ts));
-        Function *func = xmalloc(sizeof(Function));
-        func->op_array = xmalloc(sizeof(co_opline_array));
+        struct Function *func = xmalloc(sizeof(struct Function));
+        func->op_array = xmalloc(sizeof(struct co_opline_array));
         func->op_array->start_op = NULL;
         func->op_array->ops = EX(op) + 1;
         func->op_array->last = op->op2.u.opline_num;
@@ -305,12 +305,12 @@ co_vm_handler(int opcode, co_execute_data *execute_data)
         return CO_VM_ENTER;
     case OP_PASS_PARAM:
         val1 = get_cval_ptr(&op->op1, EX(ts));
-        co_stack_push(&EG(argument_stack), &val1, sizeof(cval *));
+        co_stack_push(&EG(argument_stack), &val1, sizeof(&val1));
         EX(op)++;
         return CO_VM_CONTINUE;
     case OP_RECV_PARAM:
         do {
-            cval **val;
+            struct cval **val;
             co_stack_top(&EG(argument_stack), (void **)&val);
             cval_put(op->op1.u.val.u.str.val, *val);
 
@@ -324,16 +324,16 @@ co_vm_handler(int opcode, co_execute_data *execute_data)
 }
 
 void
-co_vm_execute(co_opline_array *op_array)
+co_vm_execute(struct co_opline_array *op_array)
 {
-    co_execute_data *execute_data;
+    struct co_execute_data *execute_data;
 
 vm_enter:
     /* initialize execute_data */
     execute_data =
-        (co_execute_data *)co_vm_stack_alloc(sizeof(co_execute_data) +
-                                             sizeof(temp_variable) * op_array->t);
-    EX(ts) = (temp_variable *)((char *)execute_data + sizeof(co_execute_data));
+        (struct co_execute_data *)co_vm_stack_alloc(sizeof(struct co_execute_data) +
+                                             sizeof(union temp_variable) * op_array->t);
+    EX(ts) = (union temp_variable *)((char *)execute_data + sizeof(struct co_execute_data));
     EX(op_array) = op_array;
 
     EX(prev_execute_data) = EG(current_execute_data);

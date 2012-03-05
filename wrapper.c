@@ -9,7 +9,7 @@ xmalloc(size_t size)
     void *ret = malloc(size);
 
     if (!ret) {
-        coerror("Out of memory, malloc failed");
+        error("Out of memory, malloc failed");
     }
 
     return ret;
@@ -21,7 +21,7 @@ xrealloc(void *ptr, size_t size)
     void *ret = realloc(ptr, size);
 
     if (!ret) {
-        coerror("Out of memory, realloc failed");
+        error("Out of memory, realloc failed");
     }
 
     return ret;
@@ -33,7 +33,7 @@ xcalloc(size_t nmemb, size_t size)
     void *ret = calloc(nmemb, size);
 
     if (!ret) {
-        coerror("Out of memory, realloc failed");
+        error("Out of memory, realloc failed");
     }
 
     return ret;
