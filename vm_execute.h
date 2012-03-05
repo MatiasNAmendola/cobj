@@ -1,5 +1,5 @@
-#ifndef CO_EXECUTE_H
-#define CO_EXECUTE_H
+#ifndef VM_EXECUTE_H
+#define VM_EXECUTE_H
 
 #include "compile.h"
 #include "parser.h"
@@ -28,6 +28,7 @@ typedef struct _co_executor_globals {
     HashTable variable_symboltable;
 } co_executor_globals;
 extern co_executor_globals executor_globals;
+#define EG(v)   executor_globals.v
 
 extern void co_vm_init();
 extern void co_vm_execute(co_opline_array *op_array);

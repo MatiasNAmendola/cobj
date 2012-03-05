@@ -21,7 +21,6 @@
 #define SET_UNUSED(op)  (op).op_type = IS_UNUSED
 
 #define CG(v)   compiler_globals.v
-#define EG(v)   executor_globals.v
 
 typedef struct _cval cval;
 typedef struct _cnode cnode;

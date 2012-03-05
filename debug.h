@@ -1,5 +1,5 @@
-#ifndef CO_DEBUG_H
-#define CO_DEBUG_H
+#ifndef DEBUG_H
+#define DEBUG_H
 /**
  * Auxiliary functions from Debug Interface module
  */

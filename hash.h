@@ -1,5 +1,5 @@
-#ifndef CO_HASH_H
-#define CO_HASH_H
+#ifndef HASH_H
+#define HASH_H
 
 #include "co.h"
 

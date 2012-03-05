@@ -1,5 +1,5 @@
-#ifndef CO_OPCODE_H
-#define CO_OPCODE_H
+#ifndef VM_OPCODES_H
+#define VM_OPCODES_H
 
 /* Instruction opcodes */
 #define OP_PASS             0

@@ -1,5 +1,5 @@
-#ifndef CO_LLIST_H
-#define CO_LLIST_H
+#ifndef LLIST_H
+#define LLIST_H
 /**
  *
  * Linked list.

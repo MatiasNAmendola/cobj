@@ -1,5 +1,5 @@
-#ifndef CO_STACK_H
-#define CO_STACK_H
+#ifndef STACK_H
+#define STACK_H
 
 #include "co.h"
 
