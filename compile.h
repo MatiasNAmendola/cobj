@@ -107,19 +107,14 @@ void co_end_compilation();
 /* opcode */
 co_opline *get_next_op(co_opline_array *op_array);
 
-/* cval handlers */
-cval *getcval(const char *name);
-bool putcval(const char *name, cval *val);
-bool delcval(const char *name);
-
 // compiler globals
 typedef struct _co_compiler_globals {
-    HashTable variable_symboltable;
     co_opline_array *active_op_array;
 } co_compiler_globals;
 
 // parser
 int coparse();
+void coerror(const char *err, ...);
 
 // scanner
 int colex(cnode *colval);
@@ -129,7 +124,6 @@ void co_scanner_shutdown(void);
 int co_scanner_openfile(int fd);
 
 // compiler
-void coerror(const char *err, ...);
 co_compiler_globals compiler_globals;
 
 #endif

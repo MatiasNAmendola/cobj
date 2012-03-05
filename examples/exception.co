@@ -1,8 +1,8 @@
 #!./co
 
 try {
+    throw 1;
     print "try-catch: try";
-    throw 1
 } catch (1) {
     print "try-catch: catch";
 }

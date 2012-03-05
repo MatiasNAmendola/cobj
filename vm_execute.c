@@ -101,6 +101,30 @@ co_vm_stack_free(void *ptr)
     }
 }
 
+cval *
+getcval(const char *name)
+{
+    cval *val;
+
+    if (co_symtable_find(&EG(variable_symboltable), name, strlen(name), (void **)&val)) {
+        return val;
+    } else {
+        return NULL;
+    }
+}
+
+bool
+putcval(const char *name, cval *val)
+{
+    return co_symtable_update(&EG(variable_symboltable), name, strlen(name), val, sizeof(cval));
+}
+
+bool
+delcval(const char *name)
+{
+    return co_symtable_del(&EG(variable_symboltable), name, strlen(name));
+}
+
 static void
 cval_print(cval *val)
 {
@@ -342,5 +366,6 @@ void
 co_vm_init()
 {
     EG(vm_stack) = co_vm_stack_new_page(CO_VM_STACK_PAGE_SIZE);
+    co_hash_init(&EG(variable_symboltable), 2, NULL);
     EG(exception_buf) = NULL;
 }

@@ -17,7 +17,7 @@ report(const char *prefix, const char *err, va_list params)
 }
 
 void
-coerror(const char *err, ...)
+error(const char *err, ...)
 {
     va_list params;
 

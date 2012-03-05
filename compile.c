@@ -6,36 +6,12 @@
 
 co_compiler_globals compiler_globals;
 
-cval *
-getcval(const char *name)
-{
-    cval *val;
-
-    if (co_symtable_find(&CG(variable_symboltable), name, strlen(name), (void **)&val)) {
-        return val;
-    } else {
-        return NULL;
-    }
-}
-
-bool
-putcval(const char *name, cval *val)
-{
-    return co_symtable_update(&CG(variable_symboltable), name, strlen(name), val, sizeof(cval));
-}
-
-bool
-delcval(const char *name)
-{
-    return co_symtable_del(&CG(variable_symboltable), name, strlen(name));
-}
 
 void
 init_compiler()
 {
     CG(active_op_array) = xmalloc(sizeof(co_opline_array));
     init_op_array(CG(active_op_array), 1);
-    co_hash_init(&CG(variable_symboltable), 2, NULL);
 }
 
 void
@@ -260,22 +236,13 @@ again:
     return retval;
 }
 
-static void
-report(const char *prefix, const char *err, va_list params)
-{
-    char msg[1024];
-
-    vsnprintf(msg, sizeof(msg), err, params);
-    fprintf(stderr, "%s%s\n", prefix, msg);
-}
-
 void
 coerror(const char *err, ...)
 {
     va_list params;
 
     va_start(params, err);
-    report("fatal: ", err, params);
+    error(err, params);
     va_end(params);
     exit(128);
 }
