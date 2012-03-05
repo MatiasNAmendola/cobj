@@ -72,7 +72,6 @@ struct co_opline {
  * op array
  */
 struct co_opline_array {
-    uchar type;
     struct co_opline *ops;
     struct co_opline *start_op;
     uint last, size;

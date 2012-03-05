@@ -350,7 +350,7 @@ ANY_CHAR    = [^];
         }
     } 
     yylval->u.val.u.str.val = xstrndup(yytext + 1, yyleng - 2);
-    yylval->u.val.u.str.len = yyleng;
+    yylval->u.val.u.str.len = yyleng - 2;
     co_scan_singlequoted_string(&yylval->u.val);
     yylval->u.val.type = CVAL_IS_STRING;
     yylval->type = IS_CONST;

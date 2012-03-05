@@ -18,16 +18,9 @@ init_op_array(struct co_opline_array *op_array, int ops_size)
 {
     op_array->size = ops_size;
     op_array->last = 0;
-    op_array->ops = xrealloc(op_array->ops, (op_array->size) * sizeof(struct co_opline));
     op_array->t = 0;
+    op_array->ops = xmalloc((op_array->size) * sizeof(struct co_opline));
     op_array->start_op = NULL;
-}
-
-static inline void
-init_op(struct co_opline *op)
-{
-    memset(op, 0, sizeof(struct co_opline));
-    op->result.type = IS_UNUSED;
 }
 
 struct co_opline *
@@ -44,7 +37,8 @@ get_next_op(struct co_opline_array *op_array)
 
     next_op = &(op_array->ops[next_op_num]);
 
-    init_op(next_op);
+    memset(next_op, 0, sizeof(struct co_opline));
+    next_op->result.type = IS_UNUSED;
 
     return next_op;
 }
