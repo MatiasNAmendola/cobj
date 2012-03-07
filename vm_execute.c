@@ -236,11 +236,38 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
 
         exec_data->op++;
         return CO_VM_CONTINUE;
+    case OP_IS_EQUAL:
+        val1 = get_cval_ptr(&op->op1, exec_data->ts);
+        val2 = get_cval_ptr(&op->op2, exec_data->ts);
+        result = get_cval_ptr(&op->result, exec_data->ts);
+        result->u.ival = val1->u.ival == val2->u.ival;
+        result->type = CVAL_IS_BOOL;
+
+        exec_data->op++;
+        return CO_VM_CONTINUE;
+    case OP_IS_NOT_EQUAL:
+        val1 = get_cval_ptr(&op->op1, exec_data->ts);
+        val2 = get_cval_ptr(&op->op2, exec_data->ts);
+        result = get_cval_ptr(&op->result, exec_data->ts);
+        result->u.ival = val1->u.ival != val2->u.ival;
+        result->type = CVAL_IS_BOOL;
+
+        exec_data->op++;
+        return CO_VM_CONTINUE;
     case OP_IS_SMALLER:
         val1 = get_cval_ptr(&op->op1, exec_data->ts);
         val2 = get_cval_ptr(&op->op2, exec_data->ts);
         result = get_cval_ptr(&op->result, exec_data->ts);
         result->u.ival = val1->u.ival < val2->u.ival;
+        result->type = CVAL_IS_BOOL;
+
+        exec_data->op++;
+        return CO_VM_CONTINUE;
+    case OP_IS_SMALLER_OR_EQUAL:
+        val1 = get_cval_ptr(&op->op1, exec_data->ts);
+        val2 = get_cval_ptr(&op->op2, exec_data->ts);
+        result = get_cval_ptr(&op->result, exec_data->ts);
+        result->u.ival = val1->u.ival <= val2->u.ival;
         result->type = CVAL_IS_BOOL;
 
         exec_data->op++;

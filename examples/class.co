@@ -1,0 +1,5 @@
+class Foo() {
+    func bar(a=None) {
+        return None;
+    }
+}

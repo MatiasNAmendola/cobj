@@ -17,7 +17,12 @@
  */
 %expect 1
 
-%left   '<' '>'
+%nonassoc T_EQUAL T_NOT_EQUAL
+%token T_EQUAL
+%token T_NOT_EQUAL
+%nonassoc '<' '>' T_SMALLER_OR_EQUAL T_GREATER_OR_EQUAL
+%token T_SMALLER_OR_EQUAL
+%token T_GREATER_OR_EQUAL
 %left   ','
 %left   '+' '-'
 %left   '*' '/' '%'
@@ -58,6 +63,10 @@ expression: /* express something */
     |    '(' expression ')' { $$ = $2; }
     |   expression '<' expression { co_binary_op(OP_IS_SMALLER, &$$, &$1, &$3); }
     |   expression '>' expression { co_binary_op(OP_IS_SMALLER, &$$, &$3, &$1); }
+    |   expression T_EQUAL expression { co_binary_op(OP_IS_EQUAL, &$$, &$1, &$3); }
+    |   expression T_NOT_EQUAL expression { co_binary_op(OP_IS_NOT_EQUAL, &$$, &$1, &$3); }
+    |   expression T_SMALLER_OR_EQUAL expression { co_binary_op(OP_IS_SMALLER_OR_EQUAL, &$$, &$1, &$3); }
+    |   expression T_GREATER_OR_EQUAL expression { co_binary_op(OP_IS_SMALLER_OR_EQUAL, &$$, &$3, &$1); }
     |   expression '+' expression { co_binary_op(OP_ADD, &$$, &$1, &$3); }
     |   expression '-' expression { co_binary_op(OP_SUB, &$$, &$1, &$3); }
     |   expression '*' expression { co_binary_op(OP_MUL, &$$, &$1, &$3); }

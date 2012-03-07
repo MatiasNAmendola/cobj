@@ -1,0 +1,42 @@
+-- ASDL's four builtin types are identifier, int, string, object
+-- http://asdl.sourceforge.net
+
+module CObject
+{
+    mod = FileMod(stmt* body)
+       -- | InteractiveMod(stmt* body)
+
+    stmt = FuncDef(identifier name, arguments args, stmt* body, expr? return)
+         | ClassDef(identifier name, expr* bases, stmt* body)
+
+         | Assign(expr target, expr value)
+
+         | While(expr test, stmt* body)
+         | If(expr test, stmt* body, stmt* else)
+
+         | Throw(expr except)
+         | TryCatch(stmt* body, excepthandler* handlers)
+         | TryFinally(stmt* body, stmt* finalbody)
+         
+         | Expr(expr value)
+         
+         | Break
+         | Continue
+
+         -- TODO
+    expr = BoolOp(bool
+
+    boolop = And | Or
+
+    binaryop = And | Sub | Mult | Div | Mod
+
+    unaryop = UAdd | USub
+
+    comop = Eq | NotEq | Lt | LtE | Gt | GtE
+
+    excepthandler = ExceptHandler(expr? type, identifier? name, stmt* body)
+
+    arguments = (arg* args)
+
+    arg = (identifier arg)
+}

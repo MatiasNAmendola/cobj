@@ -365,6 +365,22 @@ ANY_CHAR    = [^];
     return T_NAME;
 }
 
+<SC_INIT>"==" {
+    return T_EQUAL;
+}
+
+<SC_INIT>"!=" {
+    return T_NOT_EQUAL;
+}
+
+<SC_INIT>"<=" {
+    return T_SMALLER_OR_EQUAL;
+}
+
+<SC_INIT>">=" {
+    return T_GREATER_OR_EQUAL;
+}
+
 <SC_INIT>TOKENS {
     return yytext[0];
 }
