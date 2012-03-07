@@ -37,6 +37,7 @@
 %token  T_IF
 %token  T_ELSE
 %token  T_FUNC
+%token  T_RETURN
 %token  T_WHILE "while (T_WHILE)"
 %token  T_WHITESPACE
 %token  T_COMMENT
@@ -83,6 +84,8 @@ statement: /* state something */
 simple_statement:
         T_NAME '='  expression ';' { co_assign(&$$, &$1, &$3); }
     |   T_PRINT expression ';' { co_print(&$2); }
+    |   T_RETURN ';'            { co_return(NULL); }
+    |   T_RETURN expression ';' { co_return(&$2); }
     |   expression ';'
     |   T_THROW expression ';'
     |   ';' /* empty */
@@ -94,6 +97,7 @@ compound_statement:
     |   '{' statement_list '}'
     |   try_catch_finally_stmt
     |   function_declaration
+    |   '{' '}' /* empty */
 ;
 
 try_catch_finally_stmt:

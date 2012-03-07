@@ -15,12 +15,12 @@ struct co_vm_stack {
 struct co_exec_data {
     struct co_opline *op;
     union temp_variable *ts;
-    struct co_opline_array *op_array;
+    struct co_opline_array *opline_array;
     struct co_exec_data *prev_exec_data;
 };
 
 struct co_executor_globals {
-    struct co_opline_array *active_op_array;
+    struct co_opline_array *active_opline_array;
     struct co_exec_data *current_exec_data;
     struct co_vm_stack *vm_stack;
     co_stack argument_stack;
@@ -31,7 +31,7 @@ extern struct co_executor_globals executor_globals;
 #define EG(v)   executor_globals.v
 
 extern void co_vm_init();
-extern void co_vm_execute(struct co_opline_array *op_array);
+extern void co_vm_execute(struct co_opline_array *opline_array);
 
 /* cval handlers */
 extern struct cval *cval_get(const char *name);

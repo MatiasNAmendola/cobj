@@ -2,7 +2,7 @@
 #include "compile.h"
 
 void
-co_print_opcode(struct co_opline_array *op_array)
+co_print_opcode(struct co_opline_array *opline_array)
 {
     static const char *opcode_names[] = {
         "OP_PASS",
@@ -12,6 +12,9 @@ co_print_opcode(struct co_opline_array *op_array)
         "OP_DIV",
         "OP_MOD",
         "OP_IS_SMALLER",
+        "OP_IS_SMALLER_OR_EQUAL",
+        "OP_IS_EQUAL",
+        "OP_IS_NOT_EQUAL",
         "OP_ASSIGN",
         "OP_PRINT",
         "OP_JMPZ",
@@ -23,9 +26,12 @@ co_print_opcode(struct co_opline_array *op_array)
         "OP_RECV_PARAM",
         "OP_PASS_PARAM",
         "OP_EXIT",
+        "OP_TRY",
+        "OP_THROW",
+        "OP_CATCH",
     };
-    for (int i = 0; i < op_array->last; i++) {
-        struct co_opline *op = &op_array->ops[i];
+    for (int i = 0; i < opline_array->last; i++) {
+        struct co_opline *op = &opline_array->ops[i];
         printf("opcode[%d]: %s\n", i, opcode_names[op->opcode]);
     }
 }

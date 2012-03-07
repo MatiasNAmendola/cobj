@@ -26,7 +26,7 @@
  * Function
  */
 struct Function {
-    struct co_opline_array *op_array;
+    struct co_opline_array *opline_array;
     int numparams;              /* number of positional parameters */
 };
 
@@ -69,7 +69,7 @@ struct co_opline {
 };
 
 /*
- * op array
+ * op block
  */
 struct co_opline_array {
     struct co_opline *ops;
@@ -84,7 +84,7 @@ union temp_variable {
 
 /* compiler */
 void init_compiler();
-void init_op_array(struct co_opline_array *op_array, int ops_size);
+void init_opline_array(struct co_opline_array *opline_array, int ops_size);
 
 /* parser-driven code generators */
 void co_binary_op(uchar opcode, struct cnode *result, const struct cnode *op1,
@@ -106,11 +106,11 @@ void co_recv_param(struct cnode *param);
 void co_end_compilation();
 
 /* opcode */
-struct co_opline *get_next_op(struct co_opline_array *op_array);
+struct co_opline *get_next_op(struct co_opline_array *opline_array);
 
 // compiler globals
 struct co_compiler_globals {
-    struct co_opline_array *active_op_array;
+    struct co_opline_array *active_opline_array;
 } co_compiler_globals;
 
 // parser

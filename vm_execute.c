@@ -292,7 +292,7 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
         val1 = get_cval_ptr(&op->op1, exec_data->ts);
 
         if (!val1->u.ival) {
-            exec_data->op = &exec_data->op_array->ops[op->op2.u.opline_num];
+            exec_data->op = &exec_data->opline_array->ops[op->op2.u.opline_num];
             return CO_VM_CONTINUE;
         }
 
@@ -300,8 +300,10 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
         return CO_VM_CONTINUE;
     case OP_JMP:
         val1 = get_cval_ptr(&op->op1, exec_data->ts);
-
-        exec_data->op = &exec_data->op_array->ops[op->op1.u.opline_num];
+#if CO_DEBUG
+        printf("jmp to %d\n", op->op1.u.opline_num);
+#endif
+        exec_data->op = &exec_data->opline_array->ops[op->op1.u.opline_num];
 
         return CO_VM_CONTINUE;
     case OP_EXIT:
@@ -309,9 +311,9 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
     case OP_DECLARE_FUNCTION:
         val1 = get_cval_ptr(&op->op1, exec_data->ts);
         struct Function *func = xmalloc(sizeof(struct Function));
-        func->op_array = xmalloc(sizeof(struct co_opline_array));
-        func->op_array->ops = exec_data->op + 1;
-        func->op_array->last = op->op2.u.opline_num;
+        func->opline_array = xmalloc(sizeof(struct co_opline_array));
+        func->opline_array->ops = exec_data->op + 1;
+        func->opline_array->last = op->op2.u.opline_num;
         val1->u.func = func;
         val1->type = CVAL_IS_FUNCTION;
         exec_data->op += op->op2.u.opline_num + 1;
@@ -330,7 +332,7 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
             error("not a function");
         }
         exec_data->op++;
-        EG(active_op_array) = val1->u.func->op_array;
+        EG(active_opline_array) = val1->u.func->opline_array;
         return CO_VM_ENTER;
     case OP_PASS_PARAM:
         val1 = get_cval_ptr(&op->op1, exec_data->ts);
@@ -353,7 +355,7 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
 }
 
 void
-co_vm_execute(struct co_opline_array *op_array)
+co_vm_execute(struct co_opline_array *opline_array)
 {
     struct co_exec_data *exec_data;
 
@@ -361,14 +363,14 @@ vm_enter:
     /* initialize exec_data */
     exec_data =
         (struct co_exec_data *)co_vm_stack_alloc(sizeof(struct co_exec_data) +
-                                                 sizeof(union temp_variable) * op_array->t);
+                                                 sizeof(union temp_variable) * opline_array->t);
     exec_data->ts = (union temp_variable *)((char *)exec_data + sizeof(struct co_exec_data));
-    exec_data->op_array = op_array;
+    exec_data->opline_array = opline_array;
 
     exec_data->prev_exec_data = EG(current_exec_data);
     EG(current_exec_data) = exec_data;
 
-    exec_data->op = op_array->ops;
+    exec_data->op = opline_array->ops;
 
     while (true) {
         switch (co_vm_handler(exec_data->op->opcode, exec_data)) {
@@ -377,7 +379,7 @@ vm_enter:
         case CO_VM_RETURN:
             return;
         case CO_VM_ENTER:
-            op_array = EG(active_op_array);
+            opline_array = EG(active_opline_array);
             goto vm_enter;
         case CO_VM_LEAVE:
             exec_data = EG(current_exec_data);

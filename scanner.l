@@ -257,6 +257,10 @@ ANY_CHAR    = [^];
     return T_PRINT;
 }
 
+<SC_INIT>"return" {
+    return T_RETURN;
+}
+
 <SC_INIT>"try" {
     return T_TRY;
 }

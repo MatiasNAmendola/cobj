@@ -1,0 +1,21 @@
+#!./co
+
+num = 3;
+func fibo(num) {
+    if (num == 0) {
+        print "OK";
+        #print 0;
+    #} else if (num == 1) {
+        ##return 1;
+        ##print "elseif";
+    #} else {
+        #return fibo(num - 1) + fibo(num - 2);
+        #print "else";
+    }
+}
+
+print fibo(0);
+#print fibo(1);
+#print fibo(2);
+#print fibo(3);
+#print fibo(4);

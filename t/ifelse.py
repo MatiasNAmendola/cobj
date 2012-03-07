@@ -3,24 +3,28 @@ from TAP.Simple import *
 
 plan(1)
 
-test_expect_result("""1
-2
-3
+test_expect_result("""if
+else if
+else
 """, """
 num = 10;
-if (num > 100) {
-    print 1;
+if (num < 100) {
+    print "if";
 }
 
-if (1) {
-    print 1;
-    print 2;
-    print 3;
-} else if (0) {
-    print 3;
-    print 2;
-    print 1;
+if (num == 1) {
+    print "if";
+} else if (num == 10) {
+    print "else if";
 } else {
-    print 0;
+    print "else";
+}
+
+if (num == 0) {
+    print "if";
+} else if (num == 1) {
+    print "else if";
+} else {
+    print "else";
 }
 """)
