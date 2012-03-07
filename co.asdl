@@ -1,3 +1,4 @@
+-- ASDL for CObject
 -- ASDL's four builtin types are identifier, int, string, object
 -- http://asdl.sourceforge.net
 
