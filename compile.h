@@ -73,7 +73,6 @@ struct co_opline {
  */
 struct co_opline_array {
     struct co_opline *ops;
-    struct co_opline *start_op;
     uint last, size;
     uint t;                     // number of temp variables
 };

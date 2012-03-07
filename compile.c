@@ -20,7 +20,6 @@ init_op_array(struct co_opline_array *op_array, int ops_size)
     op_array->last = 0;
     op_array->t = 0;
     op_array->ops = xmalloc((op_array->size) * sizeof(struct co_opline));
-    op_array->start_op = NULL;
 }
 
 struct co_opline *

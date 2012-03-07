@@ -283,7 +283,6 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
         val1 = get_cval_ptr(&op->op1, exec_data->ts);
         struct Function *func = xmalloc(sizeof(struct Function));
         func->op_array = xmalloc(sizeof(struct co_opline_array));
-        func->op_array->start_op = NULL;
         func->op_array->ops = exec_data->op + 1;
         func->op_array->last = op->op2.u.opline_num;
         val1->u.func = func;
@@ -342,11 +341,7 @@ vm_enter:
     exec_data->prev_exec_data = EG(current_exec_data);
     EG(current_exec_data) = exec_data;
 
-    if (op_array->start_op) {
-        exec_data->op = op_array->start_op;
-    } else {
-        exec_data->op = op_array->ops;
-    }
+    exec_data->op = op_array->ops;
 
     while (true) {
         switch (co_vm_handler(exec_data->op->opcode, exec_data)) {
