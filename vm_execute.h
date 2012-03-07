@@ -24,7 +24,6 @@ struct co_executor_globals {
     struct co_exec_data *current_exec_data;
     struct co_vm_stack *vm_stack;
     co_stack argument_stack;
-    struct co_exception_buf *exception_buf;
     HashTable variable_symboltable;
 };
 
