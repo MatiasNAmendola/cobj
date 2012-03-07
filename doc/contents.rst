@@ -6,4 +6,4 @@ Table Of Contents
 
     about.rst
     features.rst
-    reference.rst
+    reference/index.rst
