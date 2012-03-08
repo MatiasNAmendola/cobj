@@ -12,11 +12,13 @@ struct co_vm_stack {
     void *elements[1];
 };
 
+/* execution frame */
 struct co_exec_data {
     struct co_opline *op;
     union temp_variable *ts;
     struct co_opline_array *opline_array;
     struct co_exec_data *prev_exec_data;
+    HashTable symbol_table;
 };
 
 struct co_executor_globals {
@@ -24,7 +26,6 @@ struct co_executor_globals {
     struct co_exec_data *current_exec_data;
     struct co_vm_stack *vm_stack;
     co_stack argument_stack;
-    HashTable variable_symboltable;
 };
 
 extern struct co_executor_globals executor_globals;

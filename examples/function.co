@@ -5,13 +5,12 @@ func fibo(num) {
     } else if (num == 1) {
         return 1;
     } else {
-        return num;
-#return fibo(num - 1) + fibo(num - 2);
+        return fibo(num - 1) + fibo(num - 2);
     }
 }
 
 print fibo(0);
 print fibo(1);
-print fibo(2);
+#print fibo(2);
 #print fibo(3);
 #print fibo(4);

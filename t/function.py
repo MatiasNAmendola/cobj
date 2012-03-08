@@ -23,14 +23,12 @@ hello(10);
 """)
 
 test_expect_result("""outside a
-outside str
 """, """
 a = "outside a";
 str = "outside str";
-func hello() {
-    print a; 
+func hello(str) {
     print str;
 }
 
-hello();
+hello(a);
 """)

@@ -108,7 +108,7 @@ cval_get(const char *name)
 {
     struct cval *val;
 
-    if (co_symtable_find(&EG(variable_symboltable), name, strlen(name), (void **)&val)) {
+    if (co_symtable_find(&EG(current_exec_data)->symbol_table, name, strlen(name), (void **)&val)) {
         return val;
     } else {
         return NULL;
@@ -118,14 +118,14 @@ cval_get(const char *name)
 bool
 cval_put(const char *name, struct cval * val)
 {
-    return co_symtable_update(&EG(variable_symboltable), name, strlen(name), val,
+    return co_symtable_update(&EG(current_exec_data)->symbol_table, name, strlen(name), val,
                               sizeof(struct cval));
 }
 
 bool
 cval_del(const char *name)
 {
-    return co_symtable_del(&EG(variable_symboltable), name, strlen(name));
+    return co_symtable_del(&EG(current_exec_data)->symbol_table, name, strlen(name));
 }
 
 void
@@ -187,146 +187,148 @@ get_cval_ptr(struct cnode *node, const union temp_variable *ts)
 }
 
 int
-co_vm_handler(int opcode, struct co_exec_data *exec_data)
+co_vm_handler(void)
 {
-    struct co_opline *op = exec_data->op;
+    struct co_opline *op = EG(current_exec_data)->op;
     struct cval *val1, *val2, *result;
-    switch (opcode) {
+    switch (EG(current_exec_data)->op->opcode) {
     case OP_ADD:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
-        val2 = get_cval_ptr(&op->op2, exec_data->ts);
-        result = get_cval_ptr(&op->result, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
         result->u.ival = val1->u.ival + val2->u.ival;
         result->type = CVAL_IS_INT;
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_SUB:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
-        val2 = get_cval_ptr(&op->op2, exec_data->ts);
-        result = get_cval_ptr(&op->result, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
         result->u.ival = val1->u.ival - val2->u.ival;
         result->type = CVAL_IS_INT;
 
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_MUL:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
-        val2 = get_cval_ptr(&op->op2, exec_data->ts);
-        result = get_cval_ptr(&op->result, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
         result->u.ival = val1->u.ival * val2->u.ival;
         result->type = CVAL_IS_INT;
 
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_DIV:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
-        val2 = get_cval_ptr(&op->op2, exec_data->ts);
-        result = get_cval_ptr(&op->result, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
         result->u.ival = val1->u.ival / val2->u.ival;
         result->type = CVAL_IS_INT;
 
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_MOD:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
-        val2 = get_cval_ptr(&op->op2, exec_data->ts);
-        result = get_cval_ptr(&op->result, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
         result->u.ival = val1->u.ival % val2->u.ival;
         result->type = CVAL_IS_INT;
 
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_IS_EQUAL:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
-        val2 = get_cval_ptr(&op->op2, exec_data->ts);
-        result = get_cval_ptr(&op->result, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
         result->u.ival = val1->u.ival == val2->u.ival;
         result->type = CVAL_IS_BOOL;
 
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_IS_NOT_EQUAL:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
-        val2 = get_cval_ptr(&op->op2, exec_data->ts);
-        result = get_cval_ptr(&op->result, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
         result->u.ival = val1->u.ival != val2->u.ival;
         result->type = CVAL_IS_BOOL;
 
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_IS_SMALLER:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
-        val2 = get_cval_ptr(&op->op2, exec_data->ts);
-        result = get_cval_ptr(&op->result, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
         result->u.ival = val1->u.ival < val2->u.ival;
         result->type = CVAL_IS_BOOL;
 
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_IS_SMALLER_OR_EQUAL:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
-        val2 = get_cval_ptr(&op->op2, exec_data->ts);
-        result = get_cval_ptr(&op->result, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
         result->u.ival = val1->u.ival <= val2->u.ival;
         result->type = CVAL_IS_BOOL;
 
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_ASSIGN:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
-        val2 = get_cval_ptr(&op->op2, exec_data->ts);
-        result = get_cval_ptr(&op->result, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
 
         result->u.ival = val1->u.ival = val2->u.ival;
         result->type = val1->type = val2->type;
 
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_PRINT:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
         cval_print(val1);
 
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_JMPZ:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
 
         if (!val1->u.ival) {
 #if CO_DEBUG
         printf("JMPZ offset: %d\n", op->op1.u.opline_num);
 #endif
-            exec_data->op += op->op2.u.opline_num;
+            EG(current_exec_data)->op += op->op2.u.opline_num;
             return CO_VM_CONTINUE;
         }
 
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_JMP:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
 #if CO_DEBUG
         printf("JMP offset: %d\n", op->op1.u.opline_num);
 #endif
-        exec_data->op += op->op1.u.opline_num;
+        EG(current_exec_data)->op += op->op1.u.opline_num;
 
         return CO_VM_CONTINUE;
     case OP_EXIT:
         return CO_VM_RETURN;
     case OP_DECLARE_FUNCTION:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
         struct Function *func = xmalloc(sizeof(struct Function));
         func->opline_array = xmalloc(sizeof(struct co_opline_array));
-        func->opline_array->ops = exec_data->op + 1;
+        func->opline_array->ops = EG(current_exec_data)->op + 1;
         func->opline_array->last = op->op2.u.opline_num;
         val1->u.func = func;
         val1->type = CVAL_IS_FUNCTION;
-        exec_data->op += op->op2.u.opline_num + 1;
+        EG(current_exec_data)->op += op->op2.u.opline_num + 1;
         return CO_VM_CONTINUE;
     case OP_RETURN:
         do {
             struct cval tmp;
-            EG(current_exec_data) = exec_data->prev_exec_data;
+            struct co_exec_data *exec_data;
+            exec_data = EG(current_exec_data);
+            EG(current_exec_data) = EG(current_exec_data)->prev_exec_data;
             if (op->op1.type != IS_UNUSED)  {
-                val1 = get_cval_ptr(&op->op1, exec_data->ts);
+                val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
                 tmp = *val1;
             }
             co_vm_stack_free(exec_data);
@@ -334,26 +336,25 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
             if (op->op1.type != IS_UNUSED)  {
                 *result = tmp;
             }
-            exec_data = EG(current_exec_data);
             return CO_VM_LEAVE;
         } while (false);
     case OP_INIT_FCALL:
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_DO_FCALL:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
-        result = get_cval_ptr(&op->result, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
         if (val1->type != CVAL_IS_FUNCTION) {
             error("not a function");
         }
         co_vm_stack_push(result);
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         EG(active_opline_array) = val1->u.func->opline_array;
         return CO_VM_ENTER;
     case OP_PASS_PARAM:
-        val1 = get_cval_ptr(&op->op1, exec_data->ts);
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
         co_stack_push(&EG(argument_stack), &val1, sizeof(&val1));
-        exec_data->op++;
+        EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_RECV_PARAM:
         do {
@@ -361,11 +362,11 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
             co_stack_top(&EG(argument_stack), (void **)&val);
             cval_put(op->op1.u.val.u.str.val, *val);
 
-            exec_data->op++;
+            EG(current_exec_data)->op++;
             return CO_VM_CONTINUE;
         } while (false);
     default:
-        error("unknown handle for opcode(%d)\n", opcode);
+        error("unknown handle for opcode(%d)\n", EG(current_exec_data)->op->opcode);
         return -1;
     }
 }
@@ -382,14 +383,14 @@ vm_enter:
                                                  sizeof(union temp_variable) * opline_array->t);
     exec_data->ts = (union temp_variable *)((char *)exec_data + sizeof(struct co_exec_data));
     exec_data->opline_array = opline_array;
+    exec_data->op = opline_array->ops;
+    co_hash_init(&exec_data->symbol_table, 2, NULL);
 
     exec_data->prev_exec_data = EG(current_exec_data);
     EG(current_exec_data) = exec_data;
 
-    exec_data->op = opline_array->ops;
-
     while (true) {
-        switch (co_vm_handler(exec_data->op->opcode, exec_data)) {
+        switch (co_vm_handler()) {
         case CO_VM_CONTINUE:
             continue;
         case CO_VM_RETURN:
@@ -398,7 +399,7 @@ vm_enter:
             opline_array = EG(active_opline_array);
             goto vm_enter;
         case CO_VM_LEAVE:
-            exec_data = EG(current_exec_data);
+            continue;
         default:
             break;
         }
@@ -409,5 +410,4 @@ void
 co_vm_init()
 {
     EG(vm_stack) = co_vm_stack_new_page(CO_VM_STACK_PAGE_SIZE);
-    co_hash_init(&EG(variable_symboltable), 2, NULL);
 }
