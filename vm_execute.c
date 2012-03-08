@@ -108,11 +108,13 @@ cval_get(const char *name)
 {
     struct cval *val;
 
-    if (co_symtable_find(&EG(current_exec_data)->symbol_table, name, strlen(name), (void **)&val)) {
-        return val;
-    } else {
-        return NULL;
-    }
+    struct co_exec_data *current_exec_data = EG(current_exec_data);
+    do {
+        if (co_symtable_find(&current_exec_data->symbol_table, name, strlen(name), (void **)&val)) {
+            return val;
+        }
+    } while (current_exec_data = current_exec_data->prev_exec_data);
+    return NULL;
 }
 
 bool
@@ -150,9 +152,23 @@ cval_print(struct cval *val)
         break;
     case CVAL_IS_STRING:
         printf("%s\n", val->u.str.val);
+    case CVAL_IS_FUNCTION:
+        printf("<function>%s\n", val->u.func->name);
         break;
     default:
+        error("unknow cval type: %d", val->type);
         break;
+    }
+}
+
+static void
+cval_bind(struct cnode *node)
+{
+    struct cval *cval;
+    cval = cval_get(node->u.val.u.str.val);
+    if (!cval) {
+        struct cval cvalnew;
+        cval_put(node->u.val.u.str.val, &cvalnew);
     }
 }
 
@@ -168,10 +184,7 @@ get_cval_ptr(struct cnode *node, const union temp_variable *ts)
     case IS_VAR:
         cvalptr = cval_get(node->u.val.u.str.val);
         if (!cvalptr) {
-            struct cval cvalnew;
-
-            cval_put(node->u.val.u.str.val, &cvalnew);
-            cvalptr = cval_get(node->u.val.u.str.val);
+            error("not bind: %s", node->u.val.u.str.val);
         }
         return cvalptr;
         break;
@@ -292,10 +305,10 @@ co_vm_handler(void)
         val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
 
         if (!val1->u.ival) {
-#if CO_DEBUG
-        printf("JMPZ offset: %d\n", op->op1.u.opline_num);
-#endif
             EG(current_exec_data)->op += op->op2.u.opline_num;
+#if CO_DEBUG
+        printf("JMPZ to: %d\n", EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
+#endif
             return CO_VM_CONTINUE;
         }
 
@@ -303,11 +316,10 @@ co_vm_handler(void)
         return CO_VM_CONTINUE;
     case OP_JMP:
         val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
-#if CO_DEBUG
-        printf("JMP offset: %d\n", op->op1.u.opline_num);
-#endif
         EG(current_exec_data)->op += op->op1.u.opline_num;
-
+#if CO_DEBUG
+        printf("JMP to: %d\n", EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
+#endif
         return CO_VM_CONTINUE;
     case OP_EXIT:
         return CO_VM_RETURN;
@@ -317,31 +329,38 @@ co_vm_handler(void)
         func->opline_array = xmalloc(sizeof(struct co_opline_array));
         func->opline_array->ops = EG(current_exec_data)->op + 1;
         func->opline_array->last = op->op2.u.opline_num;
+        func->name = op->op1.u.val.u.str.val;
         val1->u.func = func;
         val1->type = CVAL_IS_FUNCTION;
         EG(current_exec_data)->op += op->op2.u.opline_num + 1;
+#ifdef CO_DEBUG
+        printf("declare func jump over to: %d\n", EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
+#endif
         return CO_VM_CONTINUE;
     case OP_RETURN:
-        do {
+        {
             struct cval tmp;
             struct co_exec_data *exec_data;
             exec_data = EG(current_exec_data);
-            EG(current_exec_data) = EG(current_exec_data)->prev_exec_data;
             if (op->op1.type != IS_UNUSED)  {
                 val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
                 tmp = *val1;
             }
+            EG(current_exec_data) = EG(current_exec_data)->prev_exec_data;
             co_vm_stack_free(exec_data);
             result = co_vm_stack_pop();
             if (op->op1.type != IS_UNUSED)  {
                 *result = tmp;
             }
             return CO_VM_LEAVE;
-        } while (false);
+        }
     case OP_INIT_FCALL:
         EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_DO_FCALL:
+#ifdef CO_DEBUG
+        printf("call\n");
+#endif
         val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
         result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
         if (val1->type != CVAL_IS_FUNCTION) {
@@ -357,14 +376,21 @@ co_vm_handler(void)
         EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_RECV_PARAM:
-        do {
+        {
             struct cval **val;
             co_stack_top(&EG(argument_stack), (void **)&val);
             cval_put(op->op1.u.val.u.str.val, *val);
 
             EG(current_exec_data)->op++;
             return CO_VM_CONTINUE;
-        } while (false);
+        }
+    case OP_BIND_NAME:
+#ifdef CO_DEBUG
+        printf("bind name\n");
+#endif
+        cval_bind(&op->op1);
+        EG(current_exec_data)->op++;
+        return CO_VM_CONTINUE;
     default:
         error("unknown handle for opcode(%d)\n", EG(current_exec_data)->op->opcode);
         return -1;
@@ -378,12 +404,16 @@ co_vm_execute(struct co_opline_array *opline_array)
 
 vm_enter:
     /* initialize exec_data */
+#ifdef CO_DEBUG
+    printf("tmp: %d\n", opline_array->t);
+#endif
     exec_data =
         (struct co_exec_data *)co_vm_stack_alloc(sizeof(struct co_exec_data) +
                                                  sizeof(union temp_variable) * opline_array->t);
     exec_data->ts = (union temp_variable *)((char *)exec_data + sizeof(struct co_exec_data));
     exec_data->opline_array = opline_array;
     exec_data->op = opline_array->ops;
+    exec_data->prev_exec_data = NULL;
     co_hash_init(&exec_data->symbol_table, 2, NULL);
 
     exec_data->prev_exec_data = EG(current_exec_data);

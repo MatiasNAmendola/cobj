@@ -29,9 +29,10 @@ co_print_opcode(struct co_opline_array *opline_array)
         "OP_TRY",
         "OP_THROW",
         "OP_CATCH",
+        "OP_BIND_NAME",
     };
     for (int i = 0; i < opline_array->last; i++) {
         struct co_opline *op = &opline_array->ops[i];
-        printf("opcode[%d]: %s\n", i, opcode_names[op->opcode]);
+        printf("opcode[%d]: %s, %d, %d\n", i, opcode_names[op->opcode], op->op1.type, op->op2.type);
     }
 }

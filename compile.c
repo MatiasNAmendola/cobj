@@ -65,7 +65,10 @@ void
 co_assign(struct cnode *result, struct cnode *variable, const struct cnode *value)
 {
     struct co_opline *op = get_next_op(CG(active_opline_array));
+    op->opcode = OP_BIND_NAME;
+    op->op1 = *variable;
 
+    op = get_next_op(CG(active_opline_array));
     op->opcode = OP_ASSIGN;
     op->op1 = *variable;
     op->op2 = *value;
@@ -151,17 +154,21 @@ co_while_end(const struct cnode *while_token, const struct cnode *closing_bracke
 
     int while_end_stmt_op_num = CG(active_opline_array)->last;
     CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num =
-        while_end_stmt_op_num - closing_bracket_token->u.opline_num;
+         while_end_stmt_op_num - closing_bracket_token->u.opline_num;
 }
 
 void
-co_begin_function_declaration(struct cnode *function_name)
+co_begin_function_declaration(struct cnode *function_token, struct cnode *function_name)
 {
-    int function_opline_num = CG(active_opline_array)->last;
     struct co_opline *op = get_next_op(CG(active_opline_array));
+    op->opcode = OP_BIND_NAME;
+    op->op1 = *function_name;
+
+    int function_opline_num = CG(active_opline_array)->last;
+    op = get_next_op(CG(active_opline_array));
     op->opcode = OP_DECLARE_FUNCTION;
     op->op1 = *function_name;
-    function_name->u.opline_num = function_opline_num;
+    function_token->u.opline_num = function_opline_num;
 }
 
 void

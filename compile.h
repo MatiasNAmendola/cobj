@@ -28,6 +28,7 @@
 struct Function {
     struct co_opline_array *opline_array;
     int numparams;              /* number of positional parameters */
+    const char *name;
 };
 
 /* 
@@ -75,6 +76,7 @@ struct co_opline_array {
     struct co_opline *ops;
     uint last, size;
     uint t;                     // number of temp variables
+    struct co_opline_array *prev_opline_array;
 };
 
 /* temp variable */
@@ -97,7 +99,7 @@ void co_if_end(const struct cnode *closing_bracket_token);
 void co_while_cond(const struct cnode *cond, struct cnode *while_token,
                    struct cnode *closing_bracket_token);
 void co_while_end(const struct cnode *while_token, const struct cnode *closing_bracket_token);
-void co_begin_function_declaration(struct cnode *function_token);
+void co_begin_function_declaration(struct cnode *function_token, struct cnode *function_name);
 void co_end_function_declaration(const struct cnode *function_token);
 void co_begin_function_call(struct cnode *function_name);
 void co_end_function_call(struct cnode *function_name, struct cnode *result);

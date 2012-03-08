@@ -27,5 +27,6 @@
 #define OP_TRY                      21
 #define OP_THROW                    22
 #define OP_CATCH                    23
+#define OP_BIND_NAME                24
 
 #endif

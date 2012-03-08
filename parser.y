@@ -128,7 +128,7 @@ finally_block:
 ;
 
 function_declaration:
-    T_FUNC T_NAME { co_begin_function_declaration(&$2); } '(' parameter_list ')' '{' statement_list '}' { co_end_function_declaration(&$2); }
+    T_FUNC T_NAME { co_begin_function_declaration(&$1, &$2); } '(' parameter_list ')' '{' statement_list '}' { co_end_function_declaration(&$1); }
 ;
 
 parameter_list:

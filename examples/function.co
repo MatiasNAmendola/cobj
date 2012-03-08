@@ -1,4 +1,5 @@
 #!./co
+
 func fibo(num) {
     if (num == 0) {
         return 0;
@@ -10,7 +11,8 @@ func fibo(num) {
 }
 
 print fibo(0);
-print fibo(1);
-#print fibo(2);
-#print fibo(3);
-#print fibo(4);
+#i = 0;
+#while (i < 1) {
+    #print fibo(i);
+    #i = i + 1;
+#}
