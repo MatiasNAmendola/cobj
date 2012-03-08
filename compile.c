@@ -89,7 +89,7 @@ co_return(const struct cnode *expr)
 {
     struct co_opline *op = get_next_op(CG(active_opline_array));
 
-    op->opcode = OP_PRINT;
+    op->opcode = OP_RETURN;
     op->op1 = *expr;
     SET_UNUSED(op->op2);
 }
@@ -169,6 +169,7 @@ co_end_function_declaration(const struct cnode *function_token)
 {
     struct co_opline *op = get_next_op(CG(active_opline_array));
     op->opcode = OP_RETURN;
+    SET_UNUSED(op->op1);
 
     int function_end_opline_num = CG(active_opline_array)->last;
     CG(active_opline_array)->ops[function_token->u.opline_num].op2.u.opline_num =
@@ -189,6 +190,9 @@ co_end_function_call(struct cnode *function_name, struct cnode *result)
     struct co_opline *op = get_next_op(CG(active_opline_array));
     op->opcode = OP_DO_FCALL;
     op->op1 = *function_name;
+    op->result.type = IS_TMP_VAR;
+    op->result.u.var = get_temporary_variable(CG(active_opline_array));
+    *result = op->result;
 }
 
 void

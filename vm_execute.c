@@ -322,18 +322,31 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
         exec_data->op += op->op2.u.opline_num + 1;
         return CO_VM_CONTINUE;
     case OP_RETURN:
-        EG(current_exec_data) = exec_data->prev_exec_data;
-        co_vm_stack_free(exec_data);
-        exec_data = EG(current_exec_data);
-        return CO_VM_LEAVE;
+        do {
+            struct cval tmp;
+            EG(current_exec_data) = exec_data->prev_exec_data;
+            if (op->op1.type != IS_UNUSED)  {
+                val1 = get_cval_ptr(&op->op1, exec_data->ts);
+                tmp = *val1;
+            }
+            co_vm_stack_free(exec_data);
+            result = co_vm_stack_pop();
+            if (op->op1.type != IS_UNUSED)  {
+                *result = tmp;
+            }
+            exec_data = EG(current_exec_data);
+            return CO_VM_LEAVE;
+        } while (false);
     case OP_INIT_FCALL:
         exec_data->op++;
         return CO_VM_CONTINUE;
     case OP_DO_FCALL:
         val1 = get_cval_ptr(&op->op1, exec_data->ts);
+        result = get_cval_ptr(&op->result, exec_data->ts);
         if (val1->type != CVAL_IS_FUNCTION) {
             error("not a function");
         }
+        co_vm_stack_push(result);
         exec_data->op++;
         EG(active_opline_array) = val1->u.func->opline_array;
         return CO_VM_ENTER;
