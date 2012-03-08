@@ -54,7 +54,7 @@ struct cnode {
     union {
         struct cval val;
         uint var;
-        uint opline_num;
+        int opline_num;
     } u;
 };
 

@@ -292,7 +292,10 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
         val1 = get_cval_ptr(&op->op1, exec_data->ts);
 
         if (!val1->u.ival) {
-            exec_data->op = &exec_data->opline_array->ops[op->op2.u.opline_num];
+#if CO_DEBUG
+        printf("JMPZ offset: %d\n", op->op1.u.opline_num);
+#endif
+            exec_data->op += op->op2.u.opline_num;
             return CO_VM_CONTINUE;
         }
 
@@ -301,9 +304,9 @@ co_vm_handler(int opcode, struct co_exec_data *exec_data)
     case OP_JMP:
         val1 = get_cval_ptr(&op->op1, exec_data->ts);
 #if CO_DEBUG
-        printf("jmp to %d\n", op->op1.u.opline_num);
+        printf("JMP offset: %d\n", op->op1.u.opline_num);
 #endif
-        exec_data->op = &exec_data->opline_array->ops[op->op1.u.opline_num];
+        exec_data->op += op->op1.u.opline_num;
 
         return CO_VM_CONTINUE;
     case OP_EXIT:

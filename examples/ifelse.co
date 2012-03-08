@@ -1,0 +1,22 @@
+#!./co
+
+num = 10;
+if (num < 100) {
+    print "if";
+}
+
+if (num == 1) {
+    print "if";
+} else if (num == 10) {
+    print "else if";
+} else {
+    print "else";
+}
+
+if (num == 0) {
+    print "if";
+} else if (num == 1) {
+    print "else if";
+} else {
+    print "else";
+}
