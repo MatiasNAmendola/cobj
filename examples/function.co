@@ -10,9 +10,8 @@ func fibo(num) {
     }
 }
 
-print fibo(0);
-#i = 0;
-#while (i < 1) {
-    #print fibo(i);
-    #i = i + 1;
-#}
+i = 0;
+while (i < 10) {
+    print fibo(i);
+    i = i + 1;
+}

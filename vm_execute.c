@@ -152,6 +152,7 @@ cval_print(struct cval *val)
         break;
     case CVAL_IS_STRING:
         printf("%s\n", val->u.str.val);
+        break;
     case CVAL_IS_FUNCTION:
         printf("<function>%s\n", val->u.func->name);
         break;
@@ -329,6 +330,7 @@ co_vm_handler(void)
         func->opline_array = xmalloc(sizeof(struct co_opline_array));
         func->opline_array->ops = EG(current_exec_data)->op + 1;
         func->opline_array->last = op->op2.u.opline_num;
+        func->opline_array->t = EG(current_exec_data)->opline_array->t; // hack fix, using same temp variables num
         func->name = op->op1.u.val.u.str.val;
         val1->u.func = func;
         val1->type = CVAL_IS_FUNCTION;
