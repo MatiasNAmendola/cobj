@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from TAP.Simple import *
 
-plan(4)
+plan(5)
 
 test_expect_result("""hello world
 hello,
@@ -81,3 +81,24 @@ while (i < 5) {
     i = i + 1;
 }
 """, "closures")
+
+test_expect_result("""11
+12
+13
+""", """
+
+newIncrer = func(s) {
+    n = s;
+    return func(i) {
+        n = n + i;
+        return n;
+    };
+};
+
+f = newIncrer(10);
+i = 0;
+while (i < 3) {
+    print f(1);
+    i = i + 1;
+}
+""", "closures");

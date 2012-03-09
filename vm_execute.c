@@ -109,11 +109,21 @@ cval_get(const char *name)
     struct cval *val;
 
     struct co_exec_data *current_exec_data = EG(current_exec_data);
+    if (current_exec_data->function_called) {
+        struct cval **upvalue;
+        if (co_symtable_find(&current_exec_data->function_called->upvalues, name, strlen(name), (void **)&upvalue)) {
+            return *upvalue;
+        }
+    }
     do {
         if (co_symtable_find(&current_exec_data->symbol_table, name, strlen(name), (void **)&val)) {
             return val;
         }
-    } while (current_exec_data = current_exec_data->prev_exec_data);
+        current_exec_data = current_exec_data->prev_exec_data;
+        if (!current_exec_data) {
+            break;
+        }
+    } while (true);
     return NULL;
 }
 
@@ -326,27 +336,54 @@ co_vm_handler(void)
         return CO_VM_RETURN;
     case OP_DECLARE_FUNCTION:
         {
-        struct Function *func = xmalloc(sizeof(struct Function));
-        func->opline_array = xmalloc(sizeof(struct co_opline_array));
-        func->opline_array->ops = EG(current_exec_data)->op + 1;
-        func->opline_array->last = op->op2.u.opline_num;
-        func->opline_array->t = EG(current_exec_data)->opline_array->t; // hack fix, using same temp variables num
-        func->name = op->op1.u.val.u.str.val;
-        if (op->op1.type != IS_UNUSED) {
-            val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
-            val1->u.func = func;
-            val1->type = CVAL_IS_FUNCTION;
-        }
-        if (op->result.type != IS_UNUSED) {
-            result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
-            result->u.func = func;
-            result->type = CVAL_IS_FUNCTION;
-        }
-        EG(current_exec_data)->op += op->op2.u.opline_num + 1;
+            struct Function *func = xmalloc(sizeof(struct Function));
+            func->opline_array = xmalloc(sizeof(struct co_opline_array));
+            func->opline_array->ops = EG(current_exec_data)->op + 1;
+            func->opline_array->last = op->op2.u.opline_num;
+            func->opline_array->t = EG(current_exec_data)->opline_array->t; // hack fix, using same temp variables num
+            func->name = op->op1.u.val.u.str.val;
+            co_hash_init(&func->upvalues, 1, NULL);
+            if (EG(current_exec_data)->function_called) {
+                // setup function's upvalues
+                struct co_opline *start = EG(current_exec_data)->op;
+                struct co_opline *end = EG(current_exec_data)->op + op->op2.u.opline_num;
+                char *name; 
+                for (; start <= end; start++) {
+                    if (start->op1.type == IS_VAR) {
+                        name = start->op1.u.val.u.str.val;
+                        struct cval *val = cval_get(name);
+                        if (val) {
+                            /*printf("1%s, %d\n", name, start->opcode);*/
+                            /*cval_print(val);*/
+                            co_symtable_update(&func->upvalues, name, strlen(name), &val, sizeof(void*));
+                        }
+                    }
+                    if (start->op2.type == IS_VAR) {
+                        name = start->op2.u.val.u.str.val;
+                        struct cval *val = cval_get(name);
+                        if (val) {
+                            /*printf("2%s, %d\n", name, start->opcode);*/
+                            /*cval_print(val);*/
+                            co_symtable_update(&func->upvalues, name, strlen(name), &val, sizeof(struct cval *));
+                        }
+                    }
+                }
+            }
+            if (op->op1.type != IS_UNUSED) {
+                val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+                val1->u.func = func;
+                val1->type = CVAL_IS_FUNCTION;
+            }
+            if (op->result.type != IS_UNUSED) {
+                result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
+                result->u.func = func;
+                result->type = CVAL_IS_FUNCTION;
+            }
+            EG(current_exec_data)->op += op->op2.u.opline_num + 1;
 #ifdef CO_DEBUG
-        printf("declare func jump over to: %d\n", EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
+            printf("declare func jump over to: %d\n", EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
 #endif
-        return CO_VM_CONTINUE;
+            return CO_VM_CONTINUE;
         }
     case OP_RETURN:
         {
@@ -379,7 +416,7 @@ co_vm_handler(void)
         }
         co_vm_stack_push(result);
         EG(current_exec_data)->op++;
-        EG(active_opline_array) = val1->u.func->opline_array;
+        EG(next_func) = val1->u.func;
         return CO_VM_ENTER;
     case OP_PASS_PARAM:
         val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
@@ -426,10 +463,14 @@ vm_enter:
     exec_data->op = opline_array->ops;
     exec_data->prev_exec_data = NULL;
     co_hash_init(&exec_data->symbol_table, 2, NULL);
+    exec_data->function_called = EG(next_func);
 
     exec_data->prev_exec_data = EG(current_exec_data);
     EG(current_exec_data) = exec_data;
 
+#ifdef CO_DEBUG
+    printf("vm enter: %p\n", &EG(current_exec_data)->symbol_table);
+#endif
     while (true) {
         switch (co_vm_handler()) {
         case CO_VM_CONTINUE:
@@ -437,9 +478,12 @@ vm_enter:
         case CO_VM_RETURN:
             return;
         case CO_VM_ENTER:
-            opline_array = EG(active_opline_array);
+            opline_array = EG(next_func)->opline_array;
             goto vm_enter;
         case CO_VM_LEAVE:
+#ifdef CO_DEBUG
+            printf("vm leave: %p\n", &EG(current_exec_data)->symbol_table);
+#endif
             continue;
         default:
             break;

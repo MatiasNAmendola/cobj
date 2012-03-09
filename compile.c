@@ -217,7 +217,12 @@ co_end_function_call(struct cnode *function_name, struct cnode *result)
 void
 co_recv_param(struct cnode *param)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op;
+    op = get_next_op(CG(active_opline_array));
+    op->opcode = OP_BIND_NAME;
+    op->op1 = *param;
+
+    op = get_next_op(CG(active_opline_array));
     op->opcode = OP_RECV_PARAM;
     op->op1 = *param;
 }

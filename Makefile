@@ -7,9 +7,11 @@ all::
 CC = gcc
 RM = rm -rf
 
-CFLAGS = -std=c99 -O2 -Wall
+CFLAGS = -std=c99 -g -Wall
 ifdef CO_DEBUG
 	CFLAGS += -DCO_DEBUG
+else
+	CFLAGS += -O2 
 endif
 
 LDFLAGS =

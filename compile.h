@@ -4,6 +4,7 @@
 #include "co.h"
 #include "hash.h"
 #include "stack.h"
+#include "llist.h"
 
 /** cval type **/
 #define CVAL_IS_NONE        1
@@ -29,6 +30,7 @@ struct Function {
     struct co_opline_array *opline_array;
     int numparams;              /* number of positional parameters */
     const char *name;
+    HashTable upvalues;
 };
 
 /* 

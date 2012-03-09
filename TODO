@@ -1,4 +1,3 @@
 * error handling (exceptin)
 * error message with location
-* recursive function call
-* function local scope & global scope
+* implement namespace & scope rules

@@ -1,12 +1,30 @@
 #!./co
-f = func(n) {
-    if (n == 0) {
-        return 1;
-    } else {
-        return n * f(n - 1);
-    }
+
+# fact
+#f = func(n) {
+    #if (n == 0) {
+        #return 1;
+    #} else {
+        #return n * f(n - 1);
+    #}
+#};
+
+#i = 0;
+#while (i < 5) {
+    #print f(i);
+    #i = i + 1;
+#}
+
+
+newIncrer = func(s) {
+    n = s;
+    return func(i) {
+        n = n + i;
+        return n;
+    };
 };
 
+f = newIncrer(10);
 i = 0;
 while (i < 5) {
     print f(i);

@@ -48,14 +48,14 @@ co_llist_prepend_element(co_llist *l, void *element)
 }
 
 void
-co_llist_del_element(co_llist *l, void *element, bool(*compare) (void *element1, void *element2))
+co_llist_del_element(co_llist *l, void *element, int(*compare) (void *element1, void *element2))
 {
     co_llist_element *current = l->head;
     co_llist_element *next;
 
     while (current) {
         next = current->next;
-        if (compare(current->data, element)) {
+        if (!compare(current->data, element)) {
             // delete it
             if (current->prev) {
                 current->prev->next = current->next;
@@ -76,6 +76,28 @@ co_llist_del_element(co_llist *l, void *element, bool(*compare) (void *element1,
         }
         current = next;
     }
+}
+
+int
+co_llist_search(co_llist *l, void *element, int(*compare) (void *element1, void *element2))
+{
+    co_llist_element *current = l->head;
+    co_llist_element *next;
+
+    while (current) {
+        next = current->next;
+        if (!compare(current->data, element)) {
+            return 0;
+        }
+        current = next;
+    }
+    return 1;
+}
+
+int
+co_llist_count(co_llist *l)
+{
+    return l->count;
 }
 
 void
