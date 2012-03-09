@@ -19,22 +19,23 @@ LDFLAGS =
 prefix = /usr/local
 bindir = $(prefix)/bin
 
+# recompile all lib objs if any of header file changes, dependencies is hard to maintain!
 LIB_H = $(wildcard *.h) parser.h scanner.h
 
 LIB_OBJS += co.o
 LIB_OBJS += compile.o
 LIB_OBJS += debug.o
-LIB_OBJS += hash.o
+LIB_OBJS += dstring.o
 LIB_OBJS += error.o
+LIB_OBJS += hash.o
+LIB_OBJS += llist.o
 LIB_OBJS += parser.o
 LIB_OBJS += scanner.o
 LIB_OBJS += stack.o
+LIB_OBJS += usage.o
 LIB_OBJS += vm_execute.o
 LIB_OBJS += vm_opcodes.o
 LIB_OBJS += wrapper.o
-LIB_OBJS += usage.o
-LIB_OBJS += llist.o
-LIB_OBJS += dstring.o
 
 $(LIB_OBJS): $(LIB_H)
 
@@ -54,7 +55,7 @@ scanner.c: scanner.l
 all:: co
 
 install: all
-	install -m 755 co $(bindir)
+	install -p -m 755 co $(bindir)
 
 uninstall: 
 	$(RM) $(bindir)/co

@@ -58,7 +58,8 @@ co_hash_do_resize(HashTable *ht)
     Bucket **t;
 
     if ((ht->nTableSize << 1) > 0) {    // double the table size
-        t = (Bucket **)xrealloc(ht->arBuckets, (ht->nTableSize << 1) * sizeof(Bucket *));
+        t = (Bucket **)xrealloc(ht->arBuckets,
+                                (ht->nTableSize << 1) * sizeof(Bucket *));
         ht->arBuckets = t;
         ht->nTableSize = ht->nTableSize << 1;
         ht->nTableMask = ht->nTableSize - 1;

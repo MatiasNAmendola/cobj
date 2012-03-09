@@ -94,15 +94,19 @@ void init_opline_array(struct co_opline_array *opline_array, int ops_size);
 void co_binary_op(uchar opcode, struct cnode *result, const struct cnode *op1,
                   const struct cnode *op2);
 void co_print(const struct cnode *op);
-void co_assign(struct cnode *result, struct cnode *variable, const struct cnode *op);
+void co_assign(struct cnode *result, struct cnode *variable,
+               const struct cnode *op);
 void co_if_cond(const struct cnode *cond, struct cnode *closing_bracket_token);
 void co_if_after_statement(struct cnode *closing_bracket_token);
 void co_if_end(const struct cnode *closing_bracket_token);
 void co_while_cond(const struct cnode *cond, struct cnode *while_token,
                    struct cnode *closing_bracket_token);
-void co_while_end(const struct cnode *while_token, const struct cnode *closing_bracket_token);
-void co_begin_function_declaration(struct cnode *function_token, struct cnode *function_name);
-void co_end_function_declaration(const struct cnode *function_token, struct cnode *result);
+void co_while_end(const struct cnode *while_token,
+                  const struct cnode *closing_bracket_token);
+void co_begin_function_declaration(struct cnode *function_token,
+                                   struct cnode *function_name);
+void co_end_function_declaration(const struct cnode *function_token,
+                                 struct cnode *result);
 void co_begin_function_call(struct cnode *function_name);
 void co_end_function_call(struct cnode *function_name, struct cnode *result);
 void co_pass_param(struct cnode *param);

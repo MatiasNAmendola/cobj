@@ -34,7 +34,9 @@ static void
 co_vm_stack_extend(size_t size)
 {
     struct co_vm_stack *p =
-        co_vm_stack_new_page(size >= CO_VM_STACK_PAGE_SIZE ? size : CO_VM_STACK_PAGE_SIZE);
+        co_vm_stack_new_page(size >=
+                             CO_VM_STACK_PAGE_SIZE ? size :
+                             CO_VM_STACK_PAGE_SIZE);
     p->prev = EG(vm_stack);
     EG(vm_stack) = p;
 }
@@ -118,7 +120,9 @@ cval_get(const char *name)
         }
     }
     do {
-        if (co_symtable_find(&current_exec_data->symbol_table, name, strlen(name), (void **)&val)) {
+        if (co_symtable_find
+            (&current_exec_data->symbol_table, name, strlen(name),
+             (void **)&val)) {
             return val;
         }
         current_exec_data = current_exec_data->prev_exec_data;
@@ -132,14 +136,15 @@ cval_get(const char *name)
 bool
 cval_put(const char *name, struct cval * val)
 {
-    return co_symtable_update(&EG(current_exec_data)->symbol_table, name, strlen(name), val,
-                              sizeof(struct cval));
+    return co_symtable_update(&EG(current_exec_data)->symbol_table, name,
+                              strlen(name), val, sizeof(struct cval));
 }
 
 bool
 cval_del(const char *name)
 {
-    return co_symtable_del(&EG(current_exec_data)->symbol_table, name, strlen(name));
+    return co_symtable_del(&EG(current_exec_data)->symbol_table, name,
+                           strlen(name));
 }
 
 void
@@ -321,7 +326,8 @@ co_vm_handler(void)
             EG(current_exec_data)->op += op->op2.u.opline_num;
 #if CO_DEBUG
             printf("JMPZ to: %d\n",
-                   EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
+                   EG(current_exec_data)->op -
+                   EG(current_exec_data)->opline_array->ops);
 #endif
             return CO_VM_CONTINUE;
         }
@@ -333,7 +339,8 @@ co_vm_handler(void)
         EG(current_exec_data)->op += op->op1.u.opline_num;
 #if CO_DEBUG
         printf("JMP to: %d\n",
-               EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
+               EG(current_exec_data)->op -
+               EG(current_exec_data)->opline_array->ops);
 #endif
         return CO_VM_CONTINUE;
     case OP_EXIT:
@@ -350,7 +357,8 @@ co_vm_handler(void)
             if (EG(current_exec_data)->function_called) {
                 // setup function's upvalues
                 struct co_opline *start = EG(current_exec_data)->op;
-                struct co_opline *end = EG(current_exec_data)->op + op->op2.u.opline_num;
+                struct co_opline *end =
+                    EG(current_exec_data)->op + op->op2.u.opline_num;
                 char *name;
                 struct cval *val;
                 for (; start <= end; start++) {
@@ -358,7 +366,8 @@ co_vm_handler(void)
                         name = start->op1.u.val.u.str.val;
                         val = cval_get(name);
                         if (val) {
-                            co_symtable_update(&func->upvalues, name, strlen(name), &val,
+                            co_symtable_update(&func->upvalues, name,
+                                               strlen(name), &val,
                                                sizeof(struct cval *));
                         }
                     }
@@ -366,7 +375,8 @@ co_vm_handler(void)
                         name = start->op2.u.val.u.str.val;
                         val = cval_get(name);
                         if (val) {
-                            co_symtable_update(&func->upvalues, name, strlen(name), &val,
+                            co_symtable_update(&func->upvalues, name,
+                                               strlen(name), &val,
                                                sizeof(struct cval *));
                         }
                     }
@@ -385,7 +395,8 @@ co_vm_handler(void)
             EG(current_exec_data)->op += op->op2.u.opline_num + 1;
 #ifdef CO_DEBUG
             printf("declare func jump over to: %d\n",
-                   EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
+                   EG(current_exec_data)->op -
+                   EG(current_exec_data)->opline_array->ops);
 #endif
             return CO_VM_CONTINUE;
         }
@@ -444,7 +455,8 @@ co_vm_handler(void)
         EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     default:
-        error("unknown handle for opcode(%d)\n", EG(current_exec_data)->op->opcode);
+        error("unknown handle for opcode(%d)\n",
+              EG(current_exec_data)->op->opcode);
         return -1;
     }
 }
@@ -461,8 +473,11 @@ vm_enter:
 #endif
     exec_data =
         (struct co_exec_data *)co_vm_stack_alloc(sizeof(struct co_exec_data) +
-                                                 sizeof(union temp_variable) * opline_array->t);
-    exec_data->ts = (union temp_variable *)((char *)exec_data + sizeof(struct co_exec_data));
+                                                 sizeof(union temp_variable) *
+                                                 opline_array->t);
+    exec_data->ts =
+        (union temp_variable *)((char *)exec_data +
+                                sizeof(struct co_exec_data));
     exec_data->opline_array = opline_array;
     exec_data->op = opline_array->ops;
     exec_data->prev_exec_data = NULL;

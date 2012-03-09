@@ -19,7 +19,8 @@ init_opline_array(struct co_opline_array *opline_array, int ops_size)
     opline_array->size = ops_size;
     opline_array->last = 0;
     opline_array->t = 0;
-    opline_array->ops = xmalloc((opline_array->size) * sizeof(struct co_opline));
+    opline_array->ops =
+        xmalloc((opline_array->size) * sizeof(struct co_opline));
 }
 
 struct co_opline *
@@ -32,7 +33,8 @@ get_next_op(struct co_opline_array *opline_array)
     if (next_op_num >= opline_array->size) {
         opline_array->size <<= 1;
         opline_array->ops =
-            xrealloc(opline_array->ops, (opline_array->size) * sizeof(struct co_opline));
+            xrealloc(opline_array->ops,
+                     (opline_array->size) * sizeof(struct co_opline));
     }
 
     next_op = &(opline_array->ops[next_op_num]);
@@ -52,7 +54,8 @@ get_temporary_variable(struct co_opline_array *opline_array)
 }
 
 void
-co_binary_op(uchar opcode, struct cnode *result, const struct cnode *op1, const struct cnode *op2)
+co_binary_op(uchar opcode, struct cnode *result, const struct cnode *op1,
+             const struct cnode *op2)
 {
     struct co_opline *op = get_next_op(CG(active_opline_array));
 
@@ -65,7 +68,8 @@ co_binary_op(uchar opcode, struct cnode *result, const struct cnode *op1, const 
 }
 
 void
-co_assign(struct cnode *result, struct cnode *variable, const struct cnode *value)
+co_assign(struct cnode *result, struct cnode *variable,
+          const struct cnode *value)
 {
     struct co_opline *op = get_next_op(CG(active_opline_array));
     op->opcode = OP_BIND_NAME;
@@ -116,7 +120,8 @@ co_if_after_statement(struct cnode *closing_bracket_token)
 {
     int if_after_stmt_op_num = CG(active_opline_array)->last;
     struct co_opline *opline = get_next_op(CG(active_opline_array));
-    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num =
+    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op2.u.
+        opline_num =
         if_after_stmt_op_num + 1 - closing_bracket_token->u.opline_num;
     closing_bracket_token->u.opline_num = if_after_stmt_op_num;
     opline->opcode = OP_JMP;
@@ -128,8 +133,8 @@ void
 co_if_end(const struct cnode *closing_bracket_token)
 {
     int if_end_op_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op1.u.opline_num =
-        if_end_op_num - closing_bracket_token->u.opline_num;
+    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op1.u.
+        opline_num = if_end_op_num - closing_bracket_token->u.opline_num;
 }
 
 void
@@ -145,7 +150,8 @@ co_while_cond(const struct cnode *cond, struct cnode *while_token,
 }
 
 void
-co_while_end(const struct cnode *while_token, const struct cnode *closing_bracket_token)
+co_while_end(const struct cnode *while_token,
+             const struct cnode *closing_bracket_token)
 {
     // add unconditional jumpback
     int while_end_opline_num = CG(active_opline_array)->last;
@@ -156,12 +162,14 @@ co_while_end(const struct cnode *while_token, const struct cnode *closing_bracke
     SET_UNUSED(op->op2);
 
     int while_end_stmt_op_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num =
+    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op2.u.
+        opline_num =
         while_end_stmt_op_num - closing_bracket_token->u.opline_num;
 }
 
 void
-co_begin_function_declaration(struct cnode *function_token, struct cnode *function_name)
+co_begin_function_declaration(struct cnode *function_token,
+                              struct cnode *function_name)
 {
     struct co_opline *op;
     if (function_name) {
@@ -180,20 +188,23 @@ co_begin_function_declaration(struct cnode *function_token, struct cnode *functi
 }
 
 void
-co_end_function_declaration(const struct cnode *function_token, struct cnode *result)
+co_end_function_declaration(const struct cnode *function_token,
+                            struct cnode *result)
 {
     struct co_opline *op = get_next_op(CG(active_opline_array));
     op->opcode = OP_RETURN;
 
     int function_end_opline_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[function_token->u.opline_num].op2.u.opline_num =
-        function_end_opline_num - function_token->u.opline_num - 1;
+    CG(active_opline_array)->ops[function_token->u.opline_num].op2.u.
+        opline_num = function_end_opline_num - function_token->u.opline_num - 1;
 
     if (result) {
-        CG(active_opline_array)->ops[function_token->u.opline_num].result.type = IS_TMP_VAR;
-        CG(active_opline_array)->ops[function_token->u.opline_num].result.u.var =
-            get_temporary_variable(CG(active_opline_array));
-        *result = CG(active_opline_array)->ops[function_token->u.opline_num].result;
+        CG(active_opline_array)->ops[function_token->u.opline_num].result.type =
+            IS_TMP_VAR;
+        CG(active_opline_array)->ops[function_token->u.opline_num].result.u.
+            var = get_temporary_variable(CG(active_opline_array));
+        *result =
+            CG(active_opline_array)->ops[function_token->u.opline_num].result;
     }
 }
 
