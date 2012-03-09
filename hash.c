@@ -27,8 +27,9 @@ bool
 co_hash_init(HashTable *ht, uint nSize, hash_func_t pHashFunction)
 {
     uint i = 3;
-
     Bucket **tmp;
+
+    memset(ht, 0, sizeof(HashTable));
 
     if (nSize >= 0x80000000) {
         /* prevent overflow */

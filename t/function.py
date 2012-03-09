@@ -82,13 +82,12 @@ while (i < 5) {
 }
 """, "closures")
 
-test_expect_result("""11
-12
+test_expect_result("""10
+11
 13
 """, """
 
-newIncrer = func(s) {
-    n = s;
+newIncrer = func(n) {
     return func(i) {
         n = n + i;
         return n;
@@ -98,7 +97,7 @@ newIncrer = func(s) {
 f = newIncrer(10);
 i = 0;
 while (i < 3) {
-    print f(1);
+    print f(i);
     i = i + 1;
 }
 """, "closures");

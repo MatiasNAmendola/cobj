@@ -348,22 +348,19 @@ co_vm_handler(void)
                 struct co_opline *start = EG(current_exec_data)->op;
                 struct co_opline *end = EG(current_exec_data)->op + op->op2.u.opline_num;
                 char *name; 
+                struct cval *val;
                 for (; start <= end; start++) {
                     if (start->op1.type == IS_VAR) {
                         name = start->op1.u.val.u.str.val;
-                        struct cval *val = cval_get(name);
+                        val = cval_get(name);
                         if (val) {
-                            /*printf("1%s, %d\n", name, start->opcode);*/
-                            /*cval_print(val);*/
-                            co_symtable_update(&func->upvalues, name, strlen(name), &val, sizeof(void*));
+                            co_symtable_update(&func->upvalues, name, strlen(name), &val, sizeof(struct cval *));
                         }
                     }
                     if (start->op2.type == IS_VAR) {
                         name = start->op2.u.val.u.str.val;
-                        struct cval *val = cval_get(name);
+                        val = cval_get(name);
                         if (val) {
-                            /*printf("2%s, %d\n", name, start->opcode);*/
-                            /*cval_print(val);*/
                             co_symtable_update(&func->upvalues, name, strlen(name), &val, sizeof(struct cval *));
                         }
                     }
