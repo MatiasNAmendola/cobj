@@ -37,7 +37,9 @@ get_next_op(struct co_opline_array *opline_array)
     next_op = &(opline_array->ops[next_op_num]);
 
     memset(next_op, 0, sizeof(struct co_opline));
-    next_op->result.type = IS_UNUSED;
+    SET_UNUSED(next_op->result);
+    SET_UNUSED(next_op->op1);
+    SET_UNUSED(next_op->op2);
 
     return next_op;
 }
@@ -160,27 +162,37 @@ co_while_end(const struct cnode *while_token, const struct cnode *closing_bracke
 void
 co_begin_function_declaration(struct cnode *function_token, struct cnode *function_name)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
-    op->opcode = OP_BIND_NAME;
-    op->op1 = *function_name;
+    struct co_opline *op;
+    if (function_name) {
+        op = get_next_op(CG(active_opline_array));
+        op->opcode = OP_BIND_NAME;
+        op->op1 = *function_name;
+    }
 
     int function_opline_num = CG(active_opline_array)->last;
     op = get_next_op(CG(active_opline_array));
     op->opcode = OP_DECLARE_FUNCTION;
-    op->op1 = *function_name;
+    if (function_name) {
+        op->op1 = *function_name;
+    }
     function_token->u.opline_num = function_opline_num;
 }
 
 void
-co_end_function_declaration(const struct cnode *function_token)
+co_end_function_declaration(const struct cnode *function_token, struct cnode *result)
 {
     struct co_opline *op = get_next_op(CG(active_opline_array));
     op->opcode = OP_RETURN;
-    SET_UNUSED(op->op1);
 
     int function_end_opline_num = CG(active_opline_array)->last;
     CG(active_opline_array)->ops[function_token->u.opline_num].op2.u.opline_num =
         function_end_opline_num - function_token->u.opline_num - 1;
+
+    if (result) {
+        CG(active_opline_array)->ops[function_token->u.opline_num].result.type = IS_TMP_VAR;
+        CG(active_opline_array)->ops[function_token->u.opline_num].result.u.var = get_temporary_variable(CG(active_opline_array));
+        *result = CG(active_opline_array)->ops[function_token->u.opline_num].result;
+    }
 }
 
 void

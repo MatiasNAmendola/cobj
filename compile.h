@@ -100,7 +100,7 @@ void co_while_cond(const struct cnode *cond, struct cnode *while_token,
                    struct cnode *closing_bracket_token);
 void co_while_end(const struct cnode *while_token, const struct cnode *closing_bracket_token);
 void co_begin_function_declaration(struct cnode *function_token, struct cnode *function_name);
-void co_end_function_declaration(const struct cnode *function_token);
+void co_end_function_declaration(const struct cnode *function_token, struct cnode *result);
 void co_begin_function_call(struct cnode *function_name);
 void co_end_function_call(struct cnode *function_name, struct cnode *result);
 void co_pass_param(struct cnode *param);

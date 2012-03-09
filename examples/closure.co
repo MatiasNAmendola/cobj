@@ -1,0 +1,14 @@
+#!./co
+f = func(n) {
+    if (n == 0) {
+        return 1;
+    } else {
+        return n * f(n - 1);
+    }
+};
+
+i = 0;
+while (i < 5) {
+    print f(i);
+    i = i + 1;
+}

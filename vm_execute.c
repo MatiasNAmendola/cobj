@@ -325,20 +325,29 @@ co_vm_handler(void)
     case OP_EXIT:
         return CO_VM_RETURN;
     case OP_DECLARE_FUNCTION:
-        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        {
         struct Function *func = xmalloc(sizeof(struct Function));
         func->opline_array = xmalloc(sizeof(struct co_opline_array));
         func->opline_array->ops = EG(current_exec_data)->op + 1;
         func->opline_array->last = op->op2.u.opline_num;
         func->opline_array->t = EG(current_exec_data)->opline_array->t; // hack fix, using same temp variables num
         func->name = op->op1.u.val.u.str.val;
-        val1->u.func = func;
-        val1->type = CVAL_IS_FUNCTION;
+        if (op->op1.type != IS_UNUSED) {
+            val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+            val1->u.func = func;
+            val1->type = CVAL_IS_FUNCTION;
+        }
+        if (op->result.type != IS_UNUSED) {
+            result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
+            result->u.func = func;
+            result->type = CVAL_IS_FUNCTION;
+        }
         EG(current_exec_data)->op += op->op2.u.opline_num + 1;
 #ifdef CO_DEBUG
         printf("declare func jump over to: %d\n", EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
 #endif
         return CO_VM_CONTINUE;
+        }
     case OP_RETURN:
         {
             struct cval tmp;
@@ -388,7 +397,7 @@ co_vm_handler(void)
         }
     case OP_BIND_NAME:
 #ifdef CO_DEBUG
-        printf("bind name\n");
+        printf("bind name, %s\n", op->op1.u.val.u.str.val);
 #endif
         cval_bind(&op->op1);
         EG(current_exec_data)->op++;

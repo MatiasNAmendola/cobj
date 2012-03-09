@@ -15,5 +15,6 @@
     lexical_elements.rst
     constants.rst
     variables.rst
+    expressions.rst
     errors.rst
     grammar.rst

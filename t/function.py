@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from TAP.Simple import *
 
-plan(3)
+plan(4)
 
 test_expect_result("""hello world
 hello,
@@ -59,4 +59,25 @@ while (i < 10) {
     print fibo(i);
     i = i + 1;
 }
-""")
+""", "recursive function")
+
+test_expect_result("""1
+1
+2
+6
+24
+""", """
+f = func(n) {
+    if (n == 0) {
+        return 1;
+    } else {
+        return n * f(n - 1);
+    }
+};
+
+i = 0;
+while (i < 5) {
+    print f(i);
+    i = i + 1;
+}
+""", "closures")

@@ -74,6 +74,7 @@ expression: /* express something */
     |   expression '/' expression { co_binary_op(OP_DIV, &$$, &$1, &$3); }
     |   expression '%' expression { co_binary_op(OP_MOD, &$$, &$1, &$3); }
     |   function_call
+    |   function_literal
 ;
 
 statement: /* state something */
@@ -82,7 +83,7 @@ statement: /* state something */
 ;
 
 simple_statement:
-        T_NAME '='  expression ';' { co_assign(&$$, &$1, &$3); }
+        T_NAME '=' expression ';' { co_assign(&$$, &$1, &$3); }
     |   T_PRINT expression ';' { co_print(&$2); }
     |   T_RETURN ';'            { co_return(NULL); }
     |   T_RETURN expression ';' { co_return(&$2); }
@@ -128,7 +129,11 @@ finally_block:
 ;
 
 function_declaration:
-    T_FUNC T_NAME { co_begin_function_declaration(&$1, &$2); } '(' parameter_list ')' '{' statement_list '}' { co_end_function_declaration(&$1); }
+    T_FUNC T_NAME { co_begin_function_declaration(&$1, &$2); } '(' parameter_list ')' '{' statement_list '}' { co_end_function_declaration(&$1, &$$); }
+;
+
+function_literal:
+    T_FUNC { co_begin_function_declaration(&$1, NULL); } '(' parameter_list ')' '{' statement_list '}' { co_end_function_declaration(&$1, &$$); }
 ;
 
 parameter_list:

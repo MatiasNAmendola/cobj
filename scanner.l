@@ -29,6 +29,7 @@ struct co_scanner_globals scanner_globals;
 #define YYMARKER    scanner_globals.yy_marker
 #define YYGETCONDITION()  scanner_globals.yy_state
 #define YYSETCONDITION(s) scanner_globals.yy_state = s
+#undef CO_DEBUG
 #ifdef CO_DEBUG
 # define YYDEBUG(s, c)   printf("state: %d char: %c\n", s, c)
 #else
