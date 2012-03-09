@@ -7,9 +7,9 @@ all::
 CC = gcc
 RM = rm -rf
 
-CFLAGS = -std=c99 -gdwarf-2 -g3 -Wall
+CFLAGS = -std=c99 -Wall
 ifdef CO_DEBUG
-	CFLAGS += -DCO_DEBUG
+	CFLAGS += -DCO_DEBUG -g3
 else
 	CFLAGS += -O2 
 endif
@@ -61,8 +61,6 @@ uninstall:
 
 clean:
 	$(RM) co
-	# indent backup files
-	$(RM) *~
 	# library objects
 	$(RM) *.o
 	# parser source files

@@ -31,7 +31,8 @@ get_next_op(struct co_opline_array *opline_array)
 
     if (next_op_num >= opline_array->size) {
         opline_array->size <<= 1;
-        opline_array->ops = xrealloc(opline_array->ops, (opline_array->size) * sizeof(struct co_opline));
+        opline_array->ops =
+            xrealloc(opline_array->ops, (opline_array->size) * sizeof(struct co_opline));
     }
 
     next_op = &(opline_array->ops[next_op_num]);
@@ -99,7 +100,6 @@ co_return(const struct cnode *expr)
     SET_UNUSED(op->op2);
 }
 
-
 void
 co_if_cond(const struct cnode *cond, struct cnode *closing_bracket_token)
 {
@@ -128,7 +128,8 @@ void
 co_if_end(const struct cnode *closing_bracket_token)
 {
     int if_end_op_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op1.u.opline_num = if_end_op_num - closing_bracket_token->u.opline_num;
+    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op1.u.opline_num =
+        if_end_op_num - closing_bracket_token->u.opline_num;
 }
 
 void
@@ -156,7 +157,7 @@ co_while_end(const struct cnode *while_token, const struct cnode *closing_bracke
 
     int while_end_stmt_op_num = CG(active_opline_array)->last;
     CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op2.u.opline_num =
-         while_end_stmt_op_num - closing_bracket_token->u.opline_num;
+        while_end_stmt_op_num - closing_bracket_token->u.opline_num;
 }
 
 void
@@ -190,7 +191,8 @@ co_end_function_declaration(const struct cnode *function_token, struct cnode *re
 
     if (result) {
         CG(active_opline_array)->ops[function_token->u.opline_num].result.type = IS_TMP_VAR;
-        CG(active_opline_array)->ops[function_token->u.opline_num].result.u.var = get_temporary_variable(CG(active_opline_array));
+        CG(active_opline_array)->ops[function_token->u.opline_num].result.u.var =
+            get_temporary_variable(CG(active_opline_array));
         *result = CG(active_opline_array)->ops[function_token->u.opline_num].result;
     }
 }

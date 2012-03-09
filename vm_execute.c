@@ -111,7 +111,9 @@ cval_get(const char *name)
     struct co_exec_data *current_exec_data = EG(current_exec_data);
     if (current_exec_data->function_called) {
         struct cval **upvalue;
-        if (co_symtable_find(&current_exec_data->function_called->upvalues, name, strlen(name), (void **)&upvalue)) {
+        if (co_symtable_find
+            (&current_exec_data->function_called->upvalues, name, strlen(name),
+             (void **)&upvalue)) {
             return *upvalue;
         }
     }
@@ -318,7 +320,8 @@ co_vm_handler(void)
         if (!val1->u.ival) {
             EG(current_exec_data)->op += op->op2.u.opline_num;
 #if CO_DEBUG
-        printf("JMPZ to: %d\n", EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
+            printf("JMPZ to: %d\n",
+                   EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
 #endif
             return CO_VM_CONTINUE;
         }
@@ -329,7 +332,8 @@ co_vm_handler(void)
         val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
         EG(current_exec_data)->op += op->op1.u.opline_num;
 #if CO_DEBUG
-        printf("JMP to: %d\n", EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
+        printf("JMP to: %d\n",
+               EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
 #endif
         return CO_VM_CONTINUE;
     case OP_EXIT:
@@ -340,28 +344,30 @@ co_vm_handler(void)
             func->opline_array = xmalloc(sizeof(struct co_opline_array));
             func->opline_array->ops = EG(current_exec_data)->op + 1;
             func->opline_array->last = op->op2.u.opline_num;
-            func->opline_array->t = EG(current_exec_data)->opline_array->t; // hack fix, using same temp variables num
+            func->opline_array->t = EG(current_exec_data)->opline_array->t;     // hack fix, using same temp variables num
             func->name = op->op1.u.val.u.str.val;
             co_hash_init(&func->upvalues, 1, NULL);
             if (EG(current_exec_data)->function_called) {
                 // setup function's upvalues
                 struct co_opline *start = EG(current_exec_data)->op;
                 struct co_opline *end = EG(current_exec_data)->op + op->op2.u.opline_num;
-                char *name; 
+                char *name;
                 struct cval *val;
                 for (; start <= end; start++) {
                     if (start->op1.type == IS_VAR) {
                         name = start->op1.u.val.u.str.val;
                         val = cval_get(name);
                         if (val) {
-                            co_symtable_update(&func->upvalues, name, strlen(name), &val, sizeof(struct cval *));
+                            co_symtable_update(&func->upvalues, name, strlen(name), &val,
+                                               sizeof(struct cval *));
                         }
                     }
                     if (start->op2.type == IS_VAR) {
                         name = start->op2.u.val.u.str.val;
                         val = cval_get(name);
                         if (val) {
-                            co_symtable_update(&func->upvalues, name, strlen(name), &val, sizeof(struct cval *));
+                            co_symtable_update(&func->upvalues, name, strlen(name), &val,
+                                               sizeof(struct cval *));
                         }
                     }
                 }
@@ -378,7 +384,8 @@ co_vm_handler(void)
             }
             EG(current_exec_data)->op += op->op2.u.opline_num + 1;
 #ifdef CO_DEBUG
-            printf("declare func jump over to: %d\n", EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
+            printf("declare func jump over to: %d\n",
+                   EG(current_exec_data)->op - EG(current_exec_data)->opline_array->ops);
 #endif
             return CO_VM_CONTINUE;
         }
@@ -387,14 +394,14 @@ co_vm_handler(void)
             struct cval tmp;
             struct co_exec_data *exec_data;
             exec_data = EG(current_exec_data);
-            if (op->op1.type != IS_UNUSED)  {
+            if (op->op1.type != IS_UNUSED) {
                 val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
                 tmp = *val1;
             }
             EG(current_exec_data) = EG(current_exec_data)->prev_exec_data;
             co_vm_stack_free(exec_data);
             result = co_vm_stack_pop();
-            if (op->op1.type != IS_UNUSED)  {
+            if (op->op1.type != IS_UNUSED) {
                 *result = tmp;
             }
             return CO_VM_LEAVE;

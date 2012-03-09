@@ -17,7 +17,6 @@
 
 
 newIncrer = func(s) {
-#a = 10;
     n = s;
     return func(i) {
         n = n + i;
