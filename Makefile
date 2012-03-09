@@ -29,6 +29,7 @@ LIB_OBJS += dstring.o
 LIB_OBJS += error.o
 LIB_OBJS += hash.o
 LIB_OBJS += llist.o
+LIB_OBJS += object.o
 LIB_OBJS += parser.o
 LIB_OBJS += scanner.o
 LIB_OBJS += stack.o
