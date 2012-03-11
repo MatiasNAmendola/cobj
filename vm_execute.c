@@ -267,6 +267,24 @@ co_vm_handler(void)
 
         EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
+    case OP_SR:
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
+        result->u.ival = val1->u.ival >> val2->u.ival;
+        result->type = CVAL_IS_INT;
+
+        EG(current_exec_data)->op++;
+        return CO_VM_CONTINUE;
+    case OP_SL:
+        val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
+        result = get_cval_ptr(&op->result, EG(current_exec_data)->ts);
+        result->u.ival = val1->u.ival << val2->u.ival;
+        result->type = CVAL_IS_INT;
+
+        EG(current_exec_data)->op++;
+        return CO_VM_CONTINUE;
     case OP_IS_EQUAL:
         val1 = get_cval_ptr(&op->op1, EG(current_exec_data)->ts);
         val2 = get_cval_ptr(&op->op2, EG(current_exec_data)->ts);
@@ -514,4 +532,10 @@ void
 co_vm_init()
 {
     EG(vm_stack) = co_vm_stack_new_page(CO_VM_STACK_PAGE_SIZE);
+}
+
+void
+co_vm_shutdown()
+{
+    co_vm_stack_destory();
 }

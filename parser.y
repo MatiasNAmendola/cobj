@@ -17,17 +17,17 @@
  */
 %expect 1
 
-%nonassoc T_EQUAL T_NOT_EQUAL
-%token T_EQUAL
-%token T_NOT_EQUAL
+%nonassoc T_EQUAL T_NOT_EQUAL 
+%token T_MOD_ASSIGN T_DIV_ASSIGN T_MUL_ASSIGN T_SUB_ASSIGN T_ADD_ASSIGN T_SR_ASSIGN T_SL_ASSIGN
 %nonassoc '<' '>' T_SMALLER_OR_EQUAL T_GREATER_OR_EQUAL
 %token T_SMALLER_OR_EQUAL
 %token T_GREATER_OR_EQUAL
 %left   ','
 %left   '+' '-'
 %left   '*' '/' '%'
+%left T_SR T_SL
 %right  T_PRINT
-%token  T_PRINT "print (T_PRINT)"
+%token  T_PRINT
 %token  T_NONE
 %token  T_BOOL
 %token  T_NUM
@@ -38,7 +38,7 @@
 %token  T_ELSE
 %token  T_FUNC
 %token  T_RETURN
-%token  T_WHILE "while (T_WHILE)"
+%token  T_WHILE
 %token  T_WHITESPACE
 %token  T_COMMENT
 %token  T_IGNORED
@@ -68,6 +68,8 @@ expression: /* express something */
     |   expression T_NOT_EQUAL expression { co_binary_op(OP_IS_NOT_EQUAL, &$$, &$1, &$3); }
     |   expression T_SMALLER_OR_EQUAL expression { co_binary_op(OP_IS_SMALLER_OR_EQUAL, &$$, &$1, &$3); }
     |   expression T_GREATER_OR_EQUAL expression { co_binary_op(OP_IS_SMALLER_OR_EQUAL, &$$, &$3, &$1); }
+    |   expression T_SL expression { co_binary_op(OP_SL, &$$, &$1, &$3); }
+    |   expression T_SR expression { co_binary_op(OP_SR, &$$, &$1, &$3); }
     |   expression '+' expression { co_binary_op(OP_ADD, &$$, &$1, &$3); }
     |   expression '-' expression { co_binary_op(OP_SUB, &$$, &$1, &$3); }
     |   expression '*' expression { co_binary_op(OP_MUL, &$$, &$1, &$3); }
@@ -84,6 +86,13 @@ statement: /* state something */
 
 simple_statement:
         T_NAME '=' expression ';' { co_assign(&$$, &$1, &$3); }
+    |   T_NAME T_ADD_ASSIGN expression ';' { co_binary_op(OP_ADD, &$$, &$1, &$3); co_assign(&$$, &$1, &$$); }
+    |   T_NAME T_SUB_ASSIGN expression ';' { co_binary_op(OP_SUB, &$$, &$1, &$3); co_assign(&$$, &$1, &$$); }
+    |   T_NAME T_MUL_ASSIGN expression ';' { co_binary_op(OP_MUL, &$$, &$1, &$3); co_assign(&$$, &$1, &$$); }
+    |   T_NAME T_DIV_ASSIGN expression ';' { co_binary_op(OP_DIV, &$$, &$1, &$3); co_assign(&$$, &$1, &$$); }
+    |   T_NAME T_MOD_ASSIGN expression ';' { co_binary_op(OP_MOD, &$$, &$1, &$3); co_assign(&$$, &$1, &$$); }
+    |   T_NAME T_SR_ASSIGN expression ';' { co_binary_op(OP_SR, &$$, &$1, &$3); co_assign(&$$, &$1, &$$); }
+    |   T_NAME T_SL_ASSIGN expression ';' { co_binary_op(OP_SL, &$$, &$1, &$3); co_assign(&$$, &$1, &$$); }
     |   T_PRINT expression ';' { co_print(&$2); }
     |   T_RETURN ';'            { co_return(NULL); }
     |   T_RETURN expression ';' { co_return(&$2); }

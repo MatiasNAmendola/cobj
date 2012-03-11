@@ -370,6 +370,42 @@ ANY_CHAR    = [^];
     return T_NAME;
 }
 
+<SC_INIT>"<<" {
+    return T_SL;
+}
+
+<SC_INIT>">>" {
+    return T_SR;
+}
+
+<SC_INIT>"+=" {
+    return T_ADD_ASSIGN;
+}
+
+<SC_INIT>"-=" {
+    return T_SUB_ASSIGN;
+}
+
+<SC_INIT>"*=" {
+    return T_MUL_ASSIGN;
+}
+
+<SC_INIT>"/=" {
+    return T_DIV_ASSIGN;
+}
+
+<SC_INIT>"%=" {
+    return T_MOD_ASSIGN;
+}
+
+<SC_INIT>"<<=" {
+    return T_SL_ASSIGN;
+}
+
+<SC_INIT>">>=" {
+    return T_SR_ASSIGN;
+}
+
 <SC_INIT>"==" {
     return T_EQUAL;
 }

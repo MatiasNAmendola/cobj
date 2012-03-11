@@ -37,8 +37,20 @@
  */
 
 struct CObject {
+    /* 
+     * `ob_next` and `ob_prev` is for a doubly-linked list of all live heap
+     * objects.
+     */
+    struct CObject *_ob_next;
+    struct CObject *_ob_prev;
     unsigned int co_refcnt;
 };
 
+#define COBJECT_TYPE_NONE        1
+#define COBJECT_TYPE_INT         2
+#define COBJECT_TYPE_FLOAT       3
+#define COBJECT_TYPE_BOOL        4
+#define COBJECT_TYPE_STRING      5
+#define COBJECT_TYPE_FUNCTION    6
 
 #endif

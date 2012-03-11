@@ -34,6 +34,7 @@ extern struct co_executor_globals executor_globals;
 
 extern void co_vm_init();
 extern void co_vm_execute(struct co_opline_array *opline_array);
+extern void co_vm_shutdown();
 
 /* cval handlers */
 extern struct cval *cval_get(const char *name);
