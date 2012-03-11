@@ -5,10 +5,24 @@
 #include "compile.h"
 #include "vm_execute.h"
 #include "error.h"
+#include "argparse/argparse.h"
+
+static const char * const usagestr[] = {
+    "co [options] [file] [args]",
+    NULL,
+};
+static struct argparse_option options[] = {
+    OPT_HELP(),
+    OPT_END(),
+};
 
 int
 main(int argc, const char **argv)
 {
+
+    struct argparse argparse;
+    argparse_init(&argparse, options, usagestr);
+    argc = argparse_parse(&argparse, argc, argv);
     int fd = 0;
     if (argc > 1) {
         argv++;

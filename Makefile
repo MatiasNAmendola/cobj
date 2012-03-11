@@ -37,6 +37,7 @@ LIB_OBJS += usage.o
 LIB_OBJS += vm_execute.o
 LIB_OBJS += vm_opcodes.o
 LIB_OBJS += wrapper.o
+LIB_OBJS += argparse/argparse.o
 
 $(LIB_OBJS): $(LIB_H)
 
