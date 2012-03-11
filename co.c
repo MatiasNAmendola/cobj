@@ -11,18 +11,27 @@ static const char * const usagestr[] = {
     "co [options] [file] [args]",
     NULL,
 };
-static struct argparse_option options[] = {
-    OPT_HELP(),
-    OPT_END(),
-};
+
+int
+argparse_showversion(struct argparse *this, const struct argparse_option *option)
+{
+    printf("CObject 0.01\n");
+    exit(1);
+}
 
 int
 main(int argc, const char **argv)
 {
 
     struct argparse argparse;
+    struct argparse_option options[] = {
+        OPT_HELP(),
+        OPT_BOOLEAN('v', "version", NULL, "print the version number and exit", argparse_showversion),
+        OPT_END(),
+    };
     argparse_init(&argparse, options, usagestr);
     argc = argparse_parse(&argparse, argc, argv);
+
     int fd = 0;
     if (argc > 1) {
         argv++;
