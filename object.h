@@ -39,25 +39,29 @@
 #include "co.h"
 
 // initial segment of every object
-#define COObject_HEAD struct COObject ob_base
+#define COObject_HEAD struct COObject co_base
 #define COObject_HEAD_INIT(type_ref)    \
     { 0, 0, 1, type_ref }
 
 struct COObject {
     /* 
-     * `ob_next` and `ob_prev` is for a doubly-linked list of all live heap
+     * `co_next` and `co_prev` is for a doubly-linked list of all live heap
      * objects.
      */
-    struct COObject *_ob_next;
-    struct COObject *_ob_prev;
+    struct COObject *_co_next;
+    struct COObject *_co_prev;
     unsigned int co_refcnt;
-    struct COTypeObject *ob_type;
+    struct COTypeObject *co_type;
 };
 
 /* for variable-size objects */
 struct COVarObject {
     COObject_HEAD;
-    size_t ob_size;         /* number of objects */
+    size_t co_size;         /* number of objects */
 };
+
+#define CO_TYPE(co)     (((struct COObject *)(co))->co_type)
+
+#include "objects/typeobject.h"
 
 #endif

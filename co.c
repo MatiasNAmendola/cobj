@@ -6,6 +6,9 @@
 #include "vm_execute.h"
 #include "error.h"
 #include "argparse/argparse.h"
+#include "object.h"
+#include "objects/strobject.h"
+#include "objects/boolobject.h"
 
 static const char * const usagestr[] = {
     "co [options] [file] [args]",
@@ -31,6 +34,15 @@ main(int argc, const char **argv)
     };
     argparse_init(&argparse, options, usagestr);
     argc = argparse_parse(&argparse, argc, argv);
+
+    struct COStrObject *str;
+    /*str = (struct COStrObject *)COStrObject_FromString("hello world");*/
+    str = CO_TYPE(CO_True)->tp_repr(CO_True);
+    printf("len: %ld, str: %s\n", str->co_len, str->co_str);
+    str = CO_TYPE(CO_False)->tp_repr(CO_False);
+    printf("len: %ld, str: %s\n", str->co_len, str->co_str);
+    str = CO_TYPE(&COType_Type)->tp_repr(&COType_Type);
+    printf("len: %ld, str: %s\n", str->co_len, str->co_str);
 
     int fd = 0;
     if (argc > 1) {

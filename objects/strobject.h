@@ -6,10 +6,12 @@
 
 struct COStrObject {
     COObject_HEAD;
-    size_t len;
-    char *str;
+    size_t co_len;
+    char co_str[1];
 };
 
 struct COTypeObject COStr_Type;
+
+struct COObject *COStrObject_FromString(const char *s);
 
 #endif

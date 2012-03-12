@@ -1,10 +1,9 @@
 #include "intobject.h"
-#include "typeobject.h"
 
 static struct COObject *
 int_repr(struct COIntObject *this)
 {
-    printf("%ld\n", this->ob_int);
+    long n = this->co_ival;
     return NULL;
 }
 

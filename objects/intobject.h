@@ -6,7 +6,7 @@
 
 struct COIntObject {
     COObject_HEAD;
-    int long ob_int;
+    int long co_ival;
 };
 
 struct COTypeObject COInt_Type;
