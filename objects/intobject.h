@@ -10,5 +10,6 @@ struct COIntObject {
 };
 
 struct COTypeObject COInt_Type;
+struct COObject *COIntObject_FromString(char *s, int base);
 
 #endif

@@ -5,7 +5,7 @@ static struct COObject *
 type_repr(struct COTypeObject *this)
 {
     struct COObject *s;
-    s = COStrObject_FromString(this->tp_name);
+    s = COStrObject_FromFormat("<type '%s'>", this->tp_name);
     return s;
 }
 
@@ -14,7 +14,7 @@ struct COTypeObject COType_Type = {
     "type",
     sizeof(struct COTypeObject),
     0,
-    (reprfunc)type_repr,                      /* tp_repr */
+    (reprfunc)type_repr,            /* tp_repr */
     0,                              /* tp_getattr */
     0,                              /* tp_setattr */
 };

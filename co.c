@@ -25,24 +25,26 @@ argparse_showversion(struct argparse *this, const struct argparse_option *option
 int
 main(int argc, const char **argv)
 {
-
+    int verbose = 0;
     struct argparse argparse;
     struct argparse_option options[] = {
         OPT_HELP(),
         OPT_BOOLEAN('v', "version", NULL, "print the version number and exit", argparse_showversion),
+        OPT_BOOLEAN('V', "verbose", &verbose, "show runtime info, can be supplied multiple times to increase verbosity", NULL),
         OPT_END(),
     };
     argparse_init(&argparse, options, usagestr);
     argc = argparse_parse(&argparse, argc, argv);
 
-    struct COStrObject *str;
-    /*str = (struct COStrObject *)COStrObject_FromString("hello world");*/
-    str = CO_TYPE(CO_True)->tp_repr(CO_True);
-    printf("len: %ld, str: %s\n", str->co_len, str->co_str);
-    str = CO_TYPE(CO_False)->tp_repr(CO_False);
-    printf("len: %ld, str: %s\n", str->co_len, str->co_str);
-    str = CO_TYPE(&COType_Type)->tp_repr(&COType_Type);
-    printf("len: %ld, str: %s\n", str->co_len, str->co_str);
+    if (verbose) {
+        coobject_print(CO_True);
+        coobject_print(CO_False);
+        coobject_print(&COType_Type);
+        coobject_print(CO_TYPE(&COType_Type));
+        struct COIntObject *num;
+        num = COIntObject_FromString("123456", 0);
+        coobject_print(num);
+    }
 
     int fd = 0;
     if (argc > 1) {

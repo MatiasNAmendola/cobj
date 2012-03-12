@@ -42,6 +42,7 @@ LIB_OBJS += objects/boolobject.o
 LIB_OBJS += objects/intobject.o
 LIB_OBJS += objects/typeobject.o
 LIB_OBJS += objects/strobject.o
+LIB_OBJS += objects/functionobject.o
 
 $(LIB_OBJS): $(LIB_H)
 

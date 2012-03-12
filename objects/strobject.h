@@ -13,5 +13,7 @@ struct COStrObject {
 struct COTypeObject COStr_Type;
 
 struct COObject *COStrObject_FromString(const char *s);
+struct COObject *COStrObject_FromStingN(const char *s, size_t len);
+struct COObject *COStrObject_FromFormat(const char *fmt, ...);
 
 #endif

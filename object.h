@@ -3,6 +3,9 @@
 /*
  * Object interface (Object, Type, Value)
  *
+ * This object system implementation is based on Python's objects code, modifyed
+ * by Yecheng Fu <cofyc.jackson@gmail.com>
+ *
  * Objects are structures allocated on the heap. Objects are never allocated
  * statically or on the stack (program initialized objects are exceptions);
  * they must only be accessed through special macros and functions only to
@@ -61,7 +64,14 @@ struct COVarObject {
 };
 
 #define CO_TYPE(co)     (((struct COObject *)(co))->co_type)
+#define CO_REFCNT(co)     (((struct COObject *)(co))->co_refcnt)
+#define CO_SIZE(co)     (((struct COObject *)(co))->co_size)
+
+#define CO_INIT(co, typeobj)    \
+    ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1)
 
 #include "objects/typeobject.h"
+
+void coobject_print(struct COObject *co);
 
 #endif
