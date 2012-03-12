@@ -1,18 +1,19 @@
+#include "strobject.h"
 #include "typeobject.h"
 
 static struct COObject *
-type_repr(struct COObject *this)
+str_repr(struct COObject *this)
 {
-    // TODO
-    return NULL;
+    return this;
 }
 
-struct COTypeObject COType_Type = {
+struct COTypeObject COStr_Type = {
     COObject_HEAD_INIT(&COType_Type),
-    "type",
-    sizeof(struct COTypeObject),
+    "str",
+    sizeof(struct COStrObject),
     0,
-    type_repr,                      /* tp_repr */
+    str_repr,                      /* tp_repr */
     0,                              /* tp_getattr */
     0,                              /* tp_setattr */
 };
+

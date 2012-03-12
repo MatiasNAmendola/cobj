@@ -40,9 +40,8 @@
 
 // initial segment of every object
 #define COObject_HEAD struct COObject ob_base
-#define COObject_HEAD_INIT(type)    \
-    { 0, 0, 1, type }
-
+#define COObject_HEAD_INIT(type_ref)    \
+    { 0, 0, 1, type_ref }
 
 struct COObject {
     /* 
@@ -55,25 +54,10 @@ struct COObject {
     struct COTypeObject *ob_type;
 };
 
+/* for variable-size objects */
 struct COVarObject {
     COObject_HEAD;
     size_t ob_size;         /* number of objects */
-};
-
-typedef struct COObject *(*reprfunc)(struct COObject *);
-typedef struct COObject *(*getattrfunc)(struct COObject *, char *);
-typedef int (*setattrfunc)(struct COObject *, char *, struct COObject *);
-
-struct COTypeObject {
-    COObject_HEAD;
-    char *tp_name;              /* For printing */
-    int tp_basicsize;           /* Following two are for allocation */
-    int tp_itemsize;
-
-    /* Methods */
-    reprfunc tp_print;
-    getattrfunc tp_getattr;
-    setattrfunc tp_setattr;
 };
 
 #endif
