@@ -11,7 +11,7 @@ CFLAGS = -std=c99 -Wall
 ifdef CO_DEBUG
 	CFLAGS += -DCO_DEBUG -g3
 else
-	CFLAGS += -O2 
+	CFLAGS += -O2
 endif
 
 LDFLAGS =
@@ -20,7 +20,7 @@ prefix = /usr/local
 bindir = $(prefix)/bin
 
 # recompile all lib objs if any of header file changes, dependencies is hard to maintain!
-LIB_H = $(wildcard *.h) parser.h scanner.h
+LIB_H = $(wildcard *.h) parser.h scanner.h $(wildcard objects/*.h)
 
 LIB_OBJS += co.o
 LIB_OBJS += compile.o
@@ -38,6 +38,9 @@ LIB_OBJS += vm_opcodes.o
 LIB_OBJS += wrapper.o
 LIB_OBJS += argparse/argparse.o
 LIB_OBJS += dstring/dstring.o
+LIB_OBJS += objects/boolobject.o
+LIB_OBJS += objects/intobject.o
+LIB_OBJS += objects/typeobject.o
 
 $(LIB_OBJS): $(LIB_H)
 
@@ -65,7 +68,7 @@ uninstall:
 clean:
 	$(RM) co
 	# library objects
-	$(RM) *.o
+	find . -name '*.o' | xargs $(RM)
 	# parser source files
 	$(RM) parser.[ch]
 	# scan source files

@@ -2,3 +2,4 @@
 * error message with location
 * implement namespace & scope rules
 * make cval as object
+* dump/load bytecode
