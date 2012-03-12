@@ -2,7 +2,7 @@
 #include "compile.h"
 #include "scanner.h"
 #include "parser.h"
-#include "dstring.h"
+#include "dstring/dstring.h"
 
 struct co_scanner_globals {
     int yy_in;
