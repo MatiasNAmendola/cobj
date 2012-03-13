@@ -3,13 +3,13 @@
 
 #include "../object.h"
 
-struct COStrObject {
+typedef struct _COStrObject {
     COObject_HEAD;
     size_t co_len;
     char co_sval[1];
-};
+} COStrObject;
 
-struct COTypeObject COStr_Type;
+COTypeObject COStr_Type;
 
 char *COStr_AsString(COObject *co);
 COObject *COStr_FromString(const char *s);

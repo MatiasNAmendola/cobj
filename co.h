@@ -43,6 +43,7 @@
 #include "objects/floatobject.h"
 #include "objects/strobject.h"
 #include "objects/functionobject.h"
+#include "objects/codeobject.h"
 
 #include "argparse/argparse.h"
 #include "dstring/dstring.h"

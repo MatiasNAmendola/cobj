@@ -1,6 +1,6 @@
 #include "../co.h"
 
-static struct COStrObject *null_str = NULL;
+static COStrObject *null_str = NULL;
 
 /*
  * It gives the base size of str object; any memory allocation for a string of
@@ -10,7 +10,7 @@ static struct COStrObject *null_str = NULL;
  * Instead of sizeof(COStrObject), it saves bytes per string allocation on a
  * typical system, you can compare this with sizeof(COStrObject) + n bytes.
  */
-#define COStr_BASESIZE    offsetof(struct COStrObject, co_sval)
+#define COStr_BASESIZE    offsetof(COStrObject, co_sval)
  
 static COObject *
 str_repr(COObject *this)
@@ -18,10 +18,10 @@ str_repr(COObject *this)
     return this;
 }
 
-struct COTypeObject COStr_Type = {
+COTypeObject COStr_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "str",
-    sizeof(struct COStrObject),
+    sizeof(COStrObject),
     0,
     str_repr,                      /* tp_repr */
     0,                              /* tp_getattr */
@@ -31,7 +31,7 @@ struct COTypeObject COStr_Type = {
 char *
 COStr_AsString(COObject *co)
 {
-    return ((struct COStrObject *)co)->co_sval;
+    return ((COStrObject *)co)->co_sval;
 }
 
 /*
@@ -40,7 +40,7 @@ COStr_AsString(COObject *co)
 COObject *
 COStr_FromString(const char *s)
 {
-    struct COStrObject *str;
+    COStrObject *str;
     size_t len = strlen(s);
     str = xmalloc(COStr_BASESIZE + len + 1);
     CO_INIT(str, &COStr_Type);
@@ -56,7 +56,7 @@ COStr_FromString(const char *s)
 COObject *
 COStr_FromStingN(const char *s, size_t len)
 {
-    struct COStrObject *str;
+    COStrObject *str;
 
     if (len == 0 && (str = null_str) != NULL) {
         return (COObject *)str;
@@ -81,7 +81,7 @@ COStr_FromStingN(const char *s, size_t len)
 COObject *
 COStr_FromFormat(const char *fmt, ...)
 {
-    struct COStrObject *str;
+    COStrObject *str;
 
     va_list params;
 
@@ -147,7 +147,7 @@ COStr_FromFormat(const char *fmt, ...)
 
 step2:
     /* step 2: fill the buffer */
-    str = (struct COStrObject *)COStr_FromStingN(NULL, n+1);
+    str = (COStrObject *)COStr_FromStingN(NULL, n+1);
     if (!str)
         return NULL;
 

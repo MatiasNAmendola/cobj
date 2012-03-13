@@ -46,7 +46,11 @@
 #define COObject_HEAD_INIT(type_ref)    \
     { 0, 0, 1, type_ref }
 
-typedef struct _COObject {
+// types declared here cuz these is circular reference.
+typedef struct _COTypeObject COTypeObject;
+typedef struct _COObject COObject;
+
+struct _COObject {
     /* 
      * `co_next` and `co_prev` is for a doubly-linked list of all live heap
      * objects.
@@ -54,8 +58,8 @@ typedef struct _COObject {
     struct _COObject *_co_next;
     struct _COObject *_co_prev;
     unsigned int co_refcnt;
-    struct COTypeObject *co_type;
-} COObject;
+    COTypeObject *co_type;
+};
 
 /* for variable-size objects */
 typedef struct _COVarObject {
@@ -66,9 +70,8 @@ typedef struct _COVarObject {
 #define CO_TYPE(co)     (((COObject *)(co))->co_type)
 #define CO_REFCNT(co)     (((COObject *)(co))->co_refcnt)
 #define CO_SIZE(co)     (((COObject *)(co))->co_size)
-COObject _CO_None;   // Don't use this directly, using following one instead!
+COObject _CO_None;              // Don't use this directly, using following one instead!
 #define CO_None         (&_CO_None)
-
 #define CO_INIT(co, typeobj)    \
     ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1)
 

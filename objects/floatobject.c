@@ -1,17 +1,17 @@
 #include "../co.h"
 
 static COObject *
-float_repr(struct COFloatObject *this)
+float_repr(COFloatObject *this)
 {
     char buffer[32];
     int n = snprintf(buffer, 32, "%g", this->co_fval);
     return COStr_FromStingN(buffer, n);
 }
 
-struct COTypeObject COFloat_Type = {
+COTypeObject COFloat_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "float",
-    sizeof(struct COFloatObject),
+    sizeof(COFloatObject),
     0,
     (reprfunc)float_repr,           /* tp_repr */
     0,                              /* tp_getattr */
@@ -21,9 +21,9 @@ struct COTypeObject COFloat_Type = {
 COObject *
 COFloat_FromString(char *s)
 {
-    struct COFloatObject *f;
+    COFloatObject *f;
 
-    f = xmalloc(sizeof(struct COFloatObject));
+    f = xmalloc(sizeof(COFloatObject));
     CO_INIT(f, &COFloat_Type);
     f->co_fval = strtof(s, NULL);
     return (COObject *)f;

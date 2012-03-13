@@ -3,12 +3,12 @@
 
 #include "../object.h"
 
-struct COFloatObject {
+typedef struct _COFloatObject {
     COObject_HEAD;
     double co_fval;
-};
+} COFloatObject;
 
-struct COTypeObject COFloat_Type;
+COTypeObject COFloat_Type;
 
 COObject *COFloat_FromString(char *s);
 

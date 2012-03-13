@@ -17,7 +17,7 @@ int_repr(COIntObject *this)
     return COStr_FromStingN(p, bufend - p);
 }
 
-struct COTypeObject COInt_Type = {
+COTypeObject COInt_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "int",
     sizeof(COIntObject),

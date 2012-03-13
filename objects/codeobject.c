@@ -1,19 +1,19 @@
 #include "../co.h"
 
 static COObject *
-type_repr(COTypeObject *this)
+code_repr(COCodeObject *this)
 {
     COObject *s;
-    s = COStr_FromFormat("<type '%s'>", this->tp_name);
+    s = COStr_FromFormat("<code>");
     return s;
 }
 
-COTypeObject COType_Type = {
+COTypeObject COCode_Type = {
     COObject_HEAD_INIT(&COType_Type),
-    "type",
-    sizeof(COTypeObject),
+    "code",
+    sizeof(COCodeObject),
     0,
-    (reprfunc)type_repr,            /* tp_repr */
+    (reprfunc)code_repr,                      /* tp_repr */
     0,                              /* tp_getattr */
     0,                              /* tp_setattr */
 };

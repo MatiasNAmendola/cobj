@@ -8,7 +8,7 @@ typedef struct _COIntObject {
     int long co_ival;
 } COIntObject;
 
-struct COTypeObject COInt_Type;
+COTypeObject COInt_Type;
 COObject *COInt_FromString(char *s, int base);
 COObject *COInt_FromLong(long ival);
 long COInt_AsLong(COObject *co);

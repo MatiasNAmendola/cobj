@@ -10,7 +10,7 @@ COObject_dump(COObject *co)
         fprintf(stderr, "object:\n");
         fprintf(stderr, "    type: %s\n",
                 CO_TYPE(co) == NULL ? "NULL" : CO_TYPE(co)->tp_name);
-        struct COStrObject *s = (struct COStrObject *)CO_TYPE(co)->tp_repr(co);
+        COStrObject *s = (COStrObject *)CO_TYPE(co)->tp_repr(co);
         fprintf(stderr, "    repr: %s\n", s->co_sval);
     }
 }
@@ -21,7 +21,7 @@ none_repr(COObject *co)
     return COStr_FromString("None");
 }
 
-static struct COTypeObject CONone_Type = {
+static COTypeObject CONone_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "NoneType",
     0,

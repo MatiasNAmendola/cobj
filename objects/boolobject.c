@@ -17,7 +17,7 @@ bool_repr(COObject *this)
     return s;
 }
 
-struct COTypeObject COBool_Type = {
+COTypeObject COBool_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "bool",
     sizeof(long),

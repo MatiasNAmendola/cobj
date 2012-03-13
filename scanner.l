@@ -45,7 +45,7 @@ struct co_scanner_globals scanner_globals;
 #define CO_IS_HEX(c)    (((c)>='0' && (c)<='9') || ((c)>='a' && (c)<='f') || ((c)>='A' && (c)<='F'))
 
 static void
-co_scan_singlequoted_string(struct COStrObject *co)
+co_scan_singlequoted_string(COStrObject *co)
 {
     register char *s, *t;
     char *end;
@@ -82,7 +82,7 @@ co_scan_singlequoted_string(struct COStrObject *co)
 }
 
 static void
-co_scan_doublequoted_string(struct COStrObject *co)
+co_scan_doublequoted_string(COStrObject *co)
 {
     register char *s, *t;
     char *end;
@@ -325,7 +325,7 @@ ANY_CHAR    = [^];
     }
     yyleng = YYCURSOR - scanner_globals.yy_text;
     yylval->u.co = COStr_FromStingN(yytext, yyleng);
-    co_scan_doublequoted_string((struct COStrObject *)yylval->u.co);
+    co_scan_doublequoted_string((COStrObject *)yylval->u.co);
     yylval->type = IS_CONST;
     return T_STRING;
 }
@@ -344,7 +344,7 @@ ANY_CHAR    = [^];
         }
     } 
     yylval->u.co = COStr_FromStingN(yytext + 1, yyleng -2);
-    co_scan_singlequoted_string((struct COStrObject *)yylval->u.co);
+    co_scan_singlequoted_string((COStrObject *)yylval->u.co);
     yylval->type = IS_CONST;
     return T_STRING;
 }

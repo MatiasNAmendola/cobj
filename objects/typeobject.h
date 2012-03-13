@@ -7,7 +7,7 @@ typedef COObject *(*reprfunc)(COObject *);
 typedef COObject *(*getattrfunc)(COObject *, char *);
 typedef int (*setattrfunc)(COObject *, char *, COObject *);
 
-struct COTypeObject {
+struct _COTypeObject {
     COObject_HEAD;
     char *tp_name;              /* For printing */
     int tp_basicsize;           /* Following two are for allocation */
@@ -19,6 +19,6 @@ struct COTypeObject {
     setattrfunc tp_setattr;
 };
 
-struct COTypeObject COType_Type;
+COTypeObject COType_Type;
 
 #endif

@@ -43,6 +43,7 @@ LIB_OBJS += objects/intobject.o
 LIB_OBJS += objects/floatobject.o
 LIB_OBJS += objects/strobject.o
 LIB_OBJS += objects/functionobject.o
+LIB_OBJS += objects/codeobject.o
 
 $(LIB_OBJS): $(LIB_H)
 

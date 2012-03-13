@@ -39,7 +39,7 @@ extern void co_vm_shutdown();
 
 /* COObject handlers */
 extern COObject **COObject_get(COObject *co);
-extern bool COObject_put(COObject *name, COObject * co);
+extern bool COObject_put(COObject *name, COObject *co);
 extern bool COObject_del(const char *name);
 extern void COObject_print(COObject *co);
 

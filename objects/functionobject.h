@@ -5,14 +5,14 @@
 #include "../hash.h"
 #include "../compile.h"
 
-struct COFunctionObject {
+typedef struct _COFunctionObject {
     COObject_HEAD;
     COObject *func_name;
     HashTable upvalues;
     struct co_opline_array *opline_array;
-};
+} COFunctionObject;
 
-struct COTypeObject COFunction_Type;
+COTypeObject COFunction_Type;
 COObject *COFunctionObject_New(COObject *func_name);
 
 #endif
