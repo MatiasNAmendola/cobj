@@ -1,9 +1,4 @@
 #include "co.h"
-#include "compile.h"
-#include "scanner.h"
-#include "parser.h"
-#include "dstring/dstring.h"
-#include "object.h"
 
 struct co_scanner_globals {
     int yy_in;

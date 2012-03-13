@@ -1,7 +1,6 @@
 #ifndef OBJECTS_FLOATOBJECT_H
 #define OBJECTS_FLOATOBJECT_H
 
-#include "../co.h"
 #include "../object.h"
 
 struct COFloatObject {
@@ -11,6 +10,6 @@ struct COFloatObject {
 
 struct COTypeObject COFloat_Type;
 
-struct COObject *COFloat_FromString(char *s);
+COObject *COFloat_FromString(char *s);
 
 #endif

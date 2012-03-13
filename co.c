@@ -1,12 +1,4 @@
 #include "co.h"
-#include "hash.h"
-#include "parser.h"
-#include "scanner.h"
-#include "compile.h"
-#include "vm_execute.h"
-#include "error.h"
-#include "argparse/argparse.h"
-#include "object.h"
 
 static const char *const usagestr[] = {
     "co [options] [file] [args]",
@@ -42,8 +34,8 @@ main(int argc, const char **argv)
         COObject_dump(CO_None);
         COObject_dump(CO_True);
         COObject_dump(CO_False);
-        COObject_dump((struct COObject *)&COType_Type);
-        COObject_dump((struct COObject *)CO_TYPE(&COType_Type));
+        COObject_dump((COObject *)&COType_Type);
+        COObject_dump((COObject *)CO_TYPE(&COType_Type));
         COObject_dump(COInt_FromString("123456", 0));
         COObject_dump(COFloat_FromString("1.3456"));
     }

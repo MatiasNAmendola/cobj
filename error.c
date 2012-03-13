@@ -1,4 +1,3 @@
-#include "error.h"
 #include "co.h"
 
 char *

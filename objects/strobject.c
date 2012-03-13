@@ -1,4 +1,4 @@
-#include "strobject.h"
+#include "../co.h"
 
 static struct COStrObject *null_str = NULL;
 
@@ -12,8 +12,8 @@ static struct COStrObject *null_str = NULL;
  */
 #define COStr_BASESIZE    offsetof(struct COStrObject, co_sval)
  
-static struct COObject *
-str_repr(struct COObject *this)
+static COObject *
+str_repr(COObject *this)
 {
     return this;
 }
@@ -29,7 +29,7 @@ struct COTypeObject COStr_Type = {
 };
 
 char *
-COStr_AsString(struct COObject *co)
+COStr_AsString(COObject *co)
 {
     return ((struct COStrObject *)co)->co_sval;
 }
@@ -37,7 +37,7 @@ COStr_AsString(struct COObject *co)
 /*
  * `s` points to a null-terminated string.
  */
-struct COObject *
+COObject *
 COStr_FromString(const char *s)
 {
     struct COStrObject *str;
@@ -46,20 +46,20 @@ COStr_FromString(const char *s)
     CO_INIT(str, &COStr_Type);
     str->co_len = len;
     memcpy(str->co_sval, s, len + 1); // with last '\0'
-    return (struct COObject *)str;
+    return (COObject *)str;
 }
 
 /*
  * `s` points to either NULL or else a string containing at least `len` bytes. `s`
  * do not have to be null-terminated.
  */
-struct COObject *
+COObject *
 COStr_FromStingN(const char *s, size_t len)
 {
     struct COStrObject *str;
 
     if (len == 0 && (str = null_str) != NULL) {
-        return (struct COObject *)str;
+        return (COObject *)str;
     }
 
     str = xmalloc(COStr_BASESIZE + len + 1);
@@ -75,10 +75,10 @@ COStr_FromStingN(const char *s, size_t len)
         null_str = str;
     }
 
-    return (struct COObject *)str;
+    return (COObject *)str;
 }
 
-struct COObject *
+COObject *
 COStr_FromFormat(const char *fmt, ...)
 {
     struct COStrObject *str;
@@ -155,5 +155,5 @@ step2:
 
     va_end(params);
 
-    return (struct COObject *)str;
+    return (COObject *)str;
 }

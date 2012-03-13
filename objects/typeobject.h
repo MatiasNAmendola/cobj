@@ -1,12 +1,11 @@
 #ifndef OBJECTS_TYPEOBJECT_H
 #define OBJECTS_TYPEOBJECT_H
 
-#include "../co.h"
 #include "../object.h"
 
-typedef struct COObject *(*reprfunc)(struct COObject *);
-typedef struct COObject *(*getattrfunc)(struct COObject *, char *);
-typedef int (*setattrfunc)(struct COObject *, char *, struct COObject *);
+typedef COObject *(*reprfunc)(COObject *);
+typedef COObject *(*getattrfunc)(COObject *, char *);
+typedef int (*setattrfunc)(COObject *, char *, COObject *);
 
 struct COTypeObject {
     COObject_HEAD;

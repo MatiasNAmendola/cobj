@@ -1,5 +1,4 @@
 #include "co.h"
-#include "llist.h"
 
 void
 co_llist_init(co_llist *l, size_t size, llist_dtoc_func_t dtor)

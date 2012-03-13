@@ -34,7 +34,6 @@ LIB_OBJS += scanner.o
 LIB_OBJS += stack.o
 LIB_OBJS += usage.o
 LIB_OBJS += vm_execute.o
-LIB_OBJS += vm_opcodes.o
 LIB_OBJS += wrapper.o
 LIB_OBJS += argparse/argparse.o
 LIB_OBJS += dstring/dstring.o

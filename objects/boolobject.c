@@ -1,12 +1,12 @@
-#include "boolobject.h"
+#include "../co.h"
 
-static struct COObject *False_str = NULL;
-static struct COObject *True_str = NULL;
+static COObject *False_str = NULL;
+static COObject *True_str = NULL;
 
-static struct COObject *
-bool_repr(struct COObject *this)
+static COObject *
+bool_repr(COObject *this)
 {
-    struct COObject *s;
+    COObject *s;
 
     if (this == CO_True) {
         s = True_str ? True_str : (True_str = COStr_FromString("True"));
@@ -27,10 +27,10 @@ struct COTypeObject COBool_Type = {
     0,                              /* tp_setattr */
 };
 
-struct COObject *
+COObject *
 COBool_FromLong(long ok)
 {
-    struct COObject *result;
+    COObject *result;
 
     if (ok)
         result = CO_True;
@@ -40,12 +40,12 @@ COBool_FromLong(long ok)
     return result;
 }
 
-struct COIntObject _CO_False = {
+COIntObject _CO_False = {
     COObject_HEAD_INIT(&COBool_Type),
     0,
 };
 
-struct COIntObject _CO_True = {
+COIntObject _CO_True = {
     COObject_HEAD_INIT(&COBool_Type),
     1,
 };

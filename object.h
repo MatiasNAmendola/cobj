@@ -29,7 +29,7 @@
  * changing an object's size would require moving it if there was another object
  * right next to it.)
  *
- * Objects are always accessed through pointers of the type 'struct COObject *'.
+ * Objects are always accessed through pointers of the type 'COObject *'.
  * It's a structure that only contains the reference count and the type pointer.
  * The actual memory allocated for an object contains other data that can only
  * be accessed after casting the pointer to a pointer to longer structure type.
@@ -39,46 +39,39 @@
  * pointer to the proper type and back.
  */
 
-#include "co.h"
+#include "co-compat.h"
 
 // initial segment of every object
-#define COObject_HEAD struct COObject co_base
+#define COObject_HEAD COObject co_base
 #define COObject_HEAD_INIT(type_ref)    \
     { 0, 0, 1, type_ref }
 
-struct COObject {
+typedef struct _COObject {
     /* 
      * `co_next` and `co_prev` is for a doubly-linked list of all live heap
      * objects.
      */
-    struct COObject *_co_next;
-    struct COObject *_co_prev;
+    struct _COObject *_co_next;
+    struct _COObject *_co_prev;
     unsigned int co_refcnt;
     struct COTypeObject *co_type;
-};
+} COObject;
 
 /* for variable-size objects */
-struct COVarObject {
+typedef struct _COVarObject {
     COObject_HEAD;
     size_t co_size;             /* number of objects */
-};
+} COVarObject;
 
-#define CO_TYPE(co)     (((struct COObject *)(co))->co_type)
-#define CO_REFCNT(co)     (((struct COObject *)(co))->co_refcnt)
-#define CO_SIZE(co)     (((struct COObject *)(co))->co_size)
-struct COObject _CO_None;   // Don't use this directly, using following one instead!
+#define CO_TYPE(co)     (((COObject *)(co))->co_type)
+#define CO_REFCNT(co)     (((COObject *)(co))->co_refcnt)
+#define CO_SIZE(co)     (((COObject *)(co))->co_size)
+COObject _CO_None;   // Don't use this directly, using following one instead!
 #define CO_None         (&_CO_None)
 
 #define CO_INIT(co, typeobj)    \
     ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1)
 
-void COObject_dump(struct COObject *co);
-
-#include "objects/typeobject.h"
-#include "objects/intobject.h"
-#include "objects/boolobject.h"
-#include "objects/floatobject.h"
-#include "objects/strobject.h"
-#include "objects/functionobject.h"
+void COObject_dump(COObject *co);
 
 #endif

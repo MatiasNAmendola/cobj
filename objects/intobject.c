@@ -1,7 +1,7 @@
-#include "intobject.h"
+#include "../co.h"
 
-static struct COObject *
-int_repr(struct COIntObject *this)
+static COObject *
+int_repr(COIntObject *this)
 {
     char buf[sizeof(long) * 8 / 3 + 6], *p, *bufend;
     long n = this->co_ival;
@@ -20,7 +20,7 @@ int_repr(struct COIntObject *this)
 struct COTypeObject COInt_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "int",
-    sizeof(struct COIntObject),
+    sizeof(COIntObject),
     0,
     (reprfunc)int_repr,                      /* tp_repr */
     0,                              /* tp_getattr */
@@ -28,35 +28,35 @@ struct COTypeObject COInt_Type = {
 };
 
 long
-COInt_AsLong(struct COObject *co)
+COInt_AsLong(COObject *co)
 {
-    return ((struct COIntObject *)co)->co_ival;
+    return ((COIntObject *)co)->co_ival;
 }
 
-struct COObject *
+COObject *
 COInt_FromString(char *s, int base)
 {
-    struct COIntObject *num;
+    COIntObject *num;
 
     if (base != 0 && (base < 2 || base > 36)) {
         // TODO errors
         return NULL;
     }
 
-    num = xmalloc(sizeof(struct COIntObject));
+    num = xmalloc(sizeof(COIntObject));
     CO_INIT(num, &COInt_Type);
     num->co_ival = strtol(s, NULL, base);
-    return (struct COObject *)num;
+    return (COObject *)num;
 }
 
 
-struct COObject *
+COObject *
 COInt_FromLong(long ival)
 {
-    struct COIntObject *num;
+    COIntObject *num;
 
-    num = xmalloc(sizeof(struct COIntObject));
+    num = xmalloc(sizeof(COIntObject));
     CO_INIT(num, &COInt_Type);
     num->co_ival = ival;
-    return (struct COObject *)num;
+    return (COObject *)num;
 }

@@ -1,7 +1,7 @@
 #ifndef COMPILE_H
 #define COMPILE_H
 
-#include "co.h"
+#include "co-compat.h"
 #include "hash.h"
 #include "stack.h"
 #include "llist.h"
@@ -22,7 +22,7 @@
 struct cnode {
     int type;
     union {
-        struct COObject *co;
+        COObject *co;
         uint var;
         int opline_num;
     } u;
@@ -50,7 +50,7 @@ struct co_opline_array {
 
 /* temp variable */
 union temp_variable {
-    struct COObject *tmp_co;
+    COObject *tmp_co;
 };
 
 /* compiler */

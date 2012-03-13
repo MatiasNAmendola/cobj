@@ -1,13 +1,10 @@
 %{
 #include "co.h"
-#include "compile.h"
-#include "vm_opcodes.h"
 
 #define YYSTYPE struct cnode
 #define YYDEBUG 1
 #define YYERROR_VERBOSE 1
 
-#include "scanner.h"
 %}
 
 %pure_parser

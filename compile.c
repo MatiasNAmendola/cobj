@@ -1,8 +1,4 @@
-#include "compile.h"
-#include "vm_opcodes.h"
-#include "parser.h"
-#include "vm_execute.h"
-#include "debug.h"
+#include "co.h"
 
 struct co_compiler_globals compiler_globals;
 

@@ -1,8 +1,4 @@
-#include "vm_execute.h"
-#include "vm_opcodes.h"
-#include "compile.h"
-#include "parser.h"
-#include "error.h"
+#include "co.h"
 
 struct co_executor_globals executor_globals;
 
@@ -105,10 +101,10 @@ co_vm_stack_free(void *ptr)
     }
 }
 
-struct COObject **
-COObject_get(struct COObject *str)
+COObject **
+COObject_get(COObject *str)
 {
-    struct COObject **co;
+    COObject **co;
     char *name = COStr_AsString(str);
 
     struct co_exec_data *current_exec_data = EG(current_exec_data);
@@ -140,14 +136,14 @@ COObject_get(struct COObject *str)
 }
 
 bool
-COObject_put(struct COObject *name, struct COObject *co)
+COObject_put(COObject *name, COObject *co)
 {
 #ifdef CO_DEBUG
     printf("put: %s, value: %p, data: ", COStr_AsString(name), co);
     COObject_print(co);
 #endif
     return co_symtable_update(&EG(current_exec_data)->symbol_table, COStr_AsString(name),
-                              strlen(COStr_AsString(name)), &co, sizeof(struct COObject *));
+                              strlen(COStr_AsString(name)), &co, sizeof(COObject *));
 }
 
 bool
@@ -158,16 +154,16 @@ COObject_del(const char *name)
 }
 
 void
-COObject_print(struct COObject *co)
+COObject_print(COObject *co)
 {
     struct COStrObject *s = (struct COStrObject *)CO_TYPE(co)->tp_repr(co);
     printf("%s\n", s->co_sval);
 }
 
 static void
-COObject_bind(struct COObject *name)
+COObject_bind(COObject *name)
 {
-    struct COObject **co;
+    COObject **co;
     co = COObject_get(name);
     if (!co) {
         COObject_put(name, CO_None);
@@ -175,10 +171,10 @@ COObject_bind(struct COObject *name)
     }
 }
 
-static struct COObject **
+static COObject **
 get_COObject_ptr(struct cnode *node, const union temp_variable *ts)
 {
-    struct COObject **COObjectptr;
+    COObject **COObjectptr;
 
     switch (node->type) {
     case IS_CONST:
@@ -192,7 +188,7 @@ get_COObject_ptr(struct cnode *node, const union temp_variable *ts)
         return COObjectptr;
         break;
     case IS_TMP_VAR:
-        return (struct COObject **)(union temp_variable *)((char *)ts + node->u.var);
+        return (COObject **)(union temp_variable *)((char *)ts + node->u.var);
         break;
     case IS_UNUSED:
         return NULL;
@@ -206,7 +202,7 @@ int
 co_vm_handler(void)
 {
     struct co_opline *op = EG(current_exec_data)->op;
-    struct COObject **val1, **val2, **result;
+    COObject **val1, **val2, **result;
     switch (EG(current_exec_data)->op->opcode) {
     case OP_ADD:
         val1 = get_COObject_ptr(&op->op1, EG(current_exec_data)->ts);
@@ -338,14 +334,14 @@ co_vm_handler(void)
                 struct co_opline *start = EG(current_exec_data)->op;
                 struct co_opline *end =
                     EG(current_exec_data)->op + op->op2.u.opline_num;
-                struct COObject **val;
+                COObject **val;
                 for (; start <= end; start++) {
                     if (start->op1.type == IS_VAR) {
                         val = COObject_get(start->op1.u.co);
                         if (val) {
                             co_symtable_update(&func->upvalues, COStr_AsString(start->op1.u.co),
                                                strlen(COStr_AsString(start->op1.u.co)), val,
-                                               sizeof(struct COObject *));
+                                               sizeof(COObject *));
                         }
                     }
                     if (start->op2.type == IS_VAR) {
@@ -353,14 +349,14 @@ co_vm_handler(void)
                         if (val) {
                             co_symtable_update(&func->upvalues, COStr_AsString(start->op2.u.co),
                                                strlen(COStr_AsString(start->op2.u.co)), val,
-                                               sizeof(struct COObject *));
+                                               sizeof(COObject *));
                         }
                     }
                 }
             }
             if (op->op1.type != IS_UNUSED) {
                 val1 = get_COObject_ptr(&op->op1, EG(current_exec_data)->ts);
-                *val1 = (struct COObject *)func;
+                *val1 = (COObject *)func;
 #ifdef CO_DEBUG
                 printf("declare function: %p, itsvalue: %p\n", val1, *val1);
                 val1 = get_COObject_ptr(&op->op1, EG(current_exec_data)->ts);
@@ -369,7 +365,7 @@ co_vm_handler(void)
             }
             if (op->result.type != IS_UNUSED) {
                 result = get_COObject_ptr(&op->result, EG(current_exec_data)->ts);
-                *result = (struct COObject *)func;
+                *result = (COObject *)func;
             }
             EG(current_exec_data)->op += op->op2.u.opline_num + 1;
 #ifdef CO_DEBUG
@@ -381,7 +377,7 @@ co_vm_handler(void)
         }
     case OP_RETURN:
         {
-            struct COObject *tmp;
+            COObject *tmp;
             struct co_exec_data *exec_data;
             exec_data = EG(current_exec_data);
             if (op->op1.type != IS_UNUSED) {
@@ -414,12 +410,12 @@ co_vm_handler(void)
         return CO_VM_ENTER;
     case OP_PASS_PARAM:
         val1 = get_COObject_ptr(&op->op1, EG(current_exec_data)->ts);
-        co_stack_push(&EG(argument_stack), val1, sizeof(struct COObject *));
+        co_stack_push(&EG(argument_stack), val1, sizeof(COObject *));
         EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_RECV_PARAM:
         {
-            struct COObject **val;
+            COObject **val;
             co_stack_top(&EG(argument_stack), (void**)&val);
             COObject_put(op->op1.u.co, *val);
             EG(current_exec_data)->op++;

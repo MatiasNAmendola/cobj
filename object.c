@@ -1,8 +1,8 @@
-#include "object.h"
+#include "co.h"
 
 /* For debugging convenience. */
 void
-COObject_dump(struct COObject *co)
+COObject_dump(COObject *co)
 {
     if (co == NULL) {
         fprintf(stderr, "NULL\n");
@@ -15,8 +15,8 @@ COObject_dump(struct COObject *co)
     }
 }
 
-static struct COObject *
-none_repr(struct COObject *co)
+static COObject *
+none_repr(COObject *co)
 {
     return COStr_FromString("None");
 }
@@ -31,4 +31,4 @@ static struct COTypeObject CONone_Type = {
     0,                          /* tp_setattr */
 };
 
-struct COObject _CO_None = COObject_HEAD_INIT(&CONone_Type);
+COObject _CO_None = COObject_HEAD_INIT(&CONone_Type);

@@ -1,4 +1,4 @@
-#include "stack.h"
+#include "co.h"
 
 bool
 co_stack_init(co_stack *stack)

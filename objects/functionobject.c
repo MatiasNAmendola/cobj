@@ -1,11 +1,11 @@
-#include "functionobject.h"
+#include "../co.h"
 
-static struct COObject *anonymous_func_name = NULL;
+static COObject *anonymous_func_name = NULL;
 
-static struct COObject *
+static COObject *
 function_repr(struct COFunctionObject *this)
 {
-    struct COObject *s;
+    COObject *s;
     s = COStr_FromFormat("<function '%s'>", COStr_AsString(this->func_name));
     return s;
 }
@@ -20,8 +20,8 @@ struct COTypeObject COFunction_Type = {
     0,                              /* tp_setattr */
 };
 
-struct COObject *
-COFunctionObject_New(struct COObject *func_name)
+COObject *
+COFunctionObject_New(COObject *func_name)
 {
     struct COFunctionObject *func;
     func = xmalloc(sizeof(struct COFunctionObject));
@@ -30,5 +30,5 @@ COFunctionObject_New(struct COObject *func_name)
         func_name = anonymous_func_name ? anonymous_func_name : (anonymous_func_name = COStr_FromString("anonymous"));
     }
     func->func_name = func_name;
-    return (struct COObject *)func;
+    return (COObject *)func;
 }

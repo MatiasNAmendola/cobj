@@ -1,7 +1,7 @@
 #ifndef HASH_H
 #define HASH_H
 
-#include "co.h"
+#include "co-compat.h"
 
 #define HASH_UPDATE         (1<<0)
 #define HASH_INSERT         (1<<1)

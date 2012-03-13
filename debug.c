@@ -1,5 +1,4 @@
-#include "debug.h"
-#include "compile.h"
+#include "co.h"
 
 void
 co_print_opcode(struct co_opline_array *opline_array)

@@ -1,7 +1,7 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include "co.h"
+#include "co-compat.h"
 
 #define STACK_BLOCK_SIZE    64
 

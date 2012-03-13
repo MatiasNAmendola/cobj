@@ -1,9 +1,9 @@
-#include "typeobject.h"
+#include "../co.h"
 
-static struct COObject *
+static COObject *
 type_repr(struct COTypeObject *this)
 {
-    struct COObject *s;
+    COObject *s;
     s = COStr_FromFormat("<type '%s'>", this->tp_name);
     return s;
 }
