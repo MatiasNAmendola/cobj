@@ -31,6 +31,17 @@ main(int argc, const char **argv)
     argparse_init(&argparse, options, usagestr);
     argc = argparse_parse(&argparse, argc, argv);
 
+    if (verbose) {
+        COListObject *l = COList_New(0);
+        COList_Append(l, CO_True);
+        COList_Append(l, CO_True);
+        COList_Insert(l, 0, CO_None);
+        COObject_dump(l);
+        for (int i = 0; i < CO_SIZE(l); i++) {
+            COObject_dump(COList_GetItem(l, i));
+        }
+        return 0;
+    }
     int fd = 0;
     if (argc > 0) {
         fd = open(*argv, O_RDONLY);
