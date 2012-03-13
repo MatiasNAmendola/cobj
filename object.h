@@ -66,6 +66,8 @@ struct COVarObject {
 #define CO_TYPE(co)     (((struct COObject *)(co))->co_type)
 #define CO_REFCNT(co)     (((struct COObject *)(co))->co_refcnt)
 #define CO_SIZE(co)     (((struct COObject *)(co))->co_size)
+struct COObject _CO_None;
+#define CO_None         (&_CO_None)
 
 #define CO_INIT(co, typeobj)    \
     ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1)

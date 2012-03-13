@@ -14,3 +14,21 @@ coobject_print(struct COObject *co)
         fprintf(stderr, "    repr: %s\n", s->co_str);
     }
 }
+
+static struct COObject *
+none_repr(struct COObject *co)
+{
+    return COStrObject_FromString("None");
+}
+
+static struct COTypeObject CONone_Type = {
+    COObject_HEAD_INIT(&COType_Type),
+    "NoneType",
+    0,
+    0,
+    none_repr,                      /* tp_repr */
+    0,                              /* tp_getattr */
+    0,                              /* tp_setattr */
+};
+
+struct COObject _CO_None = COObject_HEAD_INIT(&CONone_Type);

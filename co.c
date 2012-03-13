@@ -37,6 +37,7 @@ main(int argc, const char **argv)
     argc = argparse_parse(&argparse, argc, argv);
 
     if (verbose) {
+        coobject_print(CO_None);
         coobject_print(CO_True);
         coobject_print(CO_False);
         coobject_print(&COType_Type);
