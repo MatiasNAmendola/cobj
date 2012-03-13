@@ -3,10 +3,14 @@
 
 #include "../co.h"
 #include "../object.h"
+#include "../hash.h"
+#include "../compile.h"
 
 struct COFunctionObject {
     COObject_HEAD;
-    struct COObject *function_name;
+    struct COObject *func_name;
+    HashTable upvalues;
+    struct co_opline_array *opline_array;
 };
 
 struct COTypeObject COFunction_Type;
