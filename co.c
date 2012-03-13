@@ -45,15 +45,14 @@ main(int argc, const char **argv)
         coobject_print(CO_None);
         coobject_print(CO_True);
         coobject_print(CO_False);
-        coobject_print(&COType_Type);
-        coobject_print(CO_TYPE(&COType_Type));
+        coobject_print((struct COObject *)&COType_Type);
+        coobject_print((struct COObject *)CO_TYPE(&COType_Type));
         coobject_print(COInt_FromString("123456", 0));
         coobject_print(COFloat_FromString("1.3456"));
     }
 
     int fd = 0;
-    if (argc > 1) {
-        argv++;
+    if (argc > 0) {
         fd = open(*argv, O_RDONLY);
         if (fd < 0) {
             error("open %s failed", *argv);

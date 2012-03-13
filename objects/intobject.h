@@ -11,5 +11,7 @@ struct COIntObject {
 
 struct COTypeObject COInt_Type;
 struct COObject *COInt_FromString(char *s, int base);
+struct COObject *COInt_FromLong(long ival);
+long COInt_AsLong(struct COObject *co);
 
 #endif

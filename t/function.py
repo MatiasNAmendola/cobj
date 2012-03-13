@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from TAP.Simple import *
 
-plan(5)
+plan("no_plan")
 
 test_expect_result("""hello world
 hello,

@@ -14,5 +14,6 @@ struct COFunctionObject {
 };
 
 struct COTypeObject COFunction_Type;
+struct COObject *COObject_New(struct COObject *func_name);
 
 #endif

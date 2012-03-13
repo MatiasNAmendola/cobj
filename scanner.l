@@ -3,6 +3,11 @@
 #include "scanner.h"
 #include "parser.h"
 #include "dstring/dstring.h"
+#include "object.h"
+#include "objects/boolobject.h"
+#include "objects/intobject.h"
+#include "objects/strobject.h"
+#include "objects/floatobject.h"
 
 struct co_scanner_globals {
     int yy_in;
@@ -49,13 +54,13 @@ struct co_scanner_globals scanner_globals;
 #define CO_IS_HEX(c)    (((c)>='0' && (c)<='9') || ((c)>='a' && (c)<='f') || ((c)>='A' && (c)<='F'))
 
 static void
-co_scan_singlequoted_string(struct cval *cval)
+co_scan_singlequoted_string(struct COStrObject *co)
 {
     register char *s, *t;
     char *end;
 
-    s = t = cval->u.str.val;
-    end = s + cval->u.str.len;
+    s = t = co->co_str;
+    end = s + co->co_len;
     while (s < end) {
         if (*s == '\\') {
             s++;
@@ -66,11 +71,11 @@ co_scan_singlequoted_string(struct cval *cval)
             switch (*s) {
             case '\'':
                 *t++ = '\'';
-                cval->u.str.len--;
+                co->co_len--;
                 break;
             case '\\':
                 *t++ = *s;
-                cval->u.str.len--;
+                co->co_len--;
                 break;
             default:
                 *t++ = '\\';
@@ -86,13 +91,13 @@ co_scan_singlequoted_string(struct cval *cval)
 }
 
 static void
-co_scan_doublequoted_string(struct cval *cval)
+co_scan_doublequoted_string(struct COStrObject *co)
 {
     register char *s, *t;
     char *end;
 
-    s = t = cval->u.str.val;
-    end = s + cval->u.str.len;
+    s = t = co->co_str;
+    end = s + co->co_len;
     while (s < end) {
         if (*s == '\\') {
             s++;
@@ -103,49 +108,49 @@ co_scan_doublequoted_string(struct cval *cval)
             switch (*s) {
             case 'a':
                 *t++ = '\a';
-                cval->u.str.len--;
+                co->co_len--;
                 break;
             case 'b':
                 *t++ = '\b';
-                cval->u.str.len--;
+                co->co_len--;
                 break;
             case 'f':
                 *t++ = '\f';
-                cval->u.str.len--;
+                co->co_len--;
                 break;
             case 'n':
                 *t++ = '\n';
-                cval->u.str.len--;
+                co->co_len--;
                 break;
             case 'r':
                 *t++ = '\r';
-                cval->u.str.len--;
+                co->co_len--;
                 break;
             case 't':
                 *t++ = '\t';
-                cval->u.str.len--;
+                co->co_len--;
                 break;
             case 'v':
                 *t++ = '\v';
-                cval->u.str.len--;
+                co->co_len--;
                 break;
             case '"':
                 *t++ = '"';
-                cval->u.str.len--;
+                co->co_len--;
                 break;
             case '\\':
                 *t++ = *s;
-                cval->u.str.len--;
+                co->co_len--;
                 break;
             case 'x':
                 if (CO_IS_HEX(*(s+1)) && CO_IS_HEX(*(s+2))) {
                     char hex_buf[3] = {0, 0, 0};
-                    cval->u.str.len--; /* for the 'x' */
+                    co->co_len--; /* for the 'x' */
 
                     hex_buf[0] = *(++s);
-                    cval->u.str.len--;
+                    co->co_len--;
                     hex_buf[1] = *(++s);
-                    cval->u.str.len--;
+                    co->co_len--;
                     *t++ = (char)strtol(hex_buf, NULL, 16);
                 } else {
                     *t++ = '\\';
@@ -157,13 +162,13 @@ co_scan_doublequoted_string(struct cval *cval)
                 if (CO_IS_OCT(*s)) {
                     char octal_buf[4] = {0, 0, 0, 0};
                     octal_buf[0] = *s;
-                    cval->u.str.len--;
+                    co->co_len--;
                     if (CO_IS_OCT(*(s+1))) {
                         octal_buf[1] = *(++s);
-                        cval->u.str.len--;
+                        co->co_len--;
                         if (CO_IS_OCT(*(s+1))) {
                             octal_buf[2] = *(++s);
-                            cval->u.str.len--;
+                            co->co_len--;
                         }
                     }
                     *t++ = (char)strtol(octal_buf, NULL, 8);
@@ -225,15 +230,13 @@ ANY_CHAR    = [^];
 <!*> := yyleng = YYCURSOR - scanner_globals.yy_text;
 
 <SC_INIT>NUM {
-    yylval->u.val.u.ival = strtol(yytext, NULL, 0); 
-    yylval->u.val.type = CVAL_IS_INT;
+    yylval->u.co = COInt_FromString(yytext, 0);
     yylval->type = IS_CONST;
     return T_NUM;
 }
 
 <SC_INIT>FNUM {
-    yylval->u.val.u.fval = strtof(yytext, NULL);
-    yylval->u.val.type = CVAL_IS_FLOAT;
+    yylval->u.co = COFloat_FromString(yytext);
     yylval->type = IS_CONST;
     return T_FNUM;
 }
@@ -279,22 +282,19 @@ ANY_CHAR    = [^];
 }
 
 <SC_INIT>"None" {
-    yylval->u.val.u.ival = 1;
-    yylval->u.val.type = CVAL_IS_NONE;
+    yylval->u.co = CO_None;
     yylval->type = IS_CONST;
     return T_NONE;
 }
 
 <SC_INIT>"True" {
-    yylval->u.val.u.ival = 1;
-    yylval->u.val.type = CVAL_IS_BOOL;
+    yylval->u.co = CO_True;
     yylval->type = IS_CONST;
     return T_BOOL;
 }
 
 <SC_INIT>"False" {
-    yylval->u.val.u.ival = 0;
-    yylval->u.val.type = CVAL_IS_BOOL;
+    yylval->u.co = CO_False;
     yylval->type = IS_CONST;
     return T_BOOL;
 }
@@ -333,10 +333,8 @@ ANY_CHAR    = [^];
         break;
     }
     yyleng = YYCURSOR - scanner_globals.yy_text;
-    yylval->u.val.u.str.val = xstrndup(yytext, yyleng);
-    yylval->u.val.u.str.len = yyleng;
-    co_scan_doublequoted_string(&yylval->u.val);
-    yylval->u.val.type = CVAL_IS_STRING;
+    yylval->u.co = COStrObject_FromStingN(yytext, yyleng);
+    co_scan_doublequoted_string((struct COStrObject *)yylval->u.co);
     yylval->type = IS_CONST;
     return T_STRING;
 }
@@ -354,18 +352,14 @@ ANY_CHAR    = [^];
             YYCURSOR++;
         }
     } 
-    yylval->u.val.u.str.val = xstrndup(yytext + 1, yyleng - 2);
-    yylval->u.val.u.str.len = yyleng - 2;
-    co_scan_singlequoted_string(&yylval->u.val);
-    yylval->u.val.type = CVAL_IS_STRING;
+    yylval->u.co = COStrObject_FromStingN(yytext + 1, yyleng -2);
+    co_scan_singlequoted_string((struct COStrObject *)yylval->u.co);
     yylval->type = IS_CONST;
     return T_STRING;
 }
 
 <SC_INIT>NAME {
-    yylval->u.val.u.str.val = xstrndup(yytext, yyleng);
-    yylval->u.val.u.str.len = yyleng;
-    yylval->u.val.type = CVAL_IS_STRING;
+    yylval->u.co = COStrObject_FromStingN(yytext, yyleng);
     yylval->type = IS_VAR;
     return T_NAME;
 }

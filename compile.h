@@ -5,16 +5,9 @@
 #include "hash.h"
 #include "stack.h"
 #include "llist.h"
+#include "object.h"
 
-/** cval type **/
-#define CVAL_IS_NONE        1
-#define CVAL_IS_INT         2
-#define CVAL_IS_FLOAT       3
-#define CVAL_IS_BOOL        4
-#define CVAL_IS_STRING      5
-#define CVAL_IS_FUNCTION    6
-
-/** struct cnode type **/
+/** cnode type **/
 #define IS_CONST        (1<<0)
 #define IS_TMP_VAR      (1<<1)
 #define IS_VAR          (1<<2)
@@ -23,39 +16,13 @@
 
 #define CG(v)   compiler_globals.v
 
-/**
- * Function
- */
-struct Function {
-    struct co_opline_array *opline_array;
-    int numparams;              /* number of positional parameters */
-    const char *name;
-    HashTable upvalues;
-};
-
-/* 
- * value container
- */
-struct cval {
-    union {
-        long ival;              /* int value */
-        double fval;            /* float value */
-        struct {
-            char *val;
-            int len;
-        } str;                  /* string value */
-        struct Function *func;
-    } u;
-    uchar type;
-};
-
 /*
  * op node
  */
 struct cnode {
     int type;
     union {
-        struct cval val;
+        struct COObject *co;
         uint var;
         int opline_num;
     } u;
@@ -83,7 +50,7 @@ struct co_opline_array {
 
 /* temp variable */
 union temp_variable {
-    struct cval tmp_var;
+    struct COObject *tmp_co;
 };
 
 /* compiler */

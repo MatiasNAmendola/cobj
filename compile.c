@@ -71,7 +71,8 @@ void
 co_assign(struct cnode *result, struct cnode *variable,
           const struct cnode *value)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op;
+    op = get_next_op(CG(active_opline_array));
     op->opcode = OP_BIND_NAME;
     op->op1 = *variable;
 

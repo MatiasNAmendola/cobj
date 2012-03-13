@@ -11,5 +11,6 @@ struct COIntObject _CO_False, _CO_True;
 #define CO_True ((struct COObject *)&_CO_True)
 
 struct COTypeObject COBool_Type;
+struct COObject *COBool_FromLong(long ok);
 
 #endif

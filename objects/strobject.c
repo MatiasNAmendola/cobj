@@ -28,6 +28,12 @@ struct COTypeObject COStr_Type = {
     0,                              /* tp_setattr */
 };
 
+char *
+COStr_AsString(struct COObject *co)
+{
+    return ((struct COStrObject *)co)->co_str;
+}
+
 /*
  * `s` points to a null-terminated string.
  */

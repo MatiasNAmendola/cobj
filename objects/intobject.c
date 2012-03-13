@@ -28,6 +28,12 @@ struct COTypeObject COInt_Type = {
     0,                              /* tp_setattr */
 };
 
+long
+COInt_AsLong(struct COObject *co)
+{
+    return ((struct COIntObject *)co)->co_ival;
+}
+
 struct COObject *
 COInt_FromString(char *s, int base)
 {
@@ -41,5 +47,17 @@ COInt_FromString(char *s, int base)
     num = xmalloc(sizeof(struct COIntObject));
     CO_INIT(num, &COInt_Type);
     num->co_ival = strtol(s, NULL, base);
+    return (struct COObject *)num;
+}
+
+
+struct COObject *
+COInt_FromLong(long ival)
+{
+    struct COIntObject *num;
+
+    num = xmalloc(sizeof(struct COIntObject));
+    CO_INIT(num, &COInt_Type);
+    num->co_ival = ival;
     return (struct COObject *)num;
 }

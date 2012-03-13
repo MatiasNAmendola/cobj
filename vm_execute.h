@@ -4,6 +4,12 @@
 #include "compile.h"
 #include "parser.h"
 #include "error.h"
+#include "object.h"
+#include "objects/boolobject.h"
+#include "objects/intobject.h"
+#include "objects/strobject.h"
+#include "objects/floatobject.h"
+#include "objects/functionobject.h"
 
 struct co_vm_stack {
     void **top;
@@ -18,12 +24,12 @@ struct co_exec_data {
     union temp_variable *ts;
     struct co_opline_array *opline_array;
     struct co_exec_data *prev_exec_data;
-    struct Function *function_called;
+    struct COFunctionObject *function_called;
     HashTable symbol_table;
 };
 
 struct co_executor_globals {
-    struct Function *next_func;
+    struct COFunctionObject *next_func;
     struct co_exec_data *current_exec_data;
     struct co_vm_stack *vm_stack;
     co_stack argument_stack;
@@ -36,10 +42,10 @@ extern void co_vm_init();
 extern void co_vm_execute(struct co_opline_array *opline_array);
 extern void co_vm_shutdown();
 
-/* cval handlers */
-extern struct cval *cval_get(const char *name);
-extern bool cval_put(const char *name, struct cval *val);
-extern bool cval_del(const char *name);
-extern void cval_print(struct cval *val);
+/* COObject handlers */
+extern struct COObject **COObject_get(struct COObject *co);
+extern bool COObject_put(struct COObject *name, struct COObject ** co);
+extern bool COObject_del(const char *name);
+extern void COObject_print(struct COObject *co);
 
 #endif

@@ -28,6 +28,19 @@ struct COTypeObject COBool_Type = {
     0,                              /* tp_setattr */
 };
 
+struct COObject *
+COBool_FromLong(long ok)
+{
+    struct COObject *result;
+
+    if (ok)
+        result = CO_True;
+    else
+        result = CO_False;
+
+    return result;
+}
+
 struct COIntObject _CO_False = {
     COObject_HEAD_INIT(&COBool_Type),
     0,

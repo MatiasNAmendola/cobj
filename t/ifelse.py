@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from TAP.Simple import *
 
-plan(1)
+plan("no_plan")
 
 test_expect_result("""if
 else if
