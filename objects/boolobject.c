@@ -1,5 +1,4 @@
 #include "boolobject.h"
-#include "strobject.h"
 
 static struct COObject *False_str = NULL;
 static struct COObject *True_str = NULL;
@@ -10,9 +9,9 @@ bool_repr(struct COObject *this)
     struct COObject *s;
 
     if (this == CO_True) {
-        s = True_str ? True_str : (True_str = COStrObject_FromString("True"));
+        s = True_str ? True_str : (True_str = COStr_FromString("True"));
     } else {
-        s = False_str ? False_str : (False_str = COStrObject_FromString("False"));
+        s = False_str ? False_str : (False_str = COStr_FromString("False"));
     }
 
     return s;

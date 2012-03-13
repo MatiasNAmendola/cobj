@@ -1,11 +1,10 @@
 #include "typeobject.h"
-#include "strobject.h"
 
 static struct COObject *
 type_repr(struct COTypeObject *this)
 {
     struct COObject *s;
-    s = COStrObject_FromFormat("<type '%s'>", this->tp_name);
+    s = COStr_FromFormat("<type '%s'>", this->tp_name);
     return s;
 }
 

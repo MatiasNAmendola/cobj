@@ -4,13 +4,13 @@ static struct COStrObject *null_str = NULL;
 
 /*
  * It gives the base size of str object; any memory allocation for a string of
- * length n should request COStrObject_BASESIZE + (n + 1) bytes (with extra
+ * length n should request COStr_BASESIZE + (n + 1) bytes (with extra
  * '\0').
  *
  * Instead of sizeof(COStrObject), it saves bytes per string allocation on a
  * typical system, you can compare this with sizeof(COStrObject) + n bytes.
  */
-#define COStrObject_BASESIZE    offsetof(struct COStrObject, co_str)
+#define COStr_BASESIZE    offsetof(struct COStrObject, co_sval)
  
 static struct COObject *
 str_repr(struct COObject *this)
@@ -31,21 +31,21 @@ struct COTypeObject COStr_Type = {
 char *
 COStr_AsString(struct COObject *co)
 {
-    return ((struct COStrObject *)co)->co_str;
+    return ((struct COStrObject *)co)->co_sval;
 }
 
 /*
  * `s` points to a null-terminated string.
  */
 struct COObject *
-COStrObject_FromString(const char *s)
+COStr_FromString(const char *s)
 {
     struct COStrObject *str;
     size_t len = strlen(s);
-    str = xmalloc(COStrObject_BASESIZE + len + 1);
+    str = xmalloc(COStr_BASESIZE + len + 1);
     CO_INIT(str, &COStr_Type);
     str->co_len = len;
-    memcpy(str->co_str, s, len + 1); // with last '\0'
+    memcpy(str->co_sval, s, len + 1); // with last '\0'
     return (struct COObject *)str;
 }
 
@@ -54,7 +54,7 @@ COStrObject_FromString(const char *s)
  * do not have to be null-terminated.
  */
 struct COObject *
-COStrObject_FromStingN(const char *s, size_t len)
+COStr_FromStingN(const char *s, size_t len)
 {
     struct COStrObject *str;
 
@@ -62,13 +62,13 @@ COStrObject_FromStingN(const char *s, size_t len)
         return (struct COObject *)str;
     }
 
-    str = xmalloc(COStrObject_BASESIZE + len + 1);
+    str = xmalloc(COStr_BASESIZE + len + 1);
     CO_INIT(str, &COStr_Type);
     str->co_len = len;
     if (s != NULL) {
-        memcpy(str->co_str, s, len);
+        memcpy(str->co_sval, s, len);
     }
-    str->co_str[str->co_len] = '\0';
+    str->co_sval[str->co_len] = '\0';
 
     /* share short strings */
     if (len == 0) {
@@ -79,7 +79,7 @@ COStrObject_FromStingN(const char *s, size_t len)
 }
 
 struct COObject *
-COStrObject_FromFormat(const char *fmt, ...)
+COStr_FromFormat(const char *fmt, ...)
 {
     struct COStrObject *str;
 
@@ -147,11 +147,11 @@ COStrObject_FromFormat(const char *fmt, ...)
 
 step2:
     /* step 2: fill the buffer */
-    str = (struct COStrObject *)COStrObject_FromStingN(NULL, n+1);
+    str = (struct COStrObject *)COStr_FromStingN(NULL, n+1);
     if (!str)
         return NULL;
 
-    vsnprintf(str->co_str, n + 1, fmt, params);
+    vsnprintf(str->co_sval, n + 1, fmt, params);
 
     va_end(params);
 

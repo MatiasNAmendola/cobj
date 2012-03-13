@@ -66,14 +66,19 @@ struct COVarObject {
 #define CO_TYPE(co)     (((struct COObject *)(co))->co_type)
 #define CO_REFCNT(co)     (((struct COObject *)(co))->co_refcnt)
 #define CO_SIZE(co)     (((struct COObject *)(co))->co_size)
-struct COObject _CO_None;
+struct COObject _CO_None;   // Don't use this directly, using following one instead!
 #define CO_None         (&_CO_None)
 
 #define CO_INIT(co, typeobj)    \
     ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1)
 
-#include "objects/typeobject.h"
+void COObject_dump(struct COObject *co);
 
-void coobject_print(struct COObject *co);
+#include "objects/typeobject.h"
+#include "objects/intobject.h"
+#include "objects/boolobject.h"
+#include "objects/floatobject.h"
+#include "objects/strobject.h"
+#include "objects/functionobject.h"
 
 #endif

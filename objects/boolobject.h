@@ -3,10 +3,8 @@
 
 #include "../co.h"
 #include "../object.h"
-#include "intobject.h"
 
-struct COIntObject _CO_False, _CO_True;
-
+struct COIntObject _CO_False, _CO_True; // Don't use these directly, using following two instead!
 #define CO_False ((struct COObject *)&_CO_False)
 #define CO_True ((struct COObject *)&_CO_True)
 

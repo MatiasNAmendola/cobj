@@ -1,9 +1,8 @@
 #include "object.h"
-#include "objects/strobject.h"
 
 /* For debugging convenience. */
 void
-coobject_print(struct COObject *co)
+COObject_dump(struct COObject *co)
 {
     if (co == NULL) {
         fprintf(stderr, "NULL\n");
@@ -12,14 +11,14 @@ coobject_print(struct COObject *co)
         fprintf(stderr, "    type: %s\n",
                 CO_TYPE(co) == NULL ? "NULL" : CO_TYPE(co)->tp_name);
         struct COStrObject *s = (struct COStrObject *)CO_TYPE(co)->tp_repr(co);
-        fprintf(stderr, "    repr: %s\n", s->co_str);
+        fprintf(stderr, "    repr: %s\n", s->co_sval);
     }
 }
 
 static struct COObject *
 none_repr(struct COObject *co)
 {
-    return COStrObject_FromString("None");
+    return COStr_FromString("None");
 }
 
 static struct COTypeObject CONone_Type = {

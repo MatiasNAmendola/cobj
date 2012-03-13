@@ -1,12 +1,11 @@
 #include "floatobject.h"
-#include "strobject.h"
 
 static struct COObject *
 float_repr(struct COFloatObject *this)
 {
     char buffer[32];
     int n = snprintf(buffer, 32, "%g", this->co_fval);
-    return COStrObject_FromStingN(buffer, n);
+    return COStr_FromStingN(buffer, n);
 }
 
 struct COTypeObject COFloat_Type = {

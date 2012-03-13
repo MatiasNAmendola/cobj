@@ -161,7 +161,7 @@ void
 COObject_print(struct COObject *co)
 {
     struct COStrObject *s = (struct COStrObject *)CO_TYPE(co)->tp_repr(co);
-    printf("%s\n", s->co_str);
+    printf("%s\n", s->co_sval);
 }
 
 static void
@@ -327,7 +327,7 @@ co_vm_handler(void)
         return CO_VM_RETURN;
     case OP_DECLARE_FUNCTION:
         {
-            struct COFunctionObject *func = (struct COFunctionObject *)COObject_New(op->op1.u.co);
+            struct COFunctionObject *func = (struct COFunctionObject *)COFunctionObject_New(op->op1.u.co);
             func->opline_array = xmalloc(sizeof(struct co_opline_array));
             func->opline_array->ops = EG(current_exec_data)->op + 1;
             func->opline_array->last = op->op2.u.opline_num;

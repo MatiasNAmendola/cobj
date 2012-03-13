@@ -1,5 +1,4 @@
 #include "intobject.h"
-#include "strobject.h"
 
 static struct COObject *
 int_repr(struct COIntObject *this)
@@ -15,7 +14,7 @@ int_repr(struct COIntObject *this)
     } while (absn);
     if (n < 0)
         *--p = '-';
-    return COStrObject_FromStingN(p, bufend - p);
+    return COStr_FromStingN(p, bufend - p);
 }
 
 struct COTypeObject COInt_Type = {

@@ -7,14 +7,14 @@
 struct COStrObject {
     COObject_HEAD;
     size_t co_len;
-    char co_str[1];
+    char co_sval[1];
 };
 
 struct COTypeObject COStr_Type;
 
 char *COStr_AsString(struct COObject *co);
-struct COObject *COStrObject_FromString(const char *s);
-struct COObject *COStrObject_FromStingN(const char *s, size_t len);
-struct COObject *COStrObject_FromFormat(const char *fmt, ...);
+struct COObject *COStr_FromString(const char *s);
+struct COObject *COStr_FromStingN(const char *s, size_t len);
+struct COObject *COStr_FromFormat(const char *fmt, ...);
 
 #endif

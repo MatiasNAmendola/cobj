@@ -7,9 +7,6 @@
 #include "error.h"
 #include "argparse/argparse.h"
 #include "object.h"
-#include "objects/strobject.h"
-#include "objects/boolobject.h"
-#include "objects/floatobject.h"
 
 static const char *const usagestr[] = {
     "co [options] [file] [args]",
@@ -42,13 +39,13 @@ main(int argc, const char **argv)
     argc = argparse_parse(&argparse, argc, argv);
 
     if (verbose) {
-        coobject_print(CO_None);
-        coobject_print(CO_True);
-        coobject_print(CO_False);
-        coobject_print((struct COObject *)&COType_Type);
-        coobject_print((struct COObject *)CO_TYPE(&COType_Type));
-        coobject_print(COInt_FromString("123456", 0));
-        coobject_print(COFloat_FromString("1.3456"));
+        COObject_dump(CO_None);
+        COObject_dump(CO_True);
+        COObject_dump(CO_False);
+        COObject_dump((struct COObject *)&COType_Type);
+        COObject_dump((struct COObject *)CO_TYPE(&COType_Type));
+        COObject_dump(COInt_FromString("123456", 0));
+        COObject_dump(COFloat_FromString("1.3456"));
     }
 
     int fd = 0;

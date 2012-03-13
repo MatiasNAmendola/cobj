@@ -4,10 +4,6 @@
 #include "parser.h"
 #include "dstring/dstring.h"
 #include "object.h"
-#include "objects/boolobject.h"
-#include "objects/intobject.h"
-#include "objects/strobject.h"
-#include "objects/floatobject.h"
 
 struct co_scanner_globals {
     int yy_in;
@@ -59,7 +55,7 @@ co_scan_singlequoted_string(struct COStrObject *co)
     register char *s, *t;
     char *end;
 
-    s = t = co->co_str;
+    s = t = co->co_sval;
     end = s + co->co_len;
     while (s < end) {
         if (*s == '\\') {
@@ -96,7 +92,7 @@ co_scan_doublequoted_string(struct COStrObject *co)
     register char *s, *t;
     char *end;
 
-    s = t = co->co_str;
+    s = t = co->co_sval;
     end = s + co->co_len;
     while (s < end) {
         if (*s == '\\') {
@@ -333,7 +329,7 @@ ANY_CHAR    = [^];
         break;
     }
     yyleng = YYCURSOR - scanner_globals.yy_text;
-    yylval->u.co = COStrObject_FromStingN(yytext, yyleng);
+    yylval->u.co = COStr_FromStingN(yytext, yyleng);
     co_scan_doublequoted_string((struct COStrObject *)yylval->u.co);
     yylval->type = IS_CONST;
     return T_STRING;
@@ -352,14 +348,14 @@ ANY_CHAR    = [^];
             YYCURSOR++;
         }
     } 
-    yylval->u.co = COStrObject_FromStingN(yytext + 1, yyleng -2);
+    yylval->u.co = COStr_FromStingN(yytext + 1, yyleng -2);
     co_scan_singlequoted_string((struct COStrObject *)yylval->u.co);
     yylval->type = IS_CONST;
     return T_STRING;
 }
 
 <SC_INIT>NAME {
-    yylval->u.co = COStrObject_FromStingN(yytext, yyleng);
+    yylval->u.co = COStr_FromStingN(yytext, yyleng);
     yylval->type = IS_VAR;
     return T_NAME;
 }

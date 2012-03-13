@@ -12,5 +12,5 @@ struct COFloatObject {
 struct COTypeObject COFloat_Type;
 
 struct COObject *COFloat_FromString(char *s);
-#endif
 
+#endif
