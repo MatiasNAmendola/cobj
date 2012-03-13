@@ -11,9 +11,8 @@ func fibo(n) {
     }
 }
 
-fibo(1);
-#i = 0;
-#while (i < 10) {
-    #print fibo(i);
-    #i = i + 1;
-#}
+i = 0;
+while (i < 10) {
+    print fibo(i);
+    i = i + 1;
+}

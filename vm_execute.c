@@ -108,35 +108,46 @@ co_vm_stack_free(void *ptr)
 struct COObject **
 COObject_get(struct COObject *str)
 {
-    struct COObject ***co;
+    struct COObject **co;
     char *name = COStr_AsString(str);
 
     struct co_exec_data *current_exec_data = EG(current_exec_data);
     if (current_exec_data->function_called) {
         if (co_symtable_find
-            (&current_exec_data->function_called->upvalues, name, strlen(name),
-             (void **)&co)) {
-            return *co;
+                (&((struct COFunctionObject *)current_exec_data->function_called)->upvalues, name, strlen(name),
+                 (void **)&co)) {
+            return co;
         }
     }
     do {
         if (co_symtable_find
-            (&current_exec_data->symbol_table, name, strlen(name), (void**)&co)) {
-            return *co;
+            (&current_exec_data->symbol_table, name, strlen(name), &co)) {
+#ifdef CO_DEBUG
+            printf("get: %s, value: %p, data:", COStr_AsString(str), co);
+            COObject_print(*co);
+#endif
+            return co;
         }
         current_exec_data = current_exec_data->prev_exec_data;
         if (!current_exec_data) {
             break;
         }
     } while (true);
+#ifdef CO_DEBUG
+    printf("get: %s, value: null, data: null\n", COStr_AsString(str));
+#endif
     return NULL;
 }
 
 bool
-COObject_put(struct COObject *name, struct COObject **co)
+COObject_put(struct COObject *name, struct COObject *co)
 {
+#ifdef CO_DEBUG
+    printf("put: %s, value: %p, data: ", COStr_AsString(name), co);
+    COObject_print(co);
+#endif
     return co_symtable_update(&EG(current_exec_data)->symbol_table, COStr_AsString(name),
-                              strlen(COStr_AsString(name)), &co, sizeof(struct COObject **));
+                              strlen(COStr_AsString(name)), &co, sizeof(struct COObject *));
 }
 
 bool
@@ -159,8 +170,8 @@ COObject_bind(struct COObject *name)
     struct COObject **co;
     co = COObject_get(name);
     if (!co) {
-        struct COObject *new = CO_None;
-        COObject_put(name, &new);
+        COObject_put(name, CO_None);
+        COObject_get(name);
     }
 }
 
@@ -216,6 +227,7 @@ co_vm_handler(void)
         val2 = get_COObject_ptr(&op->op2, EG(current_exec_data)->ts);
         result = get_COObject_ptr(&op->result, EG(current_exec_data)->ts);
         *result = COInt_FromLong(COInt_AsLong(*val1) * COInt_AsLong(*val2));
+        
         EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_DIV:
@@ -293,7 +305,7 @@ co_vm_handler(void)
         if (*val1 != CO_True && COBool_FromLong(COInt_AsLong(*val1)) != CO_True) {
             EG(current_exec_data)->op += op->op2.u.opline_num;
 #if CO_DEBUG
-            printf("JMPZ to: %d\n",
+            printf("JMPZ to: %ld\n",
                    EG(current_exec_data)->op -
                    EG(current_exec_data)->opline_array->ops);
 #endif
@@ -306,7 +318,7 @@ co_vm_handler(void)
         val1 = get_COObject_ptr(&op->op1, EG(current_exec_data)->ts);
         EG(current_exec_data)->op += op->op1.u.opline_num;
 #if CO_DEBUG
-        printf("JMP to: %d\n",
+        printf("JMP to: %ld\n",
                EG(current_exec_data)->op -
                EG(current_exec_data)->opline_array->ops);
 #endif
@@ -350,13 +362,9 @@ co_vm_handler(void)
                 val1 = get_COObject_ptr(&op->op1, EG(current_exec_data)->ts);
                 *val1 = (struct COObject *)func;
 #ifdef CO_DEBUG
-                printf("%p\n", *val1);
-                printf("%p\n", func);
-                printf("declare function start\n");
-                COObject_print(op->op1.u.co);
-                COObject_print(CO_TYPE(*val1));
-                COObject_print(CO_TYPE(func));
-                printf("declare function end\n");
+                printf("declare function: %p, itsvalue: %p\n", val1, *val1);
+                val1 = get_COObject_ptr(&op->op1, EG(current_exec_data)->ts);
+                printf("declare function: %p, itsvalue: %p\n", val1, *val1);
 #endif
             }
             if (op->result.type != IS_UNUSED) {
@@ -365,7 +373,7 @@ co_vm_handler(void)
             }
             EG(current_exec_data)->op += op->op2.u.opline_num + 1;
 #ifdef CO_DEBUG
-            printf("declare func jump over to: %d\n",
+            printf("declare func jump over to: %ld\n",
                    EG(current_exec_data)->op -
                    EG(current_exec_data)->opline_array->ops);
 #endif
@@ -393,11 +401,8 @@ co_vm_handler(void)
         return CO_VM_CONTINUE;
     case OP_DO_FCALL:
         val1 = get_COObject_ptr(&op->op1, EG(current_exec_data)->ts);
-#ifdef CO_DEBUBG
-        printf("call function start\n");
-        COObject_print(op->op1.u.co);
-        COObject_print(CO_TYPE(*val1));
-        printf("call function end\n");
+#ifdef CO_DEBUG
+        printf("call function: %p\n", *val1);
 #endif
         result = get_COObject_ptr(&op->result, EG(current_exec_data)->ts);
         if (CO_TYPE(*val1) != &COFunction_Type) {
@@ -409,15 +414,14 @@ co_vm_handler(void)
         return CO_VM_ENTER;
     case OP_PASS_PARAM:
         val1 = get_COObject_ptr(&op->op1, EG(current_exec_data)->ts);
-        co_stack_push(&EG(argument_stack), &val1, sizeof(&val1));
+        co_stack_push(&EG(argument_stack), val1, sizeof(struct COObject *));
         EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_RECV_PARAM:
         {
             struct COObject **val;
-            co_stack_top(&EG(argument_stack), (void **)&val);
-            COObject_put(op->op1.u.co, val);
-
+            co_stack_top(&EG(argument_stack), &val);
+            COObject_put(op->op1.u.co, *val);
             EG(current_exec_data)->op++;
             return CO_VM_CONTINUE;
         }
@@ -426,7 +430,7 @@ co_vm_handler(void)
         EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     default:
-        error("unknown handle for opcode(%d)\n",
+        error("unknown handle for opcode(%ld)\n",
               EG(current_exec_data)->op->opcode);
         return -1;
     }
@@ -440,7 +444,7 @@ co_vm_execute(struct co_opline_array *opline_array)
 vm_enter:
     /* initialize exec_data */
 #ifdef CO_DEBUG
-    printf("tmp: %d\n", opline_array->t);
+    printf("tmp: %ld\n", opline_array->t);
 #endif
     exec_data =
         (struct co_exec_data *)co_vm_stack_alloc(sizeof(struct co_exec_data) +
@@ -468,7 +472,7 @@ vm_enter:
         case CO_VM_RETURN:
             return;
         case CO_VM_ENTER:
-            opline_array = EG(next_func)->opline_array;
+            opline_array = ((struct COFunctionObject *)EG(next_func))->opline_array;
             goto vm_enter;
         case CO_VM_LEAVE:
 #ifdef CO_DEBUG
