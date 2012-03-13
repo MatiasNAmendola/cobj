@@ -29,7 +29,7 @@ struct COTypeObject COInt_Type = {
 };
 
 struct COObject *
-COIntObject_FromString(char *s, int base)
+COInt_FromString(char *s, int base)
 {
     struct COIntObject *num;
 

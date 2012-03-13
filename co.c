@@ -9,6 +9,7 @@
 #include "object.h"
 #include "objects/strobject.h"
 #include "objects/boolobject.h"
+#include "objects/floatobject.h"
 
 static const char *const usagestr[] = {
     "co [options] [file] [args]",
@@ -46,9 +47,8 @@ main(int argc, const char **argv)
         coobject_print(CO_False);
         coobject_print(&COType_Type);
         coobject_print(CO_TYPE(&COType_Type));
-        struct COIntObject *num;
-        num = COIntObject_FromString("123456", 0);
-        coobject_print(num);
+        coobject_print(COInt_FromString("123456", 0));
+        coobject_print(COFloat_FromString("1.3456"));
     }
 
     int fd = 0;
