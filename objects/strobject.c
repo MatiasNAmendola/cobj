@@ -11,7 +11,7 @@ static COStrObject *null_str = NULL;
  * typical system, you can compare this with sizeof(COStrObject) + n bytes.
  */
 #define COStr_BASESIZE    offsetof(COStrObject, co_sval)
- 
+
 static COObject *
 str_repr(COObject *this)
 {
@@ -23,9 +23,9 @@ COTypeObject COStr_Type = {
     "str",
     sizeof(COStrObject),
     0,
-    str_repr,                      /* tp_repr */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
+    str_repr,                   /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
 };
 
 char *
@@ -45,7 +45,7 @@ COStr_FromString(const char *s)
     str = xmalloc(COStr_BASESIZE + len + 1);
     CO_INIT(str, &COStr_Type);
     str->co_len = len;
-    memcpy(str->co_sval, s, len + 1); // with last '\0'
+    memcpy(str->co_sval, s, len + 1);   // with last '\0'
     return (COObject *)str;
 }
 
@@ -117,12 +117,15 @@ COStr_FromFormat(const char *fmt, ...)
             case '%':
                 n++;
                 break;
-            case 'd': case 'u': case 'i': case 'x':
+            case 'd':
+            case 'u':
+            case 'i':
+            case 'x':
                 (void)va_arg(count, int);
                 n += 20;
                 break;
             case 's':
-                s = va_arg(count, char*);
+                s = va_arg(count, char *);
                 n += strlen(s);
                 break;
             case 'p':
@@ -147,7 +150,7 @@ COStr_FromFormat(const char *fmt, ...)
 
 step2:
     /* step 2: fill the buffer */
-    str = (COStrObject *)COStr_FromStingN(NULL, n+1);
+    str = (COStrObject *)COStr_FromStingN(NULL, n + 1);
     if (!str)
         return NULL;
 

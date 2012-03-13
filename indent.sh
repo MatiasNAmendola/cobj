@@ -37,6 +37,6 @@ for t in $OUTSIDE_TYPEDEFS; do
     echo "-T $t" >> .indent.pro
 done
 
-indent *.[ch]
+find . -name "*.[ch]"  |  grep -E -v '^\.\/(argparse|dstring)' | xargs indent
 rm -f .indent.pro
-rm -f *~
+find . -name "*~" | xargs rm -f

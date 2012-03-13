@@ -13,7 +13,7 @@ COTypeObject COCode_Type = {
     "code",
     sizeof(COCodeObject),
     0,
-    (reprfunc)code_repr,                      /* tp_repr */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
+    (reprfunc) code_repr,       /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
 };

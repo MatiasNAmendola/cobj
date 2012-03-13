@@ -22,9 +22,9 @@ COTypeObject COInt_Type = {
     "int",
     sizeof(COIntObject),
     0,
-    (reprfunc)int_repr,                      /* tp_repr */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
+    (reprfunc) int_repr,        /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
 };
 
 long
@@ -48,7 +48,6 @@ COInt_FromString(char *s, int base)
     num->co_ival = strtol(s, NULL, base);
     return (COObject *)num;
 }
-
 
 COObject *
 COInt_FromLong(long ival)

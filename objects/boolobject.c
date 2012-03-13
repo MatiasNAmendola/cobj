@@ -22,9 +22,9 @@ COTypeObject COBool_Type = {
     "bool",
     sizeof(long),
     0,
-    bool_repr,                      /* tp_repr */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
+    bool_repr,                  /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
 };
 
 COObject *

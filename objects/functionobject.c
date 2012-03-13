@@ -15,9 +15,9 @@ COTypeObject COFunction_Type = {
     "function",
     sizeof(COFunctionObject),
     0,
-    (reprfunc)function_repr,                      /* tp_repr */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
+    (reprfunc) function_repr,   /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
 };
 
 COObject *
@@ -27,7 +27,10 @@ COFunctionObject_New(COObject *func_name)
     func = xmalloc(sizeof(COFunctionObject));
     CO_INIT(func, &COFunction_Type);
     if (!func_name) {
-        func_name = anonymous_func_name ? anonymous_func_name : (anonymous_func_name = COStr_FromString("anonymous"));
+        func_name =
+            anonymous_func_name ? anonymous_func_name : (anonymous_func_name =
+                                                         COStr_FromString
+                                                         ("anonymous"));
     }
     func->func_name = func_name;
     return (COObject *)func;

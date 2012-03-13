@@ -13,7 +13,7 @@ COTypeObject COType_Type = {
     "type",
     sizeof(COTypeObject),
     0,
-    (reprfunc)type_repr,            /* tp_repr */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
+    (reprfunc) type_repr,       /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
 };
