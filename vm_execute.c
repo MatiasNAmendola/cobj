@@ -110,8 +110,9 @@ COObject_get(COObject *str)
     struct co_exec_data *current_exec_data = EG(current_exec_data);
     if (current_exec_data->function_called) {
         if (co_symtable_find
-            (&((COFunctionObject *)current_exec_data->function_called)->
-             upvalues, name, strlen(name), (void **)&co)) {
+            (&
+             ((COFunctionObject *)current_exec_data->function_called)->upvalues,
+             name, strlen(name), (void **)&co)) {
             return co;
         }
     }
@@ -477,8 +478,7 @@ vm_enter:
         case CO_VM_RETURN:
             return;
         case CO_VM_ENTER:
-            opline_array =
-                ((COFunctionObject *)EG(next_func))->opline_array;
+            opline_array = ((COFunctionObject *)EG(next_func))->opline_array;
             goto vm_enter;
         case CO_VM_LEAVE:
 #ifdef CO_DEBUG

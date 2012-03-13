@@ -8,6 +8,7 @@ sed -n 's/\s*typedef\s.*\s\([a-zA-Z_]\+\);/\1/p' *.[ch] \
     | xargs -Itype echo -T type >> .indent.pro
 
 # case 2: typedef span multiline
+find . -name "*.[ch]" | xargs \
 awk '
 BEGIN {
     a = 0
@@ -28,7 +29,7 @@ END {
     for (i in typedefs) {
         print typedefs[i]
     }
-}' *.[ch] \
+}' \
     | xargs -Itype echo -T type >> .indent.pro
 
 # typedefs from outside libraries

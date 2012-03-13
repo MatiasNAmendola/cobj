@@ -117,8 +117,8 @@ co_if_after_statement(struct cnode *closing_bracket_token)
 {
     int if_after_stmt_op_num = CG(active_opline_array)->last;
     struct co_opline *opline = get_next_op(CG(active_opline_array));
-    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op2.u.
-        opline_num =
+    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op2.
+        u.opline_num =
         if_after_stmt_op_num + 1 - closing_bracket_token->u.opline_num;
     closing_bracket_token->u.opline_num = if_after_stmt_op_num;
     opline->opcode = OP_JMP;
@@ -130,8 +130,8 @@ void
 co_if_end(const struct cnode *closing_bracket_token)
 {
     int if_end_op_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op1.u.
-        opline_num = if_end_op_num - closing_bracket_token->u.opline_num;
+    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op1.
+        u.opline_num = if_end_op_num - closing_bracket_token->u.opline_num;
 }
 
 void
@@ -159,8 +159,8 @@ co_while_end(const struct cnode *while_token,
     SET_UNUSED(op->op2);
 
     int while_end_stmt_op_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op2.u.
-        opline_num =
+    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op2.
+        u.opline_num =
         while_end_stmt_op_num - closing_bracket_token->u.opline_num;
 }
 
@@ -192,14 +192,15 @@ co_end_function_declaration(const struct cnode *function_token,
     op->opcode = OP_RETURN;
 
     int function_end_opline_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[function_token->u.opline_num].op2.u.
-        opline_num = function_end_opline_num - function_token->u.opline_num - 1;
+    CG(active_opline_array)->ops[function_token->u.opline_num].op2.
+        u.opline_num =
+        function_end_opline_num - function_token->u.opline_num - 1;
 
     if (result) {
         CG(active_opline_array)->ops[function_token->u.opline_num].result.type =
             IS_TMP_VAR;
-        CG(active_opline_array)->ops[function_token->u.opline_num].result.u.
-            var = get_temporary_variable(CG(active_opline_array));
+        CG(active_opline_array)->ops[function_token->u.opline_num].result.
+            u.var = get_temporary_variable(CG(active_opline_array));
         *result =
             CG(active_opline_array)->ops[function_token->u.opline_num].result;
     }
