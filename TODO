@@ -2,3 +2,4 @@
 * error message with location
 * implement namespace & scope rules
 * codeobject dump/load bytecode
+* add list syntax support (according to PHP 5.4's array syntax)
