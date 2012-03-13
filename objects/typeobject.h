@@ -23,4 +23,3 @@ struct COTypeObject {
 struct COTypeObject COType_Type;
 
 #endif
-

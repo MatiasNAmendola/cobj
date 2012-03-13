@@ -1,7 +1,8 @@
 #include "error.h"
 #include "co.h"
 
-char *error_occurred(void)
+char *
+error_occurred(void)
 {
 
     return NULL;

@@ -9,7 +9,8 @@ coobject_print(struct COObject *co)
         fprintf(stderr, "NULL\n");
     } else {
         fprintf(stderr, "object:\n");
-        fprintf(stderr, "    type: %s\n", CO_TYPE(co) == NULL ? "NULL" : CO_TYPE(co)->tp_name);
+        fprintf(stderr, "    type: %s\n",
+                CO_TYPE(co) == NULL ? "NULL" : CO_TYPE(co)->tp_name);
         struct COStrObject *s = (struct COStrObject *)CO_TYPE(co)->tp_repr(co);
         fprintf(stderr, "    repr: %s\n", s->co_str);
     }
@@ -26,9 +27,9 @@ static struct COTypeObject CONone_Type = {
     "NoneType",
     0,
     0,
-    none_repr,                      /* tp_repr */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
+    none_repr,                  /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
 };
 
 struct COObject _CO_None = COObject_HEAD_INIT(&CONone_Type);

@@ -60,7 +60,7 @@ struct COObject {
 /* for variable-size objects */
 struct COVarObject {
     COObject_HEAD;
-    size_t co_size;         /* number of objects */
+    size_t co_size;             /* number of objects */
 };
 
 #define CO_TYPE(co)     (((struct COObject *)(co))->co_type)

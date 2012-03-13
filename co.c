@@ -10,13 +10,14 @@
 #include "objects/strobject.h"
 #include "objects/boolobject.h"
 
-static const char * const usagestr[] = {
+static const char *const usagestr[] = {
     "co [options] [file] [args]",
     NULL,
 };
 
 int
-argparse_showversion(struct argparse *this, const struct argparse_option *option)
+argparse_showversion(struct argparse *this,
+                     const struct argparse_option *option)
 {
     printf("CObject 0.01\n");
     exit(1);
@@ -29,8 +30,11 @@ main(int argc, const char **argv)
     struct argparse argparse;
     struct argparse_option options[] = {
         OPT_HELP(),
-        OPT_BOOLEAN('v', "version", NULL, "print the version number and exit", argparse_showversion),
-        OPT_BOOLEAN('V', "verbose", &verbose, "show runtime info, can be supplied multiple times to increase verbosity", NULL),
+        OPT_BOOLEAN('v', "version", NULL, "print the version number and exit",
+                    argparse_showversion),
+        OPT_BOOLEAN('V', "verbose", &verbose,
+                    "show runtime info, can be supplied multiple times to increase verbosity",
+                    NULL),
         OPT_END(),
     };
     argparse_init(&argparse, options, usagestr);
