@@ -71,7 +71,7 @@ uninstall:
 clean:
 	$(RM) co
 	# library objects
-	find . -name '*.o' | xargs $(RM)
+	find . -name '*.[oa]' | xargs $(RM)
 	# parser source files
 	$(RM) parser.[ch]
 	# scan source files

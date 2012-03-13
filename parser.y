@@ -138,11 +138,16 @@ finally_block:
 ;
 
 function_declaration:
-    T_FUNC T_NAME { co_begin_function_declaration(&$1, &$2); } '(' parameter_list ')' '{' statement_list '}' { co_end_function_declaration(&$1, &$$); }
+    T_FUNC T_NAME { co_begin_function_declaration(&$1, &$2); } '(' parameter_list ')' function_body { co_end_function_declaration(&$1, &$$); }
 ;
 
 function_literal:
-    T_FUNC { co_begin_function_declaration(&$1, NULL); } '(' parameter_list ')' '{' statement_list '}' { co_end_function_declaration(&$1, &$$); }
+    T_FUNC { co_begin_function_declaration(&$1, NULL); } '(' parameter_list ')' function_body { co_end_function_declaration(&$1, &$$); }
+;
+
+function_body:
+        '{' statement_list '}'
+    |   '{' /* empty */ '}'
 ;
 
 parameter_list:

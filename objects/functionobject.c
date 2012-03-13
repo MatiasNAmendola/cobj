@@ -1,6 +1,8 @@
 #include "functionobject.h"
 #include "strobject.h"
 
+static struct COObject *anonymous_func_name = NULL;
+
 static struct COObject *
 function_repr(struct COFunctionObject *this)
 {
@@ -25,6 +27,9 @@ COObject_New(struct COObject *func_name)
     struct COFunctionObject *func;
     func = xmalloc(sizeof(struct COFunctionObject));
     CO_INIT(func, &COFunction_Type);
+    if (!func_name) {
+        func_name = anonymous_func_name ? anonymous_func_name : (anonymous_func_name = COStrObject_FromString("anonymous"));
+    }
     func->func_name = func_name;
     return (struct COObject *)func;
 }

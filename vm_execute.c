@@ -121,7 +121,7 @@ COObject_get(struct COObject *str)
     }
     do {
         if (co_symtable_find
-            (&current_exec_data->symbol_table, name, strlen(name), &co)) {
+            (&current_exec_data->symbol_table, name, strlen(name), (void**)&co)) {
 #ifdef CO_DEBUG
             printf("get: %s, value: %p, data:", COStr_AsString(str), co);
             COObject_print(*co);
@@ -420,7 +420,7 @@ co_vm_handler(void)
     case OP_RECV_PARAM:
         {
             struct COObject **val;
-            co_stack_top(&EG(argument_stack), &val);
+            co_stack_top(&EG(argument_stack), (void**)&val);
             COObject_put(op->op1.u.co, *val);
             EG(current_exec_data)->op++;
             return CO_VM_CONTINUE;

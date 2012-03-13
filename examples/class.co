@@ -1,0 +1,10 @@
+#!./co
+
+myclass = func() {
+    private_a = 1;
+    return func() {
+        return private_a;
+    };
+};
+
+instance_a = myclass();
