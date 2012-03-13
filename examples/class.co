@@ -1,9 +1,18 @@
 #!./co
+# Class examples. (draft only)
 
 myclass = func() {
-    private_a = 1;
+    name = "no name yet!"; # private
     return func() {
-        return private_a;
+        # public methods
+        this.get_name = func() {
+            return name;
+        }
+        this.set_name = func(n) {
+            name = n;
+        }
+        # public attributes
+        this.version = 0.1;
     };
 };
 

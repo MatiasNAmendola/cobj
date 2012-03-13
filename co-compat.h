@@ -3,7 +3,7 @@
 /* 
  * CObject Compatible Header.
  *
- * Provide provide ccompatibility for systems that co runs.
+ * Provide ccompatibility for systems that co runs.
  */
 
 /* ISO C99 */

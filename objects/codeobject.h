@@ -5,6 +5,8 @@
 
 typedef struct _COCodeObject {
     COObject_HEAD;
+    COObject *co_code;          /* opcode array */
+    COObject *co_consts;        /* list of constants */
 } COCodeObject;
 
 COTypeObject COCode_Type;

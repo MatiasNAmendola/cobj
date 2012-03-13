@@ -13,10 +13,11 @@ argparse_showversion(struct argparse *this,
     exit(1);
 }
 
+int verbose;
+
 int
 main(int argc, const char **argv)
 {
-    int verbose = 0;
     struct argparse argparse;
     struct argparse_option options[] = {
         OPT_HELP(),
@@ -29,16 +30,6 @@ main(int argc, const char **argv)
     };
     argparse_init(&argparse, options, usagestr);
     argc = argparse_parse(&argparse, argc, argv);
-
-    if (verbose) {
-        COObject_dump(CO_None);
-        COObject_dump(CO_True);
-        COObject_dump(CO_False);
-        COObject_dump((COObject *)&COType_Type);
-        COObject_dump((COObject *)CO_TYPE(&COType_Type));
-        COObject_dump(COInt_FromString("123456", 0));
-        COObject_dump(COFloat_FromString("1.3456"));
-    }
 
     int fd = 0;
     if (argc > 0) {

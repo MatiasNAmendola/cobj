@@ -75,4 +75,6 @@ xwrite(int fd, const void *buf, size_t len)
     }
 }
 
+extern int verbose;
+
 #endif

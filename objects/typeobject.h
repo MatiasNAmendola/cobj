@@ -3,8 +3,8 @@
 
 #include "../object.h"
 
-typedef COObject *(*reprfunc) (COObject *);
-typedef COObject *(*getattrfunc) (COObject *, char *);
+typedef COObject *(*reprfunc)(COObject *);
+typedef COObject *(*getattrfunc)(COObject *, char *);
 typedef int (*setattrfunc) (COObject *, char *, COObject *);
 
 struct _COTypeObject {

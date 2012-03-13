@@ -1,12 +1,23 @@
 #!./co
 
+# None
 print None;
+
+# Bool
 print True;
 print False;
+
+# Int
 print 1;
+
+# Float
 print 1.1;
+
+# Str
 print "1234";
-a = func(n) {
+
+# Func
+f = func(n) {
     if (n == 0) {
         return 0;
     } else if (n == 1) {
@@ -15,5 +26,7 @@ a = func(n) {
         return fibo(n - 1) + fibo(n - 2);
     }
 };
+print f;
 
-print a;
+# List
+a = [None, 1, "Hello World", f];

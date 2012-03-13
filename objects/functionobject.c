@@ -15,7 +15,7 @@ COTypeObject COFunction_Type = {
     "function",
     sizeof(COFunctionObject),
     0,
-    (reprfunc) function_repr,   /* tp_repr */
+    (reprfunc)function_repr,    /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
 };

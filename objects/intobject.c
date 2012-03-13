@@ -22,7 +22,7 @@ COTypeObject COInt_Type = {
     "int",
     sizeof(COIntObject),
     0,
-    (reprfunc) int_repr,        /* tp_repr */
+    (reprfunc)int_repr,         /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
 };

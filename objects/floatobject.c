@@ -13,7 +13,7 @@ COTypeObject COFloat_Type = {
     "float",
     sizeof(COFloatObject),
     0,
-    (reprfunc) float_repr,      /* tp_repr */
+    (reprfunc)float_repr,       /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
 };
