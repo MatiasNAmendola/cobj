@@ -427,6 +427,7 @@ co_vm_handler(void)
         {
             COObject **val;
             co_stack_top(&EG(argument_stack), (void **)&val);
+            co_stack_pop(&EG(argument_stack));
             COObject_put(op->op1.u.co, *val);
             EG(current_exec_data)->op++;
             return CO_VM_CONTINUE;

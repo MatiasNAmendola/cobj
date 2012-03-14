@@ -213,7 +213,7 @@ NUM         = [0-9]+;
 FNUM        = ([0-9]*"."[0-9]+);
 HNUM        = "0x"[0-9a-fA-F]+;
 NAME        = [a-zA-Z_][a-zA-Z0-9_]*;
-TOKENS      = [-+()=>/<*^,;:{}%];
+TOKENS      = [-+()=>/<*^,;:{}%\[\]];
 WHITESPACE  = [ \t\n]+;
 ANY_CHAR    = [^];
 

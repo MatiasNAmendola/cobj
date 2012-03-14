@@ -101,3 +101,17 @@ while (i < 3) {
     i = i + 1;
 }
 """, "closures");
+
+test_expect_result("""1
+2
+3
+6
+""", """
+func sum(a, b, c) {
+    print a;
+    print b;
+    print c;
+    return a + b + c;
+}
+print sum(1, 2, 3);
+""");

@@ -30,5 +30,8 @@
 #define OP_THROW                    24
 #define OP_CATCH                    25
 #define OP_BIND_NAME                26
+#define OP_TUPLE_BUILD              27
+#define OP_LIST_BUILD               28
+#define OP_LIST_APPEND              29
 
 #endif

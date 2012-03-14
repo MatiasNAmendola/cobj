@@ -23,6 +23,7 @@
 %left   '+' '-'
 %left   '*' '/' '%'
 %left T_SR T_SL
+%right  '['
 %right  T_PRINT
 %token  T_PRINT
 %token  T_NONE
@@ -74,6 +75,7 @@ expression: /* express something */
     |   expression '%' expression { co_binary_op(OP_MOD, &$$, &$1, &$3); }
     |   function_call
     |   function_literal
+    |   '[' expression_list ']' { $$ = $2; }
 ;
 
 statement: /* state something */
@@ -158,7 +160,18 @@ parameter_list:
 
 non_empty_parameter_list:
         T_NAME { co_recv_param(&$1); }
-    |   T_NAME ',' non_empty_parameter_list
+    |   T_NAME ',' non_empty_parameter_list { co_recv_param(&$1); }
+;
+
+/* TODO merge expression_list with function_call_parameter_list, they are almost the same! */
+expression_list:
+        non_empty_expression_list
+    |   /* empty */
+;
+
+non_empty_expression_list:
+        expression { co_append_element(&$1); }
+    |   non_empty_expression_list ',' expression { co_append_element(&$3); }
 ;
 
 function_call_parameter_list:
@@ -168,7 +181,7 @@ function_call_parameter_list:
 
 non_empty_function_call_parameter_list:
         expression { co_pass_param(&$1); }
-    |   expression ',' non_empty_parameter_list
+    |   non_empty_function_call_parameter_list ',' expression { co_pass_param(&$3); }
 ;
 
 function_call:
@@ -179,5 +192,4 @@ optional_else:
        /* empty */
     |   T_ELSE statement
 ;
-
 %%
