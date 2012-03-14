@@ -18,10 +18,10 @@ typedef struct _COListObject {
 COTypeObject COList_Type;
 
 COObject *COList_New(size_t size);
-size_t COList_Size(COObject *this);
-COObject *COList_GetItem(COObject *this, size_t index);
-int COList_SetItem(COObject *this, size_t index, COObject *item);
-int COList_Insert(COObject *this, size_t index, COObject *item);
-int COList_Append(COObject *this, COObject *item);
+size_t COList_Size(COListObject *this);
+COObject *COList_GetItem(COListObject *this, size_t index);
+int COList_SetItem(COListObject *this, size_t index, COObject *item);
+int COList_Insert(COListObject *this, size_t index, COObject *item);
+int COList_Append(COListObject *this, COObject *item);
 
 #endif

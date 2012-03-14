@@ -75,13 +75,19 @@ typedef struct _COVarObject {
 #define CO_TYPE(co)     (((COObject *)(co))->co_type)
 #define CO_REFCNT(co)     (((COObject *)(co))->co_refcnt)
 #define CO_SIZE(co)     (((COVarObject *)(co))->co_size)
+
 COObject _CO_None;              // Don't use this directly, using following one instead!
 #define CO_None         (&_CO_None)
+
 #define CO_INIT(co, typeobj)    \
     ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1)
 
 #define CO_INCREF(co)   (((COObject *)co)->co_refcnt++)
 #define CO_DECREF(co)   (((COObject *)co)->co_refcnt--)
+
+/* Macros to used in case the object pointer may be NULL: */
+#define CO_XINCREF(co)  do { if ((co) == NULL) ; else CO_INCREF(co); } while (0)
+#define CO_XDECREF(co)  do { if ((co) == NULL) ; else CO_DECREF(co); } while (0)
 
 void COObject_dump(COObject *co);
 

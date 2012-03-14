@@ -12,6 +12,7 @@ COObject_dump(COObject *co)
                 CO_TYPE(co) == NULL ? "NULL" : CO_TYPE(co)->tp_name);
         COStrObject *s = (COStrObject *)CO_TYPE(co)->tp_repr(co);
         fprintf(stderr, "    repr: %s\n", s->co_sval);
+        fprintf(stderr, "    refcnt: %d\n", co->co_refcnt);
     }
 }
 

@@ -3,7 +3,20 @@
 static COObject *
 tuple_repr(COTupleObject *this)
 {
-    return COStr_FromString("<tuple>");
+    size_t i = CO_SIZE(this);
+    if (i == 0) {
+        return COStr_FromString("()");
+    }
+    COStrObject *s;
+    s = COStr_FromString("(");
+    for (i = 0; i < CO_SIZE(this); i++) {
+        COObject *co = COList_GetItem(this, i);
+        if (i != 0)
+            COStr_Concat(&s, COStr_FromString(", "));
+        COStr_Concat(&s, (COStrObject *)CO_TYPE(co)->tp_repr(co));
+    }
+    COStr_Concat(&s, COStr_FromString(")"));
+    return s;
 }
 
 COTypeObject COTuple_Type = {
@@ -36,26 +49,37 @@ COTuple_New(size_t size)
         memset(this->co_item, 0, nbytes);
     }
     CO_SIZE(this) = size;
-    this->allocated = size;
     return (COObject *)this;
 }
 
 size_t
 COTuple_Size(COObject *this)
 {
+    return CO_SIZE(this);
 }
 
 COObject *
 COTuple_GetItem(COObject *this, size_t index)
 {
+    if (index < 0 || index >= CO_SIZE(this)) {
+        // TODO errors
+        return NULL;
+    }
+    return ((COTupleObject *)this)->co_item[index];
 }
 
 int
 COTuple_SetItem(COObject *this, size_t index, COObject *item)
 {
-}
-
-int
-COTuple_Resize(COObject **this, size_t newsize)
-{
+    COObject **p;
+    COObject *olditem;
+    if (index < 0 || index >= CO_SIZE(this)) {
+        // TODO errors
+        return -1;
+    }
+    p = ((COTupleObject *)this)->co_item + index;
+    olditem = *p;
+    *p = item;
+    CO_XDECREF(olditem);
+    return 0;
 }

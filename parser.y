@@ -175,11 +175,6 @@ non_empty_expression_list:
     |   non_empty_expression_list ',' expression { co_append_element(&$0, &$3); }
 ;
 
-expression_list_with_comma:
-        expression ','
-    |   expression_list_with_comma expression
-;
-
 function_call_parameter_list:
         non_empty_function_call_parameter_list
     |   /* empty */

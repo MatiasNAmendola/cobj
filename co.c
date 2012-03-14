@@ -32,14 +32,11 @@ main(int argc, const char **argv)
     argc = argparse_parse(&argparse, argc, argv);
 
     if (verbose) {
-        COListObject *l = COList_New(0);
-        COList_Append(l, CO_True);
-        COList_Append(l, CO_True);
-        COList_Insert(l, 0, CO_None);
-        COObject_dump(l);
-        for (int i = 0; i < CO_SIZE(l); i++) {
-            COObject_dump(COList_GetItem(l, i));
-        }
+        COTupleObject *t = COTuple_New(3);
+        COTuple_SetItem(t, 0, COInt_FromLong(1));
+        COTuple_SetItem(t, 1, COInt_FromLong(2));
+        COTuple_SetItem(t, 2, COInt_FromLong(3));
+        COObject_dump(t);
         return 0;
     }
     int fd = 0;
