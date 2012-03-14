@@ -1,12 +1,24 @@
 #ifndef OBJECTS_STROBJECT_H
 #define OBJECTS_STROBJECT_H
-
+/**
+ * String (str, bytes) object interface
+ * 
+ * The COStrObject represents a character string. An extra zero byte is reserved
+ * at the end to ensure it is zero-terminated, but a size is present so strings
+ * with null bytes in them can be represented.
+ * 
+ * This is immutable object type.
+ */
 #include "../object.h"
 
 typedef struct _COStrObject {
-    COObject_HEAD;
-    size_t co_len;
+    COVarObject_HEAD;
     char co_sval[1];
+
+    /* Invariants:
+     *  - co_sval contains space for 'co_size + 1' chars
+     *  - co_sval[co_size] == '\0'
+     */
 } COStrObject;
 
 COTypeObject COStr_Type;

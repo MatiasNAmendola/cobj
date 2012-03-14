@@ -455,9 +455,11 @@ co_vm_handler(void)
 }
 
 void
-co_vm_execute(struct co_opline_array *opline_array)
+co_vm_execute(COFunctionObject *main)
 {
     struct co_exec_data *exec_data;
+    struct co_opline_array *opline_array;
+    opline_array = main->opline_array;
 
 vm_enter:
     /* initialize exec_data */

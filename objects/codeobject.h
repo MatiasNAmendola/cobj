@@ -10,6 +10,6 @@ typedef struct _COCodeObject {
 } COCodeObject;
 
 COTypeObject COCode_Type;
-COObject *COCodeObject_New(COObject *func_name);
+COObject *COCodeObject_New(COObject *code);
 
 #endif

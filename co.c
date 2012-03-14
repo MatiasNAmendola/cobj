@@ -57,8 +57,12 @@ main(int argc, const char **argv)
     coparse(&compiler_globals);
     co_scanner_shutdown();
 
+    COFunctionObject *func =(COFunctionObject *)COFunctionObject_New(NULL);
+    func->opline_array = CG(active_opline_array);
+    co_hash_init(&func->upvalues, 1, NULL);
+
     /* vm execution */
     co_vm_init();
-    co_vm_execute(CG(active_opline_array));
+    co_vm_execute(func);
     return 0;
 }

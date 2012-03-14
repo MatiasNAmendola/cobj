@@ -1,5 +1,6 @@
 * error handling (exceptin)
 * error message with location
 * implement namespace & scope rules
-* codeobject dump/load bytecode
-* add list syntax support (according to PHP 5.4's array syntax)
+* the whole code is functionobject
+* functionobject dump/load bytecode
+* HashTable implemented as dict

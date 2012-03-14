@@ -51,7 +51,7 @@ co_scan_singlequoted_string(COStrObject *co)
     char *end;
 
     s = t = co->co_sval;
-    end = s + co->co_len;
+    end = s + CO_SIZE(co);
     while (s < end) {
         if (*s == '\\') {
             s++;
@@ -62,11 +62,11 @@ co_scan_singlequoted_string(COStrObject *co)
             switch (*s) {
             case '\'':
                 *t++ = '\'';
-                co->co_len--;
+                CO_SIZE(co)--;
                 break;
             case '\\':
                 *t++ = *s;
-                co->co_len--;
+                CO_SIZE(co)--;
                 break;
             default:
                 *t++ = '\\';
@@ -88,7 +88,7 @@ co_scan_doublequoted_string(COStrObject *co)
     char *end;
 
     s = t = co->co_sval;
-    end = s + co->co_len;
+    end = s + CO_SIZE(co);
     while (s < end) {
         if (*s == '\\') {
             s++;
@@ -99,49 +99,49 @@ co_scan_doublequoted_string(COStrObject *co)
             switch (*s) {
             case 'a':
                 *t++ = '\a';
-                co->co_len--;
+                CO_SIZE(co)--;
                 break;
             case 'b':
                 *t++ = '\b';
-                co->co_len--;
+                CO_SIZE(co)--;
                 break;
             case 'f':
                 *t++ = '\f';
-                co->co_len--;
+                CO_SIZE(co)--;
                 break;
             case 'n':
                 *t++ = '\n';
-                co->co_len--;
+                CO_SIZE(co)--;
                 break;
             case 'r':
                 *t++ = '\r';
-                co->co_len--;
+                CO_SIZE(co)--;
                 break;
             case 't':
                 *t++ = '\t';
-                co->co_len--;
+                CO_SIZE(co)--;
                 break;
             case 'v':
                 *t++ = '\v';
-                co->co_len--;
+                CO_SIZE(co)--;
                 break;
             case '"':
                 *t++ = '"';
-                co->co_len--;
+                CO_SIZE(co)--;
                 break;
             case '\\':
                 *t++ = *s;
-                co->co_len--;
+                CO_SIZE(co)--;
                 break;
             case 'x':
                 if (CO_IS_HEX(*(s+1)) && CO_IS_HEX(*(s+2))) {
                     char hex_buf[3] = {0, 0, 0};
-                    co->co_len--; /* for the 'x' */
+                    CO_SIZE(co)--; /* for the 'x' */
 
                     hex_buf[0] = *(++s);
-                    co->co_len--;
+                    CO_SIZE(co)--;
                     hex_buf[1] = *(++s);
-                    co->co_len--;
+                    CO_SIZE(co)--;
                     *t++ = (char)strtol(hex_buf, NULL, 16);
                 } else {
                     *t++ = '\\';
@@ -153,13 +153,13 @@ co_scan_doublequoted_string(COStrObject *co)
                 if (CO_IS_OCT(*s)) {
                     char octal_buf[4] = {0, 0, 0, 0};
                     octal_buf[0] = *s;
-                    co->co_len--;
+                    CO_SIZE(co)--;
                     if (CO_IS_OCT(*(s+1))) {
                         octal_buf[1] = *(++s);
-                        co->co_len--;
+                        CO_SIZE(co)--;
                         if (CO_IS_OCT(*(s+1))) {
                             octal_buf[2] = *(++s);
-                            co->co_len--;
+                            CO_SIZE(co)--;
                         }
                     }
                     *t++ = (char)strtol(octal_buf, NULL, 8);

@@ -24,7 +24,7 @@ str_concat(COStrObject *this, COStrObject *s)
     size_t size;
     COStrObject *co;
 
-    size = this->co_len + s->co_len;
+    size = CO_SIZE(this) + CO_SIZE(s);
 
     co = (COStrObject *)xmalloc(COStr_BASESIZE + size);
     if (co == NULL) {
@@ -33,9 +33,9 @@ str_concat(COStrObject *this, COStrObject *s)
     }
 
     CO_INIT(co, &COStr_Type);
-    memcpy(co->co_sval, this->co_sval, this->co_len);
-    memcpy(co->co_sval + this->co_len, s->co_sval, s->co_len);
-    co->co_len = size;
+    memcpy(co->co_sval, this->co_sval, CO_SIZE(this));
+    memcpy(co->co_sval + CO_SIZE(this), s->co_sval, CO_SIZE(s));
+    CO_SIZE(co) = size;
     co->co_sval[size] = '\0';
     return co;
 }
@@ -50,7 +50,7 @@ _str_resize(COStrObject **pv, size_t newsize)
 {
     COStrObject *v;
     v = *pv;
-    if (CO_REFCNT(v) != 1 || newsize <0) {
+    if (CO_REFCNT(v) != 1) {
         // TODO errors
         return -1;
     }
@@ -60,7 +60,7 @@ _str_resize(COStrObject **pv, size_t newsize)
         // TODO errors
         return -1;
     }
-    (*pv)->co_len = newsize;
+    CO_SIZE((*pv)) = newsize;
     (*pv)->co_sval[newsize] = '\0';
     return 0;
 }
@@ -91,7 +91,7 @@ COStr_FromString(const char *s)
     size_t len = strlen(s);
     str = xmalloc(COStr_BASESIZE + len);
     CO_INIT(str, &COStr_Type);
-    str->co_len = len;
+    CO_SIZE(str) = len;
     memcpy(str->co_sval, s, len + 1);   // with last '\0'
     return (COObject *)str;
 }
@@ -111,11 +111,11 @@ COStr_FromStingN(const char *s, size_t len)
 
     str = xmalloc(COStr_BASESIZE + len);
     CO_INIT(str, &COStr_Type);
-    str->co_len = len;
+    CO_SIZE(str) = len;
     if (s != NULL) {
         memcpy(str->co_sval, s, len);
     }
-    str->co_sval[str->co_len] = '\0';
+    str->co_sval[CO_SIZE(str)] = '\0';
 
     /* share short strings */
     if (len == 0) {
@@ -231,4 +231,5 @@ COObject *
 COStr_Repr(COStrObject *s, int smartquotes)
 {
     // TODO
+    return NULL;
 }

@@ -5,6 +5,7 @@
 #include "parser.h"
 #include "error.h"
 #include "object.h"
+#include "objects/functionobject.h"
 
 struct co_vm_stack {
     void **top;
@@ -34,7 +35,7 @@ extern struct co_executor_globals executor_globals;
 #define EG(v)   executor_globals.v
 
 extern void co_vm_init();
-extern void co_vm_execute(struct co_opline_array *opline_array);
+extern void co_vm_execute(COFunctionObject *main);
 extern void co_vm_shutdown();
 
 /* COObject handlers */
