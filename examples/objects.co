@@ -32,3 +32,6 @@ print f;
 print [];
 a = [None, 1, "Hello World", f];
 print a;
+
+#
+print 1,2,3;

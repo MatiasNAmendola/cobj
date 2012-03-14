@@ -57,7 +57,7 @@ main(int argc, const char **argv)
     coparse(&compiler_globals);
     co_scanner_shutdown();
 
-    COFunctionObject *func =(COFunctionObject *)COFunctionObject_New(NULL);
+    COFunctionObject *func = (COFunctionObject *)COFunctionObject_New(NULL);
     func->opline_array = CG(active_opline_array);
     co_hash_init(&func->upvalues, 1, NULL);
 

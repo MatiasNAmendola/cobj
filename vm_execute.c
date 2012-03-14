@@ -433,7 +433,7 @@ co_vm_handler(void)
         *result = COList_New(0);
         EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
-    case OP_LIST_APPEND:
+    case OP_APPEND_ELEMENT:
         val1 = get_COObject_ptr(&op->op1, EG(current_exec_data)->ts);
         val2 = get_COObject_ptr(&op->op2, EG(current_exec_data)->ts);
         COList_Append(*val1, *val2);

@@ -45,6 +45,14 @@ for t in $OUTSIDE_TYPEDEFS; do
     echo "-T $t" >> .indent.pro
 done
 
-find . -name "*.[ch]"  |  grep -E -v '^\.\/(argparse|dstring)' | xargs indent
+# indent
+lines=0
+for f in $(find . -name "*.[ch]"  |  grep -E -v '^\.\/(argparse|dstring)'); do
+    lines=$(($lines + $(wc co.c -l | cut -d ' ' -f 1)))
+    indent $f
+done
+printf "%d lines code indented.\n" $lines
+
+# clear
 rm -f .indent.pro
 find . -name "*~" | xargs rm -f

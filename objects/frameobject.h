@@ -11,4 +11,3 @@ COTypeObject COFrame_Type;
 COObject *COFrameObject_New(COObject *func_name);
 
 #endif
-

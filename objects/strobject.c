@@ -17,7 +17,6 @@ str_repr(COObject *this)
     return this;
 }
 
-
 static COStrObject *
 str_concat(COStrObject *this, COStrObject *s)
 {
@@ -55,7 +54,7 @@ _str_resize(COStrObject **pv, size_t newsize)
         return -1;
     }
 
-    *pv = (COStrObject *)xrealloc((char*)v, COStr_BASESIZE + newsize);
+    *pv = (COStrObject *)xrealloc((char *)v, COStr_BASESIZE + newsize);
     if (*pv == NULL) {
         // TODO errors
         return -1;
@@ -201,7 +200,7 @@ step2:
     if (!str)
         return NULL;
 
-    n = vsnprintf(str->co_sval, n + 1, fmt, params); // with extra '\0'
+    n = vsnprintf(str->co_sval, n + 1, fmt, params);    // with extra '\0'
     if (_str_resize(&str, n)) {
         // TODO errors
         return NULL;

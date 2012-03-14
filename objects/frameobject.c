@@ -16,7 +16,6 @@ COTypeObject COFrame_Type = {
     0,                          /* tp_setattr */
 };
 
-
 COFrameObject *
 COFrame_New()
 {

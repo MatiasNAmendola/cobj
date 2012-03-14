@@ -75,7 +75,8 @@ expression: /* express something */
     |   expression '%' expression { co_binary_op(OP_MOD, &$$, &$1, &$3); }
     |   function_call
     |   function_literal
-    |   '[' { co_list_build(&$$, &$1); } expression_list ']' { $$ = $1; }
+/*    |   '(' { co_tuple_build(&$$, &$1); } expression_list_with_comma ')' { $$ = $1; } */
+    |   '[' { co_list_build(&$$, &$1); } expression_list ']' { $$ = $1; $2.type = IS_UNUSED; }
 ;
 
 statement: /* state something */
@@ -172,6 +173,11 @@ expression_list:
 non_empty_expression_list:
         expression { co_append_element(&$0, &$1); }
     |   non_empty_expression_list ',' expression { co_append_element(&$0, &$3); }
+;
+
+expression_list_with_comma:
+        expression ','
+    |   expression_list_with_comma expression
 ;
 
 function_call_parameter_list:
