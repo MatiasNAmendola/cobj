@@ -10,7 +10,6 @@ struct co_scanner_globals {
     char *yy_marker;
     char *yy_limit;
     int yy_state;
-    co_stack state_stack;
 };
 
 struct co_scanner_globals scanner_globals;
@@ -180,13 +179,13 @@ co_scan_doublequoted_string(COStrObject *co)
 void
 co_scanner_startup()
 {
-    co_stack_init(&scanner_globals.state_stack);
+    // TODO
 }
 
 void
 co_scanner_shutdown()
 {
-    co_stack_destory(&scanner_globals.state_stack);
+    // TODO
 }
 
 int
@@ -214,7 +213,8 @@ FNUM        = ([0-9]*"."[0-9]+);
 HNUM        = "0x"[0-9a-fA-F]+;
 NAME        = [a-zA-Z_][a-zA-Z0-9_]*;
 TOKENS      = [-+()=>/<*^,;:{}%\[\]];
-WHITESPACE  = [ \t\n]+;
+WHITESPACE  = [ \t]+;
+NEWLINE     = [\n]+;
 ANY_CHAR    = [^];
 
 /* compute yyleng before each rule */
@@ -417,6 +417,10 @@ ANY_CHAR    = [^];
 
 <SC_INIT>WHITESPACE   { 
     return T_WHITESPACE;
+}
+
+<SC_INIT>NEWLINE {
+    return T_NEWLINE;
 }
 
 <SC_INIT>ANY_CHAR   {

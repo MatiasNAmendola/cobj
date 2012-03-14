@@ -113,7 +113,7 @@ co_if_cond(const struct cnode *cond, struct cnode *closing_bracket_token)
 }
 
 void
-co_if_after_statement(struct cnode *closing_bracket_token)
+co_if_after_stmt(struct cnode *closing_bracket_token)
 {
     int if_after_stmt_op_num = CG(active_opline_array)->last;
     struct co_opline *opline = get_next_op(CG(active_opline_array));
@@ -165,61 +165,61 @@ co_while_end(const struct cnode *while_token,
 }
 
 void
-co_begin_function_declaration(struct cnode *function_token,
-                              struct cnode *function_name)
+co_begin_func_declaration(struct cnode *func_token,
+                              struct cnode *func_name)
 {
     struct co_opline *op;
-    if (function_name) {
+    if (func_name) {
         op = get_next_op(CG(active_opline_array));
         op->opcode = OP_BIND_NAME;
-        op->op1 = *function_name;
+        op->op1 = *func_name;
     }
 
-    int function_opline_num = CG(active_opline_array)->last;
+    int func_opline_num = CG(active_opline_array)->last;
     op = get_next_op(CG(active_opline_array));
     op->opcode = OP_DECLARE_FUNCTION;
-    if (function_name) {
-        op->op1 = *function_name;
+    if (func_name) {
+        op->op1 = *func_name;
     }
-    function_token->u.opline_num = function_opline_num;
+    func_token->u.opline_num = func_opline_num;
 }
 
 void
-co_end_function_declaration(const struct cnode *function_token,
+co_end_func_declaration(const struct cnode *func_token,
                             struct cnode *result)
 {
     struct co_opline *op = get_next_op(CG(active_opline_array));
     op->opcode = OP_RETURN;
 
-    int function_end_opline_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[function_token->u.opline_num].op2.
+    int func_end_opline_num = CG(active_opline_array)->last;
+    CG(active_opline_array)->ops[func_token->u.opline_num].op2.
         u.opline_num =
-        function_end_opline_num - function_token->u.opline_num - 1;
+        func_end_opline_num - func_token->u.opline_num - 1;
 
     if (result) {
-        CG(active_opline_array)->ops[function_token->u.opline_num].result.type =
+        CG(active_opline_array)->ops[func_token->u.opline_num].result.type =
             IS_TMP_VAR;
-        CG(active_opline_array)->ops[function_token->u.opline_num].result.
+        CG(active_opline_array)->ops[func_token->u.opline_num].result.
             u.var = get_temporary_variable(CG(active_opline_array));
         *result =
-            CG(active_opline_array)->ops[function_token->u.opline_num].result;
+            CG(active_opline_array)->ops[func_token->u.opline_num].result;
     }
 }
 
 void
-co_begin_function_call(struct cnode *function_name)
+co_begin_func_call(struct cnode *func_name)
 {
     struct co_opline *op = get_next_op(CG(active_opline_array));
     op->opcode = OP_INIT_FCALL;
-    op->op1 = *function_name;
+    op->op1 = *func_name;
 }
 
 void
-co_end_function_call(struct cnode *function_name, struct cnode *result)
+co_end_func_call(struct cnode *func_name, struct cnode *result)
 {
     struct co_opline *op = get_next_op(CG(active_opline_array));
     op->opcode = OP_DO_FCALL;
-    op->op1 = *function_name;
+    op->op1 = *func_name;
     op->result.type = IS_TMP_VAR;
     op->result.u.var = get_temporary_variable(CG(active_opline_array));
     *result = op->result;

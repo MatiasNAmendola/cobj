@@ -9,28 +9,28 @@ world
 hello,
 10
 """, """func helloworld() {
-    print "hello world";
+    print "hello world"
 }
 
 func hello(str) {
-    print "hello,";
-    print str;
+    print "hello,"
+    print str
 }
 
-helloworld();
-hello("world");
-hello(10);
+helloworld()
+hello("world")
+hello(10)
 """)
 
 test_expect_result("""outside a
 """, """
-a = "outside a";
-str = "outside str";
+a = "outside a"
+str = "outside str"
 func hello(str) {
-    print str;
+    print str
 }
 
-hello(a);
+hello(a)
 """)
 
 test_expect_result("""0
@@ -46,18 +46,18 @@ test_expect_result("""0
 """, """
 func fibo(num) {
     if (num == 0) {
-        return 0;
+        return 0
     } else if (num == 1) {
-        return 1;
+        return 1
     } else {
-        return fibo(num - 1) + fibo(num - 2);
+        return fibo(num - 1) + fibo(num - 2)
     }
 }
 
 i = 0;
 while (i < 10) {
-    print fibo(i);
-    i = i + 1;
+    print fibo(i)
+    i = i + 1
 }
 """, "recursive function")
 
@@ -69,16 +69,16 @@ test_expect_result("""1
 """, """
 f = func(n) {
     if (n == 0) {
-        return 1;
+        return 1
     } else {
-        return n * f(n - 1);
+        return n * f(n - 1)
     }
 };
 
 i = 0;
 while (i < 5) {
-    print f(i);
-    i = i + 1;
+    print f(i)
+    i = i + 1
 }
 """, "closures")
 
