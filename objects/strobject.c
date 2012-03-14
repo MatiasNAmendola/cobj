@@ -201,10 +201,7 @@ step2:
     if (!str)
         return NULL;
 
-    printf("old: %d\n", n);
     n = vsnprintf(str->co_sval, n + 1, fmt, params); // with extra '\0'
-
-    printf("new: %d\n", n);
     if (_str_resize(&str, n)) {
         // TODO errors
         return NULL;
