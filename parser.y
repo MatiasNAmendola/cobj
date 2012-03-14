@@ -81,6 +81,11 @@ statement: /* state something */
     |   compound_statement
 ;
 
+statement_list:
+        statement
+    |   statement_list statement
+;
+
 simple_statement:
         T_NAME '=' expression ';' { co_assign(&$$, &$1, &$3); }
     |   T_NAME T_ADD_ASSIGN expression ';' { co_binary_op(OP_ADD, &$$, &$1, &$3); co_assign(&$$, &$1, &$$); }
@@ -101,10 +106,14 @@ simple_statement:
 compound_statement:
         T_IF '(' expression ')' { co_if_cond(&$3, &$4); } statement { co_if_after_statement(&$4); } optional_else { co_if_end(&$4); }
     |   T_WHILE '(' expression ')' { co_while_cond(&$3, &$1, &$4); } statement { co_while_end(&$1, &$4); }
-    |   '{' statement_list '}'
     |   try_catch_finally_stmt
     |   function_declaration
-    |   '{' '}' /* empty */
+    |   compound_statement_with_parentheses
+;
+
+compound_statement_with_parentheses:
+        '{' statement_list '}'
+    |   '{' /* empty */ '}'
 ;
 
 try_catch_finally_stmt:
@@ -135,16 +144,11 @@ finally_block:
 ;
 
 function_declaration:
-    T_FUNC T_NAME { co_begin_function_declaration(&$1, &$2); } '(' parameter_list ')' function_body { co_end_function_declaration(&$1, &$$); }
+    T_FUNC T_NAME { co_begin_function_declaration(&$1, &$2); } '(' parameter_list ')' compound_statement_with_parentheses { co_end_function_declaration(&$1, &$$); }
 ;
 
 function_literal:
-    T_FUNC { co_begin_function_declaration(&$1, NULL); } '(' parameter_list ')' function_body { co_end_function_declaration(&$1, &$$); }
-;
-
-function_body:
-        '{' statement_list '}'
-    |   '{' /* empty */ '}'
+    T_FUNC { co_begin_function_declaration(&$1, NULL); } '(' parameter_list ')' compound_statement_with_parentheses { co_end_function_declaration(&$1, &$$); }
 ;
 
 parameter_list:
@@ -174,11 +178,6 @@ function_call:
 optional_else:
        /* empty */
     |   T_ELSE statement
-;
-
-statement_list:
-        statement
-    |   statement_list statement
 ;
 
 %%
