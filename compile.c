@@ -264,8 +264,6 @@ co_append_element(struct cnode *node, struct cnode *element)
     op->opcode = OP_LIST_APPEND;
     op->op1 = *node;
     op->op2 = *element;
-    printf("append: %p to %p\n", element, node);
-    COObject_print(element->u.co);
 }
 
 void

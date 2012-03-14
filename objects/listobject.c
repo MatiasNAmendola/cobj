@@ -3,8 +3,19 @@
 static COObject *
 list_repr(COListObject *this)
 {
+    size_t i = CO_SIZE(this);
+    if (i == 0) {
+        return COStr_FromString("[]");
+    }
     COObject *s;
-    s = COStr_FromFormat("<list, size: %d>", CO_SIZE(this));
+    s = COStr_FromString("[");
+    for (i = 0; i < CO_SIZE(this); i++) {
+        COObject *co = COList_GetItem(this, i);
+        if (i != 0)
+            COStr_Concat(&s, COStr_FromString(", "));
+        COStr_Concat(&s, (COStrObject *)CO_TYPE(co)->tp_repr(co));
+    }
+    COStr_Concat(&s, COStr_FromString("]"));
     return s;
 }
 
@@ -155,7 +166,6 @@ COList_Insert(COObject *this, size_t index, COObject *item)
     if (index > n)
         index = n;
 
-    printf("n: %d,  index: %d\n", n, index);
     COObject **items = ((COListObject *)this)->co_item;
     size_t i;
     for (i = n; i > index; i--)
