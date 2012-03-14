@@ -45,6 +45,7 @@
 #include "objects/functionobject.h"
 #include "objects/codeobject.h"
 #include "objects/listobject.h"
+#include "objects/frameobject.h"
 
 #include "argparse/argparse.h"
 #include "dstring/dstring.h"

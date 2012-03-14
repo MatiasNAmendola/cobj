@@ -164,17 +164,6 @@ COObject_print(COObject *co)
     printf("%s\n", s->co_sval);
 }
 
-static void
-COObject_bind(COObject *name)
-{
-    COObject **co;
-    co = COObject_get(name);
-    if (!co) {
-        COObject_put(name, CO_None);
-        COObject_get(name);
-    }
-}
-
 static COObject **
 get_COObject_ptr(struct cnode *node, const union temp_variable *ts)
 {
@@ -433,7 +422,10 @@ co_vm_handler(void)
             return CO_VM_CONTINUE;
         }
     case OP_BIND_NAME:
-        COObject_bind(op->op1.u.co);
+        if (!COObject_get(op->op1.u.co)) {
+            COObject_put(op->op1.u.co, CO_None);
+            COObject_get(op->op1.u.co);
+        }
         EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
     case OP_LIST_BUILD:

@@ -64,5 +64,6 @@ main(int argc, const char **argv)
     /* vm execution */
     co_vm_init();
     co_vm_execute(func);
+    co_vm_shutdown();
     return 0;
 }

@@ -45,6 +45,7 @@ LIB_OBJS += objects/strobject.o
 LIB_OBJS += objects/functionobject.o
 LIB_OBJS += objects/codeobject.o
 LIB_OBJS += objects/listobject.o
+LIB_OBJS += objects/frameobject.o
 
 $(LIB_OBJS): $(LIB_H)
 

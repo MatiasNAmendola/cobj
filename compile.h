@@ -6,6 +6,7 @@
 #include "stack.h"
 #include "llist.h"
 #include "object.h"
+#include "objects/listobject.h"
 
 /** cnode type **/
 #define IS_CONST        (1<<0)
