@@ -79,8 +79,8 @@ void co_end_function_call(struct cnode *function_name, struct cnode *result);
 void co_pass_param(struct cnode *param);
 void co_recv_param(struct cnode *param);
 void co_return(const struct cnode *expr);
-void co_list_build(struct cnode *result);
-void co_append_element(struct cnode *element);
+void co_list_build(struct cnode *result, struct cnode *tag);
+void co_append_element(struct cnode *node, struct cnode *element);
 void co_end_compilation();
 
 /* opcode */

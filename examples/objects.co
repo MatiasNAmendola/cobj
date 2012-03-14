@@ -17,18 +17,18 @@
 #print "1234";
 
 ## Func
-#f = func(n) {
-    #if (n == 0) {
-        #return 0;
-    #} else if (n == 1) {
-        #return 1;
-    #} else {
-        #return fibo(n - 1) + fibo(n - 2);
-    #}
-#};
-#print f;
+f = func(n) {
+    if (n == 0) {
+        return 0;
+    } else if (n == 1) {
+        return 1;
+    } else {
+        return fibo(n - 1) + fibo(n - 2);
+    }
+};
+print f;
 
 # List
-#print [];
-#a = [None, 1, "Hello World", f];
-a = [1, 2];
+print [];
+a = [None, 1, "Hello World", f];
+print a;

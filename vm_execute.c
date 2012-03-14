@@ -436,6 +436,17 @@ co_vm_handler(void)
         COObject_bind(op->op1.u.co);
         EG(current_exec_data)->op++;
         return CO_VM_CONTINUE;
+    case OP_LIST_BUILD:
+        result = get_COObject_ptr(&op->result, EG(current_exec_data)->ts);
+        *result = COList_New(0);
+        EG(current_exec_data)->op++;
+        return CO_VM_CONTINUE;
+    case OP_LIST_APPEND:
+        val1 = get_COObject_ptr(&op->op1, EG(current_exec_data)->ts);
+        val2 = get_COObject_ptr(&op->op2, EG(current_exec_data)->ts);
+        COList_Append(*val1, *val2);
+        EG(current_exec_data)->op++;
+        return CO_VM_CONTINUE;
     default:
         error("unknown handle for opcode(%ld)\n",
               EG(current_exec_data)->op->opcode);

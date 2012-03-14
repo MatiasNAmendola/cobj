@@ -246,19 +246,25 @@ co_pass_param(struct cnode *param)
 }
 
 void
-co_list_build(struct cnode *result)
+co_list_build(struct cnode *result, struct cnode *tag)
 {
     struct co_opline *op = get_next_op(CG(active_opline_array));
     op->opcode = OP_LIST_BUILD;
     op->result.type = IS_TMP_VAR;
     op->result.u.var = get_temporary_variable(CG(active_opline_array));
     *result = op->result;
+
+    *tag = op->result;
 }
 
 void
-co_append_element(struct cnode *element)
+co_append_element(struct cnode *node, struct cnode *element)
 {
-    printf("append: %p\n", element);
+    struct co_opline *op = get_next_op(CG(active_opline_array));
+    op->opcode = OP_LIST_APPEND;
+    op->op1 = *node;
+    op->op2 = *element;
+    printf("append: %p to %p\n", element, node);
     COObject_print(element->u.co);
 }
 
