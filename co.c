@@ -34,11 +34,23 @@ main(int argc, const char **argv)
     argc = argparse_parse(&argparse, argc, argv);
 
     if (verbose) {
-        COTupleObject *t = COTuple_New(3);
-        COTuple_SetItem(t, 0, COInt_FromLong(1));
-        COTuple_SetItem(t, 1, COInt_FromLong(2));
-        COTuple_SetItem(t, 2, COInt_FromLong(3));
+        COObject *t = COTuple_New(3);
+        COTuple_SetItem(t, 0, (COObject *)COInt_FromLong(1));
+        COTuple_SetItem(t, 1, (COObject *)COInt_FromLong(2));
+        COTuple_SetItem(t, 2, (COObject *)COInt_FromLong(3));
         COObject_dump(t);
+
+        COObject *d = CODict_New();
+        CODict_SetItem(d, COStr_FromString("key1"), t);
+        CODict_SetItem(d, COStr_FromString("key2"), d);
+        COObject_dump(d);
+        COObject *r = CODict_GetItem(d, COStr_FromString("key1"));
+        COObject_dump(r);
+        printf("size: %ld\n", CODict_Size(d));
+        CODict_DelItem(d, COStr_FromString("key1"));
+        printf("delete one, %p, size: %ld\n", CODict_GetItem(d, COStr_FromString("key1")), CODict_Size(d));
+        CODict_Clear(d);
+        printf("size: %ld\n", CODict_Size(d));
         return 0;
     }
 

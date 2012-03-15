@@ -47,6 +47,7 @@
 #include "objects/listobject.h"
 #include "objects/tupleobject.h"
 #include "objects/frameobject.h"
+#include "objects/dictobject.h"
 
 #include "argparse/argparse.h"
 #include "dstring/dstring.h"
