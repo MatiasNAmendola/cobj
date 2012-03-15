@@ -46,20 +46,20 @@ test_expect_result("""0
 34
 """, """
 func fibo(num)
-    if (num == 0) {
+    if num == 0
         return 0
-    } else if (num == 1) {
+    elif num == 1
         return 1
-    } else {
+    else
         return fibo(num - 1) + fibo(num - 2)
-    }
+    end
 end
 
 i = 0
-while (i < 10) {
+while i < 10
     print fibo(i)
     i = i + 1
-}
+end
 """, "recursive function")
 
 test_expect_result("""1
@@ -69,18 +69,18 @@ test_expect_result("""1
 24
 """, """
 f = func(n)
-    if (n == 0) {
+    if n == 0
         return 1
-    } else {
+    else
         return n * f(n - 1)
-    }
+    end
 end
 
 i = 0
-while (i < 5) {
+while i < 5
     print f(i)
     i = i + 1
-}
+end
 """, "closures")
 
 test_expect_result("""10
@@ -97,10 +97,10 @@ end
 
 f = newIncrer(10)
 i = 0
-while (i < 3) {
+while i < 3
     print f(i)
     i = i + 1
-}
+end
 """, "closures")
 
 test_expect_result("""1

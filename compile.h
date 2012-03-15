@@ -64,13 +64,11 @@ void co_binary_op(uchar opcode, struct cnode *result, const struct cnode *op1,
 void co_print(const struct cnode *op);
 void co_assign(struct cnode *result, struct cnode *variable,
                const struct cnode *op);
-void co_if_cond(const struct cnode *cond, struct cnode *closing_bracket_token);
-void co_if_after_stmt(struct cnode *closing_bracket_token);
-void co_if_end(const struct cnode *closing_bracket_token);
-void co_while_cond(const struct cnode *cond, struct cnode *while_token,
-                   struct cnode *closing_bracket_token);
-void co_while_end(const struct cnode *while_token,
-                  const struct cnode *closing_bracket_token);
+void co_if_cond(const struct cnode *cond, struct cnode *if_token);
+void co_if_after_stmt(struct cnode *if_token);
+void co_if_end(const struct cnode *if_token);
+void co_while_cond(const struct cnode *cond, struct cnode *while_token);
+void co_while_end(const struct cnode *while_token);
 void co_begin_func_declaration(struct cnode *func_token,
                                    struct cnode *func_name);
 void co_end_func_declaration(const struct cnode *func_token,

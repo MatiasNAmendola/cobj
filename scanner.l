@@ -215,7 +215,7 @@ HNUM        = "0x"[0-9a-fA-F]+;
 NAME        = [a-zA-Z_][a-zA-Z0-9_]*;
 TOKENS      = [-+()=>/<*^,;:{}%\[\]];
 WHITESPACE  = [ \t]+;
-NEWLINE     = [\n]+;
+NEWLINES     = [\n];
 ANY_CHAR    = [^];
 
 /* compute yyleng before each rule */
@@ -237,12 +237,12 @@ ANY_CHAR    = [^];
     return T_IF;
 }
 
-<SC_INIT>"then" {
-    return T_THEN;
-}
-
 <SC_INIT>"else" {
     return T_ELSE;
+}
+
+<SC_INIT>"elif" {
+    return T_ELIF;
 }
 
 <SC_INIT>"while" {
@@ -416,6 +416,10 @@ ANY_CHAR    = [^];
     return T_GREATER_OR_EQUAL;
 }
 
+<SC_INIT>"[" {
+    return yytext[0];
+}
+
 <SC_INIT>TOKENS {
     return yytext[0];
 }
@@ -428,8 +432,8 @@ ANY_CHAR    = [^];
     return T_WHITESPACE;
 }
 
-<SC_INIT>NEWLINE {
-    return T_NEWLINE;
+<SC_INIT>NEWLINES {
+    return T_NEWLINES;
 }
 
 <SC_INIT>ANY_CHAR   {

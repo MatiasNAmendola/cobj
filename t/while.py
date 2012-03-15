@@ -5,15 +5,15 @@ plan("no_plan")
 
 test_expect_result(r"""10
 """, r'''
-i = 1;
+i = 1
 
-while (i < 10) {
-    i = i + 1;
-}
-print i;
+while i < 10 
+    i = i + 1
+end
+print i
 
-while (False) {
-    print i;
-    print "hello world";
-}
+while False 
+    print i
+    print "hello world"
+end
 ''')

@@ -102,66 +102,63 @@ co_return(const struct cnode *expr)
 }
 
 void
-co_if_cond(const struct cnode *cond, struct cnode *closing_bracket_token)
+co_if_cond(const struct cnode *cond, struct cnode *if_token)
 {
     int if_cond_opline_num = CG(active_opline_array)->last;
     struct co_opline *opline = get_next_op(CG(active_opline_array));
     opline->opcode = OP_JMPZ;
     opline->op1 = *cond;
-    closing_bracket_token->u.opline_num = if_cond_opline_num;
+    if_token->u.opline_num = if_cond_opline_num;
     SET_UNUSED(opline->op2);
 }
 
 void
-co_if_after_stmt(struct cnode *closing_bracket_token)
+co_if_after_stmt(struct cnode *if_token)
 {
     int if_after_stmt_op_num = CG(active_opline_array)->last;
     struct co_opline *opline = get_next_op(CG(active_opline_array));
-    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op2.
+    CG(active_opline_array)->ops[if_token->u.opline_num].op2.
         u.opline_num =
-        if_after_stmt_op_num + 1 - closing_bracket_token->u.opline_num;
-    closing_bracket_token->u.opline_num = if_after_stmt_op_num;
+        if_after_stmt_op_num + 1 - if_token->u.opline_num;
+    if_token->u.opline_num = if_after_stmt_op_num;
     opline->opcode = OP_JMP;
     SET_UNUSED(opline->op1);
     SET_UNUSED(opline->op2);
 }
 
 void
-co_if_end(const struct cnode *closing_bracket_token)
+co_if_end(const struct cnode *if_token)
 {
     int if_end_op_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op1.
-        u.opline_num = if_end_op_num - closing_bracket_token->u.opline_num;
+    CG(active_opline_array)->ops[if_token->u.opline_num].op1.
+        u.opline_num = if_end_op_num - if_token->u.opline_num;
 }
 
 void
-co_while_cond(const struct cnode *cond, struct cnode *while_token,
-              struct cnode *closing_bracket_token)
+co_while_cond(const struct cnode *cond, struct cnode *while_token)
 {
     int while_cond_opline_num = CG(active_opline_array)->last;
     struct co_opline *opline = get_next_op(CG(active_opline_array));
     opline->opcode = OP_JMPZ;
     opline->op1 = *cond;
-    while_token->u.opline_num = while_cond_opline_num - 1;
-    closing_bracket_token->u.opline_num = while_cond_opline_num;
+    while_token->u.opline_num = while_cond_opline_num;
 }
 
 void
-co_while_end(const struct cnode *while_token,
-             const struct cnode *closing_bracket_token)
+co_while_end(const struct cnode *while_token)
 {
     // add unconditional jumpback
     int while_end_opline_num = CG(active_opline_array)->last;
     struct co_opline *op = get_next_op(CG(active_opline_array));
     op->opcode = OP_JMP;
-    op->op1.u.opline_num = while_token->u.opline_num - while_end_opline_num;
+    op->op1.u.opline_num = while_token->u.opline_num - while_end_opline_num - 1;
     SET_UNUSED(op->op1);
     SET_UNUSED(op->op2);
 
     int while_end_stmt_op_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[closing_bracket_token->u.opline_num].op2.
+    CG(active_opline_array)->ops[while_token->u.opline_num].op2.
         u.opline_num =
-        while_end_stmt_op_num - closing_bracket_token->u.opline_num;
+        while_end_stmt_op_num - while_token->u.opline_num;
 }
 
 void

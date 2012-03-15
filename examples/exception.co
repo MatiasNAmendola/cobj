@@ -1,25 +1,27 @@
 #!./co
 
-try {
-    throw 1;
-    print "try-catch: try";
-} catch (1) {
-    print "try-catch: catch";
-}
+try
+    print "no catch and no finally"
+end
 
-#try {
-    #print "try-finally: try";
-#} finally {
-    #print "try-finally: finally";
-#}
+try
+    print "try-catch: try"
+catch
+    print "try-catch: catch"
+end
 
-#try {
-    #print "try-catch-finally: try";
-    #throw 2
-#} catch (1) {
-    #print "try-catch-finally: catch 1";
-#} catch (2) {
-    #print "try-catch-finally: catch 2";
-#} finally {
-    #print "try-catch-finally: finally";
-#}
+try
+    print "try-finally: try"
+finally
+    print "try-finally: finally"
+end
+
+try
+    print "try-catch-finally: try"
+catch asf
+    print "try-catch-finally: catch 1"
+catch 2
+    print "try-catch-finally: catch 2"
+finally
+    print "try-catch-finally: finally"
+end

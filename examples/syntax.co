@@ -13,4 +13,16 @@ helloworld()
 func sum(a, b) return a + b end
 print sum(1, 2)
 
-if 10 then print 10 end
+#if 10  print 10 end
+if a > 10
+    print sum(a, 1)
+elif a == 1
+    print "a"
+    print sum(a, 1)
+end
+
+i = 0
+while i < 3
+    print i
+    i += 1
+end

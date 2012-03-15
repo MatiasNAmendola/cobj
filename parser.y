@@ -9,11 +9,7 @@
 
 %pure_parser
 
-/*
- * - Dangling else statment cause one shift/reduce conflict
- * - opt_param_list cause one shift/reduce conflict
- */
-%expect 3
+%expect 5
 
 %nonassoc T_EQUAL T_NOT_EQUAL 
 %token T_MOD_ASSIGN T_DIV_ASSIGN T_MUL_ASSIGN T_SUB_ASSIGN T_ADD_ASSIGN T_SR_ASSIGN T_SL_ASSIGN
@@ -33,11 +29,11 @@
 %token  T_FNUM
 %token  T_STRING
 %token  T_NAME
-%token  T_IF T_THEN T_ELSE
+%token  T_IF T_ELIF T_ELSE
 %token  T_FUNC
 %token  T_RETURN
 %token  T_WHILE
-%token  T_NEWLINE
+%token  T_NEWLINES
 %token  T_WHITESPACE
 %token  T_COMMENT
 %token  T_IGNORED
@@ -68,7 +64,7 @@ open_stmt_list:
 ;
 
 stmt_sep:
-        T_NEWLINE
+        T_NEWLINES
     |   ';'
 ;
 
@@ -105,7 +101,6 @@ expr: /* express something */
     |   expr '%' expr { co_binary_op(OP_MOD, &$$, &$1, &$3); }
     |   T_NAME '(' { co_begin_func_call(&$1); } func_call_param_list ')' { co_end_func_call(&$1, &$$); }
     |   T_FUNC { co_begin_func_declaration(&$1, NULL); } opt_param_list stmt_list T_END { co_end_func_declaration(&$1, &$$); }
-/*    |   '(' { co_tuple_build(&$$, &$1); } expr_list_with_comma ')' { $$ = $1; } */
     |   '[' { co_list_build(&$$, &$1); } expr_list ']' { $$ = $1; $2.type = IS_UNUSED; }
 ;
 
@@ -127,40 +122,36 @@ simple_stmt:
 ;
 
 compound_stmt:
-        T_IF expr { co_if_cond(&$2, &$1); } T_THEN stmt_list { co_if_after_stmt(&$1); } opt_else T_END { co_if_end(&$1); }
-    |   T_WHILE '(' expr ')' { co_while_cond(&$3, &$1, &$4); } stmt { co_while_end(&$1, &$4); }
-    |   try_catch_finally_stmt
+        T_IF expr { co_if_cond(&$2, &$1); }  stmt_list { co_if_after_stmt(&$1); } if_tail T_END { co_if_end(&$1); }
+    |   T_WHILE expr { co_while_cond(&$2, &$1); } stmt_list T_END { co_while_end(&$1); }
+    |   T_TRY stmt_list opt_catch_list opt_finally_block T_END
     |   T_FUNC T_NAME { co_begin_func_declaration(&$1, &$2); } opt_param_list
             stmt_list
         T_END { co_end_func_declaration(&$1, &$$); }
-    |   '{' stmt_list '}'
 ;
 
-try_catch_finally_stmt:
-        try_block non_empty_catch_list
-    |   try_block catch_list finally_block
-;
-
-try_block:
-        T_TRY '{' stmt_list '}'
-;
-    
-catch_block:
-        T_CATCH '(' expr ')' '{' stmt_list '}'
-;
-
-catch_list:
-         non_empty_catch_list { $$ = $1; }
+opt_finally_block:
+        T_FINALLY  stmt_list 
     |   /* empty */
 ;
 
-non_empty_catch_list:
-        catch_block
-    |   catch_block non_empty_catch_list
+catch_block:
+        T_CATCH opt_excep_list stmt_list 
 ;
 
-finally_block:
-        T_FINALLY '{' stmt_list '}'
+catch_list:
+        catch_block
+    |   catch_list catch_block
+;
+
+opt_catch_list:
+        catch_list
+    |   /* empty */
+;
+
+opt_excep_list:
+        T_NAME
+    |   /* empty */
 ;
 
 opt_param_list:
@@ -178,14 +169,24 @@ non_empty_param_list:
     |   T_NAME ',' non_empty_param_list { co_recv_param(&$1); }
 ;
 
+opt_comma:
+        ',' opt_newlines
+    |   /* empty */
+;
+
+opt_newlines:
+        T_NEWLINES
+    |   /* empty */
+;
+
 expr_list:
-        non_empty_expr_list
+        non_empty_expr_list opt_comma
     |   /* empty */
 ;
 
 non_empty_expr_list:
-        expr { co_append_element(&$0, &$1); }
-    |   non_empty_expr_list ',' expr { co_append_element(&$0, &$3); }
+        opt_newlines expr opt_newlines { co_append_element(&$0, &$2); }
+    |   non_empty_expr_list ',' opt_newlines expr opt_newlines { co_append_element(&$0, &$4); }
 ;
 
 func_call_param_list:
@@ -199,8 +200,13 @@ non_empty_func_call_param_list:
 ;
 
 opt_else:
-       /* empty */
-    |   T_ELSE stmt
+        /* empty */
+    |   T_ELSE stmt_list
+;
+
+if_tail:
+       opt_else
+    |  T_ELIF expr { co_if_cond(&$2, &$1); }  stmt_list { co_if_after_stmt(&$1); } if_tail  { co_if_end(&$1); }
 ;
 
 %%
