@@ -4,4 +4,4 @@
 * implement namespace & scope rules
 * the whole code is functionobject
 * functionobject dump/load bytecode
-* HashTable implemented as dict
+* symbol_table using dictobject, remove hash.[ch]
