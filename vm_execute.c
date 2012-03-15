@@ -454,10 +454,6 @@ co_vm_execute(COFunctionObject *main)
     opline_array = main->opline_array;
 
 vm_enter:
-    /* initialize exec_data */
-#ifdef CO_DEBUG
-    printf("tmp: %ld\n", opline_array->t);
-#endif
     exec_data =
         (struct co_exec_data *)co_vm_stack_alloc(sizeof(struct co_exec_data) +
                                                  sizeof(union temp_variable) *
@@ -474,9 +470,6 @@ vm_enter:
     exec_data->prev_exec_data = EG(current_exec_data);
     EG(current_exec_data) = exec_data;
 
-#ifdef CO_DEBUG
-    printf("vm enter: %p\n", &EG(current_exec_data)->symbol_table);
-#endif
     while (true) {
         switch (co_vm_handler()) {
         case CO_VM_CONTINUE:
@@ -487,9 +480,6 @@ vm_enter:
             opline_array = ((COFunctionObject *)EG(next_func))->opline_array;
             goto vm_enter;
         case CO_VM_LEAVE:
-#ifdef CO_DEBUG
-            printf("vm leave: %p\n", &EG(current_exec_data)->symbol_table);
-#endif
             continue;
         default:
             break;
