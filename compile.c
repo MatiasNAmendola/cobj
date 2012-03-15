@@ -1,25 +1,33 @@
 #include "co.h"
 
-struct co_compiler_globals compiler_globals;
+struct compiler {
+    struct co_opline_array *opline_array;
+};
 
-void
-init_compiler()
+struct compiler c;
+
+COFunctionObject *
+co_compile(void)
 {
-    CG(active_opline_array) = xmalloc(sizeof(struct co_opline_array));
-    init_opline_array(CG(active_opline_array), 1);
+    c.opline_array = xmalloc(sizeof(struct co_opline_array));
+    c.opline_array->size = 1;
+    c.opline_array->last = 0;
+    c.opline_array->t = 0;
+    c.opline_array->ops =
+        xmalloc((c.opline_array->size) * sizeof(struct co_opline));
+
+    COFunctionObject *co = (COFunctionObject *)COFunctionObject_New(NULL);
+    co_hash_init(&co->upvalues, 1, NULL);
+
+    // do parse
+    coparse(&c);
+
+    co->opline_array = c.opline_array;
+
+    return co;
 }
 
-void
-init_opline_array(struct co_opline_array *opline_array, int ops_size)
-{
-    opline_array->size = ops_size;
-    opline_array->last = 0;
-    opline_array->t = 0;
-    opline_array->ops =
-        xmalloc((opline_array->size) * sizeof(struct co_opline));
-}
-
-struct co_opline *
+static struct co_opline *
 get_next_op(struct co_opline_array *opline_array)
 {
     int next_op_num = opline_array->last++;
@@ -53,11 +61,11 @@ void
 co_binary_op(uchar opcode, struct cnode *result, const struct cnode *op1,
              const struct cnode *op2)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op = get_next_op(c.opline_array);
 
     op->opcode = opcode;
     op->result.type = IS_TMP_VAR;
-    op->result.u.var = get_temporary_variable(CG(active_opline_array));
+    op->result.u.var = get_temporary_variable(c.opline_array);
     op->op1 = *op1;
     op->op2 = *op2;
     *result = op->result;
@@ -68,23 +76,23 @@ co_assign(struct cnode *result, struct cnode *variable,
           const struct cnode *value)
 {
     struct co_opline *op;
-    op = get_next_op(CG(active_opline_array));
+    op = get_next_op(c.opline_array);
     op->opcode = OP_BIND_NAME;
     op->op1 = *variable;
 
-    op = get_next_op(CG(active_opline_array));
+    op = get_next_op(c.opline_array);
     op->opcode = OP_ASSIGN;
     op->op1 = *variable;
     op->op2 = *value;
     op->result.type = IS_TMP_VAR;
-    op->result.u.var = get_temporary_variable(CG(active_opline_array));
+    op->result.u.var = get_temporary_variable(c.opline_array);
     *result = op->result;
 }
 
 void
 co_print(const struct cnode *arg)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op = get_next_op(c.opline_array);
 
     op->opcode = OP_PRINT;
     op->op1 = *arg;
@@ -94,7 +102,7 @@ co_print(const struct cnode *arg)
 void
 co_return(const struct cnode *expr)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op = get_next_op(c.opline_array);
 
     op->opcode = OP_RETURN;
     op->op1 = *expr;
@@ -104,8 +112,8 @@ co_return(const struct cnode *expr)
 void
 co_if_cond(const struct cnode *cond, struct cnode *if_token)
 {
-    int if_cond_opline_num = CG(active_opline_array)->last;
-    struct co_opline *opline = get_next_op(CG(active_opline_array));
+    int if_cond_opline_num = c.opline_array->last;
+    struct co_opline *opline = get_next_op(c.opline_array);
     opline->opcode = OP_JMPZ;
     opline->op1 = *cond;
     if_token->u.opline_num = if_cond_opline_num;
@@ -115,10 +123,9 @@ co_if_cond(const struct cnode *cond, struct cnode *if_token)
 void
 co_if_after_stmt(struct cnode *if_token)
 {
-    int if_after_stmt_op_num = CG(active_opline_array)->last;
-    struct co_opline *opline = get_next_op(CG(active_opline_array));
-    CG(active_opline_array)->ops[if_token->u.opline_num].op2.
-        u.opline_num =
+    int if_after_stmt_op_num = c.opline_array->last;
+    struct co_opline *opline = get_next_op(c.opline_array);
+    c.opline_array->ops[if_token->u.opline_num].op2.u.opline_num =
         if_after_stmt_op_num + 1 - if_token->u.opline_num;
     if_token->u.opline_num = if_after_stmt_op_num;
     opline->opcode = OP_JMP;
@@ -129,16 +136,16 @@ co_if_after_stmt(struct cnode *if_token)
 void
 co_if_end(const struct cnode *if_token)
 {
-    int if_end_op_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[if_token->u.opline_num].op1.
-        u.opline_num = if_end_op_num - if_token->u.opline_num;
+    int if_end_op_num = c.opline_array->last;
+    c.opline_array->ops[if_token->u.opline_num].op1.u.opline_num =
+        if_end_op_num - if_token->u.opline_num;
 }
 
 void
 co_while_cond(const struct cnode *cond, struct cnode *while_token)
 {
-    int while_cond_opline_num = CG(active_opline_array)->last;
-    struct co_opline *opline = get_next_op(CG(active_opline_array));
+    int while_cond_opline_num = c.opline_array->last;
+    struct co_opline *opline = get_next_op(c.opline_array);
     opline->opcode = OP_JMPZ;
     opline->op1 = *cond;
     while_token->u.opline_num = while_cond_opline_num;
@@ -148,32 +155,30 @@ void
 co_while_end(const struct cnode *while_token)
 {
     // add unconditional jumpback
-    int while_end_opline_num = CG(active_opline_array)->last;
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    int while_end_opline_num = c.opline_array->last;
+    struct co_opline *op = get_next_op(c.opline_array);
     op->opcode = OP_JMP;
     op->op1.u.opline_num = while_token->u.opline_num - while_end_opline_num - 1;
     SET_UNUSED(op->op1);
     SET_UNUSED(op->op2);
 
-    int while_end_stmt_op_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[while_token->u.opline_num].op2.
-        u.opline_num =
+    int while_end_stmt_op_num = c.opline_array->last;
+    c.opline_array->ops[while_token->u.opline_num].op2.u.opline_num =
         while_end_stmt_op_num - while_token->u.opline_num;
 }
 
 void
-co_begin_func_declaration(struct cnode *func_token,
-                              struct cnode *func_name)
+co_begin_func_declaration(struct cnode *func_token, struct cnode *func_name)
 {
     struct co_opline *op;
     if (func_name) {
-        op = get_next_op(CG(active_opline_array));
+        op = get_next_op(c.opline_array);
         op->opcode = OP_BIND_NAME;
         op->op1 = *func_name;
     }
 
-    int func_opline_num = CG(active_opline_array)->last;
-    op = get_next_op(CG(active_opline_array));
+    int func_opline_num = c.opline_array->last;
+    op = get_next_op(c.opline_array);
     op->opcode = OP_DECLARE_FUNCTION;
     if (func_name) {
         op->op1 = *func_name;
@@ -182,31 +187,27 @@ co_begin_func_declaration(struct cnode *func_token,
 }
 
 void
-co_end_func_declaration(const struct cnode *func_token,
-                            struct cnode *result)
+co_end_func_declaration(const struct cnode *func_token, struct cnode *result)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op = get_next_op(c.opline_array);
     op->opcode = OP_RETURN;
 
-    int func_end_opline_num = CG(active_opline_array)->last;
-    CG(active_opline_array)->ops[func_token->u.opline_num].op2.
-        u.opline_num =
+    int func_end_opline_num = c.opline_array->last;
+    c.opline_array->ops[func_token->u.opline_num].op2.u.opline_num =
         func_end_opline_num - func_token->u.opline_num - 1;
 
     if (result) {
-        CG(active_opline_array)->ops[func_token->u.opline_num].result.type =
-            IS_TMP_VAR;
-        CG(active_opline_array)->ops[func_token->u.opline_num].result.
-            u.var = get_temporary_variable(CG(active_opline_array));
-        *result =
-            CG(active_opline_array)->ops[func_token->u.opline_num].result;
+        c.opline_array->ops[func_token->u.opline_num].result.type = IS_TMP_VAR;
+        c.opline_array->ops[func_token->u.opline_num].result.u.var =
+            get_temporary_variable(c.opline_array);
+        *result = c.opline_array->ops[func_token->u.opline_num].result;
     }
 }
 
 void
 co_begin_func_call(struct cnode *func_name)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op = get_next_op(c.opline_array);
     op->opcode = OP_INIT_FCALL;
     op->op1 = *func_name;
 }
@@ -214,11 +215,11 @@ co_begin_func_call(struct cnode *func_name)
 void
 co_end_func_call(struct cnode *func_name, struct cnode *result)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op = get_next_op(c.opline_array);
     op->opcode = OP_DO_FCALL;
     op->op1 = *func_name;
     op->result.type = IS_TMP_VAR;
-    op->result.u.var = get_temporary_variable(CG(active_opline_array));
+    op->result.u.var = get_temporary_variable(c.opline_array);
     *result = op->result;
 }
 
@@ -226,11 +227,11 @@ void
 co_recv_param(struct cnode *param)
 {
     struct co_opline *op;
-    op = get_next_op(CG(active_opline_array));
+    op = get_next_op(c.opline_array);
     op->opcode = OP_BIND_NAME;
     op->op1 = *param;
 
-    op = get_next_op(CG(active_opline_array));
+    op = get_next_op(c.opline_array);
     op->opcode = OP_RECV_PARAM;
     op->op1 = *param;
 }
@@ -238,17 +239,17 @@ co_recv_param(struct cnode *param)
 void
 co_pass_param(struct cnode *param)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op = get_next_op(c.opline_array);
     op->opcode = OP_PASS_PARAM, op->op1 = *param;
 }
 
 void
 co_list_build(struct cnode *result, struct cnode *tag)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op = get_next_op(c.opline_array);
     op->opcode = OP_LIST_BUILD;
     op->result.type = IS_TMP_VAR;
-    op->result.u.var = get_temporary_variable(CG(active_opline_array));
+    op->result.u.var = get_temporary_variable(c.opline_array);
     *result = op->result;
 
     *tag = op->result;
@@ -257,10 +258,10 @@ co_list_build(struct cnode *result, struct cnode *tag)
 void
 co_tuple_build(struct cnode *result, struct cnode *tag)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op = get_next_op(c.opline_array);
     op->opcode = OP_TUPLE_BUILD;
     op->result.type = IS_TMP_VAR;
-    op->result.u.var = get_temporary_variable(CG(active_opline_array));
+    op->result.u.var = get_temporary_variable(c.opline_array);
     *result = op->result;
 
     *tag = op->result;
@@ -269,7 +270,7 @@ co_tuple_build(struct cnode *result, struct cnode *tag)
 void
 co_append_element(struct cnode *node, struct cnode *element)
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op = get_next_op(c.opline_array);
     op->opcode = OP_APPEND_ELEMENT;
     op->op1 = *node;
     op->op2 = *element;
@@ -278,12 +279,12 @@ co_append_element(struct cnode *node, struct cnode *element)
 void
 co_end_compilation()
 {
-    struct co_opline *op = get_next_op(CG(active_opline_array));
+    struct co_opline *op = get_next_op(c.opline_array);
 
     op->opcode = OP_EXIT;
 
 #ifdef CO_DEBUG
-    co_print_opcode(CG(active_opline_array));
+    co_print_opcode(c.opline_array);
 #endif
 
     SET_UNUSED(op->op1);

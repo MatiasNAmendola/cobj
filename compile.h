@@ -7,6 +7,7 @@
 #include "llist.h"
 #include "object.h"
 #include "objects/listobject.h"
+#include "objects/functionobject.h"
 
 /** cnode type **/
 #define IS_CONST        (1<<0)
@@ -14,8 +15,6 @@
 #define IS_VAR          (1<<2)
 #define IS_UNUSED       (1<<3)
 #define SET_UNUSED(op)  (op).type = IS_UNUSED
-
-#define CG(v)   compiler_globals.v
 
 /*
  * op node
@@ -55,8 +54,7 @@ union temp_variable {
 };
 
 /* compiler */
-void init_compiler();
-void init_opline_array(struct co_opline_array *opline_array, int ops_size);
+COFunctionObject *co_compile(void);
 
 /* parser-driven code generators */
 void co_binary_op(uchar opcode, struct cnode *result, const struct cnode *op1,
@@ -70,9 +68,9 @@ void co_if_end(const struct cnode *if_token);
 void co_while_cond(const struct cnode *cond, struct cnode *while_token);
 void co_while_end(const struct cnode *while_token);
 void co_begin_func_declaration(struct cnode *func_token,
-                                   struct cnode *func_name);
+                               struct cnode *func_name);
 void co_end_func_declaration(const struct cnode *func_token,
-                                 struct cnode *result);
+                             struct cnode *result);
 void co_begin_func_call(struct cnode *func_name);
 void co_end_func_call(struct cnode *func_name, struct cnode *result);
 void co_pass_param(struct cnode *param);
@@ -81,14 +79,6 @@ void co_return(const struct cnode *expr);
 void co_list_build(struct cnode *result, struct cnode *tag);
 void co_append_element(struct cnode *node, struct cnode *element);
 void co_end_compilation();
-
-/* opcode */
-struct co_opline *get_next_op(struct co_opline_array *opline_array);
-
-// compiler globals
-struct co_compiler_globals {
-    struct co_opline_array *active_opline_array;
-} co_compiler_globals;
 
 // parser
 int coparse();
@@ -101,8 +91,5 @@ void co_scanner_startup(void);
 void co_scanner_shutdown(void);
 int co_scanner_openfile(int fd);
 int co_scanner_setcode(char *code);
-
-// compiler
-struct co_compiler_globals compiler_globals;
 
 #endif
