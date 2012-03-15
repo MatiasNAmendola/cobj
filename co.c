@@ -13,7 +13,8 @@ argparse_showversion(struct argparse *this,
     exit(1);
 }
 
-int verbose;
+int verbose = 0;
+char *eval = NULL;
 
 int
 main(int argc, const char **argv)
@@ -26,6 +27,7 @@ main(int argc, const char **argv)
         OPT_BOOLEAN('V', "verbose", &verbose,
                     "show runtime info, can be supplied multiple times to increase verbosity",
                     NULL),
+        OPT_STRING('e', "eval", &eval, "code passed as string", NULL),
         OPT_END(),
     };
     argparse_init(&argparse, options, usagestr);
@@ -39,17 +41,23 @@ main(int argc, const char **argv)
         COObject_dump(t);
         return 0;
     }
-    int fd = 0;
-    if (argc > 0) {
-        fd = open(*argv, O_RDONLY);
-        if (fd < 0) {
-            error("open %s failed", *argv);
-        }
-    }
+
 
     /* compilation */
     co_scanner_startup();
-    co_scanner_openfile(fd);
+    if (eval) {
+        co_scanner_setcode(eval);
+    } else {
+        int fd = 0;
+        if (argc > 0) {
+            fd = open(*argv, O_RDONLY);
+            if (fd < 0) {
+                error("open %s failed", *argv);
+            }
+        }
+        co_scanner_openfile(fd);
+    }
+
     init_compiler();
     coparse(&compiler_globals);
     co_scanner_shutdown();

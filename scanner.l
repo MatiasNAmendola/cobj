@@ -1,10 +1,7 @@
 #include "co.h"
 
 struct co_scanner_globals {
-    int yy_in;
-
     unsigned int yy_leng;
-    char *yy_start;
     char *yy_text;
     char *yy_cursor;
     char *yy_marker;
@@ -191,12 +188,16 @@ co_scanner_shutdown()
 int
 co_scanner_openfile(int fd)
 {
-    scanner_globals.yy_in = fd;
-    scanner_globals.yy_start = NULL;
     dstring code = dstring_readfd(fd);
+    co_scanner_setcode(code);
+    return 0;
+}
+
+int
+co_scanner_setcode(char *code)
+{
     scanner_globals.yy_cursor = code;
     scanner_globals.yy_limit = code + strlen(code);
-
     return 0;
 }
 
@@ -236,6 +237,10 @@ ANY_CHAR    = [^];
     return T_IF;
 }
 
+<SC_INIT>"then" {
+    return T_THEN;
+}
+
 <SC_INIT>"else" {
     return T_ELSE;
 }
@@ -246,6 +251,10 @@ ANY_CHAR    = [^];
 
 <SC_INIT>"func" {
     return T_FUNC;
+}
+
+<SC_INIT>"end" {
+    return T_END;
 }
 
 <SC_INIT>"print" {

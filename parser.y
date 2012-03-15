@@ -10,9 +10,10 @@
 %pure_parser
 
 /*
- * Dangling else statment cause one shift/reduce conflict
+ * - Dangling else statment cause one shift/reduce conflict
+ * - opt_param_list cause one shift/reduce conflict
  */
-%expect 1
+%expect 3
 
 %nonassoc T_EQUAL T_NOT_EQUAL 
 %token T_MOD_ASSIGN T_DIV_ASSIGN T_MUL_ASSIGN T_SUB_ASSIGN T_ADD_ASSIGN T_SR_ASSIGN T_SL_ASSIGN
@@ -32,8 +33,7 @@
 %token  T_FNUM
 %token  T_STRING
 %token  T_NAME
-%token  T_IF
-%token  T_ELSE
+%token  T_IF T_THEN T_ELSE
 %token  T_FUNC
 %token  T_RETURN
 %token  T_WHILE
@@ -45,6 +45,7 @@
 %token  T_THROW
 %token  T_CATCH
 %token  T_FINALLY
+%token  T_END
 
 %% /* Context-Free Grammar (BNF) */
 
@@ -103,7 +104,7 @@ expr: /* express something */
     |   expr '/' expr { co_binary_op(OP_DIV, &$$, &$1, &$3); }
     |   expr '%' expr { co_binary_op(OP_MOD, &$$, &$1, &$3); }
     |   T_NAME '(' { co_begin_func_call(&$1); } func_call_param_list ')' { co_end_func_call(&$1, &$$); }
-    |   T_FUNC { co_begin_func_declaration(&$1, NULL); } '(' param_list ')' '{' stmt_list '}' { co_end_func_declaration(&$1, &$$); }
+    |   T_FUNC { co_begin_func_declaration(&$1, NULL); } opt_param_list stmt_list T_END { co_end_func_declaration(&$1, &$$); }
 /*    |   '(' { co_tuple_build(&$$, &$1); } expr_list_with_comma ')' { $$ = $1; } */
     |   '[' { co_list_build(&$$, &$1); } expr_list ']' { $$ = $1; $2.type = IS_UNUSED; }
 ;
@@ -126,10 +127,12 @@ simple_stmt:
 ;
 
 compound_stmt:
-        T_IF '(' expr ')' { co_if_cond(&$3, &$4); } stmt { co_if_after_stmt(&$4); } opt_else { co_if_end(&$4); }
+        T_IF expr { co_if_cond(&$2, &$1); } T_THEN stmt_list { co_if_after_stmt(&$1); } opt_else T_END { co_if_end(&$1); }
     |   T_WHILE '(' expr ')' { co_while_cond(&$3, &$1, &$4); } stmt { co_while_end(&$1, &$4); }
     |   try_catch_finally_stmt
-    |   T_FUNC T_NAME { co_begin_func_declaration(&$1, &$2); } '(' param_list ')' '{' stmt_list '}' { co_end_func_declaration(&$1, &$$); }
+    |   T_FUNC T_NAME { co_begin_func_declaration(&$1, &$2); } opt_param_list
+            stmt_list
+        T_END { co_end_func_declaration(&$1, &$$); }
     |   '{' stmt_list '}'
 ;
 
@@ -158,6 +161,11 @@ non_empty_catch_list:
 
 finally_block:
         T_FINALLY '{' stmt_list '}'
+;
+
+opt_param_list:
+        '(' param_list ')'
+    |   /* empty */
 ;
 
 param_list:

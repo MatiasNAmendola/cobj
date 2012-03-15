@@ -1,37 +1,37 @@
 #!./co
 
 ## None
-#print None;
+#print None
 
 ## Bool
-#print True;
-#print False;
+#print True
+#print False
 
 ## Int
-#print 1;
+#print 1
 
 ## Float
-#print 1.1;
+#print 1.1
 
 ## Str
-#print "1234";
+#print "1234"
 
 ## Func
 f = func(n) {
     if (n == 0) {
-        return 0;
+        return 0
     } else if (n == 1) {
-        return 1;
+        return 1
     } else {
-        return fibo(n - 1) + fibo(n - 2);
+        return fibo(n - 1) + fibo(n - 2)
     }
-};
-print f;
+}
+print f
 
 # List
-print [];
-a = [None, 1, "Hello World", f];
-print a;
+print []
+a = [None, 1, "Hello World", f]
+print a
 
 #
-print 1,2,3;
+#print 1,2,3

@@ -102,6 +102,7 @@ int co_scanner_lex(struct cnode *yylval);
 void co_scanner_startup(void);
 void co_scanner_shutdown(void);
 int co_scanner_openfile(int fd);
+int co_scanner_setcode(char *code);
 
 // compiler
 struct co_compiler_globals compiler_globals;

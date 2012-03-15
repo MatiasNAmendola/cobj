@@ -7,10 +7,10 @@ print a
 print [1,2]
 
 # compound statments
-func helloworld() {
-    print "hello world"
-}
+func helloworld print "hello world" end
+helloworld()
 
-#func sum(a, b) V
-    #return a + b
-#end
+func sum(a, b) return a + b end
+print sum(1, 2)
+
+if 10 then print 10 end
