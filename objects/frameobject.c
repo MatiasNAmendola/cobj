@@ -14,6 +14,7 @@ COTypeObject COFrame_Type = {
     (reprfunc)frame_repr,       /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
+    0,                          /* tp_hash */
 };
 
 struct vm_stack {
@@ -57,7 +58,7 @@ COFrame_New(void)
 {
     COFrameObject *f = xmalloc(sizeof(COFrameObject));
     memset(f, 0, sizeof(COFrameObject));
-    CO_INIT(f, &COFrame_Type);
+    COObject_Init(f, &COFrame_Type);
 
     f->vm_stack = vm_stack_new_page(VM_STACK_PAGE_SIZE);
     return (COObject *)f;

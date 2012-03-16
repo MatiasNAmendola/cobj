@@ -6,6 +6,7 @@
 typedef COObject *(*reprfunc)(COObject *);
 typedef COObject *(*getattrfunc)(COObject *, char *);
 typedef int (*setattrfunc) (COObject *, char *, COObject *);
+typedef long (*hashfunc) (COObject *);
 
 struct _COTypeObject {
     COObject_HEAD;
@@ -17,6 +18,7 @@ struct _COTypeObject {
     reprfunc tp_repr;
     getattrfunc tp_getattr;
     setattrfunc tp_setattr;
+    hashfunc tp_hash;
 };
 
 COTypeObject COType_Type;

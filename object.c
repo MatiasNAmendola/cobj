@@ -33,3 +33,15 @@ static COTypeObject CONone_Type = {
 };
 
 COObject _CO_None = COObject_HEAD_INIT(&CONone_Type);
+
+
+long
+COObject_hash(COObject *co)
+{
+    COTypeObject *tp = co->co_type;
+    if (tp->tp_hash != NULL) {
+        return tp->tp_hash(co);
+    }
+    error("fatal");
+    return -1;
+}

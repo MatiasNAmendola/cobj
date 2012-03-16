@@ -13,11 +13,13 @@
 
 typedef struct _COStrObject {
     COVarObject_HEAD;
+    long co_shash;
     char co_sval[1];
 
     /* Invariants:
      *  - co_sval contains space for 'co_size + 1' chars
      *  - co_sval[co_size] == '\0'
+     *  - co_shash is the hash of string or -1 if not computed yet
      */
 } COStrObject;
 

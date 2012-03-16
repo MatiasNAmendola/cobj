@@ -31,10 +31,10 @@ str_concat(COStrObject *this, COStrObject *s)
         return NULL;
     }
 
-    CO_INIT(co, &COStr_Type);
     memcpy(co->co_sval, this->co_sval, CO_SIZE(this));
     memcpy(co->co_sval + CO_SIZE(this), s->co_sval, CO_SIZE(s));
-    CO_SIZE(co) = size;
+    COVarObject_Init(co, &COStr_Type, size);
+    co->co_shash = -1;
     co->co_sval[size] = '\0';
     return co;
 }
@@ -45,7 +45,7 @@ str_concat(COStrObject *this, COStrObject *s)
  *  - it can only be used if there is only one reference
  */
 int
-_str_resize(COStrObject **pv, size_t newsize)
+str_resize(COStrObject **pv, size_t newsize)
 {
     COStrObject *v;
     v = *pv;
@@ -64,6 +64,86 @@ _str_resize(COStrObject **pv, size_t newsize)
     return 0;
 }
 
+/*
+ * Borrowed From PHP/Zend Engine
+ *
+ * DJBX33A (Daniel J. Bernstein, Times 33 with Addition)
+ *
+ * This is Daniel J. Bernstein's popular `times 33' hash function as
+ * posted by him years ago on comp.lang.c. It basically uses a function
+ * like ``hash(i) = hash(i-1) * 33 + str[i]''. This is one of the best
+ * known hash functions for strings. Because it is both computed very
+ * fast and distributes very well.
+ *
+ * The magic of number 33, i.e. why it works better than many other
+ * constants, prime or not, has never been adequately explained by
+ * anyone. So I try an explanation: if one experimentally tests all
+ * multipliers between 1 and 256 (as RSE did now) one detects that even
+ * numbers are not useable at all. The remaining 128 odd numbers
+ * (except for the number 1) work more or less all equally well. They
+ * all distribute in an acceptable way and this way fill a hash table
+ * with an average percent of approx. 86%.
+ *
+ * If one compares the Chi^2 values of the variants, the number 33 not
+ * even has the best value. But the number 33 and a few other equally
+ * good numbers like 17, 31, 63, 127 and 129 have nevertheless a great
+ * advantage to the remaining numbers in the large set of possible
+ * multipliers: their multiply operation can be replaced by a faster
+ * operation based on just one shift plus either a single addition
+ * or subtraction operation. And because a hash function has to both
+ * distribute good _and_ has to be very fast to compute, those few
+ * numbers should be preferred and seems to be the reason why Daniel J.
+ * Bernstein also preferred it.
+ *
+ *
+ *                  -- Ralf S. Engelschall <rse@engelschall.com>
+ */
+static ulong
+str_hash(COStrObject *this)
+{
+    if (this->co_shash != -1)
+        return this->co_shash;
+
+    const char *arKey = COStr_AsString(this);
+    uint nKeyLen = CO_SIZE(this);
+    register ulong hash = 5381;
+
+    /* variant with the hash unrolled eight times */
+    for (; nKeyLen >= 8; nKeyLen -= 8) {
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+        hash = ((hash << 5) + hash) + *arKey++;
+    }
+    switch (nKeyLen) {
+    case 7:
+        hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+    case 6:
+        hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+    case 5:
+        hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+    case 4:
+        hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+    case 3:
+        hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+    case 2:
+        hash = ((hash << 5) + hash) + *arKey++; /* fallthrough... */
+    case 1:
+        hash = ((hash << 5) + hash) + *arKey++;
+        break;
+    case 0:
+        break;
+    default:
+        break;
+    }
+    this->co_shash = hash;
+    return hash;
+}
+
 COTypeObject COStr_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "str",
@@ -72,6 +152,7 @@ COTypeObject COStr_Type = {
     str_repr,                   /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
+    str_hash,                   /* tp_hash */
 };
 
 char *
@@ -89,8 +170,8 @@ COStr_FromString(const char *s)
     COStrObject *str;
     size_t len = strlen(s);
     str = xmalloc(COStr_BASESIZE + len);
-    CO_INIT(str, &COStr_Type);
-    CO_SIZE(str) = len;
+    COVarObject_Init(str, &COStr_Type, len);
+    str->co_shash = -1;
     memcpy(str->co_sval, s, len + 1);   // with last '\0'
     return (COObject *)str;
 }
@@ -109,8 +190,8 @@ COStr_FromStingN(const char *s, size_t len)
     }
 
     str = xmalloc(COStr_BASESIZE + len);
-    CO_INIT(str, &COStr_Type);
-    CO_SIZE(str) = len;
+    COVarObject_Init(str, &COStr_Type, len);
+    str->co_shash = -1;
     if (s != NULL) {
         memcpy(str->co_sval, s, len);
     }
@@ -201,7 +282,7 @@ step2:
         return NULL;
 
     n = vsnprintf(str->co_sval, n + 1, fmt, params);    // with extra '\0'
-    if (_str_resize(&str, n)) {
+    if (str_resize(&str, n)) {
         // TODO errors
         return NULL;
     }

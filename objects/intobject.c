@@ -25,6 +25,7 @@ COTypeObject COInt_Type = {
     (reprfunc)int_repr,         /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
+    0,                          /* tp_hash */
 };
 
 long
@@ -44,7 +45,7 @@ COInt_FromString(char *s, int base)
     }
 
     num = xmalloc(sizeof(COIntObject));
-    CO_INIT(num, &COInt_Type);
+    COObject_Init(num, &COInt_Type);
     num->co_ival = strtol(s, NULL, base);
     return (COObject *)num;
 }
@@ -55,7 +56,7 @@ COInt_FromLong(long ival)
     COIntObject *num;
 
     num = xmalloc(sizeof(COIntObject));
-    CO_INIT(num, &COInt_Type);
+    COObject_Init(num, &COInt_Type);
     num->co_ival = ival;
     return (COObject *)num;
 }

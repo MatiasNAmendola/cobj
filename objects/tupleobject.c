@@ -27,6 +27,7 @@ COTypeObject COTuple_Type = {
     (reprfunc)tuple_repr,       /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
+    0,                          /* tp_hash */
 };
 
 COObject *
@@ -37,7 +38,7 @@ COTuple_New(size_t size)
     nbytes = size * sizeof(COObject *);
 
     this = xmalloc(sizeof(COTupleObject));
-    CO_INIT(this, &COTuple_Type);
+    COObject_Init(this, &COTuple_Type);
     if (size <= 0) {
         this->co_item = NULL;
     } else {

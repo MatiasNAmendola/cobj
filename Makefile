@@ -61,7 +61,7 @@ scanner.h: scanner.c
 scanner.c: scanner.l
 	re2c -cbdt scanner.h -o $@ $^
 
-.PHONY: all install uninstall clean test indent tags doc
+.PHONY: all install uninstall clean test indent tags doc bench
 
 all:: co 
 
@@ -86,6 +86,9 @@ doc:
 
 test: all
 	@$(MAKE) -C t/ all
+
+bench:
+	@cd bench; ./bench.sh
 
 indent:
 	@./indent.sh

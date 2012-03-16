@@ -27,6 +27,7 @@ COTypeObject COList_Type = {
     (reprfunc)list_repr,        /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
+    0,                          /* tp_hash */
 };
 
 /*
@@ -100,7 +101,7 @@ COList_New(size_t size)
     nbytes = size * sizeof(COObject *);
 
     this = xmalloc(sizeof(COListObject));
-    CO_INIT(this, &COList_Type);
+    COObject_Init(this, &COList_Type);
     if (size <= 0) {
         this->co_item = NULL;
     } else {

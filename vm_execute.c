@@ -22,8 +22,9 @@ COObject_get(COObject *name)
 
     struct co_exec_data *current_exec_data = EG(current_exec_data);
     if (current_exec_data->function_called) {
-        co = CODict_GetItem(((COFunctionObject *)current_exec_data->
-                             function_called)->func_upvalues, name);
+        co = CODict_GetItem(((COFunctionObject *)
+                             current_exec_data->function_called)->func_upvalues,
+                            name);
         if (co) {
             return co;
         }
@@ -47,12 +48,13 @@ COObject_put(COObject *name, COObject *co)
     struct co_exec_data *current_exec_data = EG(current_exec_data);
     if (current_exec_data->function_called) {
         COObject *myco;
-        myco =
-            CODict_GetItem(((COFunctionObject *)current_exec_data->
-                            function_called)->func_upvalues, name);
+        myco = CODict_GetItem(((COFunctionObject *)
+                               current_exec_data->
+                               function_called)->func_upvalues, name);
         if (myco) {
-            CODict_SetItem(((COFunctionObject *)current_exec_data->
-                            function_called)->func_upvalues, name, co);
+            CODict_SetItem(((COFunctionObject *)
+                            current_exec_data->function_called)->func_upvalues,
+                           name, co);
         }
     }
     return CODict_SetItem(EG(current_exec_data)->symbol_table, name, co);

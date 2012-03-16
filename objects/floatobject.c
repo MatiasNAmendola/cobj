@@ -16,6 +16,7 @@ COTypeObject COFloat_Type = {
     (reprfunc)float_repr,       /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
+    0,                          /* tp_hash */
 };
 
 COObject *
@@ -24,7 +25,7 @@ COFloat_FromString(char *s)
     COFloatObject *f;
 
     f = xmalloc(sizeof(COFloatObject));
-    CO_INIT(f, &COFloat_Type);
+    COObject_Init(f, &COFloat_Type);
     f->co_fval = strtof(s, NULL);
     return (COObject *)f;
 }
