@@ -194,7 +194,7 @@ _dict_insert_or_update(CODictObject *this, COObject *key, COObject *item, int fl
         return false;
     }
 
-    h = co_inline_hash_func(arKey, nKeyLen);
+    h = dict_inline_hash_func(arKey, nKeyLen);
     nIndex = h & this->nTableMask;
     p = this->arBuckets[nIndex];
 
@@ -207,6 +207,7 @@ _dict_insert_or_update(CODictObject *this, COObject *key, COObject *item, int fl
                 if (flag & HASH_INSERT) {
                     return false;
                 }
+
                 // update
                 if (p->pData == pData) {
                     return false;
@@ -223,7 +224,7 @@ _dict_insert_or_update(CODictObject *this, COObject *key, COObject *item, int fl
     }
 
     // add
-    p = (DictBucket *)xmalloc(sizeof(Bucket) - 1 + nKeyLen);
+    p = (DictBucket *)xmalloc(sizeof(DictBucket) - 1 + nKeyLen);
     memcpy(p->arKey, arKey, nKeyLen);
     p->nKeyLen = nKeyLen;
 
@@ -329,7 +330,7 @@ int CODict_DelItem(COObject *_this, COObject *key)
     arKey = ((COStrObject *)key)->co_sval;
     nKeyLen = CO_SIZE(key);
 
-    h = co_inline_hash_func(arKey, nKeyLen);
+    h = dict_inline_hash_func(arKey, nKeyLen);
 
     nIndex = h & this->nTableMask;
 

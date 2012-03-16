@@ -22,7 +22,6 @@
 #include "compile.h"
 #include "debug.h"
 #include "error.h"
-#include "hash.h"
 #include "llist.h"
 #include "object.h"
 #include "parser.h"

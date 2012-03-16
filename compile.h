@@ -2,7 +2,6 @@
 #define COMPILE_H
 
 #include "co-compat.h"
-#include "hash.h"
 #include "stack.h"
 #include "llist.h"
 #include "object.h"

@@ -1,18 +1,14 @@
 #!./co
 
 # fibo
-func fibo(n) {
-    if (n == 0) {
-        return 0;
-    } else if (n == 1) {
-        return 1;
-    } else {
-        return fibo(n - 1) + fibo(n - 2);
-    }
-}
+func fibo(n)
+    if n == 0 return 0 end
+    if n == 1 return 1 end
+    return fibo(n - 1) + fibo(n - 2)
+end
 
-i = 0;
-while (i < 10) {
-    print fibo(i);
-    i = i + 1;
-}
+i = 0
+while i < 10
+    print fibo(i)
+    i += 1
+end

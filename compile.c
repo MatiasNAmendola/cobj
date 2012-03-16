@@ -17,7 +17,6 @@ co_compile(void)
         xmalloc((c.opline_array->size) * sizeof(struct co_opline));
 
     COFunctionObject *co = (COFunctionObject *)COFunctionObject_New(NULL);
-    co_hash_init(&co->upvalues, 1, NULL);
 
     // do parse
     coparse(&c);

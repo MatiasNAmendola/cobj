@@ -2,13 +2,12 @@
 #define OBJECTS_FUNCTIONOBJECT_H
 
 #include "../object.h"
-#include "../hash.h"
 #include "../compile.h"
 
 typedef struct _COFunctionObject {
     COObject_HEAD;
     COObject *func_name;
-    HashTable upvalues;
+    COObject *upvalues;         /* dict of upvalues */
     COObject *co_code;          /* (new) string of bytecodes */
     struct co_opline_array *opline_array;
 } COFunctionObject;

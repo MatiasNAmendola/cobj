@@ -33,5 +33,6 @@ COFunctionObject_New(COObject *func_name)
                                                          ("anonymous"));
     }
     func->func_name = func_name;
+    func->upvalues = CODict_New();
     return (COObject *)func;
 }

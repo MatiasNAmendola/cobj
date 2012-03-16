@@ -1,7 +1,7 @@
 #include "../co.h"
 
 static COObject *
-list_repr(COListObject *this)
+list_repr(COObject *this)
 {
     size_t i = CO_SIZE(this);
     if (i == 0) {
@@ -117,13 +117,13 @@ COList_New(size_t size)
 }
 
 size_t
-COList_Size(COListObject *this)
+COList_Size(COObject *this)
 {
     return CO_SIZE(this);
 }
 
 COObject *
-COList_GetItem(COListObject *this, size_t index)
+COList_GetItem(COObject *this, size_t index)
 {
     if (index < 0 || index >= CO_SIZE(this)) {
         // TODO errors
@@ -133,7 +133,7 @@ COList_GetItem(COListObject *this, size_t index)
 }
 
 int
-COList_SetItem(COListObject *this, size_t index, COObject *item)
+COList_SetItem(COObject *this, size_t index, COObject *item)
 {
     COObject **p;
     COObject *olditem;
@@ -149,7 +149,7 @@ COList_SetItem(COListObject *this, size_t index, COObject *item)
 }
 
 int
-COList_Insert(COListObject *this, size_t index, COObject *item)
+COList_Insert(COObject *this, size_t index, COObject *item)
 {
     size_t n = CO_SIZE(this);
 
@@ -177,7 +177,7 @@ COList_Insert(COListObject *this, size_t index, COObject *item)
 }
 
 int
-COList_Append(COListObject *this, COObject *item)
+COList_Append(COObject *this, COObject *item)
 {
     return COList_Insert(this, CO_SIZE(this), item);
 }
