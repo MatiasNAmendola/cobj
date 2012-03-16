@@ -30,7 +30,7 @@ typedef struct _CODictObject {
     uint nTableMask;
     uint nNumOfElements;
     ulong nNextFreeElement;
-    DictBucket *pCursor;            /* Used for element traversal */
+    DictBucket *pCursor;        /* Used for element traversal */
     DictBucket *pListHead;
     DictBucket *pListTail;
     DictBucket **arBuckets;
@@ -57,4 +57,3 @@ COObject *CODict_Values(COObject *this);
 int CODict_Contains(COObject *this, COObject *key);
 
 #endif
-

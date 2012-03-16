@@ -35,7 +35,7 @@ co_compile(void)
     coparse(&c);
 
     co->opline_array = c.opline_array;
-    /*co->co_code = assemble(co, c.opline_array);*/
+    /*co->co_code = assemble(co, c.opline_array); */
     return co;
 }
 

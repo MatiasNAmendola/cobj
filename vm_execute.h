@@ -13,13 +13,11 @@ struct co_exec_data {
     struct co_opline_array *opline_array;
     struct co_exec_data *prev_exec_data;
     COObject *function_called;
-    COObject *symbol_table; /* dict object for names */
-    COObject **ts;  /* temp objects */
+    COObject *symbol_table;     /* dict object for names */
+    COObject **ts;              /* temp objects */
 };
 
-extern void co_vm_init();
 extern void co_vm_execute(COFunctionObject *main);
-extern void co_vm_shutdown();
 
 /* COObject handlers */
 extern COObject *COObject_get(COObject *co);

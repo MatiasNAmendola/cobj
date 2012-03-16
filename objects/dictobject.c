@@ -31,7 +31,7 @@ COTypeObject CODict_Type = {
     "dict",
     sizeof(CODictObject),
     0,
-    (reprfunc)dict_repr,       /* tp_repr */
+    (reprfunc)dict_repr,        /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
 };
@@ -135,7 +135,6 @@ dict_inline_hash_func(const char *arKey, uint nKeyLen)
     return hash;
 }
 
-
 bool
 _dict_rehash(CODictObject *this)
 {
@@ -158,9 +157,10 @@ _dict_do_resize(CODictObject *this)
 {
     DictBucket **t;
 
-    if ((this->nTableSize << 1) > 0) {    // double the table size
+    if ((this->nTableSize << 1) > 0) {  // double the table size
         t = (DictBucket **)xrealloc(this->arBuckets,
-                                (this->nTableSize << 1) * sizeof(DictBucket *));
+                                    (this->nTableSize << 1) *
+                                    sizeof(DictBucket *));
         this->arBuckets = t;
         this->nTableSize = this->nTableSize << 1;
         this->nTableMask = this->nTableSize - 1;
@@ -172,7 +172,8 @@ _dict_do_resize(CODictObject *this)
 }
 
 bool
-_dict_insert_or_update(CODictObject *this, COObject *key, COObject *item, int flag)
+_dict_insert_or_update(CODictObject *this, COObject *key, COObject *item,
+                       int flag)
 {
     ulong h;
 
@@ -207,7 +208,6 @@ _dict_insert_or_update(CODictObject *this, COObject *key, COObject *item, int fl
                 if (flag & HASH_INSERT) {
                     return false;
                 }
-
                 // update
                 if (p->pData == pData) {
                     return false;
@@ -316,7 +316,8 @@ CODict_SetItem(COObject *this, COObject *key, COObject *item)
     return _dict_insert_or_update((CODictObject *)this, key, item, HASH_UPDATE);
 }
 
-int CODict_DelItem(COObject *_this, COObject *key)
+int
+CODict_DelItem(COObject *_this, COObject *key)
 {
     CODictObject *this = (CODictObject *)_this;
     uint nIndex;

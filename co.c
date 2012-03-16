@@ -48,7 +48,8 @@ main(int argc, const char **argv)
         COObject_dump(r);
         printf("size: %ld\n", CODict_Size(d));
         CODict_DelItem(d, COStr_FromString("key1"));
-        printf("delete one, %p, size: %ld\n", CODict_GetItem(d, COStr_FromString("key1")), CODict_Size(d));
+        printf("delete one, %p, size: %ld\n",
+               CODict_GetItem(d, COStr_FromString("key1")), CODict_Size(d));
         CODict_Clear(d);
         printf("size: %ld\n", CODict_Size(d));
         return 0;
@@ -73,9 +74,6 @@ main(int argc, const char **argv)
     co = co_compile();
     co_scanner_shutdown();
 
-    /* vm execution */
-    co_vm_init();
     co_vm_execute(co);
-    co_vm_shutdown();
     return 0;
 }
