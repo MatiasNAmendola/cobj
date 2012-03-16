@@ -1,6 +1,6 @@
------- system summary ------
+------ bench v0.0.1-22-gaadb674 at Sat Mar 17 04:01:19 CST 2012 ------
 Darwin mercury.local 11.3.0 Darwin Kernel Version 11.3.0: Thu Jan 12 18:47:41 PST 2012; root:xnu-1699.24.23~1/RELEASE_X86_64 x86_64 i386 MacBookPro8,2 Darwin
------- benchmarks -----
+
 >>> ./fibo.co
 func fibo(n)
     if n == 0 return 0 end
@@ -15,7 +15,7 @@ while i < 30
 end
 <<< time
 
-real	0m5.235s
-user	0m4.580s
-sys	0m0.647s
+real	0m4.535s
+user	0m4.032s
+sys	0m0.500s
 

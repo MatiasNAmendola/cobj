@@ -1,4 +1,4 @@
------- system summary at Fri Mar 16 19:59:25 CST 2012 ------
+------ system summary at Sat Mar 17 03:57:06 CST 2012 ------
 Darwin mercury.local 11.3.0 Darwin Kernel Version 11.3.0: Thu Jan 12 18:47:41 PST 2012; root:xnu-1699.24.23~1/RELEASE_X86_64 x86_64 i386 MacBookPro8,2 Darwin
 ------ benchmarks -----
 >>> ./fibo.co
@@ -15,7 +15,7 @@ while i < 30
 end
 <<< time
 
-real	0m4.701s
-user	0m4.153s
-sys	0m0.536s
+real	0m4.465s
+user	0m3.968s
+sys	0m0.490s
 
