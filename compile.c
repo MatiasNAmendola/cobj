@@ -54,7 +54,7 @@ get_next_op(struct co_opline_array *opline_array)
 static uint
 get_temporary_variable(struct co_opline_array *opline_array)
 {
-    return (opline_array->t)++ * sizeof(union temp_variable);
+    return (opline_array->t)++ * sizeof(COObject *);
 }
 
 void

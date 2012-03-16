@@ -48,11 +48,6 @@ struct co_opline_array {
     struct co_opline_array *prev_opline_array;
 };
 
-/* temp variable */
-union temp_variable {
-    COObject *tmp_co;
-};
-
 /* compiler */
 COFunctionObject *co_compile(void);
 

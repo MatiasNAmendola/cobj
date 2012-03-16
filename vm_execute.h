@@ -17,11 +17,11 @@ struct co_vm_stack {
 /* execution frame */
 struct co_exec_data {
     struct co_opline *op;
-    union temp_variable *ts;
     struct co_opline_array *opline_array;
     struct co_exec_data *prev_exec_data;
     COObject *function_called;
-    HashTable symbol_table;
+    COObject *symbol_table; /* dict object for names */
+    COObject **ts;  /* temp objects */
 };
 
 struct co_executor_globals {
@@ -39,9 +39,9 @@ extern void co_vm_execute(COFunctionObject *main);
 extern void co_vm_shutdown();
 
 /* COObject handlers */
-extern COObject **COObject_get(COObject *co);
-extern bool COObject_put(COObject *name, COObject *co);
-extern bool COObject_del(const char *name);
+extern COObject *COObject_get(COObject *co);
+extern int COObject_put(COObject *name, COObject *co);
+extern int COObject_del(COObject *name);
 extern void COObject_print(COObject *co);
 
 #endif
