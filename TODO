@@ -4,4 +4,3 @@
 * implement namespace & scope rules
 * the whole code is functionobject
 * functionobject dump/load bytecode
-* symbol_table using dictobject, remove hash.[ch]
