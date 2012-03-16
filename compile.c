@@ -6,6 +6,19 @@ struct compiler {
 
 struct compiler c;
 
+/**
+ * COObject Bytecode format:
+ *
+ * bytecode: opcode*
+ * opcode: OPCODE arg1 arg2 result
+ *
+ */
+static COObject *
+assemble(COFunctionObject *co, struct co_opline_array *opline_array)
+{
+
+}
+
 COFunctionObject *
 co_compile(void)
 {
@@ -22,7 +35,7 @@ co_compile(void)
     coparse(&c);
 
     co->opline_array = c.opline_array;
-
+    /*co->co_code = assemble(co, c.opline_array);*/
     return co;
 }
 

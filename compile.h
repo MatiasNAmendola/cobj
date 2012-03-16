@@ -42,9 +42,9 @@ struct co_opline {
  */
 struct co_opline_array {
     struct co_opline *ops;
-    uint last, size;
+    uint last;
+    uint size;
     uint t;                     // number of temp variables
-    struct co_opline_array *prev_opline_array;
 };
 
 /* compiler */

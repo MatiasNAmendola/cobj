@@ -108,7 +108,7 @@ COObject_get(COObject *name)
 
     struct co_exec_data *current_exec_data = EG(current_exec_data);
     if (current_exec_data->function_called) {
-        co = CODict_GetItem(((COFunctionObject *)current_exec_data->function_called)->upvalues, name);
+        co = CODict_GetItem(((COFunctionObject *)current_exec_data->function_called)->func_upvalues, name);
         if (co) {
             return co;
         }
@@ -132,9 +132,9 @@ COObject_put(COObject *name, COObject *co)
     struct co_exec_data *current_exec_data = EG(current_exec_data);
     if (current_exec_data->function_called) {
         COObject *myco;
-        myco = CODict_GetItem(((COFunctionObject *)current_exec_data->function_called)->upvalues, name);
+        myco = CODict_GetItem(((COFunctionObject *)current_exec_data->function_called)->func_upvalues, name);
         if (myco) {
-            CODict_SetItem(((COFunctionObject *)current_exec_data->function_called)->upvalues, name, co);
+            CODict_SetItem(((COFunctionObject *)current_exec_data->function_called)->func_upvalues, name, co);
         }
     }
     return CODict_SetItem(EG(current_exec_data)->symbol_table, name, co);
@@ -321,7 +321,7 @@ co_vm_handler(void)
             func->opline_array->last = op->op2.u.opline_num;
             func->opline_array->t = EG(current_exec_data)->opline_array->t;     // hack fix, using same temp variables num
             if (EG(current_exec_data)->function_called) {
-                // setup function's upvalues
+                // setup function's func_upvalues
                 struct co_opline *start = EG(current_exec_data)->op;
                 struct co_opline *end =
                     EG(current_exec_data)->op + op->op2.u.opline_num;
@@ -331,13 +331,13 @@ co_vm_handler(void)
                     if (start->op1.type == IS_VAR) {
                         co = COObject_get(start->op1.u.co);
                         if (co) {
-                            CODict_SetItem(func->upvalues, start->op1.u.co, co);
+                            CODict_SetItem(func->func_upvalues, start->op1.u.co, co);
                         }
                     }
                     if (start->op2.type == IS_VAR) {
                         co = COObject_get(start->op2.u.co);
                         if (co) {
-                            CODict_SetItem(func->upvalues, start->op2.u.co, co);
+                            CODict_SetItem(func->func_upvalues, start->op2.u.co, co);
                         }
                     }
                 }

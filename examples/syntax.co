@@ -1,4 +1,10 @@
 #!./co
+#
+# Draft: script header?
+# CObject [
+#   encoding: "utf-8"
+# ]
+#
 
 # statments
 print 10
@@ -27,5 +33,5 @@ while i < 3
     i += 1
 end
 
-#
-#print sum(a, 1) if a > 10
+# Draft: adjunct at end?
+# print sum(a, 1) if a > 10
