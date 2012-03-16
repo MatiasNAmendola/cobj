@@ -10,7 +10,7 @@ report=results/$(git describe --match "v[0-9]*" HEAD).report
 echo -n > $report
 
 # system summary information
-echo "------ system summary ------" >> $report
+echo "------ system summary at $(date) ------" >> $report
 uname -a >> $report
 
 # bench

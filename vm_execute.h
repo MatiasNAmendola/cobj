@@ -7,13 +7,6 @@
 #include "object.h"
 #include "objects/functionobject.h"
 
-struct co_vm_stack {
-    void **top;
-    void **end;
-    struct co_vm_stack *prev;
-    void *elements[1];
-};
-
 /* execution frame */
 struct co_exec_data {
     struct co_opline *op;
@@ -23,16 +16,6 @@ struct co_exec_data {
     COObject *symbol_table; /* dict object for names */
     COObject **ts;  /* temp objects */
 };
-
-struct co_executor_globals {
-    COObject *next_func;
-    struct co_exec_data *current_exec_data;
-    struct co_vm_stack *vm_stack;
-    co_stack argument_stack;
-};
-
-extern struct co_executor_globals executor_globals;
-#define EG(v)   executor_globals.v
 
 extern void co_vm_init();
 extern void co_vm_execute(COFunctionObject *main);

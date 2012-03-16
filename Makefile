@@ -63,7 +63,7 @@ scanner.c: scanner.l
 
 .PHONY: all install uninstall clean test indent tags doc
 
-all:: co
+all:: co 
 
 install: all
 	install -p -m 755 co $(bindir)

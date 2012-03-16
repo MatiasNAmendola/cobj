@@ -89,7 +89,7 @@ co_assign(struct cnode *result, struct cnode *variable,
 {
     struct co_opline *op;
     op = get_next_op(c.opline_array);
-    op->opcode = OP_BIND_NAME;
+    op->opcode = OP_LOAD_NAME;
     op->op1 = *variable;
 
     op = get_next_op(c.opline_array);
@@ -185,7 +185,7 @@ co_begin_func_declaration(struct cnode *func_token, struct cnode *func_name)
     struct co_opline *op;
     if (func_name) {
         op = get_next_op(c.opline_array);
-        op->opcode = OP_BIND_NAME;
+        op->opcode = OP_LOAD_NAME;
         op->op1 = *func_name;
     }
 
@@ -217,14 +217,6 @@ co_end_func_declaration(const struct cnode *func_token, struct cnode *result)
 }
 
 void
-co_begin_func_call(struct cnode *func_name)
-{
-    struct co_opline *op = get_next_op(c.opline_array);
-    op->opcode = OP_INIT_FCALL;
-    op->op1 = *func_name;
-}
-
-void
 co_end_func_call(struct cnode *func_name, struct cnode *result)
 {
     struct co_opline *op = get_next_op(c.opline_array);
@@ -240,7 +232,7 @@ co_recv_param(struct cnode *param)
 {
     struct co_opline *op;
     op = get_next_op(c.opline_array);
-    op->opcode = OP_BIND_NAME;
+    op->opcode = OP_LOAD_NAME;
     op->op1 = *param;
 
     op = get_next_op(c.opline_array);

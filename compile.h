@@ -65,7 +65,6 @@ void co_begin_func_declaration(struct cnode *func_token,
                                struct cnode *func_name);
 void co_end_func_declaration(const struct cnode *func_token,
                              struct cnode *result);
-void co_begin_func_call(struct cnode *func_name);
 void co_end_func_call(struct cnode *func_name, struct cnode *result);
 void co_pass_param(struct cnode *param);
 void co_recv_param(struct cnode *param);

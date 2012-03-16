@@ -99,7 +99,7 @@ expr: /* express something */
     |   expr '*' expr { co_binary_op(OP_MUL, &$$, &$1, &$3); }
     |   expr '/' expr { co_binary_op(OP_DIV, &$$, &$1, &$3); }
     |   expr '%' expr { co_binary_op(OP_MOD, &$$, &$1, &$3); }
-    |   T_NAME '(' { co_begin_func_call(&$1); } func_call_param_list ')' { co_end_func_call(&$1, &$$); }
+    |   T_NAME '(' func_call_param_list ')' { co_end_func_call(&$1, &$$); }
     |   T_FUNC { co_begin_func_declaration(&$1, NULL); } opt_param_list stmt_list T_END { co_end_func_declaration(&$1, &$$); }
     |   '[' { co_list_build(&$$, &$1); } expr_list ']' { $$ = $1; $2.type = IS_UNUSED; }
 ;
