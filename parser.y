@@ -123,7 +123,8 @@ simple_stmt:
 
 compound_stmt:
         T_IF expr { co_if_cond(&$2, &$1); }  stmt_list { co_if_after_stmt(&$1); } if_tail T_END { co_if_end(&$1); }
-    |   T_WHILE expr { co_while_cond(&$2, &$1); } stmt_list T_END { co_while_end(&$1); }
+    |   T_WHILE { $1.u.opline_num = co_get_next_opline_num(); } expr {
+    co_while_cond(&$3, &$1); } stmt_list T_END { co_while_end(&$1); }
     |   T_TRY stmt_list opt_catch_list opt_finally_block T_END
     |   T_FUNC T_NAME { co_begin_func_declaration(&$1, &$2); } opt_param_list
             stmt_list

@@ -49,6 +49,7 @@ struct co_opline_array {
 
 /* compiler */
 COFunctionObject *co_compile(void);
+uint co_get_next_opline_num(void);
 
 /* parser-driven code generators */
 void co_binary_op(uchar opcode, struct cnode *result, const struct cnode *op1,

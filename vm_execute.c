@@ -122,7 +122,18 @@ CNode_SetObject(struct cnode *node, COObject *co)
     return -1;
 }
 
-#define OP_JUMP(offset) EG(current_exec_data)->op += offset - 1
+#ifdef CO_DEBUG
+#define OP_JUMP(offset) \
+    do {                \
+        EG(current_exec_data)->op += offset - 1;             \
+        printf("JMPZ from %ld to: %ld\n", EG(current_exec_data)->op - offset + 1 - opline_array->ops, EG(current_exec_data)->op - opline_array->ops);   \
+    } while (0)
+#else
+#define OP_JUMP(offset) \
+    do {                \
+        EG(current_exec_data)->op += offset - 1;             \
+    } while (0)
+#endif
 
 void
 co_vm_execute(COFunctionObject *main)
@@ -163,6 +174,9 @@ vm_enter:
             CNode_SetObject(&op->result,
                             COInt_FromLong(COInt_AsLong(val1) +
                                            COInt_AsLong(val2)));
+#ifdef CO_DEBUG
+            printf("ADD: %ld\n", COInt_AsLong(CNode_GetObject(&op->result)));
+#endif
             continue;
         case OP_SUB:
             val1 = CNode_GetObject(&op->op1);
@@ -177,6 +191,9 @@ vm_enter:
             CNode_SetObject(&op->result,
                             COInt_FromLong(COInt_AsLong(val1) *
                                            COInt_AsLong(val2)));
+#ifdef CO_DEBUG
+            printf("MUL: %ld\n", COInt_AsLong(CNode_GetObject(&op->result)));
+#endif
             continue;
         case OP_DIV:
             val1 = CNode_GetObject(&op->op1);
@@ -250,9 +267,6 @@ vm_enter:
             if (val1 != CO_True
                 && COBool_FromLong(COInt_AsLong(val1)) != CO_True) {
                 OP_JUMP(op->op2.u.opline_num);
-#if CO_DEBUG
-                printf("JMPZ to: %ld\n", op - opline_array->ops);
-#endif
                 continue;
             }
 
@@ -260,9 +274,6 @@ vm_enter:
         case OP_JMP:
             val1 = CNode_GetObject(&op->op1);
             OP_JUMP(op->op1.u.opline_num);
-#if CO_DEBUG
-            printf("JMP to: %ld\n", op - opline_array->ops);
-#endif
             continue;
         case OP_EXIT:
             goto vm_exit;
@@ -304,10 +315,6 @@ vm_enter:
                     CNode_SetObject(&op->result, (COObject *)func);
                 }
                 OP_JUMP(op->op2.u.opline_num + 1);
-#ifdef CO_DEBUG
-                printf("declare func jump over to: %ld\n",
-                       op - opline_array->ops);
-#endif
                 continue;
             }
         case OP_RETURN:

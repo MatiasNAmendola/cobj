@@ -39,6 +39,12 @@ co_compile(void)
     return co;
 }
 
+uint
+co_get_next_opline_num(void)
+{
+    return c.opline_array->last;
+}
+
 static struct co_opline *
 get_next_op(struct co_opline_array *opline_array)
 {
@@ -160,6 +166,7 @@ co_while_cond(const struct cnode *cond, struct cnode *while_token)
     struct co_opline *opline = get_next_op(c.opline_array);
     opline->opcode = OP_JMPZ;
     opline->op1 = *cond;
+    opline->op2.u.opline_num = while_token->u.opline_num; // while start
     while_token->u.opline_num = while_cond_opline_num;
 }
 
@@ -170,9 +177,7 @@ co_while_end(const struct cnode *while_token)
     int while_end_opline_num = c.opline_array->last;
     struct co_opline *op = get_next_op(c.opline_array);
     op->opcode = OP_JMP;
-    op->op1.u.opline_num = while_token->u.opline_num - while_end_opline_num - 1;
-    SET_UNUSED(op->op1);
-    SET_UNUSED(op->op2);
+    op->op1.u.opline_num = c.opline_array->ops[while_token->u.opline_num].op2.u.opline_num - while_end_opline_num; // while start offset
 
     int while_end_stmt_op_num = c.opline_array->last;
     c.opline_array->ops[while_token->u.opline_num].op2.u.opline_num =
