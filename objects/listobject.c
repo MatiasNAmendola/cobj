@@ -182,3 +182,25 @@ COList_Append(COObject *this, COObject *item)
 {
     return COList_Insert(this, CO_SIZE(this), item);
 }
+
+COObject *
+COList_AsTuple(COObject *this)
+{
+    size_t n;
+    COObject *co;
+    COObject **p;
+    COObject **q;
+
+    n = CO_SIZE(this);
+    co = COTuple_New(n);
+    p = ((COTupleObject *)co)->co_item;
+    q = ((COListObject *)this)->co_item;
+
+    while (n-- > 0) {
+        *p = *q;
+        p++;
+        q++;
+    }
+
+    return co;
+}

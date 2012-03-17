@@ -29,6 +29,7 @@ co_compiler_add(struct co_opline *op)
         op->op1.u.var = CO_SIZE(c.c_consts) - 1;
     } else if (op->op1.type == IS_VAR) {
         COList_Append(c.c_names, op->op1.u.co);
+        op->op1.u.var = CO_SIZE(c.c_names) - 1;
     }
 
     if (op->op2.type == IS_CONST) {
@@ -36,6 +37,7 @@ co_compiler_add(struct co_opline *op)
         op->op2.u.var = CO_SIZE(c.c_consts) - 1;
     } else if (op->op2.type == IS_VAR) {
         COList_Append(c.c_names, op->op2.u.co);
+        op->op2.u.var = CO_SIZE(c.c_names) - 1;
     }
 }
 
@@ -58,10 +60,8 @@ co_compile(void)
         co_compiler_add(c.opline_array->ops + i);
     }
 
-    COCodeObject *co = (COCodeObject *)COCode_New();
+    COCodeObject *co = (COCodeObject *)COCode_New(NULL, COList_AsTuple(c.c_consts), COList_AsTuple(c.c_names));
     co->opline_array = c.opline_array;
-    co->co_consts = c.c_consts;
-    co->co_names = c.c_names;
 
     /*co->co_code = assemble(co, c.opline_array); */
     return co;

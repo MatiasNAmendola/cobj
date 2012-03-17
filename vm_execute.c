@@ -73,18 +73,18 @@ COObject_print(COObject *co)
     printf("%s\n", s->co_sval);
 }
 
+
 static COObject *
 CNode_GetObject(struct cnode *node)
 {
     COObject *co;
     switch (node->type) {
     case IS_CONST:
-        return COList_GetItem(EG(current_exec_data)->co_consts, node->u.var);
-        /*printf("get %d\n", node->u.var);*/
-        /*return node->u.co;*/
+        return COTuple_GetItem(EG(current_exec_data)->co_consts, node->u.var);
         break;
     case IS_VAR:
-        co = COObject_get(node->u.co);
+        co = COTuple_GetItem(EG(current_exec_data)->co_names, node->u.var);
+        co = COObject_get(co);
         if (!co) {
             error("not bind: %s", COStr_AsString(node->u.co));
         }
@@ -109,7 +109,10 @@ CNode_SetObject(struct cnode *node, COObject *co)
         error("you cannot change const");
         break;
     case IS_VAR:
-        return COObject_put(node->u.co, co);
+        {
+            COObject *name = COTuple_GetItem(EG(current_exec_data)->co_names, node->u.var);
+            return COObject_put(name, co);
+        }
         break;
     case IS_TMP_VAR:
         *(COObject **)((char *)EG(current_exec_data)->ts + node->u.var) = co;
@@ -170,114 +173,114 @@ vm_enter:
 #endif
 
     struct co_opline *op;
-    COObject *val1, *val2;
+    COObject *co1, *co2;
     while (true) {
         switch ((op = EG(current_exec_data)->op++)->opcode) {
         case OP_ADD:
-            val1 = CNode_GetObject(&op->op1);
-            val2 = CNode_GetObject(&op->op2);
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
             CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(val1) +
-                                           COInt_AsLong(val2)));
+                            COInt_FromLong(COInt_AsLong(co1) +
+                                           COInt_AsLong(co2)));
 #ifdef CO_DEBUG
             printf("ADD: %ld\n", COInt_AsLong(CNode_GetObject(&op->result)));
 #endif
             continue;
         case OP_SUB:
-            val1 = CNode_GetObject(&op->op1);
-            val2 = CNode_GetObject(&op->op2);
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
             CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(val1) -
-                                           COInt_AsLong(val2)));
+                            COInt_FromLong(COInt_AsLong(co1) -
+                                           COInt_AsLong(co2)));
             continue;
         case OP_MUL:
-            val1 = CNode_GetObject(&op->op1);
-            val2 = CNode_GetObject(&op->op2);
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
             CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(val1) *
-                                           COInt_AsLong(val2)));
+                            COInt_FromLong(COInt_AsLong(co1) *
+                                           COInt_AsLong(co2)));
 #ifdef CO_DEBUG
             printf("MUL: %ld\n", COInt_AsLong(CNode_GetObject(&op->result)));
 #endif
             continue;
         case OP_DIV:
-            val1 = CNode_GetObject(&op->op1);
-            val2 = CNode_GetObject(&op->op2);
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
             CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(val1) /
-                                           COInt_AsLong(val2)));
+                            COInt_FromLong(COInt_AsLong(co1) /
+                                           COInt_AsLong(co2)));
             continue;
         case OP_MOD:
-            val1 = CNode_GetObject(&op->op1);
-            val2 = CNode_GetObject(&op->op2);
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
             CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(val1) %
-                                           COInt_AsLong(val2)));
+                            COInt_FromLong(COInt_AsLong(co1) %
+                                           COInt_AsLong(co2)));
             continue;
         case OP_SR:
-            val1 = CNode_GetObject(&op->op1);
-            val2 = CNode_GetObject(&op->op2);
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
             CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(val1) >>
-                                           COInt_AsLong(val2)));
+                            COInt_FromLong(COInt_AsLong(co1) >>
+                                           COInt_AsLong(co2)));
             continue;
         case OP_SL:
-            val1 = CNode_GetObject(&op->op1);
-            val2 = CNode_GetObject(&op->op2);
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
             CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(val1) <<
-                                           COInt_AsLong(val2)));
+                            COInt_FromLong(COInt_AsLong(co1) <<
+                                           COInt_AsLong(co2)));
             continue;
         case OP_IS_EQUAL:
-            val1 = CNode_GetObject(&op->op1);
-            val2 = CNode_GetObject(&op->op2);
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
             CNode_SetObject(&op->result,
-                            COBool_FromLong(COInt_AsLong(val1) ==
-                                            COInt_AsLong(val2)));
+                            COBool_FromLong(COInt_AsLong(co1) ==
+                                            COInt_AsLong(co2)));
             continue;
         case OP_IS_NOT_EQUAL:
-            val1 = CNode_GetObject(&op->op1);
-            val2 = CNode_GetObject(&op->op2);
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
             CNode_SetObject(&op->result,
-                            COBool_FromLong(COInt_AsLong(val1) !=
-                                            COInt_AsLong(val2)));
+                            COBool_FromLong(COInt_AsLong(co1) !=
+                                            COInt_AsLong(co2)));
             continue;
         case OP_IS_SMALLER:
-            val1 = CNode_GetObject(&op->op1);
-            val2 = CNode_GetObject(&op->op2);
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
             CNode_SetObject(&op->result,
-                            COBool_FromLong(COInt_AsLong(val1) <
-                                            COInt_AsLong(val2)));
+                            COBool_FromLong(COInt_AsLong(co1) <
+                                            COInt_AsLong(co2)));
             continue;
         case OP_IS_SMALLER_OR_EQUAL:
-            val1 = CNode_GetObject(&op->op1);
-            val2 = CNode_GetObject(&op->op2);
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
             CNode_SetObject(&op->result,
-                            COBool_FromLong(COInt_AsLong(val1) <=
-                                            COInt_AsLong(val2)));
+                            COBool_FromLong(COInt_AsLong(co1) <=
+                                            COInt_AsLong(co2)));
             continue;
         case OP_ASSIGN:
-            val2 = CNode_GetObject(&op->op2);
-            CNode_SetObject(&op->op1, val2);
-            CNode_SetObject(&op->result, val2);
+            co2 = CNode_GetObject(&op->op2);
+            CNode_SetObject(&op->op1, co2);
+            CNode_SetObject(&op->result, co2);
             continue;
         case OP_PRINT:
-            val1 = CNode_GetObject(&op->op1);
-            COObject_print(val1);
+            co1 = CNode_GetObject(&op->op1);
+            COObject_print(co1);
 
             continue;
         case OP_JMPZ:
-            val1 = CNode_GetObject(&op->op1);
+            co1 = CNode_GetObject(&op->op1);
 
-            if (val1 != CO_True
-                && COBool_FromLong(COInt_AsLong(val1)) != CO_True) {
+            if (co1 != CO_True
+                && COBool_FromLong(COInt_AsLong(co1)) != CO_True) {
                 OP_JUMP(op->op2.u.opline_num);
                 continue;
             }
 
             continue;
         case OP_JMP:
-            val1 = CNode_GetObject(&op->op1);
+            co1 = CNode_GetObject(&op->op1);
             OP_JUMP(op->op1.u.opline_num);
             continue;
         case OP_EXIT:
@@ -285,7 +288,7 @@ vm_enter:
         case OP_DECLARE_FUNCTION:
             {
                 COFunctionObject *func =
-                    (COFunctionObject *)COFunction_New(op->op1.u.co);
+                    (COFunctionObject *)COFunction_New(COTuple_GetItem(exec_data->co_names, op->op1.u.var));
                 func->opline_array = xmalloc(sizeof(struct co_opline_array));
                 func->opline_array->ops = op + 1;
                 func->opline_array->last = op->op2.u.opline_num;
@@ -296,19 +299,21 @@ vm_enter:
                     struct co_opline *end = op + op->op2.u.opline_num;
 
                     COObject *co;
+                    COObject *name;
                     for (; start <= end; start++) {
                         if (start->op1.type == IS_VAR) {
-                            co = COObject_get(start->op1.u.co);
+                            name = COTuple_GetItem(exec_data->co_names, start->op1.u.var);
+                            co = COObject_get(name);
                             if (co) {
-                                CODict_SetItem(func->func_upvalues,
-                                               start->op1.u.co, co);
+                                CODict_SetItem(func->func_upvalues, name, co);
                             }
                         }
                         if (start->op2.type == IS_VAR) {
-                            co = COObject_get(start->op2.u.co);
+                            name = COTuple_GetItem(exec_data->co_names, start->op2.u.var);
+                            co = COObject_get(name);
                             if (co) {
                                 CODict_SetItem(func->func_upvalues,
-                                               start->op2.u.co, co);
+                                               name, co);
                             }
                         }
                     }
@@ -345,41 +350,43 @@ vm_enter:
                 continue;
             }
         case OP_DO_FCALL:
-            val1 = CNode_GetObject(&op->op1);
+            co1 = CNode_GetObject(&op->op1);
 #ifdef CO_DEBUG
-            printf("call function: %p\n", val1);
+            printf("call function: %p\n", co1);
 #endif
-            if (CO_TYPE(val1) != &COFunction_Type) {
+            if (CO_TYPE(co1) != &COFunction_Type) {
                 error("not a function");
             }
             COFrame_Push(f, &op->result);
-            EG(next_func) = val1;
+            EG(next_func) = co1;
             opline_array = ((COFunctionObject *)EG(next_func))->opline_array;
             goto vm_enter;
         case OP_PASS_PARAM:
-            val1 = CNode_GetObject(&op->op1);
-            co_stack_push(&EG(argument_stack), &val1, sizeof(COObject *));
+            co1 = CNode_GetObject(&op->op1);
+            co_stack_push(&EG(argument_stack), &co1, sizeof(COObject *));
             continue;
         case OP_RECV_PARAM:
             {
                 COObject **co;
                 co_stack_top(&EG(argument_stack), (void **)&co);
                 co_stack_pop(&EG(argument_stack));
-                COObject_put(op->op1.u.co, *co);
+                COObject_put(COTuple_GetItem(exec_data->co_names, op->op1.u.var), *co);
                 continue;
             }
         case OP_LOAD_NAME:
-            if (!COObject_get(op->op1.u.co)) {
-                COObject_put(op->op1.u.co, CO_None);
+            co1 = COTuple_GetItem(exec_data->co_names, op->op1.u.var);
+            co1 = COObject_get(co1);
+            if (!co1) {
+                CNode_SetObject(&op->op1, CO_None);
             }
             continue;
         case OP_LIST_BUILD:
             CNode_SetObject(&op->result, COList_New(0));
             continue;
         case OP_APPEND_ELEMENT:
-            val1 = CNode_GetObject(&op->op1);
-            val2 = CNode_GetObject(&op->op2);
-            COList_Append(val1, val2);
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
+            COList_Append(co1, co2);
             continue;
         default:
             error("unknown handle for opcode(%ld)\n", op->opcode);

@@ -16,5 +16,5 @@ typedef struct _COCodeObject {
 
 COTypeObject COCode_Type;
 
-COObject *COCode_New(void);
+COObject *COCode_New(COObject *code, COObject *consts, COObject *names);
 #endif

@@ -20,11 +20,14 @@ COTypeObject COCode_Type = {
 };
 
 COObject *
-COCode_New(void)
+COCode_New(COObject *code, COObject *consts, COObject *names)
 {
     COCodeObject *co = xmalloc(sizeof(COCodeObject));
     memset(co, 0, sizeof(COCodeObject));
     COObject_Init(co, &COCode_Type);
+
+    co->co_consts = consts;
+    co->co_names = names;
 
     return (COObject *)co;
 }
