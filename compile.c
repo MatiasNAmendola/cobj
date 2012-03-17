@@ -2,6 +2,8 @@
 
 struct compiler {
     struct co_opline_array *opline_array;
+    COObject *c_consts; /* all constatns */
+    COObject *c_names;  /* all names */
 };
 
 struct compiler c;
@@ -19,6 +21,24 @@ assemble(COCodeObject *co, struct co_opline_array *opline_array)
 
 }
 
+static void
+co_compiler_add(struct co_opline *op)
+{
+    if (op->op1.type == IS_CONST) {
+        COList_Append(c.c_consts, op->op1.u.co);
+        op->op1.u.var = CO_SIZE(c.c_consts) - 1;
+    } else if (op->op1.type == IS_VAR) {
+        COList_Append(c.c_names, op->op1.u.co);
+    }
+
+    if (op->op2.type == IS_CONST) {
+        COList_Append(c.c_consts, op->op2.u.co);
+        op->op2.u.var = CO_SIZE(c.c_consts) - 1;
+    } else if (op->op2.type == IS_VAR) {
+        COList_Append(c.c_names, op->op2.u.co);
+    }
+}
+
 COCodeObject *
 co_compile(void)
 {
@@ -28,12 +48,20 @@ co_compile(void)
     c.opline_array->t = 0;
     c.opline_array->ops =
         xmalloc((c.opline_array->size) * sizeof(struct co_opline));
+    c.c_consts = COList_New(0);
+    c.c_names = COList_New(0);
 
     // do parse
     coparse(&c);
 
+    for (int i = 0; i < c.opline_array->last; i++) {
+        co_compiler_add(c.opline_array->ops + i);
+    }
+
     COCodeObject *co = (COCodeObject *)COCode_New();
     co->opline_array = c.opline_array;
+    co->co_consts = c.c_consts;
+    co->co_names = c.c_names;
 
     /*co->co_code = assemble(co, c.opline_array); */
     return co;

@@ -15,6 +15,8 @@ struct co_exec_data {
     COObject *function_called;
     COObject *symbol_table;     /* dict object for names */
     COObject **ts;              /* temp objects */
+    COObject *co_consts;
+    COObject *co_names;
 };
 
 extern void co_vm_execute(COCodeObject *main);

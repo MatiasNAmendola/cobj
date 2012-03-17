@@ -172,7 +172,7 @@ COList_Insert(COObject *this, size_t index, COObject *item)
     for (i = n; i > index; i--)
         items[i + 1] = items[i];
 
-    CO_INCREF(item);
+    CO_XINCREF(item);
     items[index] = item;
     return 0;
 }

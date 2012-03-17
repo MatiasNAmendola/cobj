@@ -79,7 +79,9 @@ CNode_GetObject(struct cnode *node)
     COObject *co;
     switch (node->type) {
     case IS_CONST:
-        return node->u.co;
+        return COList_GetItem(EG(current_exec_data)->co_consts, node->u.var);
+        /*printf("get %d\n", node->u.var);*/
+        /*return node->u.co;*/
         break;
     case IS_VAR:
         co = COObject_get(node->u.co);
@@ -142,6 +144,7 @@ co_vm_execute(COCodeObject *main)
     struct co_opline_array *opline_array;
     opline_array = main->opline_array;
     COObject *f = COFrame_New();
+    COObject *consts = main->co_consts;
 
 vm_enter:
     exec_data =
@@ -155,8 +158,10 @@ vm_enter:
     exec_data->prev_exec_data = NULL;
     exec_data->symbol_table = CODict_New();
     exec_data->function_called = EG(next_func);
-
     exec_data->prev_exec_data = EG(current_exec_data);
+    exec_data->co_consts = main->co_consts;
+    exec_data->co_names = main->co_names;
+
     EG(current_exec_data) = exec_data;
 
 #ifdef CO_DEBUG
