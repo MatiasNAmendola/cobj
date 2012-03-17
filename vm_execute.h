@@ -17,7 +17,7 @@ struct co_exec_data {
     COObject **ts;              /* temp objects */
 };
 
-extern void co_vm_execute(COFunctionObject *main);
+extern void co_vm_execute(COCodeObject *main);
 
 /* COObject handlers */
 extern COObject *COObject_get(COObject *co);

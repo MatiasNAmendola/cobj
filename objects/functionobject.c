@@ -22,7 +22,7 @@ COTypeObject COFunction_Type = {
 };
 
 COObject *
-COFunctionObject_New(COObject *func_name)
+COFunction_New(COObject *func_name)
 {
     COFunctionObject *func;
     func = xmalloc(sizeof(COFunctionObject));

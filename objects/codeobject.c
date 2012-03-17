@@ -18,3 +18,13 @@ COTypeObject COCode_Type = {
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
 };
+
+COObject *
+COCode_New(void)
+{
+    COCodeObject *co = xmalloc(sizeof(COCodeObject));
+    memset(co, 0, sizeof(COCodeObject));
+    COObject_Init(co, &COCode_Type);
+
+    return (COObject *)co;
+}

@@ -14,12 +14,12 @@ struct compiler c;
  *
  */
 static COObject *
-assemble(COFunctionObject *co, struct co_opline_array *opline_array)
+assemble(COCodeObject *co, struct co_opline_array *opline_array)
 {
 
 }
 
-COFunctionObject *
+COCodeObject *
 co_compile(void)
 {
     c.opline_array = xmalloc(sizeof(struct co_opline_array));
@@ -29,12 +29,12 @@ co_compile(void)
     c.opline_array->ops =
         xmalloc((c.opline_array->size) * sizeof(struct co_opline));
 
-    COFunctionObject *co = (COFunctionObject *)COFunctionObject_New(NULL);
-
     // do parse
     coparse(&c);
 
+    COCodeObject *co = (COCodeObject *)COCode_New();
     co->opline_array = c.opline_array;
+
     /*co->co_code = assemble(co, c.opline_array); */
     return co;
 }
@@ -82,10 +82,10 @@ co_binary_op(uchar opcode, struct cnode *result, const struct cnode *op1,
     struct co_opline *op = get_next_op(c.opline_array);
 
     op->opcode = opcode;
-    op->result.type = IS_TMP_VAR;
-    op->result.u.var = get_temporary_variable(c.opline_array);
     op->op1 = *op1;
     op->op2 = *op2;
+    op->result.type = IS_TMP_VAR;
+    op->result.u.var = get_temporary_variable(c.opline_array);
     *result = op->result;
 }
 

@@ -70,7 +70,7 @@ main(int argc, const char **argv)
         co_scanner_openfile(fd);
     }
 
-    COFunctionObject *co;
+    COCodeObject *co;
     co = co_compile();
     co_scanner_shutdown();
 

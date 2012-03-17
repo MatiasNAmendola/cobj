@@ -136,7 +136,7 @@ CNode_SetObject(struct cnode *node, COObject *co)
 #endif
 
 void
-co_vm_execute(COFunctionObject *main)
+co_vm_execute(COCodeObject *main)
 {
     struct co_exec_data *exec_data;
     struct co_opline_array *opline_array;
@@ -280,7 +280,7 @@ vm_enter:
         case OP_DECLARE_FUNCTION:
             {
                 COFunctionObject *func =
-                    (COFunctionObject *)COFunctionObject_New(op->op1.u.co);
+                    (COFunctionObject *)COFunction_New(op->op1.u.co);
                 func->opline_array = xmalloc(sizeof(struct co_opline_array));
                 func->opline_array->ops = op + 1;
                 func->opline_array->last = op->op2.u.opline_num;

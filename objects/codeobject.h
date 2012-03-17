@@ -11,8 +11,10 @@ typedef struct _COCodeObject {
     COObject *co_code;          /* bytecodes */
     COObject *co_consts;        /* tuple of constants */
     COObject *co_names;         /* list of names */
+    struct co_opline_array *opline_array; // compatible
 } COCodeObject;
 
 COTypeObject COCode_Type;
 
+COObject *COCode_New(void);
 #endif

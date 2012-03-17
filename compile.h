@@ -6,7 +6,7 @@
 #include "llist.h"
 #include "object.h"
 #include "objects/listobject.h"
-#include "objects/functionobject.h"
+#include "objects/codeobject.h"
 
 /** cnode type **/
 #define IS_CONST        (1<<0)
@@ -48,7 +48,7 @@ struct co_opline_array {
 };
 
 /* compiler */
-COFunctionObject *co_compile(void);
+COCodeObject *co_compile(void);
 uint co_get_next_opline_num(void);
 
 /* parser-driven code generators */
