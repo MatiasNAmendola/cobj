@@ -111,12 +111,10 @@ _dict_insert_or_update(CODictObject *this, COObject *key, COObject *item,
     const char *arKey;
     uint nKeyLen;
     void *pData;
-    uint nDataSize;
 
     arKey = ((COStrObject *)key)->co_sval;
     nKeyLen = CO_SIZE(key);
-    pData = &item;
-    nDataSize = sizeof(COObject *);
+    pData = item;
 
     if (nKeyLen <= 0) {
         return false;
@@ -140,8 +138,7 @@ _dict_insert_or_update(CODictObject *this, COObject *key, COObject *item,
                     return false;
                 }
 
-                p->pData = xrealloc(p->pData, nDataSize);
-                memcpy(p->pData, pData, nDataSize);
+                p->pData = pData;
                 return true;
             }
         }
@@ -154,10 +151,7 @@ _dict_insert_or_update(CODictObject *this, COObject *key, COObject *item,
     p = (DictBucket *)xmalloc(sizeof(DictBucket) - 1 + nKeyLen);
     memcpy(p->arKey, arKey, nKeyLen);
     p->nKeyLen = nKeyLen;
-
-    p->pData = xmalloc(nDataSize);
-    memcpy(p->pData, pData, nDataSize);
-
+    p->pData = pData;
     p->h = h;
 
     CONNECT_TO_BUCKET_DLLIST(p, this->arBuckets[nIndex]);
@@ -227,7 +221,7 @@ CODict_GetItem(COObject *this, COObject *key)
     while (p != NULL) {
         if ((p->h == h) && (p->nKeyLen == CO_SIZE(key))) {
             if (!memcmp(p->arKey, ((COStrObject *)key)->co_sval, CO_SIZE(key))) {
-                return *(COObject **)p->pData;
+                return p->pData;
             }
         }
         p = p->pNext;
@@ -285,7 +279,6 @@ CODict_DelItem(COObject *_this, COObject *key)
                 } else {
                     p->pListNext->pListLast = p->pListLast;
                 }
-                free(p->pData);
                 free(p);
                 this->nNumOfElements--;
                 return 0;

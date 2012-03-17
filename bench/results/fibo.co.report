@@ -19,3 +19,24 @@ real	0m4.535s
 user	0m4.032s
 sys	0m0.500s
 
+------ bench v0.0.1-23-g9e7330b at Sat Mar 17 11:48:16 CST 2012 ------
+Darwin mercury.local 11.3.0 Darwin Kernel Version 11.3.0: Thu Jan 12 18:47:41 PST 2012; root:xnu-1699.24.23~1/RELEASE_X86_64 x86_64 i386 MacBookPro8,2 Darwin
+
+>>> ./fibo.co
+func fibo(n)
+    if n == 0 return 0 end
+    if n == 1 return 1 end
+    return fibo(n - 1) + fibo(n - 2)
+end
+
+i = 0
+while i < 30
+    print fibo(i)
+    i += 1
+end
+<<< time
+
+real	0m3.887s
+user	0m3.437s
+sys	0m0.449s
+

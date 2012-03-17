@@ -49,7 +49,7 @@ main(int argc, const char **argv)
         printf("size: %ld\n", CODict_Size(d));
         CODict_DelItem(d, COStr_FromString("key1"));
         printf("delete one, %p, size: %ld\n",
-               CODict_GetItem(d, COStr_FromString("key1")), CODict_Size(d));
+                CODict_GetItem(d, COStr_FromString("key1")), CODict_Size(d));
         CODict_Clear(d);
         printf("size: %ld\n", CODict_Size(d));
         return 0;
