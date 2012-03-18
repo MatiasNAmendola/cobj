@@ -1,3 +1,4 @@
+* write AST?
 * co_opline_array to bytecode string
 * error handling (exceptin)
 * error message with location
