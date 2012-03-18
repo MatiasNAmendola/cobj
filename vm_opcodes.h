@@ -32,5 +32,6 @@
 #define OP_TUPLE_BUILD              26
 #define OP_LIST_BUILD               27
 #define OP_APPEND_ELEMENT           28
+#define OP_POP_TOP                  29
 
 #endif

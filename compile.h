@@ -2,8 +2,6 @@
 #define COMPILE_H
 
 #include "co-compat.h"
-#include "stack.h"
-#include "llist.h"
 #include "object.h"
 #include "objects/listobject.h"
 #include "objects/codeobject.h"
@@ -13,11 +11,7 @@
 #define IS_TMP_VAR      (1<<1)
 #define IS_VAR          (1<<2)
 #define IS_UNUSED       (1<<3)
-#define SET_UNUSED(op)  (op).type = IS_UNUSED
 
-/*
- * op node
- */
 struct cnode {
     int type;
     union {
