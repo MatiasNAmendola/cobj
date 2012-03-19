@@ -93,4 +93,12 @@ COObject _CO_None;              // Don't use this directly, using following one 
 void COObject_dump(COObject *co);
 long COObject_hash(COObject *co);
 
+/**
+ * COObject serialization/unserialization.
+ *
+ * All objects should be able to be serialized/unserialized, but it's not guaranteed to be portable across versions.
+ */
+COObject *COObject_serialize(COObject *co);
+COObject *COObject_unserialize(COObject *co);
+
 #endif

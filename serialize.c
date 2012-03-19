@@ -1,11 +1,4 @@
 #include "co.h"
 
-void
-serialize(COObject *v, FILE *f)
-{
-}
-
-COObject *
-unserialize(FILE *f)
-{
-}
+COObject *COObject_serialize(COObject *co);
+COObject *COObject_unserialize(COObject *co);
