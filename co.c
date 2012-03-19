@@ -38,7 +38,7 @@ main(int argc, const char **argv)
         COList_SetItem(t, 0, (COObject *)COInt_FromLong(1));
         COList_SetItem(t, 1, (COObject *)COInt_FromLong(2));
         COList_SetItem(t, 2, (COObject *)COInt_FromLong(3));
-        t = COList_AsTuple(t);
+        t = COList_GetSlice(t, 0,2);
         COObject_dump(t);
 
         COObject *d = CODict_New();

@@ -31,15 +31,6 @@ struct co_opline {
     struct cnode op2;
 };
 
-/*
- * op block
- */
-struct co_opline_array {
-    struct co_opline *ops;
-    uint last;
-    uint size;
-    uint t;                     // number of temp variables
-};
 
 /* compiler */
 COCodeObject *co_compile(void);

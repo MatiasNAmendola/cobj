@@ -1,4 +1,4 @@
-* write AST?
+* construct AST from parse.y according to ruby
 * co_opline_array to bytecode string
 * error handling (exceptin)
 * error message with location

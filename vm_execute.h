@@ -9,12 +9,12 @@
 
 /* execution frame */
 struct co_exec_data {
-    struct co_opline *op;
-    struct co_opline_array *opline_array;
+    struct co_opline **op;
     struct co_exec_data *prev_exec_data;
     COObject *function_called;
     COObject *symbol_table;     /* dict object for names */
     COObject **ts;              /* temp objects */
+    COObject *oplines;
     COObject *co_consts;
     COObject *co_names;
 };

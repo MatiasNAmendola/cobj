@@ -20,12 +20,13 @@ COTypeObject COCode_Type = {
 };
 
 COObject *
-COCode_New(COObject *code, COObject *consts, COObject *names)
+COCode_New(COObject *oplines, COObject *consts, COObject *names)
 {
     COCodeObject *co = xmalloc(sizeof(COCodeObject));
     memset(co, 0, sizeof(COCodeObject));
     COObject_Init(co, &COCode_Type);
 
+    co->co_oplines = oplines;
     co->co_consts = consts;
     co->co_names = names;
 

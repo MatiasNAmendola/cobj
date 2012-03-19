@@ -30,6 +30,34 @@ COTypeObject COTuple_Type = {
     0,                          /* tp_hash */
 };
 
+static COObject *
+tuple_slice(COTupleObject *this, size_t ilow, size_t ihigh)
+{
+    COObject **src, **dest;
+    size_t i, len;
+    COTupleObject *co;
+    if (ilow < 0)
+        ilow = 0;
+    else if (ilow > CO_SIZE(this))
+        ilow = CO_SIZE(this);
+    if (ihigh < ilow)
+        ihigh = ilow;
+    else if (ihigh > CO_SIZE(this))
+        ihigh = CO_SIZE(this);
+    len = ihigh - ilow;
+    
+    co = (COTupleObject *)COTuple_New(len);
+    if (co == NULL)
+        return NULL;
+
+    src = this->co_item + ilow;
+    dest = co->co_item;
+    for (i = 0; i < len; i++) {
+        dest[i] = src[i];
+    }
+    return (COObject *)co;
+}
+
 COObject *
 COTuple_New(size_t size)
 {
@@ -83,4 +111,11 @@ COTuple_SetItem(COObject *this, size_t index, COObject *item)
     *p = item;
     CO_XDECREF(olditem);
     return 0;
+}
+
+
+COObject *
+COTuple_GetSlice(COObject *this, size_t ilow, size_t ihigh)
+{
+    return tuple_slice((COTupleObject*)this, ilow, ihigh);
 }

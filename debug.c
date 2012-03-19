@@ -1,7 +1,7 @@
 #include "co.h"
 
 void
-co_print_opcode(struct co_opline_array *opline_array)
+co_print_opcode(COObject *oplines)
 {
     static const char *opcode_names[] = {
         "OP_EXIT",
@@ -34,8 +34,8 @@ co_print_opcode(struct co_opline_array *opline_array)
         "OP_LIST_BUILD",
         "OP_APPEND_ELEMENT",
     };
-    for (int i = 0; i < opline_array->last; i++) {
-        struct co_opline *op = &opline_array->ops[i];
+    for (int i = 0; i < COList_Size(oplines); i++) {
+        struct co_opline *op = (struct co_opline*)COList_GetItem(oplines, i);
         printf("opcode[%d]: %s, %d, %d, %d\n", i, opcode_names[op->opcode],
                op->op1.type, op->op2.type, op->result.type);
     }

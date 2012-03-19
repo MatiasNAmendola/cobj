@@ -5,5 +5,5 @@
  */
 #include "compile.h"
 
-void co_print_opcode(struct co_opline_array *opline_array);
+void co_print_opcode(COObject *oplines);
 #endif

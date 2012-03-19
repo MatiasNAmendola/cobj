@@ -93,6 +93,34 @@ list_resize(COListObject *this, size_t newsize)
     return 0;
 }
 
+static COObject *
+list_slice(COListObject *this, size_t ilow, size_t ihigh)
+{
+    COObject **src, **dest;
+    size_t i, len;
+    COListObject *co;
+    if (ilow < 0)
+        ilow = 0;
+    else if (ilow > CO_SIZE(this))
+        ilow = CO_SIZE(this);
+    if (ihigh < ilow)
+        ihigh = ilow;
+    else if (ihigh > CO_SIZE(this))
+        ihigh = CO_SIZE(this);
+    len = ihigh - ilow;
+    
+    co = (COListObject *)COList_New(len);
+    if (co == NULL)
+        return NULL;
+
+    src = this->co_item + ilow;
+    dest = co->co_item;
+    for (i = 0; i < len; i++) {
+        dest[i] = src[i];
+    }
+    return (COObject *)co;
+}
+
 COObject *
 COList_New(size_t size)
 {
@@ -203,4 +231,10 @@ COList_AsTuple(COObject *this)
     }
 
     return co;
+}
+
+COObject *
+COList_GetSlice(COObject *this, size_t ilow, size_t ihigh)
+{
+    return list_slice((COListObject*)this, ilow, ihigh);
 }

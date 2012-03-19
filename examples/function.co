@@ -1,14 +1,29 @@
 #!./co
 
-# fibo
-func fibo(n)
-    if n == 0 return 0 end
-    if n == 1 return 1 end
-    return fibo(n - 1) + fibo(n - 2)
+newIncrer = func(n)
+    return func(i)
+        n = n + i
+        return n
+    end
 end
 
+f = newIncrer(10)
 i = 0
-while i < 10
-    print fibo(i)
-    i += 1
+while i < 3
+    print f(i)
+    i = i + 1
 end
+
+
+## fibo
+#func fibo(n)
+    #if n == 0 return 0 end
+    #if n == 1 return 1 end
+    #return fibo(n - 1) + fibo(n - 2)
+#end
+
+#i = 0
+#while i < 10
+    #print fibo(i)
+    #i += 1
+#end
