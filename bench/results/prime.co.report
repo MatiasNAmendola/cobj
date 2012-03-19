@@ -27,3 +27,32 @@ real	0m1.702s
 user	0m1.513s
 sys	0m0.185s
 
+------ bench v0.0.1-32-g9b44096 at Mon Mar 19 12:51:12 CST 2012 ------
+Darwin mercury.local 11.3.0 Darwin Kernel Version 11.3.0: Thu Jan 12 18:47:41 PST 2012; root:xnu-1699.24.23~1/RELEASE_X86_64 x86_64 i386 MacBookPro8,2 Darwin
+
+>>> ./prime.co
+maxnum = 100000
+i = 2
+
+func is_prime(n)
+    j = 2
+    while j * j < n + 1
+        if n % j == 0
+            return False
+        end
+        j += 1
+    end
+    return True
+end
+
+
+while i <= maxnum
+    if is_prime(i) print i end
+    i += 1
+end
+<<< time
+
+real	0m1.943s
+user	0m1.752s
+sys	0m0.182s
+
