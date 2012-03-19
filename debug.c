@@ -35,7 +35,7 @@ co_print_opcode(COObject *oplines)
         "OP_APPEND_ELEMENT",
     };
     for (int i = 0; i < COList_Size(oplines); i++) {
-        struct co_opline *op = (struct co_opline *)COList_GetItem(oplines, i);
+        COOplineObject *op = (COOplineObject *)COList_GetItem(oplines, i);
         printf("opcode[%d]: %s, %d, %d, %d\n", i, opcode_names[op->opcode],
                op->op1.type, op->op2.type, op->result.type);
     }

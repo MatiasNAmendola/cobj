@@ -161,7 +161,7 @@ vm_enter:
            EG(current_exec_data), EG(current_exec_data)->prev_exec_data);
 #endif
 
-    struct co_opline *op;
+    COOplineObject *op;
     COObject *co1, *co2;
     while (true) {
         switch ((op = *(EG(current_exec_data)->op++))->opcode) {
@@ -279,7 +279,7 @@ vm_enter:
                     (COFunctionObject *)COFunction_New(op->op1.u.co);
                 uint start =
                     EG(current_exec_data)->op -
-                    (struct co_opline **)((COTupleObject *)main->co_oplines)->
+                    (COOplineObject **)((COTupleObject *)main->co_oplines)->
                     co_item - 1;
                 COTupleObject *suboplines =
                     COTuple_GetSlice(main->co_oplines, start + 1,
@@ -293,7 +293,7 @@ vm_enter:
                     COObject *co;
                     COObject *name;
                     for (int i = 0; i < CO_SIZE(code->co_oplines); i++) {
-                        struct co_opline *tmp =
+                        COOplineObject *tmp =
                             COTuple_GET_ITEM(code->co_oplines, i);
                         if (tmp->op1.type == IS_VAR) {
                             name = tmp->op1.u.co;

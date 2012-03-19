@@ -6,10 +6,11 @@
 #include "error.h"
 #include "object.h"
 #include "objects/functionobject.h"
+#include "objects/oplineobject.h"
 
 /* execution frame */
 struct co_exec_data {
-    struct co_opline **op;
+    COOplineObject **op;
     struct co_exec_data *prev_exec_data;
     COObject *function_called;
     COObject *symbol_table;     /* dict object for names */

@@ -48,6 +48,7 @@
 #include "objects/frameobject.h"
 #include "objects/dictobject.h"
 #include "objects/codeobject.h"
+#include "objects/oplineobject.h"
 
 #include "argparse/argparse.h"
 #include "dstring/dstring.h"

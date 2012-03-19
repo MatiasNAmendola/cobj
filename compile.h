@@ -21,16 +21,6 @@ struct cnode {
     } u;
 };
 
-/*
- * op line
- */
-struct co_opline {
-    uchar opcode;
-    struct cnode result;
-    struct cnode op1;
-    struct cnode op2;
-};
-
 /* compiler */
 COCodeObject *co_compile(void);
 uint co_get_next_opline_num(void);
