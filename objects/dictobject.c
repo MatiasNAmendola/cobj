@@ -61,7 +61,6 @@ COTypeObject CODict_Type = {
         (this)->pCursor = (element);                      \
     }
 
-
 bool
 _dict_rehash(CODictObject *this)
 {

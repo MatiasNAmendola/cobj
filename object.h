@@ -83,7 +83,6 @@ typedef struct _COVarObject {
 COObject _CO_None;              // Don't use this directly, using following one instead!
 #define CO_None         (&_CO_None)
 
-
 #define CO_INCREF(co)   (((COObject *)co)->co_refcnt++)
 #define CO_DECREF(co)   (((COObject *)co)->co_refcnt--)
 

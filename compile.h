@@ -31,7 +31,6 @@ struct co_opline {
     struct cnode op2;
 };
 
-
 /* compiler */
 COCodeObject *co_compile(void);
 uint co_get_next_opline_num(void);

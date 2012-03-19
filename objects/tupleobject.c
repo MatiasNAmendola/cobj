@@ -45,7 +45,7 @@ tuple_slice(COTupleObject *this, size_t ilow, size_t ihigh)
     else if (ihigh > CO_SIZE(this))
         ihigh = CO_SIZE(this);
     len = ihigh - ilow;
-    
+
     co = (COTupleObject *)COTuple_New(len);
     if (co == NULL)
         return NULL;
@@ -113,9 +113,8 @@ COTuple_SetItem(COObject *this, size_t index, COObject *item)
     return 0;
 }
 
-
 COObject *
 COTuple_GetSlice(COObject *this, size_t ilow, size_t ihigh)
 {
-    return tuple_slice((COTupleObject*)this, ilow, ihigh);
+    return tuple_slice((COTupleObject *)this, ilow, ihigh);
 }

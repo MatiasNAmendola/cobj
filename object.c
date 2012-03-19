@@ -34,7 +34,6 @@ static COTypeObject CONone_Type = {
 
 COObject _CO_None = COObject_HEAD_INIT(&CONone_Type);
 
-
 long
 COObject_hash(COObject *co)
 {

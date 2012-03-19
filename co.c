@@ -38,7 +38,7 @@ main(int argc, const char **argv)
         COList_SetItem(t, 0, (COObject *)COInt_FromLong(1));
         COList_SetItem(t, 1, (COObject *)COInt_FromLong(2));
         COList_SetItem(t, 2, (COObject *)COInt_FromLong(3));
-        t = COList_GetSlice(t, 0,2);
+        t = COList_GetSlice(t, 0, 2);
         COObject_dump(t);
 
         COObject *d = CODict_New();
@@ -50,7 +50,7 @@ main(int argc, const char **argv)
         printf("size: %ld\n", CODict_Size(d));
         CODict_DelItem(d, COStr_FromString("key1"));
         printf("delete one, %p, size: %ld\n",
-                CODict_GetItem(d, COStr_FromString("key1")), CODict_Size(d));
+               CODict_GetItem(d, COStr_FromString("key1")), CODict_Size(d));
         CODict_Clear(d);
         printf("size: %ld\n", CODict_Size(d));
         return 0;

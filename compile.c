@@ -2,53 +2,26 @@
 
 struct compiler {
     COObject *c_oplines;
-    COObject *c_consts; /* all constatns */
-    COObject *c_names;  /* all names */
     uint c_numoftmpvars;
 };
 
 struct compiler c;
 
-static void
-co_compiler_add(struct co_opline *op)
-{
-    if (op->op1.type == IS_CONST) {
-        COList_Append(c.c_consts, op->op1.u.co);
-        op->op1.u.var = CO_SIZE(c.c_consts) - 1;
-    } else if (op->op1.type == IS_VAR) {
-        COList_Append(c.c_names, op->op1.u.co);
-        op->op1.u.var = CO_SIZE(c.c_names) - 1;
-    }
-
-    if (op->op2.type == IS_CONST) {
-        COList_Append(c.c_consts, op->op2.u.co);
-        op->op2.u.var = CO_SIZE(c.c_consts) - 1;
-    } else if (op->op2.type == IS_VAR) {
-        COList_Append(c.c_names, op->op2.u.co);
-        op->op2.u.var = CO_SIZE(c.c_names) - 1;
-    }
-}
-
 COCodeObject *
 co_compile(void)
 {
     c.c_oplines = COList_New(0);
-    c.c_consts = COList_New(0);
-    c.c_names = COList_New(0);
 
     // do parse
     coparse(&c);
-
-    for (int i = 0; i < COList_Size(c.c_oplines); i++) {
-        co_compiler_add((struct co_opline *)COList_GetItem(c.c_oplines, i));
-    }
 
 #ifdef CO_DEBUG
     co_print_opcode(c.c_oplines);
 #endif
 
-    COCodeObject *co = (COCodeObject *)COCode_New(COList_AsTuple(c.c_oplines), COList_AsTuple(c.c_consts), COList_AsTuple(c.c_names));
-    co->co_numoftmpvars = c.c_numoftmpvars;
+    COCodeObject *co =
+        (COCodeObject *)COCode_New(COList_AsTuple(c.c_oplines),
+                                   c.c_numoftmpvars);
 
     return co;
 }
@@ -80,7 +53,7 @@ get_temporary_variable()
 }
 
 static void
-check_laod_op(const struct cnode *node) 
+check_laod_op(const struct cnode *node)
 {
     struct co_opline *op;
     if (node->type == IS_CONST) {
@@ -155,7 +128,8 @@ co_if_after_stmt(struct cnode *if_token)
 {
     int if_after_stmt_op_num = CO_SIZE(c.c_oplines);
     struct co_opline *opline = next_op();
-    struct co_opline *ifopline = COList_GetItem(c.c_oplines, if_token->u.opline_num);
+    struct co_opline *ifopline =
+        COList_GetItem(c.c_oplines, if_token->u.opline_num);
     ifopline->op2.u.opline_num =
         if_after_stmt_op_num + 1 - if_token->u.opline_num;
     if_token->u.opline_num = if_after_stmt_op_num;
@@ -166,9 +140,9 @@ void
 co_if_end(const struct cnode *if_token)
 {
     int if_end_op_num = CO_SIZE(c.c_oplines);
-    struct co_opline *ifopline = COList_GetItem(c.c_oplines, if_token->u.opline_num);
-    ifopline->op1.u.opline_num =
-        if_end_op_num - if_token->u.opline_num;
+    struct co_opline *ifopline =
+        COList_GetItem(c.c_oplines, if_token->u.opline_num);
+    ifopline->op1.u.opline_num = if_end_op_num - if_token->u.opline_num;
 }
 
 void
@@ -178,7 +152,7 @@ co_while_cond(const struct cnode *cond, struct cnode *while_token)
     struct co_opline *opline = next_op();
     opline->opcode = OP_JMPZ;
     opline->op1 = *cond;
-    opline->op2.u.opline_num = while_token->u.opline_num; // while start
+    opline->op2.u.opline_num = while_token->u.opline_num;       // while start
     while_token->u.opline_num = while_cond_opline_num;
 }
 
@@ -189,8 +163,9 @@ co_while_end(const struct cnode *while_token)
     int while_end_opline_num = CO_SIZE(c.c_oplines);
     struct co_opline *op = next_op();
     op->opcode = OP_JMP;
-    struct co_opline *whileopline = COList_GetItem(c.c_oplines, while_token->u.opline_num);
-    op->op1.u.opline_num = whileopline->op2.u.opline_num - while_end_opline_num; // while start offset
+    struct co_opline *whileopline =
+        COList_GetItem(c.c_oplines, while_token->u.opline_num);
+    op->op1.u.opline_num = whileopline->op2.u.opline_num - while_end_opline_num;        // while start offset
 
     int while_end_stmt_op_num = CO_SIZE(c.c_oplines);
     whileopline->op2.u.opline_num =
@@ -223,14 +198,14 @@ co_end_func_declaration(const struct cnode *func_token, struct cnode *result)
     op->opcode = OP_RETURN;
 
     int func_end_opline_num = CO_SIZE(c.c_oplines);
-    struct co_opline *funcopline = COList_GetItem(c.c_oplines, func_token->u.opline_num);
+    struct co_opline *funcopline =
+        COList_GetItem(c.c_oplines, func_token->u.opline_num);
     funcopline->op2.u.opline_num =
         func_end_opline_num - func_token->u.opline_num - 1;
 
     if (result) {
         funcopline->result.type = IS_TMP_VAR;
-        funcopline->result.u.var =
-            get_temporary_variable();
+        funcopline->result.u.var = get_temporary_variable();
         *result = funcopline->result;
     }
 }

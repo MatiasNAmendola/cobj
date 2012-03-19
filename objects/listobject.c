@@ -108,7 +108,7 @@ list_slice(COListObject *this, size_t ilow, size_t ihigh)
     else if (ihigh > CO_SIZE(this))
         ihigh = CO_SIZE(this);
     len = ihigh - ilow;
-    
+
     co = (COListObject *)COList_New(len);
     if (co == NULL)
         return NULL;
@@ -236,5 +236,5 @@ COList_AsTuple(COObject *this)
 COObject *
 COList_GetSlice(COObject *this, size_t ilow, size_t ihigh)
 {
-    return list_slice((COListObject*)this, ilow, ihigh);
+    return list_slice((COListObject *)this, ilow, ihigh);
 }

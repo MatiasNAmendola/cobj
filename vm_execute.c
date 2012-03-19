@@ -49,8 +49,8 @@ COObject_put(COObject *name, COObject *co)
     if (current_exec_data->function_called) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
-                               current_exec_data->
-                               function_called)->func_upvalues, name);
+                               current_exec_data->function_called)->
+                              func_upvalues, name);
         if (myco) {
             CODict_SetItem(((COFunctionObject *)
                             current_exec_data->function_called)->func_upvalues,
@@ -73,18 +73,16 @@ COObject_print(COObject *co)
     printf("%s\n", s->co_sval);
 }
 
-
 static COObject *
 CNode_GetObject(struct cnode *node)
 {
     COObject *co;
     switch (node->type) {
     case IS_CONST:
-        return COTuple_GetItem(EG(current_exec_data)->co_consts, node->u.var);
+        return node->u.co;
         break;
     case IS_VAR:
-        co = COTuple_GetItem(EG(current_exec_data)->co_names, node->u.var);
-        co = COObject_get(co);
+        co = COObject_get(node->u.co);
         if (!co) {
             error("not bind: %s", COStr_AsString(node->u.co));
         }
@@ -109,10 +107,7 @@ CNode_SetObject(struct cnode *node, COObject *co)
         error("you cannot change const");
         break;
     case IS_VAR:
-        {
-            COObject *name = COTuple_GetItem(EG(current_exec_data)->co_names, node->u.var);
-            return COObject_put(name, co);
-        }
+        return COObject_put(node->u.co, co);
         break;
     case IS_TMP_VAR:
         *(COObject **)((char *)EG(current_exec_data)->ts + node->u.var) = co;
@@ -158,8 +153,6 @@ vm_enter:
     exec_data->symbol_table = CODict_New();
     exec_data->function_called = EG(next_func);
     exec_data->prev_exec_data = EG(current_exec_data);
-    exec_data->co_consts = main->co_consts;
-    exec_data->co_names = main->co_names;
 
     EG(current_exec_data) = exec_data;
 
@@ -268,8 +261,7 @@ vm_enter:
         case OP_JMPZ:
             co1 = CNode_GetObject(&op->op1);
 
-            if (co1 != CO_True
-                && COBool_FromLong(COInt_AsLong(co1)) != CO_True) {
+            if (co1 != CO_True && COBool_FromLong(COInt_AsLong(co1)) != CO_True) {
                 OP_JUMP(op->op2.u.opline_num);
                 continue;
             }
@@ -284,33 +276,37 @@ vm_enter:
         case OP_DECLARE_FUNCTION:
             {
                 COFunctionObject *func =
-                    (COFunctionObject *)COFunction_New(COTuple_GetItem(exec_data->co_names, op->op1.u.var));
-                uint start = EG(current_exec_data)->op - (struct co_opline **)((COTupleObject *)main->co_oplines)->co_item - 1;
-                COTupleObject *suboplines = COTuple_GetSlice(main->co_oplines, start + 1, start + 1 + op->op2.u.opline_num);
-                COCodeObject *code = COCode_New(suboplines, NULL, NULL);
-                code->co_numoftmpvars = main->co_numoftmpvars;// hack fix, using same temp variables num
-                code->co_consts = main->co_consts;
-                code->co_names = main->co_names;
+                    (COFunctionObject *)COFunction_New(op->op1.u.co);
+                uint start =
+                    EG(current_exec_data)->op -
+                    (struct co_opline **)((COTupleObject *)main->co_oplines)->
+                    co_item - 1;
+                COTupleObject *suboplines =
+                    COTuple_GetSlice(main->co_oplines, start + 1,
+                                     start + 1 + op->op2.u.opline_num);
+                // hack fix, using same temp variables num
+                COCodeObject *code =
+                    COCode_New(suboplines, main->co_numoftmpvars);
                 func->func_code = code;
                 if (EG(current_exec_data)->function_called) {
                     // setup function's func_upvalues
                     COObject *co;
                     COObject *name;
                     for (int i = 0; i < CO_SIZE(code->co_oplines); i++) {
-                        struct co_opline *tmp = COTuple_GET_ITEM(code->co_oplines, i);
+                        struct co_opline *tmp =
+                            COTuple_GET_ITEM(code->co_oplines, i);
                         if (tmp->op1.type == IS_VAR) {
-                            name = COTuple_GetItem(exec_data->co_names, tmp->op1.u.var);
+                            name = tmp->op1.u.co;
                             co = COObject_get(name);
                             if (co) {
                                 CODict_SetItem(func->func_upvalues, name, co);
                             }
                         }
                         if (tmp->op2.type == IS_VAR) {
-                            name = COTuple_GetItem(exec_data->co_names, tmp->op2.u.var);
+                            name = tmp->op2.u.co;
                             co = COObject_get(name);
                             if (co) {
-                                CODict_SetItem(func->func_upvalues,
-                                        name, co);
+                                CODict_SetItem(func->func_upvalues, name, co);
                             }
                         }
                     }
@@ -368,12 +364,11 @@ vm_enter:
                 COObject **co;
                 co_stack_top(&EG(argument_stack), (void **)&co);
                 co_stack_pop(&EG(argument_stack));
-                COObject_put(COTuple_GetItem(exec_data->co_names, op->op1.u.var), *co);
+                COObject_put(op->op1.u.co, *co);
                 continue;
             }
         case OP_LOAD_NAME:
-            co1 = COTuple_GetItem(exec_data->co_names, op->op1.u.var);
-            co1 = COObject_get(co1);
+            co1 = COObject_get(op->op1.u.co);
             if (!co1) {
                 CNode_SetObject(&op->op1, CO_None);
             }
