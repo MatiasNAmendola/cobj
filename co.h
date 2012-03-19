@@ -34,6 +34,7 @@
 #include "vm_execute.h"
 #include "vm_opcodes.h"
 #include "wrapper.h"
+#include "serialize.h"
 
 #include "object.h"
 #include "objects/typeobject.h"
