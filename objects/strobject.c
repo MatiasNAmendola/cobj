@@ -104,7 +104,7 @@ str_hash(COStrObject *this)
     if (this->co_shash != -1)
         return this->co_shash;
 
-    const char *arKey = COStr_AsString(this);
+    const char *arKey = COStr_AsString((COObject *)this);
     uint nKeyLen = CO_SIZE(this);
     register ulong hash = 5381;
 
@@ -149,10 +149,10 @@ COTypeObject COStr_Type = {
     "str",
     sizeof(COStrObject),
     0,
-    str_repr,                   /* tp_repr */
+    (reprfunc)str_repr,         /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
-    str_hash,                   /* tp_hash */
+    (hashfunc)str_hash,         /* tp_hash */
 };
 
 char *
@@ -293,7 +293,7 @@ step2:
 }
 
 void
-COStr_Concat(COStrObject **pv, COStrObject *s)
+COStr_Concat(COObject **pv, COObject *s)
 {
     if (*pv == NULL)
         return;
@@ -303,12 +303,12 @@ COStr_Concat(COStrObject **pv, COStrObject *s)
     }
 
     COStrObject *co;
-    co = str_concat(*pv, s);
-    *pv = co;
+    co = str_concat(*(COStrObject **)pv, (COStrObject *)s);
+    *pv = (COObject *)co;
 }
 
 COObject *
-COStr_Repr(COStrObject *s, int smartquotes)
+COStr_Repr(COObject *s, int smartquotes)
 {
     // TODO
     return NULL;

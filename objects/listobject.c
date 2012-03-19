@@ -7,13 +7,13 @@ list_repr(COObject *this)
     if (i == 0) {
         return COStr_FromString("[]");
     }
-    COStrObject *s;
+    COObject *s;
     s = COStr_FromString("[");
     for (i = 0; i < CO_SIZE(this); i++) {
         COObject *co = COList_GetItem(this, i);
         if (i != 0)
             COStr_Concat(&s, COStr_FromString(", "));
-        COStr_Concat(&s, (COStrObject *)CO_TYPE(co)->tp_repr(co));
+        COStr_Concat(&s, CO_TYPE(co)->tp_repr(co));
     }
     COStr_Concat(&s, COStr_FromString("]"));
     return s;
@@ -94,10 +94,10 @@ list_resize(COListObject *this, size_t newsize)
 }
 
 static COObject *
-list_slice(COListObject *this, size_t ilow, size_t ihigh)
+list_slice(COListObject *this, int ilow, int ihigh)
 {
     COObject **src, **dest;
-    size_t i, len;
+    int i, len;
     COListObject *co;
     if (ilow < 0)
         ilow = 0;
@@ -154,7 +154,7 @@ COList_Size(COObject *this)
 COObject *
 COList_GetItem(COObject *this, size_t index)
 {
-    if (index < 0 || index >= CO_SIZE(this)) {
+    if (index >= CO_SIZE(this)) {
         // TODO errors
         return NULL;
     }
@@ -166,7 +166,7 @@ COList_SetItem(COObject *this, size_t index, COObject *item)
 {
     COObject **p;
     COObject *olditem;
-    if (index < 0 || index >= CO_SIZE(this)) {
+    if (index >= CO_SIZE(this)) {
         // TODO errors
         return -1;
     }
@@ -178,7 +178,7 @@ COList_SetItem(COObject *this, size_t index, COObject *item)
 }
 
 int
-COList_Insert(COObject *this, size_t index, COObject *item)
+COList_Insert(COObject *this, int index, COObject *item)
 {
     size_t n = CO_SIZE(this);
 
@@ -234,7 +234,7 @@ COList_AsTuple(COObject *this)
 }
 
 COObject *
-COList_GetSlice(COObject *this, size_t ilow, size_t ihigh)
+COList_GetSlice(COObject *this, int ilow, int ihigh)
 {
     return list_slice((COListObject *)this, ilow, ihigh);
 }

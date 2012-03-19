@@ -21,9 +21,9 @@ COObject *COList_New(size_t size);
 size_t COList_Size(COObject *this);
 COObject *COList_GetItem(COObject *this, size_t index);
 int COList_SetItem(COObject *this, size_t index, COObject *item);
-int COList_Insert(COObject *this, size_t index, COObject *item);
+int COList_Insert(COObject *this, int index, COObject *item);
 int COList_Append(COObject *this, COObject *item);
 COObject *COList_AsTuple(COObject *this);
-COObject *COList_GetSlice(COObject *this, size_t ilow, size_t ihigh);
+COObject *COList_GetSlice(COObject *this, int ilow, int ihigh);
 
 #endif

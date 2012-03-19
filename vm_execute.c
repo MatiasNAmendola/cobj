@@ -148,7 +148,8 @@ vm_enter:
     exec_data->ts =
         (COObject **)((char *)exec_data + sizeof(struct co_exec_data));
     exec_data->oplines = main->co_oplines;
-    exec_data->op = ((COTupleObject *)main->co_oplines)->co_item;
+    exec_data->op =
+        (COOplineObject **)((COTupleObject *)main->co_oplines)->co_item;
     exec_data->prev_exec_data = NULL;
     exec_data->symbol_table = CODict_New();
     exec_data->function_called = EG(next_func);
@@ -281,20 +282,21 @@ vm_enter:
                     EG(current_exec_data)->op -
                     (COOplineObject **)((COTupleObject *)main->co_oplines)->
                     co_item - 1;
-                COTupleObject *suboplines =
+                COObject *suboplines =
                     COTuple_GetSlice(main->co_oplines, start + 1,
                                      start + 1 + op->op2.u.opline_num);
                 // hack fix, using same temp variables num
-                COCodeObject *code =
-                    COCode_New(suboplines, main->co_numoftmpvars);
+                COObject *code = COCode_New(suboplines, main->co_numoftmpvars);
                 func->func_code = code;
                 if (EG(current_exec_data)->function_called) {
                     // setup function's func_upvalues
                     COObject *co;
                     COObject *name;
-                    for (int i = 0; i < CO_SIZE(code->co_oplines); i++) {
-                        COOplineObject *tmp =
-                            COTuple_GET_ITEM(code->co_oplines, i);
+                    for (int i = 0;
+                         i < CO_SIZE(((COCodeObject *)code)->co_oplines); i++) {
+                        COOplineObject *tmp = (COOplineObject *)
+                            COTuple_GET_ITEM(((COCodeObject *)code)->co_oplines,
+                                             i);
                         if (tmp->op1.type == IS_VAR) {
                             name = tmp->op1.u.co;
                             co = COObject_get(name);
@@ -333,8 +335,8 @@ vm_enter:
                        EG(current_exec_data)->prev_exec_data);
 #endif
                 EG(current_exec_data) = EG(current_exec_data)->prev_exec_data;
-                COFrame_Free(f, old_exec_data);
-                struct cnode *rt = COFrame_Pop(f);
+                COFrame_Free(f, (COObject *)old_exec_data);
+                struct cnode *rt = (struct cnode *)COFrame_Pop(f);
                 if (op->op1.type != IS_UNUSED) {
                     CNode_SetObject(rt, co);
                 } else {
@@ -350,10 +352,11 @@ vm_enter:
             if (CO_TYPE(co1) != &COFunction_Type) {
                 error("not a function");
             }
-            COFrame_Push(f, &op->result);
+            COFrame_Push(f, (COObject *)&op->result);
             EG(next_func) = co1;
 
-            main = ((COFunctionObject *)EG(next_func))->func_code;
+            main =
+                (COCodeObject *)((COFunctionObject *)EG(next_func))->func_code;
             goto vm_enter;
         case OP_PASS_PARAM:
             co1 = CNode_GetObject(&op->op1);
@@ -383,7 +386,6 @@ vm_enter:
             continue;
         default:
             error("unknown handle for opcode(%ld)\n", op->opcode);
-            return -1;
         }
     }
 

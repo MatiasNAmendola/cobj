@@ -7,13 +7,13 @@ tuple_repr(COTupleObject *this)
     if (i == 0) {
         return COStr_FromString("()");
     }
-    COStrObject *s;
+    COObject *s;
     s = COStr_FromString("(");
     for (i = 0; i < CO_SIZE(this); i++) {
-        COObject *co = COList_GetItem(this, i);
+        COObject *co = COList_GetItem((COObject *)this, i);
         if (i != 0)
             COStr_Concat(&s, COStr_FromString(", "));
-        COStr_Concat(&s, (COStrObject *)CO_TYPE(co)->tp_repr(co));
+        COStr_Concat(&s, CO_TYPE(co)->tp_repr(co));
     }
     COStr_Concat(&s, COStr_FromString(")"));
     return s;
@@ -31,10 +31,10 @@ COTypeObject COTuple_Type = {
 };
 
 static COObject *
-tuple_slice(COTupleObject *this, size_t ilow, size_t ihigh)
+tuple_slice(COTupleObject *this, int ilow, int ihigh)
 {
     COObject **src, **dest;
-    size_t i, len;
+    int i, len;
     COTupleObject *co;
     if (ilow < 0)
         ilow = 0;
@@ -90,7 +90,7 @@ COTuple_Size(COObject *this)
 COObject *
 COTuple_GetItem(COObject *this, size_t index)
 {
-    if (index < 0 || index >= CO_SIZE(this)) {
+    if (index >= CO_SIZE(this)) {
         // TODO errors
         return NULL;
     }
@@ -102,7 +102,7 @@ COTuple_SetItem(COObject *this, size_t index, COObject *item)
 {
     COObject **p;
     COObject *olditem;
-    if (index < 0 || index >= CO_SIZE(this)) {
+    if (index >= CO_SIZE(this)) {
         // TODO errors
         return -1;
     }
@@ -114,7 +114,7 @@ COTuple_SetItem(COObject *this, size_t index, COObject *item)
 }
 
 COObject *
-COTuple_GetSlice(COObject *this, size_t ilow, size_t ihigh)
+COTuple_GetSlice(COObject *this, int ilow, int ihigh)
 {
     return tuple_slice((COTupleObject *)this, ilow, ihigh);
 }
