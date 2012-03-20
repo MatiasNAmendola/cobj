@@ -1,7 +1,6 @@
 *.[aos]
 *.out
 *~
-local.h
 tags
 co
 parser.[ch]
