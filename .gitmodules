@@ -4,3 +4,6 @@
 [submodule "dstring"]
 	path = dstring
 	url = git@github.com:Cofyc/dstring.git
+[submodule "linenoise"]
+	path = linenoise
+	url = https://github.com/antirez/linenoise.git

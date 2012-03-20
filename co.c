@@ -61,6 +61,9 @@ main(int argc, const char **argv)
         int fd = 0;
         if (argc > 0) {
             fd = open(*argv, O_RDONLY);
+            if (fd < 0) {
+                error("open %s failed", *argv);
+            }
             // detect if it's a code cache
             COObject *first_object;
             FILE *outfile = fdopen(fd, "r");
@@ -73,9 +76,6 @@ main(int argc, const char **argv)
                 }
                 co_vm_execute(code);
                 return 0;
-            }
-            if (fd < 0) {
-                error("open %s failed", *argv);
             }
         }
         lseek(fd, 0, SEEK_SET);
