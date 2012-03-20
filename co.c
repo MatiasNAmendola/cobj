@@ -1,5 +1,10 @@
 #include "co.h"
 
+/* Change whenever the bytecode emmited by the compiler may no longer be
+ * understood by old code evaluator.
+ */
+#define CODEDUMP_MAGIC  (314 << 16 | 'c' << 8 | 'o')
+
 static const char *const usagestr[] = {
     "co [options] [file] [args]",
     NULL,
@@ -30,7 +35,7 @@ main(int argc, const char **argv)
                     "show runtime info, can be supplied multiple times to increase verbosity",
                     NULL),
         OPT_STRING('e', "eval", &eval, "code passed as string", NULL),
-        OPT_BOOLEAN('c', "compile", &compile, "compile only", NULL),
+        OPT_BOOLEAN('c', "compile", &compile, "compile only, write compiled code to file", NULL),
         OPT_STRING('o', "outfile", &compile_outfile, "compile output file, defaults to `co.out`", NULL),
         OPT_END(),
     };
@@ -57,18 +62,23 @@ main(int argc, const char **argv)
         if (argc > 0) {
             fd = open(*argv, O_RDONLY);
             // detect if it's a code cache
-            int first_char;
-            read(fd, &first_char, 1);
-            lseek(fd, 0, SEEK_SET);
-            if (first_char == 'c') {
-                FILE *outfile = fdopen(fd, "r");
-                co_vm_execute(COObject_unserializeFromFile(outfile));
+            COObject *first_object;
+            FILE *outfile = fdopen(fd, "r");
+            first_object = COObject_unserializeFromFile(outfile);
+            if (first_object && COInt_Check(first_object) && COInt_AsLong(first_object) == CODEDUMP_MAGIC) {
+                COObject *code = COObject_unserializeFromFile(outfile);
+                if (!code) {
+                    // TODO invalid code dump
+                    return -1;
+                }
+                co_vm_execute(code);
                 return 0;
             }
             if (fd < 0) {
                 error("open %s failed", *argv);
             }
         }
+        lseek(fd, 0, SEEK_SET);
         co_scanner_openfile(fd);
     }
 
@@ -84,7 +94,9 @@ main(int argc, const char **argv)
             f = fopen("co.out", "w");
         }
         COObject *co_compiled_str = COObject_serialize((COObject *)co);
-        fwrite(COBytes_AsString(co_compiled_str), CO_SIZE(co_compiled_str), sizeof(char*), f);
+        COObject *code_magic = COObject_serialize(COInt_FromLong(CODEDUMP_MAGIC)); 
+        fwrite(COBytes_AsString(code_magic), CO_SIZE(code_magic), sizeof(char), f);
+        fwrite(COBytes_AsString(co_compiled_str), CO_SIZE(co_compiled_str), sizeof(char), f);
         return 0;
     }
 

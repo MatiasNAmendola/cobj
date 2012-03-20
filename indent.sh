@@ -48,7 +48,7 @@ done
 # indent
 lines=0
 for f in $(find . -name "*.[ch]"  |  grep -E -v '^\.\/(argparse|dstring)'); do
-    lines=$(($lines + $(wc co.c -l | cut -d ' ' -f 1)))
+    lines=$(($lines + $(wc $f -l | cut -d ' ' -f 1)))
     indent $f
 done
 printf "%d lines code indented.\n" $lines

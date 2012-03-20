@@ -4,7 +4,7 @@
  * COObject serialization/unserialization.
  *
  * All objects should be able to be serialized/unserialized, but it's not guaranteed to be portable across versions.
- * This module is only for code object cache.
+ * This serialization/unserialization is maily for code dump/undump.
  */
 
 COObject *COObject_serialize(COObject *co);

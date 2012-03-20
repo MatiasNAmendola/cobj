@@ -125,8 +125,8 @@ w_object(COObject *co, WFILE *p)
         w_int64((long)n, p);
         w_string(COStr_AsString(co), (int)n, p);
     } else {
-        COObject_dump(co);
-        error("unknow object to write");
+        /*COObject_dump(co);*/
+        /*error("unknow object to write");*/
         w_byte(TYPE_UNKNOW, p);
     }
 }
@@ -289,7 +289,8 @@ r_object(RFILE *p)
         }
         break;
     default:
-        error("unknow object to read: %d", type);
+        /*error("unknow object to read: %d", type);*/
+        return NULL;
     }
     return rs;
 }
