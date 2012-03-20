@@ -1,6 +1,8 @@
 #include "co.h"
 
 typedef struct {
+    FILE *fp;
+    /* If fp == NULL, using following */
     COObject *str;
     char *ptr;
     char *end;
@@ -23,9 +25,10 @@ typedef WFILE RFILE;
 #define TYPE_OPLINE     'o'
 #define TYPE_UNKNOW     '?'
 
-#define w_byte(c, p)            \
-    if ((p)->ptr != (p)->end)   \
-        *(p)->ptr++ = (c);      \
+#define w_byte(c, p)                        \
+    if (((p)->fp)) putc((c), (p)->fp);      \
+    else if ((p)->ptr != (p)->end)           \
+        *(p)->ptr++ = (c);                  \
     else w_more(c, p)
 
 static void w_cnode(struct cnode *node, WFILE *p);
@@ -145,10 +148,14 @@ static int
 r_string(char *s, int n, RFILE *p)
 {
     int read, left;
-    left = (int)(p->end - p->ptr);
-    read = (left < n) ? left : n;
-    memcpy(s, p->ptr, read);
-    p->ptr += read;
+    if (p->fp != NULL) {
+        read = (int)fread(s, 1, n, p->fp);
+    } else {
+        left = (int)(p->end - p->ptr);
+        read = (left < n) ? left : n;
+        memcpy(s, p->ptr, read);
+        p->ptr += read;
+    }
     return read;
 }
 
@@ -291,6 +298,7 @@ COObject *
 COObject_serialize(COObject *co)
 {
     WFILE p;
+    p.fp = NULL;
     p.str = COBytes_FromStringN(NULL, 0);
     p.ptr = p.end = NULL;
     w_object(co, &p);
@@ -302,11 +310,27 @@ COObject *
 COObject_unserialize(COObject *s)
 {
     RFILE p;
+    p.fp = NULL;
     p.str = s;
     p.ptr = COBytes_AsString(p.str);
     p.end = p.ptr + COBytes_Size(p.str);
 
-    COObject *co;
-    co = r_object(&p);
-    return co;
+    return r_object(&p);
+}
+
+COObject *
+COObject_serializeToFile(COObject *co, FILE *fp)
+{
+    WFILE p;
+    p.fp = fp;
+    w_object(co, &p);
+    return p.str;
+}
+
+COObject *
+COObject_unserializeFromFile(FILE *fp)
+{
+    RFILE p;
+    p.fp = fp;
+    return r_object(&p);
 }

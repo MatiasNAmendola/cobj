@@ -9,5 +9,7 @@
 
 COObject *COObject_serialize(COObject *co);
 COObject *COObject_unserialize(COObject *s);
+COObject *COObject_serializeToFile(COObject *co, FILE *fp);
+COObject *COObject_unserializeFromFile(FILE *fp);
 
 #endif

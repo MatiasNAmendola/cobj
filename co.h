@@ -79,7 +79,6 @@ xwrite(int fd, const void *buf, size_t len)
     }
 }
 
-extern int flag_verbose;
-extern int flag_compile;
+extern int verbose;
 
 #endif
