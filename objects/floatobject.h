@@ -10,6 +10,8 @@ typedef struct _COFloatObject {
 
 COTypeObject COFloat_Type;
 
+#define COFloat_Check(co) (CO_TYPE(co) == &COFloat_Type)
+
 COObject *COFloat_FromString(char *s);
 
 #endif

@@ -333,7 +333,7 @@ ANY_CHAR    = [^];
         break;
     }
     yyleng = YYCURSOR - scanner_globals.yy_text;
-    yylval->u.co = COStr_FromStingN(yytext, yyleng);
+    yylval->u.co = COStr_FromStringN(yytext, yyleng);
     co_scan_doublequoted_string((COStrObject *)yylval->u.co);
     yylval->type = IS_CONST;
     return T_STRING;
@@ -352,14 +352,14 @@ ANY_CHAR    = [^];
             YYCURSOR++;
         }
     } 
-    yylval->u.co = COStr_FromStingN(yytext + 1, yyleng -2);
+    yylval->u.co = COStr_FromStringN(yytext + 1, yyleng -2);
     co_scan_singlequoted_string((COStrObject *)yylval->u.co);
     yylval->type = IS_CONST;
     return T_STRING;
 }
 
 <SC_INIT>NAME {
-    yylval->u.co = COStr_FromStingN(yytext, yyleng);
+    yylval->u.co = COStr_FromStringN(yytext, yyleng);
     yylval->type = IS_VAR;
     return T_NAME;
 }

@@ -17,6 +17,8 @@ typedef struct _COListObject {
 
 COTypeObject COList_Type;
 
+#define COList_Check(co) (CO_TYPE(co) == &COList_Type)
+
 COObject *COList_New(size_t size);
 size_t COList_Size(COObject *this);
 COObject *COList_GetItem(COObject *this, size_t index);

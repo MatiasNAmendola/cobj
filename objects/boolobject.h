@@ -8,6 +8,9 @@ COIntObject _CO_False, _CO_True;        // Don't use these directly, using follo
 #define CO_True ((COObject *)&_CO_True)
 
 COTypeObject COBool_Type;
+
+#define COBool_Check(co) (CO_TYPE(co) == &COBool_Type)
+
 COObject *COBool_FromLong(long ok);
 
 #endif

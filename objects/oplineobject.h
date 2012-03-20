@@ -14,6 +14,8 @@ typedef struct _COOplineObject {
 
 COTypeObject COOpline_Type;
 
+#define COOpline_Check(co) (CO_TYPE(co) == &COOpline_Type)
+
 COObject *COOpline_New();
 
 #endif

@@ -16,6 +16,8 @@ typedef struct _COTupleObject {
 
 COTypeObject COTuple_Type;
 
+#define COTuple_Check(co) (CO_TYPE(co) == &COTuple_Type)
+
 COObject *COTuple_New(size_t size);
 size_t COTuple_Size(COObject *this);
 COObject *COTuple_GetItem(COObject *this, size_t index);

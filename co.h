@@ -15,7 +15,7 @@
  *      |   /   |       \   |
  *  a.c         b.c        c.c
  * 
- * Copyright (C) Yecheng Fu <cofyc.jackson at gmail dot com>
+ * Author: Yecheng Fu <cofyc.jackson@gmail.com>
  */
 
 #include "co-compat.h"
@@ -25,10 +25,7 @@
 #include "llist.h"
 #include "object.h"
 #include "parser.h"
-#ifndef SCANNER_H
-#define SCANNER_H
-# include "scanner.h"
-#endif
+#include "scanner.h"
 #include "stack.h"
 #include "usage.h"
 #include "vm_execute.h"
@@ -82,6 +79,7 @@ xwrite(int fd, const void *buf, size_t len)
     }
 }
 
-extern int verbose;
+extern int flag_verbose;
+extern int flag_compile;
 
 #endif

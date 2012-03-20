@@ -45,6 +45,8 @@ typedef struct _CODictObject {
 
 COTypeObject CODict_Type;
 
+#define CODict_Check(co) (CO_TYPE(co) == &CODict_Type)
+
 COObject *CODict_New(void);
 void CODict_Clear(COObject *this);
 COObject *CODict_GetItem(COObject *this, COObject *key);

@@ -25,6 +25,8 @@ typedef struct _COStrObject {
 
 COTypeObject COStr_Type;
 
+#define COStr_Check(co) (CO_TYPE(co) == &COStr_Type)
+
 char *COStr_AsString(COObject *co);
 COObject *COStr_FromString(const char *s);
 COObject *COStr_FromStringN(const char *s, size_t len);

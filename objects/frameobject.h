@@ -11,6 +11,9 @@ typedef struct _COFrameObject {
 } COFrameObject;
 
 COTypeObject COFrame_Type;
+
+#define COFrame_Check(co) (CO_TYPE(co) == &COFrame_Type)
+
 COObject *COFrame_New(void);
 COObject *COFrame_Alloc(COObject *this, size_t size);
 void COFrame_Free(COObject *this, COObject *co);

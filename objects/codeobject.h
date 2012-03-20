@@ -8,11 +8,13 @@
 
 typedef struct _COCodeObject {
     COObject_HEAD;
-    COObject *co_oplines;       /* tuple of oplines */
     uint co_numoftmpvars;
+    COObject *co_oplines;       /* tuple of oplines */
 } COCodeObject;
 
 COTypeObject COCode_Type;
+
+#define COCode_Check(co) (CO_TYPE(co) == &COCode_Type)
 
 COObject *COCode_New(COObject *oplines, size_t numoftmpvars);
 #endif

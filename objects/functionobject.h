@@ -21,6 +21,9 @@ typedef struct _COFunctionObject {
 } COFunctionObject;
 
 COTypeObject COFunction_Type;
+
+#define COFunction_Check(co) (CO_TYPE(co) == &COFunction_Type)
+
 COObject *COFunction_New(COObject *func_name);
 
 #endif

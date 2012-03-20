@@ -23,4 +23,6 @@ struct _COTypeObject {
 
 COTypeObject COType_Type;
 
+#define COType_Check(co) (CO_TYPE(co) == &COType_Type)
+
 #endif

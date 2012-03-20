@@ -8,7 +8,7 @@ bytes_repr(COBytesObject *this)
     const char *quote_postfix = "";
     size_t len = CO_SIZE(this);
     /* LEN_MIN = strlen(quote_prefix) + 2 + strlen(quote_postfix) */
-    #define LEN_MIN 3
+#define LEN_MIN 3
     if (len > (SIZE_MAX - LEN_MIN) / 4) {
         // TODO "bytes object is too large to make repr"
         return NULL;
@@ -73,11 +73,6 @@ COBytes_FromStringN(const char *bytes, size_t len)
 {
     COBytesObject *new;
 
-    if (len < 0) {
-        // TODO errors
-        return NULL;
-    }
-
     new = xmalloc(sizeof(COBytesObject));
     if (new == NULL) {
         return NULL;
@@ -95,7 +90,7 @@ COBytes_FromStringN(const char *bytes, size_t len)
         }
         if (bytes != NULL)
             memcpy(new->co_bytes, bytes, len);
-        new->co_bytes[len] = '\0';  /* trailing null byte */
+        new->co_bytes[len] = '\0';      /* trailing null byte */
         new->co_alloc = len + 1;
     }
 
@@ -142,4 +137,10 @@ COBytes_Resize(COObject *this, size_t size)
     ((COBytesObject *)this)->co_bytes[size] = '\0';
 
     return 0;
+}
+
+size_t
+COBytes_Size(COObject *co)
+{
+    return CO_SIZE(co);
 }
