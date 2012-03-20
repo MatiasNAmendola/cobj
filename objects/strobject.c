@@ -167,13 +167,7 @@ COStr_AsString(COObject *co)
 COObject *
 COStr_FromString(const char *s)
 {
-    COStrObject *str;
-    size_t len = strlen(s);
-    str = xmalloc(COStr_BASESIZE + len);
-    COVarObject_Init(str, &COStr_Type, len);
-    str->co_shash = -1;
-    memcpy(str->co_sval, s, len + 1);   // with last '\0'
-    return (COObject *)str;
+    return COStr_FromStingN(s, strlen(s));
 }
 
 /*

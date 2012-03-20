@@ -34,25 +34,9 @@ main(int argc, const char **argv)
     argc = argparse_parse(&argparse, argc, argv);
 
     if (verbose) {
-        COObject *t = COList_New(3);
-        COList_SetItem(t, 0, (COObject *)COInt_FromLong(1));
-        COList_SetItem(t, 1, (COObject *)COInt_FromLong(2));
-        COList_SetItem(t, 2, (COObject *)COInt_FromLong(3));
-        t = COList_GetSlice(t, 0, 2);
-        COObject_dump(t);
-
-        COObject *d = CODict_New();
-        CODict_SetItem(d, COStr_FromString("key1"), t);
-        CODict_SetItem(d, COStr_FromString("key2"), d);
-        COObject_dump(d);
-        COObject *r = CODict_GetItem(d, COStr_FromString("key1"));
-        COObject_dump(r);
-        printf("size: %ld\n", CODict_Size(d));
-        CODict_DelItem(d, COStr_FromString("key1"));
-        printf("delete one, %p, size: %ld\n",
-               CODict_GetItem(d, COStr_FromString("key1")), CODict_Size(d));
-        CODict_Clear(d);
-        printf("size: %ld\n", CODict_Size(d));
+        char *s = "test stirng";
+        COObject *co = COByteArray_FromStringN(s, strlen(s));
+        COObject_dump(co);
         return 0;
     }
 

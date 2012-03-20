@@ -34,6 +34,7 @@
 #include "vm_execute.h"
 #include "vm_opcodes.h"
 #include "wrapper.h"
+#include "serialize.h"
 
 #include "object.h"
 #include "objects/typeobject.h"
@@ -49,6 +50,7 @@
 #include "objects/dictobject.h"
 #include "objects/codeobject.h"
 #include "objects/oplineobject.h"
+#include "objects/bytearrayobject.h"
 
 #include "argparse/argparse.h"
 #include "dstring/dstring.h"
