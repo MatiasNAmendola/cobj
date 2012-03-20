@@ -14,7 +14,7 @@ int_repr(COIntObject *this)
     } while (absn);
     if (n < 0)
         *--p = '-';
-    return COStr_FromStingN(p, bufend - p);
+    return COStr_FromStringN(p, bufend - p);
 }
 
 COTypeObject COInt_Type = {

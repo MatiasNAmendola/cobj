@@ -167,7 +167,7 @@ COStr_AsString(COObject *co)
 COObject *
 COStr_FromString(const char *s)
 {
-    return COStr_FromStingN(s, strlen(s));
+    return COStr_FromStringN(s, strlen(s));
 }
 
 /*
@@ -175,7 +175,7 @@ COStr_FromString(const char *s)
  * do not have to be null-terminated.
  */
 COObject *
-COStr_FromStingN(const char *s, size_t len)
+COStr_FromStringN(const char *s, size_t len)
 {
     COStrObject *str;
 
@@ -271,7 +271,7 @@ COStr_FromFormat(const char *fmt, ...)
 
 step2:
     /* step 2: fill the buffer */
-    str = (COStrObject *)COStr_FromStingN(NULL, n);
+    str = (COStrObject *)COStr_FromStringN(NULL, n);
     if (!str)
         return NULL;
 

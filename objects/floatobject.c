@@ -5,7 +5,7 @@ float_repr(COFloatObject *this)
 {
     char buffer[32];
     int n = snprintf(buffer, 32, "%g", this->co_fval);
-    return COStr_FromStingN(buffer, n);
+    return COStr_FromStringN(buffer, n);
 }
 
 COTypeObject COFloat_Type = {

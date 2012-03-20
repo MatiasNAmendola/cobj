@@ -35,7 +35,7 @@ main(int argc, const char **argv)
 
     if (verbose) {
         char *s = "test stirng";
-        COObject *co = COByteArray_FromStringN(s, strlen(s));
+        COObject *co = COBytes_FromStringN(s, strlen(s));
         COObject_dump(co);
         return 0;
     }

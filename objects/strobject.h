@@ -27,7 +27,7 @@ COTypeObject COStr_Type;
 
 char *COStr_AsString(COObject *co);
 COObject *COStr_FromString(const char *s);
-COObject *COStr_FromStingN(const char *s, size_t len);
+COObject *COStr_FromStringN(const char *s, size_t len);
 COObject *COStr_FromFormat(const char *fmt, ...);
 void COStr_Concat(COObject **pv, COObject *s);
 COObject *COStr_Repr(COObject *s, int smartquotes);
