@@ -1,6 +1,7 @@
 #include "co.h"
 
 typedef struct {
+    COObject *objects;  /* index of objects */
     FILE *fp;
     /* If fp == NULL, using following */
     COObject *str;
@@ -302,6 +303,7 @@ COObject_serialize(COObject *co)
     p.fp = NULL;
     p.str = COBytes_FromStringN(NULL, 0);
     p.ptr = p.end = NULL;
+    p.objects = CODict_New();
     w_object(co, &p);
     COBytes_Resize(p.str, p.ptr - COBytes_AsString(p.str));
     return p.str;
@@ -324,6 +326,7 @@ COObject_serializeToFile(COObject *co, FILE *fp)
 {
     WFILE p;
     p.fp = fp;
+    p.objects = CODict_New();
     w_object(co, &p);
     return p.str;
 }

@@ -17,6 +17,16 @@ int_repr(COIntObject *this)
     return COStr_FromStringN(p, bufend - p);
 }
 
+static long
+int_hash(COIntObject *o)
+{
+    if (o->co_ival == -1) {
+        return -2;
+    } else {
+        return o->co_ival;
+    }
+}
+
 COTypeObject COInt_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "int",
@@ -25,7 +35,7 @@ COTypeObject COInt_Type = {
     (reprfunc)int_repr,         /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
-    0,                          /* tp_hash */
+    (hashfunc)int_hash,         /* tp_hash */
 };
 
 long

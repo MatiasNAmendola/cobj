@@ -1,5 +1,7 @@
 #include "../co.h"
 
+static COObject *dummy = NULL;
+
 static COObject *
 dict_repr(CODictObject *this)
 {
@@ -9,7 +11,7 @@ dict_repr(CODictObject *this)
     for (i = 0; i < this->nTableSize; i++) {
         p = this->arBuckets[i];
         while (p != NULL) {
-            printf("%s <==> 0x%lX\n", p->arKey, p->h);
+            printf("%s <==> 0x%lX\n", p->pKey, p->h);
             p = p->pNext;
         }
     }
@@ -17,7 +19,7 @@ dict_repr(CODictObject *this)
     p = this->pListTail;
     while (p != NULL) {
         while (p != NULL) {
-            printf("%s <==> 0x%lX\n", p->arKey, p->h);
+            printf("%s <==> 0x%lX\n", p->pKey, p->h);
             p = p->pListLast;
         }
     }
@@ -37,31 +39,8 @@ COTypeObject CODict_Type = {
     0,                          /* tp_hash */
 };
 
-#define HASH_UPDATE         (1<<0)
-#define HASH_INSERT         (1<<1)
 
-#define CONNECT_TO_BUCKET_DLLIST(element, list_head)    \
-    (element)->pNext = (list_head);                     \
-    (element)->pLast = NULL;                            \
-    if ((element)->pNext) {                             \
-        (element)->pNext->pLast = (element);            \
-    }
-
-#define CONNECT_TO_GLOBAL_DLLIST(element, this)           \
-    (element)->pListLast = (this)->pListTail;             \
-    (this)->pListTail = (element);                        \
-    (element)->pListNext = NULL;                        \
-    if ((element)->pListLast != NULL) {                 \
-        (element)->pListLast->pListNext = (element);    \
-    }                                                   \
-    if ((this)->pListHead == NULL) {                      \
-        (this)->pListHead = (element);                    \
-    }                                                   \
-    if ((this)->pCursor == NULL) {                        \
-        (this)->pCursor = (element);                      \
-    }
-
-bool
+int
 _dict_rehash(CODictObject *this)
 {
     DictBucket *p;
@@ -75,10 +54,10 @@ _dict_rehash(CODictObject *this)
         this->arBuckets[nIndex] = p;
         p = p->pListNext;
     }
-    return true;
+    return 0;
 }
 
-static bool
+static int
 _dict_do_resize(CODictObject *this)
 {
     DictBucket **t;
@@ -91,54 +70,45 @@ _dict_do_resize(CODictObject *this)
         this->nTableSize = this->nTableSize << 1;
         this->nTableMask = this->nTableSize - 1;
         _dict_rehash(this);
-        return true;
+        return 0;
     }
 
-    return true;                // can not be larger
+    return -1;                // can not be larger
 }
 
-bool
-_dict_insert_or_update(CODictObject *this, COObject *key, COObject *item,
-                       int flag)
+/* 
+ * Dict lookup function.
+ * It only support str/int object now.
+ */
+static DictBucket *
+_dict_lookup(CODictObject *this, COObject *key)
 {
     ulong h;
-
     uint nIndex;
 
     DictBucket *p;
-
-    const char *arKey;
-    uint nKeyLen;
-    void *pData;
-
-    arKey = ((COStrObject *)key)->co_sval;
-    nKeyLen = CO_SIZE(key);
-    pData = item;
-
-    if (nKeyLen <= 0) {
-        return false;
-    }
 
     h = COObject_hash(key);
     nIndex = h & this->nTableMask;
     p = this->arBuckets[nIndex];
 
     while (p != NULL) {
-        if ((p->h == h) && (p->nKeyLen == nKeyLen)) {
-            if (!memcmp(p->arKey, arKey, nKeyLen)) {
-                /* key equal */
-
-                // cannot add
-                if (flag & HASH_INSERT) {
-                    return false;
+        if (p->h == h) {
+            if (p->pKey == dummy) {
+                // TODO free slots
+                continue;
+            }
+            if (COStr_Check(key)) {
+                if (!memcmp(((COStrObject *)p->pKey)->co_sval, ((COStrObject *)key)->co_sval, CO_SIZE(key))) {
+                    return p;
                 }
-                // update
-                if (p->pData == pData) {
-                    return false;
+            } else if (COInt_Check(key)) {
+                if (COInt_AsLong(p->pKey) == COInt_AsLong(key)) {
+                    return p;
                 }
-
-                p->pData = pData;
-                return true;
+            } else {
+                // TODO errors
+                assert(0);
             }
         }
 
@@ -146,23 +116,47 @@ _dict_insert_or_update(CODictObject *this, COObject *key, COObject *item,
         p = p->pNext;
     }
 
-    // add
-    p = (DictBucket *)xmalloc(sizeof(DictBucket) - 1 + nKeyLen);
-    memcpy(p->arKey, arKey, nKeyLen);
-    p->nKeyLen = nKeyLen;
-    p->pData = pData;
+    return NULL;
+}
+
+static int
+_dict_insert(CODictObject *this, COObject *key, COObject *item)
+{
+    DictBucket *p;
+    ulong h = COObject_hash(key);
+    p = (DictBucket *)xmalloc(sizeof(DictBucket));
+    p->pKey = key;
+    p->pData = item;
     p->h = h;
 
-    CONNECT_TO_BUCKET_DLLIST(p, this->arBuckets[nIndex]);
-    CONNECT_TO_GLOBAL_DLLIST(p, this);
-    this->arBuckets[nIndex] = p;
+    uint nIndex = h & this->nTableMask;
 
+    // connect to bucket dllist
+    p->pNext = this->arBuckets[nIndex];
+    p->pLast = NULL;
+    if (p->pNext) {
+        p->pNext->pLast = p;
+    }
+
+    // connect to global dllist
+    p->pListLast = this->pListTail;
+    this->pListTail = p;
+    p->pListNext = NULL;
+    if (p->pListLast != NULL) {
+        p->pListLast->pListNext = p;
+    }
+    if (this->pListHead == NULL) {
+        this->pListHead = p;
+    }                                                   
+
+    this->arBuckets[nIndex] = p;
     this->nNumOfElements++;
 
     if (this->nNumOfElements > this->nTableSize) {
         _dict_do_resize(this);
     }
-    return true;
+
+    return 0;
 }
 
 void
@@ -183,6 +177,9 @@ _dict_destory(CODictObject *this)
 COObject *
 CODict_New(void)
 {
+    if (dummy == NULL) {
+        dummy = COStr_FromString("<dummy key>");
+    }
     DictBucket **tmp;
     CODictObject *dict = COObject_New(CODictObject, &CODict_Type);
 
@@ -191,7 +188,6 @@ CODict_New(void)
     dict->nTableMask = dict->nTableSize - 1;
     dict->arBuckets = NULL;
     dict->nNumOfElements = 0;
-    dict->nNextFreeElement = 0;
     tmp = (DictBucket **)xcalloc(dict->nTableSize, sizeof(DictBucket *));
     dict->arBuckets = tmp;
 
@@ -204,108 +200,57 @@ CODict_New(void)
 COObject *
 CODict_GetItem(COObject *this, COObject *key)
 {
-    ulong h;
-
-    uint nIndex;
-
-    DictBucket *p;
-
-    h = COObject_hash(key);
-    nIndex = h & ((CODictObject *)this)->nTableMask;
-
-    p = ((CODictObject *)this)->arBuckets[nIndex];
-
-    while (p != NULL) {
-        if ((p->h == h) && (p->nKeyLen == CO_SIZE(key))) {
-            if (!memcmp(p->arKey, ((COStrObject *)key)->co_sval, CO_SIZE(key))) {
-                return p->pData;
-            }
-        }
-        p = p->pNext;
+    DictBucket *p = _dict_lookup((CODictObject *)this, key);
+    if (!p) {
+        return NULL;
     }
-
-    return NULL;
+    return p->pData;
 }
 
 int
 CODict_SetItem(COObject *this, COObject *key, COObject *item)
 {
-    return _dict_insert_or_update((CODictObject *)this, key, item, HASH_UPDATE);
+    DictBucket *p = _dict_lookup((CODictObject *)this, key);
+    if (!p) {
+        return _dict_insert((CODictObject *)this, key, item);
+    }
+
+    p->pData = item;
+
+    return 0;
 }
 
 int
-CODict_DelItem(COObject *_this, COObject *key)
+CODict_DelItem(COObject *this, COObject *key)
 {
-    CODictObject *this = (CODictObject *)_this;
-    uint nIndex;
-
-    DictBucket *p;
-
-    ulong h;
-
-    const char *arKey;
-    uint nKeyLen;
-    arKey = ((COStrObject *)key)->co_sval;
-    nKeyLen = CO_SIZE(key);
-
-    h = COObject_hash(key);
-    nIndex = h & this->nTableMask;
-
-    p = this->arBuckets[nIndex];
-
-    while (p != NULL) {
-        if (p->h == h && p->nKeyLen == nKeyLen) {
-            if (!memcmp(p->arKey, arKey, nKeyLen)) {    /* Key Equal */
-                // remove from bucket dllist
-                if (p == this->arBuckets[nIndex]) {
-                    this->arBuckets[nIndex] = p->pNext;
-                } else {
-                    p->pLast->pNext = p->pNext;
-                }
-                if (p->pNext) {
-                    p->pNext->pLast = p->pLast;
-                }
-                // remove from global ddlist
-                if (p->pListLast == NULL) {
-                    this->pListHead = p->pListNext;
-                } else {
-                    p->pListLast->pListNext = p->pListNext;
-                }
-                if (p->pListNext == NULL) {
-                    this->pListTail = p->pListLast;
-                } else {
-                    p->pListNext->pListLast = p->pListLast;
-                }
-                free(p);
-                this->nNumOfElements--;
-                return 0;
-            }
-        } else {
-            p = p->pNext;
-        }
+    DictBucket *p = _dict_lookup((CODictObject *)this, key);
+    if (!p) {
+        return -1;
     }
-    return -1;
+    
+    p->pKey = dummy;
+
+    ((CODictObject *)this)->nNumOfElements--;
+
+    return 0;
 }
 
 void
-CODict_Clear(COObject *_this)
+CODict_Clear(COObject *this)
 {
-    CODictObject *this = (CODictObject *)_this;
     DictBucket *p, *q;
 
-    p = this->pListHead;
+    p = ((CODictObject *)this)->pListHead;
     while (p != NULL) {
         q = p;
         free(q->pData);
         free(q);
         p = p->pListNext;
     }
-    memset(this->arBuckets, 0, this->nTableSize * sizeof(DictBucket *));
-    this->pListHead = NULL;
-    this->pListTail = NULL;
-    this->nNumOfElements = 0;
-    this->nNextFreeElement = 0;
-    this->pCursor = NULL;
+    memset(((CODictObject *)this)->arBuckets, 0, ((CODictObject *)this)->nTableSize * sizeof(DictBucket *));
+    ((CODictObject *)this)->pListHead = NULL;
+    ((CODictObject *)this)->pListTail = NULL;
+    ((CODictObject *)this)->nNumOfElements = 0;
 }
 
 size_t

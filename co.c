@@ -45,10 +45,21 @@ main(int argc, const char **argv)
     argc = argparse_parse(&argparse, argc, argv);
 
     if (verbose) {
+        COObject *d = CODict_New();
+        CODict_SetItem(d, COInt_FromLong(0), COInt_FromLong(100));
+        CODict_SetItem(d, COInt_FromLong(1), COInt_FromLong(200));
+        COObject_dump(d);
+        CODict_DelItem(d, COInt_FromLong(1));
+        COObject_dump(CODict_GetItem(d, COStr_FromString("<dummy key>")));
+        /*COObject_dump(CODict_GetItem(d, COInt_FromLong(0)));*/
+        COObject_dump(d);
+
         COObject *co = COList_New(0);
         COList_Append(co, COInt_FromLong(1));
         COList_Append(co, COInt_FromLong(2));
+        COList_Append(co, CO_True);
         COList_Append(co, COInt_FromLong(3));
+        COList_Append(co, CO_True);
         COObject *s = COObject_serialize(COList_AsTuple(co));
         COObject_dump(s);
         COObject_dump(COObject_unserialize(s));
