@@ -2,6 +2,7 @@
 all::
 
 # Define CO_DEBUG=1 to debug (Defaults: 0)
+# Define YY_DEBUG=1 to debug scanner/parser (Defaults: 0)
 # Define CC=clang to use clang to compile (Defaults: gcc)
 
 CC = gcc
@@ -50,6 +51,7 @@ LIB_OBJS += objects/frameobject.o
 LIB_OBJS += objects/dictobject.o
 LIB_OBJS += objects/oplineobject.o
 LIB_OBJS += objects/bytesobject.o
+LIB_OBJS += objects/fileobject.o
 LIB_OBJS += linenoise/linenoise.o
 
 $(LIB_OBJS): $(LIB_H)

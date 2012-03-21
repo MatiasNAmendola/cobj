@@ -60,19 +60,20 @@ main(int argc, const char **argv)
     if (eval) {
         co_scanner_setcode(eval);
     } else {
-        int fd = 0;
+        FILE *f = stdin;
+        const char *f_name = "<stdin>";
         if (argc > 0) {
-            fd = open(*argv, O_RDONLY);
-            if (fd < 0) {
+            f = fopen(*argv, "rb");
+            if (f == NULL) {
                 error("open %s failed", *argv);
             }
+            f_name = *argv;
             // detect if it's a code cache
             COObject *first_object;
-            FILE *outfile = fdopen(fd, "r");
-            first_object = COObject_unserializeFromFile(outfile);
+            first_object = COObject_unserializeFromFile(f);
             if (first_object && COInt_Check(first_object)
                 && COInt_AsLong(first_object) == CODEDUMP_MAGIC) {
-                COObject *code = COObject_unserializeFromFile(outfile);
+                COObject *code = COObject_unserializeFromFile(f);
                 if (!code) {
                     // TODO invalid code dump
                     return -1;
@@ -81,8 +82,8 @@ main(int argc, const char **argv)
                 return 0;
             }
         }
-        lseek(fd, 0, SEEK_SET);
-        co_scanner_openfile(fd);
+        fseek(f, 0, SEEK_SET);
+        co_scanner_setfile(COFile_FromFile(f, (char *)f_name, "r", fclose));
     }
 
     COCodeObject *co;

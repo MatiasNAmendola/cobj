@@ -21,8 +21,7 @@ struct co_scanner_globals scanner_globals;
 #define YYMARKER    scanner_globals.yy_marker
 #define YYGETCONDITION()  scanner_globals.yy_state
 #define YYSETCONDITION(s) scanner_globals.yy_state = s
-#undef CO_DEBUG
-#ifdef CO_DEBUG
+#ifdef YY_DEBUG
 # define YYDEBUG(s, c)   printf("state: %d char: %c\n", s, c)
 #else
 # define YYDEBUG(s, c)
@@ -186,11 +185,9 @@ co_scanner_shutdown()
 }
 
 int
-co_scanner_openfile(int fd)
+co_scanner_setfile(COObject *f)
 {
-    dstring code = dstring_readfd(fd);
-    co_scanner_setcode(code);
-    return 0;
+    return co_scanner_setcode(COBytes_AsString(COFile_Read(f, -1)));
 }
 
 int

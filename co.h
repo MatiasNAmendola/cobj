@@ -48,9 +48,9 @@
 #include "objects/codeobject.h"
 #include "objects/oplineobject.h"
 #include "objects/bytesobject.h"
+#include "objects/fileobject.h"
 
 #include "argparse/argparse.h"
-#include "dstring/dstring.h"
 
 /* Helper Functions */
 static inline ssize_t

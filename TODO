@@ -1,4 +1,3 @@
-* write FileObject to replace dstring
 * serialize/unserialize support code references, and recursive linked
 * co_opline_array to bytecode string
 * error handling (exceptin)
