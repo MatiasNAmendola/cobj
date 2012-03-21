@@ -108,13 +108,8 @@ main(int argc, const char **argv)
         } else {
             f = fopen("co.out", "w");
         }
-        COObject *co_compiled_str = COObject_serialize((COObject *)co);
-        COObject *code_magic =
-            COObject_serialize(COInt_FromLong(CODEDUMP_MAGIC));
-        fwrite(COBytes_AsString(code_magic), CO_SIZE(code_magic), sizeof(char),
-               f);
-        fwrite(COBytes_AsString(co_compiled_str), CO_SIZE(co_compiled_str),
-               sizeof(char), f);
+        COObject_serializeToFile(COInt_FromLong(CODEDUMP_MAGIC), f);
+        COObject_serializeToFile((COObject *)co, f);
         return 0;
     }
 

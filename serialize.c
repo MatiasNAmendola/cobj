@@ -2,6 +2,7 @@
 
 typedef struct {
     COObject *objects;  /* index of objects */
+    size_t offset;
     FILE *fp;
     /* If fp == NULL, using following */
     COObject *str;
@@ -25,12 +26,16 @@ typedef WFILE RFILE;
 #define TYPE_CODE       'c'
 #define TYPE_OPLINE     'o'
 #define TYPE_UNKNOW     '?'
+#define TYPE_REFER      'r'
 
 #define w_byte(c, p)                        \
-    if (((p)->fp)) putc((c), (p)->fp);      \
-    else if ((p)->ptr != (p)->end)           \
+    if (((p)->fp)) {                        \
+        putc((c), (p)->fp);                 \
+        (p)->offset++;                      \
+    } else if ((p)->ptr != (p)->end) {      \
         *(p)->ptr++ = (c);                  \
-    else w_more(c, p)
+        (p)->offset++;                      \
+    } else w_more(c, p)
 
 static void w_cnode(struct cnode *node, WFILE *p);
 static COObject *r_object(RFILE *p);
@@ -51,6 +56,7 @@ w_more(int c, WFILE *p)
         p->ptr = COBytes_AsString(p->str) + size;
         p->end = COBytes_AsString(p->str) + newsize;
         *p->ptr++ = c;
+        p->offset++;
     }
 }
 
@@ -82,6 +88,15 @@ w_string(char *s, int n, WFILE *p)
 static void
 w_object(COObject *co, WFILE *p)
 {
+    COObject *offset = CODict_GetItem(p->objects, COInt_FromLong((long)co));
+    if (offset) {
+        w_byte(TYPE_REFER, p);
+        w_int64(COInt_AsLong(offset), p);
+        return;
+    } else {
+        CODict_SetItem(p->objects, COInt_FromLong((long)co), COInt_FromLong(p->offset));
+    }
+
     if (co == NULL) {
         w_byte(TYPE_NULL, p);
     } else if (co == CO_None) {
@@ -157,6 +172,7 @@ r_string(char *s, int n, RFILE *p)
         memcpy(s, p->ptr, read);
         p->ptr += read;
     }
+    p->offset += read;
     return read;
 }
 
@@ -212,6 +228,7 @@ r_object(RFILE *p)
 {
     int type;
     COObject *rs;
+    int offset = p->offset;
     type = r_byte(p);
 
     switch (type) {
@@ -289,9 +306,24 @@ r_object(RFILE *p)
             }
         }
         break;
+    case TYPE_REFER:
+        {
+            int offset = r_int64(p);
+            COObject *found = CODict_GetItem(p->objects, COInt_FromLong(offset));
+            if (found) {
+                rs = (COObject *)COInt_AsLong(found);
+            } else {
+                // TODO errors
+                assert(0);
+            }
+        }
+        break;
     default:
         /*error("unknow object to read: %d", type); */
         return NULL;
+    }
+    if (type != TYPE_REFER) {
+        CODict_SetItem(p->objects, COInt_FromLong(offset), COInt_FromLong((long)rs));
     }
     return rs;
 }
@@ -300,10 +332,11 @@ COObject *
 COObject_serialize(COObject *co)
 {
     WFILE p;
+    p.objects = CODict_New();
+    p.offset = 0;
     p.fp = NULL;
     p.str = COBytes_FromStringN(NULL, 0);
     p.ptr = p.end = NULL;
-    p.objects = CODict_New();
     w_object(co, &p);
     COBytes_Resize(p.str, p.ptr - COBytes_AsString(p.str));
     return p.str;
@@ -313,6 +346,8 @@ COObject *
 COObject_unserialize(COObject *s)
 {
     RFILE p;
+    p.objects = CODict_New();
+    p.offset = 0;
     p.fp = NULL;
     p.str = s;
     p.ptr = COBytes_AsString(p.str);
@@ -325,8 +360,9 @@ COObject *
 COObject_serializeToFile(COObject *co, FILE *fp)
 {
     WFILE p;
-    p.fp = fp;
     p.objects = CODict_New();
+    p.offset = 0;
+    p.fp = fp;
     w_object(co, &p);
     return p.str;
 }
@@ -335,6 +371,8 @@ COObject *
 COObject_unserializeFromFile(FILE *fp)
 {
     RFILE p;
+    p.objects = CODict_New();
+    p.offset = 0;
     p.fp = fp;
     return r_object(&p);
 }
