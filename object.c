@@ -61,7 +61,6 @@ COVarObject * _COVarObject_New(COTypeObject *tp, size_t n)
 {
     COVarObject *co;
     const size_t size = COObject_VAR_SIZE(tp, n);
-    printf("new:%d\n", size);
     co = (COVarObject *)xmalloc(size);
     if (co == NULL) {
         // TODO errors

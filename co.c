@@ -77,7 +77,7 @@ main(int argc, const char **argv)
                     // TODO invalid code dump
                     return -1;
                 }
-                co_vm_execute(code);
+                co_vm_execute((COCodeObject *)code);
                 return 0;
             }
         }
