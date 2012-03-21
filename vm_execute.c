@@ -49,8 +49,8 @@ COObject_put(COObject *name, COObject *co)
     if (current_exec_data->function_called) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
-                               current_exec_data->
-                               function_called)->func_upvalues, name);
+                               current_exec_data->function_called)->
+                              func_upvalues, name);
         if (myco) {
             CODict_SetItem(((COFunctionObject *)
                             current_exec_data->function_called)->func_upvalues,
@@ -280,8 +280,8 @@ vm_enter:
                     (COFunctionObject *)COFunction_New(op->op1.u.co);
                 uint start =
                     EG(current_exec_data)->op -
-                    (COOplineObject **)((COTupleObject *)main->
-                                        co_oplines)->co_item - 1;
+                    (COOplineObject **)((COTupleObject *)main->co_oplines)->
+                    co_item - 1;
                 COObject *suboplines =
                     COTuple_GetSlice(main->co_oplines, start + 1,
                                      start + 1 + op->op2.u.opline_num);

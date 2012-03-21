@@ -104,13 +104,13 @@ COObject _CO_None;              // Don't use this directly, using following one 
           (n) * (typeobj)->tp_itemsize  +   \
           (sizeof(void*)  - 1)              \
         ) & ~(sizeof(void*) - 1)            \
-    ) 
+    )
 
-COObject * _COObject_New(COTypeObject *);
-COVarObject * _COVarObject_New(COTypeObject *, size_t);
+COObject *_COObject_New(COTypeObject *);
+COVarObject *_COVarObject_New(COTypeObject *, size_t);
 
 #define COObject_New(type, typeobj)         \
-    ((type *)_COObject_New((typeobj)))   
+    ((type *)_COObject_New((typeobj)))
 #define COVarObject_New(type, typeobj, n)   \
     ((type *)_COVarObject_New((typeobj), (n)))
 

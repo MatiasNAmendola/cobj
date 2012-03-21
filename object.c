@@ -45,7 +45,8 @@ COObject_hash(COObject *co)
     return -1;
 }
 
-COObject * _COObject_New(COTypeObject *tp)
+COObject *
+_COObject_New(COTypeObject *tp)
 {
     COObject *co;
     co = (COObject *)xmalloc(tp->tp_basicsize);
@@ -57,7 +58,8 @@ COObject * _COObject_New(COTypeObject *tp)
     return COObject_Init(co, tp);
 }
 
-COVarObject * _COVarObject_New(COTypeObject *tp, size_t n)
+COVarObject *
+_COVarObject_New(COTypeObject *tp, size_t n)
 {
     COVarObject *co;
     const size_t size = COObject_VAR_SIZE(tp, n);

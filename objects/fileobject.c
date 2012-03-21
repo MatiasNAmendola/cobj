@@ -1,7 +1,7 @@
 #include "../co.h"
 
 COObject *
-COFile_FromFile(FILE *fp, char *name, char *mode, int (*close)(FILE *))
+COFile_FromFile(FILE *fp, char *name, char *mode, int (*close) (FILE *))
 {
     COFileObject *f = COObject_New(COFileObject, &COFile_Type);
 }
