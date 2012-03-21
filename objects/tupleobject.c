@@ -3,13 +3,13 @@
 static COObject *
 tuple_repr(COTupleObject *this)
 {
-    size_t i = CO_SIZE(this);
+    size_t i = ((COTupleObject *)this)->co_size;
     if (i == 0) {
         return COStr_FromString("()");
     }
     COObject *s;
     s = COStr_FromString("(");
-    for (i = 0; i < CO_SIZE(this); i++) {
+    for (i = 0; i < ((COTupleObject *)this)->co_size; i++) {
         COObject *co = COList_GetItem((COObject *)this, i);
         if (i != 0)
             COStr_Concat(&s, COStr_FromString(", "));
@@ -38,12 +38,12 @@ tuple_slice(COTupleObject *this, int ilow, int ihigh)
     COTupleObject *co;
     if (ilow < 0)
         ilow = 0;
-    else if (ilow > CO_SIZE(this))
-        ilow = CO_SIZE(this);
+    else if (ilow > ((COTupleObject *)this)->co_size)
+        ilow = ((COTupleObject *)this)->co_size;
     if (ihigh < ilow)
         ihigh = ilow;
-    else if (ihigh > CO_SIZE(this))
-        ihigh = CO_SIZE(this);
+    else if (ihigh > ((COTupleObject *)this)->co_size)
+        ihigh = ((COTupleObject *)this)->co_size;
     len = ihigh - ilow;
 
     co = (COTupleObject *)COTuple_New(len);
@@ -65,8 +65,7 @@ COTuple_New(size_t size)
     size_t nbytes;
     nbytes = size * sizeof(COObject *);
 
-    this = xmalloc(sizeof(COTupleObject));
-    COObject_Init(this, &COTuple_Type);
+    this = COObject_New(COTupleObject, &COTuple_Type);
     if (size <= 0) {
         this->co_item = NULL;
     } else {
@@ -77,20 +76,20 @@ COTuple_New(size_t size)
         }
         memset(this->co_item, 0, nbytes);
     }
-    CO_SIZE(this) = size;
+    ((COTupleObject *)this)->co_size = size;
     return (COObject *)this;
 }
 
 size_t
 COTuple_Size(COObject *this)
 {
-    return CO_SIZE(this);
+    return ((COTupleObject *)this)->co_size;
 }
 
 COObject *
 COTuple_GetItem(COObject *this, size_t index)
 {
-    if (index >= CO_SIZE(this)) {
+    if (index >= ((COTupleObject *)this)->co_size) {
         // TODO errors
         return NULL;
     }
@@ -102,7 +101,7 @@ COTuple_SetItem(COObject *this, size_t index, COObject *item)
 {
     COObject **p;
     COObject *olditem;
-    if (index >= CO_SIZE(this)) {
+    if (index >= ((COTupleObject *)this)->co_size) {
         // TODO errors
         return -1;
     }

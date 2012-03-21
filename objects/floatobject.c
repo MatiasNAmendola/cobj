@@ -24,8 +24,7 @@ COFloat_FromString(char *s)
 {
     COFloatObject *f;
 
-    f = xmalloc(sizeof(COFloatObject));
-    COObject_Init(f, &COFloat_Type);
+    f = COObject_New(COFloatObject, &COFloat_Type);
     f->co_fval = strtof(s, NULL);
     return (COObject *)f;
 }

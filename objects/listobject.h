@@ -4,13 +4,14 @@
 #include "../object.h"
 
 typedef struct _COListObject {
-    COVarObject_HEAD;
+    COObject_HEAD;
     /* 
      * Vector of pointers to list elements.
      *  - list[0] is co_item[0]
      *  - 0 <= co_size <= allocated_size
      *  - co_item == NULL implies co_size == allocated == 0
      */
+    size_t co_size;
     COObject **co_item;
     size_t allocated;
 } COListObject;

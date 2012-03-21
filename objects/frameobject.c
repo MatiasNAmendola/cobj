@@ -56,9 +56,7 @@ vm_stack_extend(COObject *this, size_t size)
 COObject *
 COFrame_New(void)
 {
-    COFrameObject *f = xmalloc(sizeof(COFrameObject));
-    memset(f, 0, sizeof(COFrameObject));
-    COObject_Init(f, &COFrame_Type);
+    COFrameObject *f = COObject_New(COFrameObject, &COFrame_Type);
 
     f->vm_stack = vm_stack_new_page(VM_STACK_PAGE_SIZE);
     return (COObject *)f;

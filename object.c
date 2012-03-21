@@ -44,3 +44,28 @@ COObject_hash(COObject *co)
     error("fatal");
     return -1;
 }
+
+COObject * _COObject_New(COTypeObject *tp)
+{
+    COObject *co;
+    co = (COObject *)xmalloc(tp->tp_basicsize);
+    if (co == NULL) {
+        // TODO errors
+        return NULL;
+    }
+
+    return COObject_Init(co, tp);
+}
+
+COVarObject * _COVarObject_New(COTypeObject *tp, size_t n)
+{
+    COVarObject *co;
+    const size_t size = COObject_VAR_SIZE(tp, n);
+    printf("new:%d\n", size);
+    co = (COVarObject *)xmalloc(size);
+    if (co == NULL) {
+        // TODO errors
+        return NULL;
+    }
+    return COVarObject_Init(co, tp, n);
+}

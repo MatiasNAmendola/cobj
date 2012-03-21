@@ -76,9 +76,9 @@ typedef struct _COVarObject {
 #define CO_REFCNT(co)     (((COObject *)(co))->co_refcnt)
 #define CO_SIZE(co)     (((COVarObject *)(co))->co_size)
 #define COObject_Init(co, typeobj)          \
-    ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1)
+    ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1, (co))
 #define COVarObject_Init(co, typeobj, size) \
-    ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1, CO_SIZE(co) = size)
+    ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1, CO_SIZE(co) = size, (co))
 
 COObject _CO_None;              // Don't use this directly, using following one instead!
 #define CO_None         (&_CO_None)
@@ -89,6 +89,30 @@ COObject _CO_None;              // Don't use this directly, using following one 
 /* Macros to used in case the object pointer may be NULL: */
 #define CO_XINCREF(co)  do { if ((co) == NULL) ; else CO_INCREF(co); } while (0)
 #define CO_XDECREF(co)  do { if ((co) == NULL) ; else CO_DECREF(co); } while (0)
+
+/* COObject_VAR_SIZE returns the number of bytes allocated for a variable-size
+ * object with n items. The value is rounded up to the closest multiple of
+ * sizeof(void *), in order to ensure that pointer fields at the end of the
+ * object are correctly aligned for the platform.
+ *
+ * Note that there is no memory wastage in doing this, as malloc has to return
+ * (at worst) pointer-aligned memory anyway.
+ */
+#define COObject_VAR_SIZE(typeobj, n)       \
+    (size_t) (                              \
+        ( (typeobj)->tp_basicsize +         \
+          (n) * (typeobj)->tp_itemsize  +   \
+          (sizeof(void*)  - 1)              \
+        ) & ~(sizeof(void*) - 1)            \
+    ) 
+
+COObject * _COObject_New(COTypeObject *);
+COVarObject * _COVarObject_New(COTypeObject *, size_t);
+
+#define COObject_New(type, typeobj)         \
+    ((type *)_COObject_New((typeobj)))   
+#define COVarObject_New(type, typeobj, n)   \
+    ((type *)_COVarObject_New((typeobj), (n)))
 
 void COObject_dump(COObject *co);
 long COObject_hash(COObject *co);

@@ -22,9 +22,7 @@ COTypeObject COOpline_Type = {
 COObject *
 COOpline_New(void)
 {
-    COOplineObject *co = xmalloc(sizeof(COOplineObject));
-    memset(co, 0, sizeof(COOplineObject));
-    COObject_Init(co, &COOpline_Type);
+    COOplineObject *co = COObject_New(COOplineObject, &COOpline_Type);
 
     return (COObject *)co;
 }

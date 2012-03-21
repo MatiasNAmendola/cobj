@@ -6,7 +6,7 @@ bytes_repr(COBytesObject *this)
     static const char *hexdigits = "0123456789abcdef";
     const char *quote_prefix = "b";
     const char *quote_postfix = "";
-    size_t len = CO_SIZE(this);
+    size_t len = this->co_size;
     /* LEN_MIN = strlen(quote_prefix) + 2 + strlen(quote_postfix) */
 #define LEN_MIN 3
     if (len > (SIZE_MAX - LEN_MIN) / 4) {
@@ -73,11 +73,10 @@ COBytes_FromStringN(const char *bytes, size_t len)
 {
     COBytesObject *new;
 
-    new = xmalloc(sizeof(COBytesObject));
+    new = COObject_New(COBytesObject, &COBytes_Type);
     if (new == NULL) {
         return NULL;
     }
-    COVarObject_Init(new, &COBytes_Type, len);
 
     if (len == 0) {
         new->co_bytes = NULL;
@@ -94,6 +93,7 @@ COBytes_FromStringN(const char *bytes, size_t len)
         new->co_alloc = len + 1;
     }
 
+    new->co_size = len;
     return (COObject *)new;
 }
 
@@ -108,7 +108,7 @@ COBytes_Resize(COObject *this, size_t size)
     size_t alloc = ((COBytesObject *)this)->co_alloc;
     char *bytes;
 
-    if (size == CO_SIZE(this)) {
+    if (size == ((COBytesObject *)this)->co_size) {
         return 0;
     }
 
@@ -117,7 +117,7 @@ COBytes_Resize(COObject *this, size_t size)
         alloc = size + 1;
     } else if (size < alloc) {
         /* Within allocated size; quick exit */
-        CO_SIZE(this) = size;
+        ((COBytesObject *)this)->co_size = size;
         ((COBytesObject *)this)->co_bytes[size] = '\0';
         return 0;
     } else {
@@ -132,7 +132,7 @@ COBytes_Resize(COObject *this, size_t size)
     }
 
     ((COBytesObject *)this)->co_bytes = bytes;
-    CO_SIZE(this) = size;
+    ((COBytesObject *)this)->co_size = size;
     ((COBytesObject *)this)->co_alloc = alloc;
     ((COBytesObject *)this)->co_bytes[size] = '\0';
 
@@ -140,7 +140,7 @@ COBytes_Resize(COObject *this, size_t size)
 }
 
 size_t
-COBytes_Size(COObject *co)
+COBytes_Size(COObject *this)
 {
-    return CO_SIZE(co);
+    return ((COBytesObject *)this)->co_size;
 }

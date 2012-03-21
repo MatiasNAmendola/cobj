@@ -22,9 +22,7 @@ COTypeObject COCode_Type = {
 COObject *
 COCode_New(COObject *oplines, size_t numoftmpvars)
 {
-    COCodeObject *co = xmalloc(sizeof(COCodeObject));
-    memset(co, 0, sizeof(COCodeObject));
-    COObject_Init(co, &COCode_Type);
+    COCodeObject *co = COObject_New(COCodeObject, &COCode_Type);
 
     co->co_oplines = oplines;
     co->co_numoftmpvars = numoftmpvars;

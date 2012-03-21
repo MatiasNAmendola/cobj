@@ -184,9 +184,7 @@ COObject *
 CODict_New(void)
 {
     DictBucket **tmp;
-    CODictObject *dict = xmalloc(sizeof(CODictObject));
-    memset(dict, 0, sizeof(CODictObject));
-    COObject_Init(dict, &CODict_Type);
+    CODictObject *dict = COObject_New(CODictObject, &CODict_Type);
 
     dict->nTableSize = CODict_MINSIZE;
 

@@ -1,7 +1,8 @@
-* construct AST from parse.y according to ruby
+* write FileObject to replace dstring
+* serialize/unserialize support code references, and recursive linked
 * co_opline_array to bytecode string
 * error handling (exceptin)
 * error message with location
 * implement namespace & scope rules
 * the whole code is functionobject
-* functionobject dump/load bytecode
+* construct AST from parse.y according to ruby

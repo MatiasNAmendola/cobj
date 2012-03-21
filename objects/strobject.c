@@ -9,7 +9,7 @@ static COStrObject *null_str = NULL;
  * Instead of sizeof(COStrObject), it saves bytes per string allocation on a
  * typical system, you can compare this with sizeof(COStrObject) + n bytes.
  */
-#define COStr_BASESIZE    (offsetof(COStrObject, co_sval) )
+#define COStr_BASESIZE    (offsetof(COStrObject, co_sval) + 1)
 
 static COObject *
 str_repr(COObject *this)
@@ -25,7 +25,7 @@ str_concat(COStrObject *this, COStrObject *s)
 
     size = CO_SIZE(this) + CO_SIZE(s);
 
-    co = (COStrObject *)xmalloc(COStr_BASESIZE + size);
+    co = COVarObject_New(COStrObject, &COStr_Type, size);
     if (co == NULL) {
         // TODO errors
         return NULL;
@@ -33,7 +33,6 @@ str_concat(COStrObject *this, COStrObject *s)
 
     memcpy(co->co_sval, this->co_sval, CO_SIZE(this));
     memcpy(co->co_sval + CO_SIZE(this), s->co_sval, CO_SIZE(s));
-    COVarObject_Init(co, &COStr_Type, size);
     co->co_shash = -1;
     co->co_sval[size] = '\0';
     return co;
@@ -147,8 +146,8 @@ str_hash(COStrObject *this)
 COTypeObject COStr_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "str",
-    sizeof(COStrObject),
-    0,
+    COStr_BASESIZE,
+    sizeof(char),
     (reprfunc)str_repr,         /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
@@ -183,8 +182,7 @@ COStr_FromStringN(const char *s, size_t len)
         return (COObject *)str;
     }
 
-    str = xmalloc(COStr_BASESIZE + len);
-    COVarObject_Init(str, &COStr_Type, len);
+    str = COVarObject_New(COStrObject, &COStr_Type, len);
     str->co_shash = -1;
     if (s != NULL) {
         memcpy(str->co_sval, s, len);

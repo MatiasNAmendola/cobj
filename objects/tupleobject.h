@@ -10,7 +10,8 @@
 #include "../object.h"
 
 typedef struct _COTupleObject {
-    COVarObject_HEAD;
+    COObject_HEAD;
+    size_t co_size;
     COObject **co_item;
 } COTupleObject;
 

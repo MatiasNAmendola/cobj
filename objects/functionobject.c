@@ -24,9 +24,7 @@ COTypeObject COFunction_Type = {
 COObject *
 COFunction_New(COObject *func_name)
 {
-    COFunctionObject *func;
-    func = xmalloc(sizeof(COFunctionObject));
-    COObject_Init(func, &COFunction_Type);
+    COFunctionObject *func = COObject_New(COFunctionObject, &COFunction_Type);
     if (!func_name) {
         func_name =
             anonymous_func_name ? anonymous_func_name : (anonymous_func_name =

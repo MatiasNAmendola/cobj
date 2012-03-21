@@ -44,8 +44,7 @@ COInt_FromString(char *s, int base)
         return NULL;
     }
 
-    num = xmalloc(sizeof(COIntObject));
-    COObject_Init(num, &COInt_Type);
+    num = COObject_New(COIntObject, &COInt_Type);
     num->co_ival = strtol(s, NULL, base);
     return (COObject *)num;
 }
@@ -55,8 +54,7 @@ COInt_FromLong(long ival)
 {
     COIntObject *num;
 
-    num = xmalloc(sizeof(COIntObject));
-    COObject_Init(num, &COInt_Type);
+    num = COObject_New(COIntObject, &COInt_Type);
     num->co_ival = ival;
     return (COObject *)num;
 }
