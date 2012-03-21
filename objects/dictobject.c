@@ -6,22 +6,11 @@ static COObject *
 dict_repr(CODictObject *this)
 {
 #ifdef CO_DEBUG
-    uint i;
-    DictBucket *p;
-    for (i = 0; i < this->nTableSize; i++) {
-        p = this->arBuckets[i];
-        while (p != NULL) {
-            printf("%s <==> 0x%lX\n", p->pKey, p->h);
-            p = p->pNext;
-        }
-    }
-
-    p = this->pListTail;
-    while (p != NULL) {
-        while (p != NULL) {
-            printf("%s <==> 0x%lX\n", p->pKey, p->h);
-            p = p->pListLast;
-        }
+    COObject *key;
+    COObject *item;
+    while (CODict_Next((COObject *)this, &key, &item) == 0) {
+        COObject_dump(key);
+        COObject_dump(item);
     }
 #endif
 
@@ -126,7 +115,7 @@ _dict_insert(CODictObject *this, COObject *key, COObject *item)
     ulong h = COObject_hash(key);
     p = (DictBucket *)xmalloc(sizeof(DictBucket));
     p->pKey = key;
-    p->pData = item;
+    p->pItem = item;
     p->h = h;
 
     uint nIndex = h & this->nTableMask;
@@ -148,6 +137,9 @@ _dict_insert(CODictObject *this, COObject *key, COObject *item)
     if (this->pListHead == NULL) {
         this->pListHead = p;
     }                                                   
+    if (this->pCursor == NULL) {
+        this->pCursor = p;
+    }
 
     this->arBuckets[nIndex] = p;
     this->nNumOfElements++;
@@ -167,7 +159,7 @@ _dict_destory(CODictObject *this)
     p = this->pListHead;
     while (p != NULL) {
         q = p;
-        free(q->pData);
+        free(q->pItem);
         free(q);
         p = p->pListNext;
     }
@@ -204,7 +196,7 @@ CODict_GetItem(COObject *this, COObject *key)
     if (!p) {
         return NULL;
     }
-    return p->pData;
+    return p->pItem;
 }
 
 int
@@ -215,7 +207,7 @@ CODict_SetItem(COObject *this, COObject *key, COObject *item)
         return _dict_insert((CODictObject *)this, key, item);
     }
 
-    p->pData = item;
+    p->pItem = item;
 
     return 0;
 }
@@ -235,6 +227,34 @@ CODict_DelItem(COObject *this, COObject *key)
     return 0;
 }
 
+int
+CODict_Current(COObject *this, COObject **key, COObject **item)
+{
+    if (((CODictObject *)this)->pCursor == NULL) {
+        return -1;
+    }
+    *key = ((CODictObject *)this)->pCursor->pKey;
+    *item = ((CODictObject *)this)->pCursor->pItem;
+    return 0;
+}
+
+int
+CODict_Next(COObject *this, COObject **key, COObject **item)
+{
+    if (CODict_Current(this, key, item) != 0) {
+        return -1;
+    }
+
+    ((CODictObject *)this)->pCursor = ((CODictObject *)this)->pCursor->pListNext;
+    return 0;
+}
+
+void
+CODict_Rewind(COObject *this)
+{
+    ((CODictObject *)this)->pCursor = ((CODictObject *)this)->pListHead;
+}
+
 void
 CODict_Clear(COObject *this)
 {
@@ -243,7 +263,7 @@ CODict_Clear(COObject *this)
     p = ((CODictObject *)this)->pListHead;
     while (p != NULL) {
         q = p;
-        free(q->pData);
+        free(q->pItem);
         free(q);
         p = p->pListNext;
     }

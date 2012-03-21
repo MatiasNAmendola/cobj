@@ -90,10 +90,12 @@ w_object(COObject *co, WFILE *p)
 {
     COObject *offset = CODict_GetItem(p->objects, COInt_FromLong((long)co));
     if (offset) {
+        printf("found %p at %lx\n", co, COInt_AsLong(offset));
         w_byte(TYPE_REFER, p);
         w_int64(COInt_AsLong(offset), p);
         return;
     } else {
+        printf("set %p at %lx\n", co, p->offset);
         CODict_SetItem(p->objects, COInt_FromLong((long)co), COInt_FromLong(p->offset));
     }
 
@@ -116,6 +118,18 @@ w_object(COObject *co, WFILE *p)
         for (int i = 0; i < n; i++) {
             w_object(COList_GetItem(co, i), p);
         }
+    } else if (CODict_Check(co)) {
+        w_byte(TYPE_DICT, p);
+
+        /* key-value pairs, NULL object terminated */
+        COObject *key;
+        COObject *val;
+        CODict_Rewind(co);
+        while (CODict_Next(co, &key, &val) == 0) {
+            w_object(key, p);
+            w_object(val, p);
+        }
+        w_object((COObject *)NULL, p);
     } else if (COTuple_Check(co)) {
         w_byte(TYPE_TUPLE, p);
         size_t n = COTuple_Size(co);
@@ -141,8 +155,7 @@ w_object(COObject *co, WFILE *p)
         w_int64((long)n, p);
         w_string(COStr_AsString(co), (int)n, p);
     } else {
-        /*COObject_dump(co); */
-        /*error("unknow object to write"); */
+        error("unknow object to write"); 
         w_byte(TYPE_UNKNOW, p);
     }
 }
@@ -264,6 +277,21 @@ r_object(RFILE *p)
                 }
             }
         }
+        break;
+        /*case TYPE_DICT:*/
+        /*{*/
+        /*rs = CODict_New();*/
+        /*for (;;) {*/
+        /*COObject *key;*/
+        /*COObject *val;*/
+        /*key = r_object(p);*/
+        /*if (key == NULL)*/
+        /*break;*/
+        /*val = r_object(p);*/
+        /*if (item != NULL)*/
+        /*CODict_SetItem(rs, key, val);*/
+        /*}*/
+        /*}*/
         break;
     case TYPE_TUPLE:
         {
