@@ -47,7 +47,7 @@ done
 
 # indent
 lines=0
-for f in $(find . -name "*.[ch]"  |  grep -E -v '^\.\/(argparse|dstring)'); do
+for f in $(find . -name "*.[ch]"  |  grep -E -v '^\.\/(argparse|linenoise)'); do
     lines=$(($lines + $(wc $f -l | cut -d ' ' -f 1)))
     indent $f
 done

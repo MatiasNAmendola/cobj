@@ -37,7 +37,6 @@ LIB_OBJS += usage.o
 LIB_OBJS += vm_execute.o
 LIB_OBJS += wrapper.o
 LIB_OBJS += argparse/argparse.o
-LIB_OBJS += dstring/dstring.o
 LIB_OBJS += objects/typeobject.o
 LIB_OBJS += objects/boolobject.o
 LIB_OBJS += objects/intobject.o
