@@ -53,7 +53,9 @@ main(int argc, const char **argv)
         COObject *d_s = COObject_serialize(d);
         d = COObject_unserialize(d_s);
         COObject_dump(d);
-        /*COObject_dump(CODict_GetItem(d, COInt_FromLong(2)));*/
+        COObject_dump(CODict_GetItem(d, COInt_FromLong(0)));
+        COObject_dump(CODict_GetItem(d, COInt_FromLong(1)));
+        COObject_dump(CODict_GetItem(d, COInt_FromLong(2)));
 
         return 0;
     }

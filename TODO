@@ -1,4 +1,3 @@
-* fix ./co -V (serialize recursive references)
 * error handling (exceptin)
 * error message with location
 * implement namespace & scope rules

@@ -28,6 +28,8 @@ typedef WFILE RFILE;
 #define TYPE_UNKNOW     '?'
 #define TYPE_REFER      'r'
 
+#define SET_OBJECT(co) CODict_SetItem(p->objects, COInt_FromLong(offset), COInt_FromLong((long)co))
+
 #define w_byte(c, p)                        \
     if (((p)->fp)) {                        \
         putc((c), (p)->fp);                 \
@@ -90,12 +92,10 @@ w_object(COObject *co, WFILE *p)
 {
     COObject *offset = CODict_GetItem(p->objects, COInt_FromLong((long)co));
     if (offset) {
-        printf("found %p at %lx\n", co, COInt_AsLong(offset));
         w_byte(TYPE_REFER, p);
         w_int64(COInt_AsLong(offset), p);
         return;
     } else {
-        printf("set %p at %lx\n", co, p->offset);
         CODict_SetItem(p->objects, COInt_FromLong((long)co), COInt_FromLong(p->offset));
     }
 
@@ -247,29 +247,36 @@ r_object(RFILE *p)
     switch (type) {
     case EOF:
         rs = NULL;
+        SET_OBJECT(rs);
         break;
     case TYPE_NULL:
         rs = NULL;
+        SET_OBJECT(rs);
         break;
     case TYPE_NONE:
         rs = CO_None;
+        SET_OBJECT(rs);
         break;
     case TYPE_FALSE:
         rs = CO_False;
+        SET_OBJECT(rs);
         break;
     case TYPE_TRUE:
         rs = CO_True;
+        SET_OBJECT(rs);
         break;
     case TYPE_INT:
         {
             long n = r_int64(p);
-            return COInt_FromLong(n);
+            rs = COInt_FromLong(n);
+            SET_OBJECT(rs);
         }
         break;
     case TYPE_LIST:
         {
             size_t n = r_int64(p);
             rs = COList_New(n);
+            SET_OBJECT(rs);
             for (int i = 0; i < n; i++) {
                 COObject *v = r_object(p);
                 if (v != NULL) {
@@ -278,25 +285,27 @@ r_object(RFILE *p)
             }
         }
         break;
-        /*case TYPE_DICT:*/
-        /*{*/
-        /*rs = CODict_New();*/
-        /*for (;;) {*/
-        /*COObject *key;*/
-        /*COObject *val;*/
-        /*key = r_object(p);*/
-        /*if (key == NULL)*/
-        /*break;*/
-        /*val = r_object(p);*/
-        /*if (item != NULL)*/
-        /*CODict_SetItem(rs, key, val);*/
-        /*}*/
-        /*}*/
+    case TYPE_DICT:
+        {
+            rs = CODict_New();
+            SET_OBJECT(rs);
+            for (;;) {
+                COObject *key;
+                COObject *val;
+                key = r_object(p);
+                if (key == NULL)
+                    break;
+                val = r_object(p);
+                if (val != NULL)
+                    CODict_SetItem(rs, key, val);
+            }
+        }
         break;
     case TYPE_TUPLE:
         {
             size_t n = r_int64(p);
             rs = COTuple_New(n);
+            SET_OBJECT(rs);
             for (int i = 0; i < n; i++) {
                 COObject *v = r_object(p);
                 if (v != NULL) {
@@ -307,16 +316,17 @@ r_object(RFILE *p)
         break;
     case TYPE_CODE:
         {
-            int numoftmpvars;
-            COObject *oplines = NULL;
-            numoftmpvars = r_int64(p);
-            oplines = r_object(p);
-            rs = COCode_New(oplines, numoftmpvars);
+            rs = COCode_New(NULL, 0);
+            SET_OBJECT(rs);
+
+            ((COCodeObject *)rs)->co_numoftmpvars = r_int64(p);
+            ((COCodeObject *)rs)->co_oplines = r_object(p);
         }
         break;
     case TYPE_OPLINE:
         {
             COOplineObject *opline = (COOplineObject *)COOpline_New();
+            SET_OBJECT(opline);
             opline->opcode = r_byte(p);
             r_cnode(&opline->result, p);
             r_cnode(&opline->op1, p);
@@ -328,6 +338,7 @@ r_object(RFILE *p)
         {
             int n = r_int64(p);
             rs = COStr_FromStringN(NULL, n);
+            SET_OBJECT(rs);
             if (r_string(COStr_AsString(rs), (int)n, p) != n) {
                 error("EOF read where string object expected");
                 rs = NULL;
