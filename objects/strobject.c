@@ -207,7 +207,7 @@ COStr_FromStringN(const char *s, size_t len)
     /* share short strings */
     if (len == 0) {
         null_str = str;
-    } else if (len == 1 && str != NULL) {
+    } else if (len == 1 && s != NULL) {
         char_strs[*s & UCHAR_MAX] = str;
     }
 
