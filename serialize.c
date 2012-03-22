@@ -25,7 +25,6 @@ typedef WFILE RFILE;
 #define TYPE_DICT       '{'
 #define TYPE_CODE       'c'
 #define TYPE_OPLINE     'o'
-#define TYPE_UNKNOW     '?'
 #define TYPE_REFER      'r'
 
 #define SET_OBJECT(co) CODict_SetItem(p->objects, COInt_FromLong(offset), COInt_FromLong((long)co))
@@ -112,6 +111,8 @@ w_object(COObject *co, WFILE *p)
         w_byte(TYPE_INT, p);
         long x = COInt_AsLong(co);
         w_int64(x, p);
+    } else if (COFloat_Check(co)) {
+        // TODO
     } else if (COList_Check(co)) {
         w_byte(TYPE_LIST, p);
         size_t n = COList_Size(co);
@@ -157,7 +158,6 @@ w_object(COObject *co, WFILE *p)
         w_string(COStr_AsString(co), (int)n, p);
     } else {
         error("unknow object to write");
-        w_byte(TYPE_UNKNOW, p);
     }
 }
 

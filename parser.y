@@ -102,6 +102,7 @@ expr: /* express something */
     |   T_NAME '(' func_call_param_list ')' { co_end_func_call(&$1, &$$); }
     |   T_FUNC { co_begin_func_declaration(&$1, NULL); } opt_param_list stmt_list T_END { co_end_func_declaration(&$1, &$$); }
     |   '[' { co_list_build(&$$, &$1); } expr_list ']' { $$ = $1; $2.type = IS_UNUSED; }
+    |   '{' { co_dict_build(&$$, &$1); } assoc_list '}' { $$ = $1; $2.type = IS_UNUSED; }
 ;
 
 
@@ -186,8 +187,18 @@ expr_list:
 ;
 
 non_empty_expr_list:
-        opt_newlines expr opt_newlines { co_append_element(&$0, &$2); }
-    |   non_empty_expr_list ',' opt_newlines expr opt_newlines { co_append_element(&$0, &$4); }
+        opt_newlines expr opt_newlines { co_list_add(&$0, &$2); }
+    |   non_empty_expr_list ',' opt_newlines expr opt_newlines { co_list_add(&$0, &$4); }
+;
+
+assoc_list:
+        non_empty_assoc_list opt_comma
+    |   /* empty */
+;
+
+non_empty_assoc_list:
+        opt_newlines expr ':' expr opt_newlines { co_dict_add(&$0, &$2, &$4); }
+    |   non_empty_assoc_list ',' opt_newlines expr ':' expr opt_newlines { co_dict_add(&$0, &$4, &$6); }
 ;
 
 func_call_param_list:

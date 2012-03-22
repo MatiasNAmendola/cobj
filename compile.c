@@ -241,6 +241,37 @@ co_list_build(struct cnode *result, struct cnode *tag)
 }
 
 void
+co_list_add(struct cnode *node, struct cnode *element)
+{
+    COOplineObject *op = next_op();
+    op->opcode = OP_LIST_ADD;
+    op->op1 = *node;
+    op->op2 = *element;
+}
+
+void
+co_dict_build(struct cnode *result, struct cnode *tag)
+{
+    COOplineObject *op = next_op();
+    op->opcode = OP_DICT_BUILD;
+    op->result.type = IS_TMP_VAR;
+    op->result.u.var = get_temporary_variable();
+    *result = op->result;
+
+    *tag = op->result;
+}
+
+void
+co_dict_add(struct cnode *node, struct cnode *key, struct cnode *item)
+{
+    COOplineObject *op = next_op();
+    op->opcode = OP_DICT_ADD;
+    op->op1 = *node;
+    op->op2 = *key;;
+    op->result = *item;
+}
+
+void
 co_tuple_build(struct cnode *result, struct cnode *tag)
 {
     COOplineObject *op = next_op();
@@ -250,15 +281,6 @@ co_tuple_build(struct cnode *result, struct cnode *tag)
     *result = op->result;
 
     *tag = op->result;
-}
-
-void
-co_append_element(struct cnode *node, struct cnode *element)
-{
-    COOplineObject *op = next_op();
-    op->opcode = OP_APPEND_ELEMENT;
-    op->op1 = *node;
-    op->op2 = *element;
 }
 
 void

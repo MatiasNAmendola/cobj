@@ -32,7 +32,7 @@ co_print_opcode(COObject *oplines)
         "OP_LOAD_CONST",
         "OP_TUPLE_BUILD",
         "OP_LIST_BUILD",
-        "OP_APPEND_ELEMENT",
+        "OP_LIST_ADD",
     };
     for (int i = 0; i < COList_Size(oplines); i++) {
         COOplineObject *op = (COOplineObject *)COList_GetItem(oplines, i);

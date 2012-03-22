@@ -5,7 +5,11 @@
 #   encoding: "utf-8"
 # ]
 #
-
+d = {
+    'key': 'value',
+    'c': 'test',
+}
+print d
 # statments
 #print 10
 #a = 1
@@ -13,8 +17,8 @@
 #print [1,2]
 
 # compound statments
-func helloworld print "hello world" end
-helloworld()
+#func helloworld print "hello world" end
+#helloworld()
 
 #func sum(a, b) return a + b end
 #print sum(1, 2)

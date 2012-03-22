@@ -31,7 +31,9 @@
 #define OP_LOAD_CONST               25
 #define OP_TUPLE_BUILD              26
 #define OP_LIST_BUILD               27
-#define OP_APPEND_ELEMENT           28
+#define OP_LIST_ADD                 28
 #define OP_POP_TOP                  29
+#define OP_DICT_BUILD               30
+#define OP_DICT_ADD                 31
 
 #endif

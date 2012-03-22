@@ -163,7 +163,7 @@ vm_enter:
 #endif
 
     COOplineObject *op;
-    COObject *co1, *co2;
+    COObject *co1, *co2, *co3;
     while (true) {
         switch ((op = *(EG(current_exec_data)->op++))->opcode) {
         case OP_ADD:
@@ -379,10 +379,19 @@ vm_enter:
         case OP_LIST_BUILD:
             CNode_SetObject(&op->result, COList_New(0));
             continue;
-        case OP_APPEND_ELEMENT:
+        case OP_LIST_ADD:
             co1 = CNode_GetObject(&op->op1);
             co2 = CNode_GetObject(&op->op2);
             COList_Append(co1, co2);
+            continue;
+        case OP_DICT_BUILD:
+            CNode_SetObject(&op->result, CODict_New());
+            continue;
+        case OP_DICT_ADD:
+            co1 = CNode_GetObject(&op->op1);
+            co2 = CNode_GetObject(&op->op2);
+            co3 = CNode_GetObject(&op->result);
+            CODict_SetItem(co1, co2, co3);
             continue;
         default:
             error("unknown handle for opcode(%ld)\n", op->opcode);
