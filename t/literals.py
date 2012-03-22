@@ -9,6 +9,10 @@ test_expect_result("True\n", "print True;")
 test_expect_result("False\n", "print False;")
 test_expect_result("10\n", "print 10;")
 test_expect_result("3.14\n", "print 3.14;")
+test_expect_result("\n", """print ''""")
+test_expect_result("\n", """
+print ""
+""")
 test_expect_result(u"UTF-8字符串\n", u"print 'UTF-8字符串';")
 test_expect_result(r"don't escape \a, except single quote (') and backslash (\)" + "\n", r"print 'don\'t escape \\a, except single quote (\') and backslash (\\)';", "single quoted string")
 test_expect_result(r"""

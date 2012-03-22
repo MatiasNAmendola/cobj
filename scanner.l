@@ -297,40 +297,20 @@ ANY_CHAR    = [^];
 }
 
 <SC_INIT>["] {
-    BEGIN(SC_DOUBLE_QUOTES);
-    return T_IGNORED;
-}
-
-<SC_DOUBLE_QUOTES>["] {
-    BEGIN(SC_INIT);
-    return T_IGNORED;
-}
-
-<SC_DOUBLE_QUOTES>ANY_CHAR {
-    if (YYCURSOR > YYLIMIT) {
-        return 0;
-    }
-    if (yytext[0] == '\\' && YYCURSOR < YYLIMIT) {
-        YYCURSOR++;
-    }
-    while (YYCURSOR < YYLIMIT) {
-        switch (*YYCURSOR++) {
-            case '"':
-                break;
-            case '\\':
-                if (YYCURSOR < YYLIMIT) {
-                    YYCURSOR++;
-                }
-                /* fall through */
-            default:
-                continue;
+    while (1) {
+        if (YYCURSOR > YYLIMIT) {
+            break;
         }
 
-        YYCURSOR--;
-        break;
+        if (*YYCURSOR == '\"') {
+            YYCURSOR++;
+            yyleng = YYCURSOR - scanner_globals.yy_text;
+            break;
+        } else if (*YYCURSOR++ == '\\') {
+            YYCURSOR++;
+        }
     }
-    yyleng = YYCURSOR - scanner_globals.yy_text;
-    yylval->u.co = COStr_FromStringN(yytext, yyleng);
+    yylval->u.co = COStr_FromStringN(yytext + 1, yyleng - 2);
     co_scan_doublequoted_string((COStrObject *)yylval->u.co);
     yylval->type = IS_CONST;
     return T_STRING;
@@ -339,7 +319,7 @@ ANY_CHAR    = [^];
 <SC_INIT>['] {
     while (1) {
         if (YYCURSOR > YYLIMIT) {
-            return 0;
+            break;
         }
         if (*YYCURSOR == '\'') {
             YYCURSOR++;
