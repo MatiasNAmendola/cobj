@@ -34,3 +34,9 @@ test_expect_result(""" span
     quoted string
 ";
 ''')
+test_expect_result("", """
+d = {
+    'key': 'value',
+    'c': 'test',
+    0: "test integer",
+}""")
