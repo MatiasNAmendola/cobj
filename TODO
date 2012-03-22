@@ -1,3 +1,5 @@
+* dict literal
+* built-in functions (print, etc)
 * error handling (exceptin)
 * error message with location
 * implement namespace & scope rules

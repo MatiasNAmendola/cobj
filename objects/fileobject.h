@@ -11,14 +11,15 @@ typedef struct _COFileObject {
     FILE *f_fp;
     COObject *f_name;
     COObject *f_mode;
-    int (*f_close)(FILE *);
+    int (*f_close) (FILE *);
 } COFileObject;
 
 COTypeObject COFile_Type;
 
 #define COFile_Check(co) (CO_TYPE(co) == &COFile_Type)
 
-COObject *COFile_FromFile(FILE *fp, char *name, char *mode, int (*close) (FILE *));
+COObject *COFile_FromFile(FILE *fp, char *name, char *mode,
+                          int (*close) (FILE *));
 FILE *COFile_AsFile(COObject *this);
 COObject *COFile_GetLine(COObject *this);
 COObject *COFile_Read(COObject *this, int n);

@@ -28,7 +28,8 @@ COFile_FromFile(FILE *fp, char *name, char *mode, int (*close) (FILE *))
     return (COObject *)f;
 }
 
-FILE *COFile_AsFile(COObject *this)
+FILE *
+COFile_AsFile(COObject *this)
 {
     return ((COFileObject *)this)->f_fp;
 }
@@ -59,7 +60,9 @@ COFile_Read(COObject *this, int n)
         return NULL;
 
     for (;;) {
-        size_t read = fread(COBytes_AsString(o) + bytesread, 1, buffersize - bytesread , f->f_fp);
+        size_t read =
+            fread(COBytes_AsString(o) + bytesread, 1, buffersize - bytesread,
+                  f->f_fp);
         if (read == 0) {
             if (!ferror(f->f_fp))
                 break;
@@ -75,7 +78,7 @@ COFile_Read(COObject *this, int n)
             buffersize += SMALL_CHUNK;
             if (COBytes_Resize(o, buffersize) < 0)
                 return NULL;
-            continue; // read more
+            continue;           // read more
         } else {
             break;
         }

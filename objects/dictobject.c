@@ -28,7 +28,6 @@ COTypeObject CODict_Type = {
     0,                          /* tp_hash */
 };
 
-
 int
 _dict_rehash(CODictObject *this)
 {
@@ -62,7 +61,7 @@ _dict_do_resize(CODictObject *this)
         return 0;
     }
 
-    return -1;                // can not be larger
+    return -1;                  // can not be larger
 }
 
 /* 
@@ -88,7 +87,9 @@ _dict_lookup(CODictObject *this, COObject *key)
                 continue;
             }
             if (COStr_Check(key)) {
-                if (!memcmp(((COStrObject *)p->pKey)->co_sval, ((COStrObject *)key)->co_sval, CO_SIZE(key))) {
+                if (!memcmp
+                    (((COStrObject *)p->pKey)->co_sval,
+                     ((COStrObject *)key)->co_sval, CO_SIZE(key))) {
                     return p;
                 }
             } else if (COInt_Check(key)) {
@@ -126,7 +127,6 @@ _dict_insert(CODictObject *this, COObject *key, COObject *item)
     if (p->pNext) {
         p->pNext->pLast = p;
     }
-
     // connect to global dllist
     p->pListLast = this->pListTail;
     this->pListTail = p;
@@ -136,7 +136,7 @@ _dict_insert(CODictObject *this, COObject *key, COObject *item)
     }
     if (this->pListHead == NULL) {
         this->pListHead = p;
-    }                                                   
+    }
     if (this->pCursor == NULL) {
         this->pCursor = p;
     }
@@ -219,7 +219,7 @@ CODict_DelItem(COObject *this, COObject *key)
     if (!p) {
         return -1;
     }
-    
+
     p->pKey = dummy;
 
     ((CODictObject *)this)->nNumOfElements--;
@@ -245,7 +245,8 @@ CODict_Next(COObject *this, COObject **key, COObject **item)
         return -1;
     }
 
-    ((CODictObject *)this)->pCursor = ((CODictObject *)this)->pCursor->pListNext;
+    ((CODictObject *)this)->pCursor =
+        ((CODictObject *)this)->pCursor->pListNext;
     return 0;
 }
 
@@ -267,7 +268,8 @@ CODict_Clear(COObject *this)
         free(q);
         p = p->pListNext;
     }
-    memset(((CODictObject *)this)->arBuckets, 0, ((CODictObject *)this)->nTableSize * sizeof(DictBucket *));
+    memset(((CODictObject *)this)->arBuckets, 0,
+           ((CODictObject *)this)->nTableSize * sizeof(DictBucket *));
     ((CODictObject *)this)->pListHead = NULL;
     ((CODictObject *)this)->pListTail = NULL;
     ((CODictObject *)this)->nNumOfElements = 0;

@@ -1,7 +1,7 @@
 #include "co.h"
 
 typedef struct {
-    COObject *objects;  /* index of objects */
+    COObject *objects;          /* index of objects */
     size_t offset;
     FILE *fp;
     /* If fp == NULL, using following */
@@ -96,7 +96,8 @@ w_object(COObject *co, WFILE *p)
         w_int64(COInt_AsLong(offset), p);
         return;
     } else {
-        CODict_SetItem(p->objects, COInt_FromLong((long)co), COInt_FromLong(p->offset));
+        CODict_SetItem(p->objects, COInt_FromLong((long)co),
+                       COInt_FromLong(p->offset));
     }
 
     if (co == NULL) {
@@ -155,7 +156,7 @@ w_object(COObject *co, WFILE *p)
         w_int64((long)n, p);
         w_string(COStr_AsString(co), (int)n, p);
     } else {
-        error("unknow object to write"); 
+        error("unknow object to write");
         w_byte(TYPE_UNKNOW, p);
     }
 }
@@ -348,7 +349,8 @@ r_object(RFILE *p)
     case TYPE_REFER:
         {
             int offset = r_int64(p);
-            COObject *found = CODict_GetItem(p->objects, COInt_FromLong(offset));
+            COObject *found =
+                CODict_GetItem(p->objects, COInt_FromLong(offset));
             if (found) {
                 rs = (COObject *)COInt_AsLong(found);
             } else {
@@ -362,7 +364,8 @@ r_object(RFILE *p)
         return NULL;
     }
     if (type != TYPE_REFER) {
-        CODict_SetItem(p->objects, COInt_FromLong(offset), COInt_FromLong((long)rs));
+        CODict_SetItem(p->objects, COInt_FromLong(offset),
+                       COInt_FromLong((long)rs));
     }
     return rs;
 }

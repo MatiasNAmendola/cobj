@@ -30,7 +30,7 @@ typedef struct _CODictObject {
     uint nTableSize;
     uint nTableMask;
     uint nNumOfElements;
-    DictBucket *pCursor;    /* for iteration */
+    DictBucket *pCursor;        /* for iteration */
     DictBucket *pListHead;
     DictBucket *pListTail;
     DictBucket **arBuckets;

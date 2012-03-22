@@ -49,7 +49,7 @@ main(int argc, const char **argv)
         CODict_SetItem(d, COInt_FromLong(0), COInt_FromLong(100));
         CODict_SetItem(d, COInt_FromLong(1), COInt_FromLong(200));
         CODict_SetItem(d, COInt_FromLong(2), d);
-        
+
         COObject *d_s = COObject_serialize(d);
         d = COObject_unserialize(d_s);
         COObject_dump(d);
