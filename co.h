@@ -18,7 +18,7 @@
  * Author: Yecheng Fu <cofyc.jackson@gmail.com>
  */
 
-#include "co-compat.h"
+#include "co_compat.h"
 #include "compile.h"
 #include "debug.h"
 #include "error.h"

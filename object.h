@@ -39,7 +39,7 @@
  * pointer to the proper type and back.
  */
 
-#include "co-compat.h"
+#include "co_compat.h"
 
 // initial segment of every object
 #define COObject_HEAD COObject co_base
