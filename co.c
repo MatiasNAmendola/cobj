@@ -44,6 +44,10 @@ main(int argc, const char **argv)
     argparse_init(&argparse, options, usagestr);
     argc = argparse_parse(&argparse, argc, argv);
 
+    /* Init */
+    COInt_Init();
+
+    /* test only */
     if (verbose) {
         COObject *d = CODict_New();
         CODict_SetItem(d, COInt_FromLong(0), COInt_FromLong(100));

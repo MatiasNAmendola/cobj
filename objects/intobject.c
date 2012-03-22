@@ -1,5 +1,19 @@
 #include "../co.h"
 
+/*
+ * Small integers are preallocated in this array so that they can be shared.
+ *
+ * [SMALL_NEG_INT, SMALL_POS_INT)
+ */
+#define SMALL_NEG_INT   10
+#define SMALL_POS_INT   257
+static COIntObject small_ints[SMALL_NEG_INT + SMALL_POS_INT];
+
+#define CHECK_SMALL_INT(ival)   \
+    do if (-SMALL_NEG_INT <= ival && ival < SMALL_POS_INT) {    \
+        return (COObject *)(small_ints + ival + SMALL_NEG_INT); \
+    } while (0);
+
 static COObject *
 int_repr(COIntObject *this)
 {
@@ -38,6 +52,18 @@ COTypeObject COInt_Type = {
     (hashfunc)int_hash,         /* tp_hash */
 };
 
+int
+COInt_Init(void)
+{
+    int ival;
+    COIntObject *o = small_ints;
+    for (ival = -SMALL_NEG_INT; ival < SMALL_POS_INT; ival++, o++) {
+        COObject_Init(o, &COInt_Type);
+        o->co_ival = ival;
+    }
+    return 0;
+}
+
 long
 COInt_AsLong(COObject *co)
 {
@@ -53,9 +79,12 @@ COInt_FromString(char *s, int base)
         // TODO errors
         return NULL;
     }
+    long ival = strtol(s, NULL, base);
+
+    CHECK_SMALL_INT(ival);
 
     num = COObject_New(COIntObject, &COInt_Type);
-    num->co_ival = strtol(s, NULL, base);
+    num->co_ival = ival;
     return (COObject *)num;
 }
 
@@ -63,6 +92,7 @@ COObject *
 COInt_FromLong(long ival)
 {
     COIntObject *num;
+    CHECK_SMALL_INT(ival);
 
     num = COObject_New(COIntObject, &COInt_Type);
     num->co_ival = ival;

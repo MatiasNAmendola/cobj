@@ -1,5 +1,8 @@
 #ifndef OBJECTS_INTOBJECT_H
 #define OBJECTS_INTOBJECT_H
+/*
+ * Integer (TODO arbitrary precision) integer object type
+ */
 
 #include "../object.h"
 
@@ -12,6 +15,7 @@ COTypeObject COInt_Type;
 
 #define COInt_Check(co) (CO_TYPE(co) == &COInt_Type)
 
+int COInt_Init(void);
 COObject *COInt_FromString(char *s, int base);
 COObject *COInt_FromLong(long ival);
 long COInt_AsLong(COObject *co);
