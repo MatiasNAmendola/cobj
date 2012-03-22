@@ -1,6 +1,12 @@
 #include "../co.h"
 
 static COStrObject *null_str = NULL;
+static COStrObject *char_strs[UCHAR_MAX + 1];
+
+#ifdef STR_COUNT
+size_t null_str_num = 0;
+size_t char_str_num = 0;
+#endif
 
 /*
  * It gives the base size of str object; any memory allocation for a string of
@@ -179,6 +185,15 @@ COStr_FromStringN(const char *s, size_t len)
     COStrObject *str;
 
     if (len == 0 && (str = null_str) != NULL) {
+#ifdef STR_COUNT
+        null_str_num++;
+#endif
+        return (COObject *)str;
+    }
+    if (len == 1 && s != NULL && (str = char_strs[*s & UCHAR_MAX]) != NULL) {
+#ifdef STR_COUNT
+        char_str_num++;
+#endif
         return (COObject *)str;
     }
 
@@ -192,6 +207,8 @@ COStr_FromStringN(const char *s, size_t len)
     /* share short strings */
     if (len == 0) {
         null_str = str;
+    } else if (len == 1 && str != NULL) {
+        char_strs[*s & UCHAR_MAX] = str;
     }
 
     return (COObject *)str;
