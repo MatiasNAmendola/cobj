@@ -49,7 +49,7 @@ COObject *
 _COObject_New(COTypeObject *tp)
 {
     COObject *co;
-    co = (COObject *)xmalloc(tp->tp_basicsize);
+    co = (COObject *)co_malloc(tp->tp_basicsize);
     if (co == NULL) {
         // TODO errors
         return NULL;
@@ -63,7 +63,7 @@ _COVarObject_New(COTypeObject *tp, size_t n)
 {
     COVarObject *co;
     const size_t size = COObject_VAR_SIZE(tp, n);
-    co = (COVarObject *)xmalloc(size);
+    co = (COVarObject *)co_malloc(size);
     if (co == NULL) {
         // TODO errors
         return NULL;

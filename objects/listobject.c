@@ -80,7 +80,7 @@ list_resize(COListObject *this, size_t newsize)
 
     /* check for overflow */
     if (new_allocated <= ((~(size_t) 0) / sizeof(COObject *))) {
-        items = xrealloc(items, new_allocated * sizeof(COObject *));
+        items = co_realloc(items, new_allocated * sizeof(COObject *));
     } else {
         // TODO errors: no memory
         return -1;
@@ -132,7 +132,7 @@ COList_New(size_t size)
     if (size <= 0) {
         this->co_item = NULL;
     } else {
-        this->co_item = (COObject **)xmalloc(nbytes);
+        this->co_item = (COObject **)co_malloc(nbytes);
         if (this->co_item == NULL) {
             // TODO errors
             return NULL;

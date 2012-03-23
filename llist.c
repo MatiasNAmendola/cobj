@@ -13,7 +13,7 @@ co_llist_init(co_llist *l, size_t size, llist_dtoc_func_t dtor)
 void
 co_llist_append_element(co_llist *l, void *element)
 {
-    co_llist_element *tmp = xmalloc(sizeof(co_llist_element) + l->size - 1);
+    co_llist_element *tmp = co_malloc(sizeof(co_llist_element) + l->size - 1);
 
     tmp->prev = l->tail;
     tmp->next = NULL;
@@ -31,7 +31,7 @@ co_llist_append_element(co_llist *l, void *element)
 void
 co_llist_prepend_element(co_llist *l, void *element)
 {
-    co_llist_element *tmp = xmalloc(sizeof(co_llist_element) + l->size - 1);
+    co_llist_element *tmp = co_malloc(sizeof(co_llist_element) + l->size - 1);
 
     tmp->next = l->head;
     tmp->prev = NULL;

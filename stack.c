@@ -4,7 +4,7 @@ bool
 co_stack_init(co_stack *stack)
 {
     stack->top = 0;
-    stack->elements = (void **)xmalloc(sizeof(void *) * STACK_BLOCK_SIZE);
+    stack->elements = (void **)co_malloc(sizeof(void *) * STACK_BLOCK_SIZE);
     if (!stack->elements) {
         return false;
     } else {
@@ -19,13 +19,13 @@ co_stack_push(co_stack *stack, const void *element, int size)
     if (stack->top >= stack->max) {     /* we need to allocate more memory */
         stack->max += STACK_BLOCK_SIZE;
         stack->elements =
-            (void **)xrealloc(stack->elements, sizeof(void *) * stack->max);
+            (void **)co_realloc(stack->elements, sizeof(void *) * stack->max);
         if (!stack->elements) {
             return false;
         }
     }
 
-    stack->elements[stack->top] = (void *)xmalloc(size);
+    stack->elements[stack->top] = (void *)co_malloc(size);
     memcpy(stack->elements[stack->top], element, size);
     return stack->top++;
 }

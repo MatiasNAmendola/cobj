@@ -35,6 +35,7 @@ LIB_OBJS += stack.o
 LIB_OBJS += usage.o
 LIB_OBJS += vm.o
 LIB_OBJS += wrapper.o
+LIB_OBJS += malloc.o
 LIB_OBJS += argparse/argparse.o
 LIB_OBJS += objects/typeobject.o
 LIB_OBJS += objects/boolobject.o

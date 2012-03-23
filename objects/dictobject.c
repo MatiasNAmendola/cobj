@@ -51,7 +51,7 @@ _dict_do_resize(CODictObject *this)
     DictBucket **t;
 
     if ((this->nTableSize << 1) > 0) {  // double the table size
-        t = (DictBucket **)xrealloc(this->arBuckets,
+        t = (DictBucket **)co_realloc(this->arBuckets,
                                     (this->nTableSize << 1) *
                                     sizeof(DictBucket *));
         this->arBuckets = t;
@@ -114,7 +114,7 @@ _dict_insert(CODictObject *this, COObject *key, COObject *item)
 {
     DictBucket *p;
     ulong h = COObject_hash(key);
-    p = (DictBucket *)xmalloc(sizeof(DictBucket));
+    p = (DictBucket *)co_malloc(sizeof(DictBucket));
     p->pKey = key;
     p->pItem = item;
     p->h = h;
@@ -180,7 +180,8 @@ CODict_New(void)
     dict->nTableMask = dict->nTableSize - 1;
     dict->arBuckets = NULL;
     dict->nNumOfElements = 0;
-    tmp = (DictBucket **)xcalloc(dict->nTableSize, sizeof(DictBucket *));
+    tmp = (DictBucket **)co_malloc(dict->nTableSize * sizeof(DictBucket *));
+    memset(tmp, 0, dict->nTableSize * sizeof(DictBucket *));
     dict->arBuckets = tmp;
 
     return (COObject *)dict;
