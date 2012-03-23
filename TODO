@@ -1,3 +1,4 @@
+* add gc
 * support tuple literal
 * implement keyword this
 * built-in functions (print, etc)

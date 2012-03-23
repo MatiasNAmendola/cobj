@@ -1,26 +1,37 @@
 #include "co.h"
 
-struct co_executor_globals {
+struct co_vm_globals {
     COObject *next_func;
     struct co_exec_data *current_exec_data;
     co_stack argument_stack;
 };
 
-struct co_executor_globals executor_globals;
-#define EG(v)   executor_globals.v
+/* execution frame */
+struct co_exec_data {
+    COOplineObject **op;
+    struct co_exec_data *prev_exec_data;
+    COObject *function_called;
+    COObject *symbol_table;     /* dict object for names */
+    COObject **ts;              /* temp objects */
+    COObject *oplines;
+    COObject *co_consts;
+    COObject *co_names;
+};
+
+struct co_vm_globals vm_globals;
 
 /* Forward declaration */
-extern COObject *COObject_get(COObject *co);
-extern int COObject_put(COObject *name, COObject *co);
-extern int COObject_del(COObject *name);
-extern void COObject_print(COObject *co);
+COObject *COObject_get(COObject *co);
+int COObject_put(COObject *name, COObject *co);
+int COObject_del(COObject *name);
+void COObject_print(COObject *co);
 
 COObject *
 COObject_get(COObject *name)
 {
     COObject *co;
 
-    struct co_exec_data *current_exec_data = EG(current_exec_data);
+    struct co_exec_data *current_exec_data = vm_globals.current_exec_data;
     if (current_exec_data->function_called) {
         co = CODict_GetItem(((COFunctionObject *)
                              current_exec_data->function_called)->func_upvalues,
@@ -45,7 +56,7 @@ COObject_get(COObject *name)
 int
 COObject_put(COObject *name, COObject *co)
 {
-    struct co_exec_data *current_exec_data = EG(current_exec_data);
+    struct co_exec_data *current_exec_data = vm_globals.current_exec_data;
     if (current_exec_data->function_called) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
@@ -57,13 +68,13 @@ COObject_put(COObject *name, COObject *co)
                            name, co);
         }
     }
-    return CODict_SetItem(EG(current_exec_data)->symbol_table, name, co);
+    return CODict_SetItem(vm_globals.current_exec_data->symbol_table, name, co);
 }
 
 int
 COObject_del(COObject *name)
 {
-    return CODict_DelItem(EG(current_exec_data)->symbol_table, name);
+    return CODict_DelItem(vm_globals.current_exec_data->symbol_table, name);
 }
 
 void
@@ -89,7 +100,7 @@ CNode_GetObject(struct cnode *node)
         return co;
         break;
     case IS_TMP_VAR:
-        return *(COObject **)((char *)EG(current_exec_data)->ts + node->u.var);
+        return *(COObject **)((char *)vm_globals.current_exec_data->ts + node->u.var);
         break;
     case IS_UNUSED:
         return NULL;
@@ -110,7 +121,7 @@ CNode_SetObject(struct cnode *node, COObject *co)
         return COObject_put(node->u.co, co);
         break;
     case IS_TMP_VAR:
-        *(COObject **)((char *)EG(current_exec_data)->ts + node->u.var) = co;
+        *(COObject **)((char *)vm_globals.current_exec_data->ts + node->u.var) = co;
         return 0;
         break;
     case IS_UNUSED:
@@ -125,17 +136,17 @@ CNode_SetObject(struct cnode *node, COObject *co)
 #ifdef CO_DEBUG
 #define OP_JUMP(offset) \
     do {                \
-        EG(current_exec_data)->op += offset - 1;             \
+        vm_globals.current_exec_data->op += offset - 1;             \
     } while (0)
 #else
 #define OP_JUMP(offset) \
     do {                \
-        EG(current_exec_data)->op += offset - 1;             \
+        vm_globals.current_exec_data->op += offset - 1;             \
     } while (0)
 #endif
 
 void
-co_vm_execute(COCodeObject *main)
+co_vm_eval(COCodeObject *main)
 {
     struct co_exec_data *exec_data;
     COObject *f = COFrame_New();
@@ -152,20 +163,20 @@ vm_enter:
         (COOplineObject **)((COTupleObject *)main->co_oplines)->co_item;
     exec_data->prev_exec_data = NULL;
     exec_data->symbol_table = CODict_New();
-    exec_data->function_called = EG(next_func);
-    exec_data->prev_exec_data = EG(current_exec_data);
+    exec_data->function_called = vm_globals.next_func;
+    exec_data->prev_exec_data = vm_globals.current_exec_data;
 
-    EG(current_exec_data) = exec_data;
+    vm_globals.current_exec_data = exec_data;
 
 #ifdef CO_DEBUG
     printf("vm enter: exec_data: %p, prev_exec_data: %p\n",
-           EG(current_exec_data), EG(current_exec_data)->prev_exec_data);
+           vm_globals.current_exec_data, vm_globals.current_exec_data->prev_exec_data);
 #endif
 
     COOplineObject *op;
     COObject *co1, *co2, *co3;
     while (true) {
-        switch ((op = *(EG(current_exec_data)->op++))->opcode) {
+        switch ((op = *(vm_globals.current_exec_data->op++))->opcode) {
         case OP_ADD:
             co1 = CNode_GetObject(&op->op1);
             co2 = CNode_GetObject(&op->op2);
@@ -279,7 +290,7 @@ vm_enter:
                 COFunctionObject *func =
                     (COFunctionObject *)COFunction_New(op->op1.u.co);
                 uint start =
-                    EG(current_exec_data)->op -
+                    vm_globals.current_exec_data->op -
                     (COOplineObject **)((COTupleObject *)main->
                                         co_oplines)->co_item - 1;
                 COObject *suboplines =
@@ -288,7 +299,7 @@ vm_enter:
                 // hack fix, using same temp variables num
                 COObject *code = COCode_New(suboplines, main->co_numoftmpvars);
                 func->func_code = code;
-                if (EG(current_exec_data)->function_called) {
+                if (vm_globals.current_exec_data->function_called) {
                     // setup function's func_upvalues
                     COObject *co;
                     COObject *name;
@@ -326,15 +337,15 @@ vm_enter:
             {
                 COObject *co;
                 struct co_exec_data *old_exec_data;
-                old_exec_data = EG(current_exec_data);
+                old_exec_data = vm_globals.current_exec_data;
                 if (op->op1.type != IS_UNUSED) {
                     co = CNode_GetObject(&op->op1);
                 }
 #ifdef CO_DEBUG
-                printf("vm leave: %p, back: %p\n", EG(current_exec_data),
-                       EG(current_exec_data)->prev_exec_data);
+                printf("vm leave: %p, back: %p\n", vm_globals.current_exec_data,
+                       vm_globals.current_exec_data->prev_exec_data);
 #endif
-                EG(current_exec_data) = EG(current_exec_data)->prev_exec_data;
+                vm_globals.current_exec_data = vm_globals.current_exec_data->prev_exec_data;
                 COFrame_Free(f, (COObject *)old_exec_data);
                 struct cnode *rt = (struct cnode *)COFrame_Pop(f);
                 if (op->op1.type != IS_UNUSED) {
@@ -353,20 +364,20 @@ vm_enter:
                 error("not a function");
             }
             COFrame_Push(f, (COObject *)&op->result);
-            EG(next_func) = co1;
+            vm_globals.next_func = co1;
 
             main =
-                (COCodeObject *)((COFunctionObject *)EG(next_func))->func_code;
+                (COCodeObject *)((COFunctionObject *)vm_globals.next_func)->func_code;
             goto vm_enter;
         case OP_PASS_PARAM:
             co1 = CNode_GetObject(&op->op1);
-            co_stack_push(&EG(argument_stack), &co1, sizeof(COObject *));
+            co_stack_push(&vm_globals.argument_stack, &co1, sizeof(COObject *));
             continue;
         case OP_RECV_PARAM:
             {
                 COObject **co;
-                co_stack_top(&EG(argument_stack), (void **)&co);
-                co_stack_pop(&EG(argument_stack));
+                co_stack_top(&vm_globals.argument_stack, (void **)&co);
+                co_stack_pop(&vm_globals.argument_stack);
                 COObject_put(op->op1.u.co, *co);
                 continue;
             }

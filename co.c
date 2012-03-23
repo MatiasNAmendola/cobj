@@ -87,7 +87,7 @@ main(int argc, const char **argv)
                     // TODO invalid code dump
                     return -1;
                 }
-                co_vm_execute((COCodeObject *)code);
+                co_vm_eval((COCodeObject *)code);
                 return 0;
             }
         }
@@ -111,6 +111,6 @@ main(int argc, const char **argv)
         return 0;
     }
 
-    co_vm_execute(co);
+    co_vm_eval(co);
     return 0;
 }

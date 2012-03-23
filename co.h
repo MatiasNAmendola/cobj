@@ -28,7 +28,7 @@
 #include "scanner.h"
 #include "stack.h"
 #include "usage.h"
-#include "vm_execute.h"
+#include "vm.h"
 #include "vm_opcodes.h"
 #include "wrapper.h"
 #include "serialize.h"
@@ -79,6 +79,6 @@ xwrite(int fd, const void *buf, size_t len)
     }
 }
 
-extern int verbose;
+int verbose;
 
 #endif
