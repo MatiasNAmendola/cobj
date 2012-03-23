@@ -19,7 +19,7 @@ LDFLAGS =
 prefix = /usr/local
 bindir = $(prefix)/bin
 
-# recompile all lib objs if any of header file changes, dependencies is hard to maintain!
+# recompile all lib objs if any of header file changes, cuz dependencies is hard to maintain!
 LIB_H = $(wildcard *.h) parser.h scanner.h $(wildcard objects/*.h)
 
 LIB_OBJS += co.o

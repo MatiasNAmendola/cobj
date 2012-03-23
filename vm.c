@@ -60,8 +60,8 @@ COObject_put(COObject *name, COObject *co)
     if (current_exec_data->function_called) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
-                               current_exec_data->
-                               function_called)->func_upvalues, name);
+                               current_exec_data->function_called)->
+                              func_upvalues, name);
         if (myco) {
             CODict_SetItem(((COFunctionObject *)
                             current_exec_data->function_called)->func_upvalues,
@@ -100,7 +100,8 @@ CNode_GetObject(struct cnode *node)
         return co;
         break;
     case IS_TMP_VAR:
-        return *(COObject **)((char *)vm_globals.current_exec_data->ts + node->u.var);
+        return *(COObject **)((char *)vm_globals.current_exec_data->ts +
+                              node->u.var);
         break;
     case IS_UNUSED:
         return NULL;
@@ -121,7 +122,8 @@ CNode_SetObject(struct cnode *node, COObject *co)
         return COObject_put(node->u.co, co);
         break;
     case IS_TMP_VAR:
-        *(COObject **)((char *)vm_globals.current_exec_data->ts + node->u.var) = co;
+        *(COObject **)((char *)vm_globals.current_exec_data->ts + node->u.var) =
+            co;
         return 0;
         break;
     case IS_UNUSED:
@@ -170,7 +172,8 @@ vm_enter:
 
 #ifdef CO_DEBUG
     printf("vm enter: exec_data: %p, prev_exec_data: %p\n",
-           vm_globals.current_exec_data, vm_globals.current_exec_data->prev_exec_data);
+           vm_globals.current_exec_data,
+           vm_globals.current_exec_data->prev_exec_data);
 #endif
 
     COOplineObject *op;
@@ -291,8 +294,8 @@ vm_enter:
                     (COFunctionObject *)COFunction_New(op->op1.u.co);
                 uint start =
                     vm_globals.current_exec_data->op -
-                    (COOplineObject **)((COTupleObject *)main->
-                                        co_oplines)->co_item - 1;
+                    (COOplineObject **)((COTupleObject *)main->co_oplines)->
+                    co_item - 1;
                 COObject *suboplines =
                     COTuple_GetSlice(main->co_oplines, start + 1,
                                      start + 1 + op->op2.u.opline_num);
@@ -345,7 +348,8 @@ vm_enter:
                 printf("vm leave: %p, back: %p\n", vm_globals.current_exec_data,
                        vm_globals.current_exec_data->prev_exec_data);
 #endif
-                vm_globals.current_exec_data = vm_globals.current_exec_data->prev_exec_data;
+                vm_globals.current_exec_data =
+                    vm_globals.current_exec_data->prev_exec_data;
                 COFrame_Free(f, (COObject *)old_exec_data);
                 struct cnode *rt = (struct cnode *)COFrame_Pop(f);
                 if (op->op1.type != IS_UNUSED) {
@@ -367,7 +371,8 @@ vm_enter:
             vm_globals.next_func = co1;
 
             main =
-                (COCodeObject *)((COFunctionObject *)vm_globals.next_func)->func_code;
+                (COCodeObject *)((COFunctionObject *)vm_globals.next_func)->
+                func_code;
             goto vm_enter;
         case OP_PASS_PARAM:
             co1 = CNode_GetObject(&op->op1);

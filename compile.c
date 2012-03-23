@@ -151,7 +151,9 @@ co_while_end(const struct cnode *while_token)
     COOplineObject *op = next_op();
     op->opcode = OP_JMP;
     COOplineObject *whileopline = (COOplineObject *)COList_GetItem(c.c_oplines,
-                                                                   while_token->u.opline_num);
+                                                                   while_token->
+                                                                   u.
+                                                                   opline_num);
     op->op1.u.opline_num = whileopline->op2.u.opline_num - while_end_opline_num;        // while start offset
 
     int while_end_stmt_op_num = CO_SIZE(c.c_oplines);

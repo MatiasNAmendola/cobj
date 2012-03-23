@@ -22,6 +22,6 @@ int co_stack_count(const co_stack *stack);
 #define CO_STACK_APPLY_TYPE_TOPDOWN 1
 #define CO_STACK_APPLY_TYPE_BOTTOMUP 2
 void co_stack_apply(co_stack *stack, int type,
-                           int (*apply_function) (void *element));
+                    int (*apply_function) (void *element));
 
 #endif

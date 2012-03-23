@@ -30,10 +30,9 @@ void co_llist_init(co_llist *l, size_t size, llist_dtoc_func_t dtor);
 void co_llist_append_element(co_llist *l, void *element);
 void co_llist_prepend_element(co_llist *l, void *element);
 void co_llist_del_element(co_llist *l, void *element,
-                                 int (*compare) (void *element1,
-                                                 void *element2));
+                          int (*compare) (void *element1, void *element2));
 int co_llist_search(co_llist *l, void *element,
-                           int (*compare) (void *element1, void *element2));
+                    int (*compare) (void *element1, void *element2));
 int co_llist_count(co_llist *l);
 void co_llist_destory(co_llist *l);
 void co_llist_clean(co_llist *l);
