@@ -13,9 +13,6 @@ struct co_exec_data {
     COObject *function_called;
     COObject *symbol_table;     /* dict object for names */
     COObject **ts;              /* temp objects */
-    COObject *oplines;
-    COObject *co_consts;
-    COObject *co_names;
 };
 
 struct co_vm_globals vm_globals;
@@ -160,7 +157,6 @@ vm_enter:
                                              main->co_numoftmpvars);
     exec_data->ts =
         (COObject **)((char *)exec_data + sizeof(struct co_exec_data));
-    exec_data->oplines = main->co_oplines;
     exec_data->op =
         (COOplineObject **)((COTupleObject *)main->co_oplines)->co_item;
     exec_data->prev_exec_data = NULL;

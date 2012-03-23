@@ -40,31 +40,27 @@
  */
 
 #include "co_compat.h"
+#include "malloc.h"
 
 // initial segment of every object
 #define COObject_HEAD COObject co_base
 #define COObject_HEAD_INIT(type_ref)    \
     { 0, 0, 1, type_ref }
 
-// initial segment of every variable-size objects
+// initial segment of every variable-size object
 #define COVarObject_HEAD COVarObject co_base;
 #define COVarObject_HEAD_INIT(type_ref, size) \
     { COObject_HEAD_INIT(type_ref); size; }
 
-// types declared here cuz these is circular reference.
+// types declared here cuz these is circular reference
 typedef struct _COTypeObject COTypeObject;
-typedef struct _COObject COObject;
 
-struct _COObject {
-    /* 
-     * `co_next` and `co_prev` is for a doubly-linked list of all live heap
-     * objects.
-     */
+typedef struct _COObject {
     struct _COObject *_co_next;
     struct _COObject *_co_prev;
     unsigned int co_refcnt;
     COTypeObject *co_type;
-};
+} COObject;
 
 /* for variable-size objects */
 typedef struct _COVarObject {
@@ -84,7 +80,10 @@ COObject _CO_None;              // Don't use this directly, using following one 
 #define CO_None         (&_CO_None)
 
 #define CO_INCREF(co)   (((COObject *)co)->co_refcnt++)
-#define CO_DECREF(co)   (((COObject *)co)->co_refcnt--)
+#define CO_DECREF(co)   \
+    do {                \
+        if (--((COObject *)co)->co_refcnt == 0) co_free(co);    \
+    } while (0)
 
 /* Macros to used in case the object pointer may be NULL: */
 #define CO_XINCREF(co)  do { if ((co) == NULL) ; else CO_INCREF(co); } while (0)
