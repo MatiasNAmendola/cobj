@@ -174,14 +174,14 @@ CODict_New(void)
     }
     DictBucket **tmp;
     CODictObject *dict = COObject_New(CODictObject, &CODict_Type);
+    dict->pCursor = NULL;
+    dict->pListHead = NULL;
+    dict->pListTail = NULL;
 
-    dict->nTableSize = CODict_MINSIZE;
-
-    dict->nTableMask = dict->nTableSize - 1;
-    dict->arBuckets = NULL;
+    dict->nTableMask = CODict_MINSIZE - 1;
     dict->nNumOfElements = 0;
-    tmp = (DictBucket **)co_malloc(dict->nTableSize * sizeof(DictBucket *));
-    memset(tmp, 0, dict->nTableSize * sizeof(DictBucket *));
+    tmp = (DictBucket **)co_malloc((dict->nTableMask + 1) * sizeof(DictBucket *));
+    memset(tmp, 0, (dict->nTableMask + 1) * sizeof(DictBucket *));
     dict->arBuckets = tmp;
 
     return (COObject *)dict;

@@ -45,7 +45,7 @@
 // initial segment of every object
 #define COObject_HEAD COObject co_base
 #define COObject_HEAD_INIT(type_ref)    \
-    { 0, 0, 1, type_ref }
+    { 1, type_ref }
 
 // initial segment of every variable-size object
 #define COVarObject_HEAD COVarObject co_base;
@@ -56,8 +56,6 @@
 typedef struct _COTypeObject COTypeObject;
 
 typedef struct _COObject {
-    struct _COObject *_co_next;
-    struct _COObject *_co_prev;
     unsigned int co_refcnt;
     COTypeObject *co_type;
 } COObject;

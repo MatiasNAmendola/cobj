@@ -33,5 +33,6 @@ COFunction_New(COObject *func_name)
     }
     func->func_name = func_name;
     func->func_upvalues = CODict_New();
+    func->func_code = NULL;
     return (COObject *)func;
 }
