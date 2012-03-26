@@ -1,7 +1,7 @@
-#ifndef MALLOC_H
-#define MALLOC_H
+#ifndef MEM_H
+#define MEM_H
 /**
- * COObject Memory Allocation Interfaces.
+ * COObject Memory Allocator.
  */
 
 #ifdef COMEM_DEBUG
@@ -16,5 +16,9 @@
 # define COMem_REALLOC(p, n)  ((size_t)(n) > SIZE_MAX ? NULL : realloc((p), (n) ? (n) : 1))
 # define COMem_FREE     free
 #endif
+
+void *_COMem_DebugMalloc(size_t n);
+void *_COMem_DebugRelloc(void *p, size_t n);
+void _COMem_DebugFree(void *p);
 
 #endif

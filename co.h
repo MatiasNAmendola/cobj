@@ -32,7 +32,7 @@
 #include "vm_opcodes.h"
 #include "wrapper.h"
 #include "serialize.h"
-#include "malloc.h"
+#include "mem.h"
 #include "gc.h"
 
 #include "object.h"

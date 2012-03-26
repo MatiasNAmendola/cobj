@@ -40,7 +40,7 @@
  */
 
 #include "co_compat.h"
-#include "malloc.h"
+#include "mem.h"
 
 // initial segment of every object
 #define COObject_HEAD COObject co_base

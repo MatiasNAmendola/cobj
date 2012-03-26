@@ -1,6 +1,6 @@
-* add gc
 * support tuple literal
 * implement keyword this
+* add gc
 * built-in functions (print, etc)
 * error handling (exceptin)
 * error message with location

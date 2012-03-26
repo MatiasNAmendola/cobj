@@ -7,7 +7,7 @@ all::
 CC = gcc
 RM = rm -rf
 
-CFLAGS = -std=c99 -Wall
+CFLAGS = -std=c99 -Wall $(EXTRA_CFLAGS)
 ifdef CO_DEBUG
 	CFLAGS += -DCO_DEBUG -g3
 else
@@ -35,7 +35,7 @@ LIB_OBJS += stack.o
 LIB_OBJS += usage.o
 LIB_OBJS += vm.o
 LIB_OBJS += wrapper.o
-LIB_OBJS += malloc.o
+LIB_OBJS += mem.o
 LIB_OBJS += argparse/argparse.o
 LIB_OBJS += objects/typeobject.o
 LIB_OBJS += objects/boolobject.o
