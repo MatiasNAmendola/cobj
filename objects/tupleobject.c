@@ -69,7 +69,7 @@ COTuple_New(size_t size)
     if (size <= 0) {
         this->co_item = NULL;
     } else {
-        this->co_item = (COObject **)co_malloc(nbytes);
+        this->co_item = (COObject **)COMem_MALLOC(nbytes);
         if (this->co_item == NULL) {
             // TODO errors
             return NULL;

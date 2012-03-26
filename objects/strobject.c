@@ -59,7 +59,7 @@ str_resize(COStrObject **pv, size_t newsize)
         return -1;
     }
 
-    *pv = (COStrObject *)co_realloc((char *)v, COStr_BASESIZE + newsize);
+    *pv = (COStrObject *)COMem_REALLOC((char *)v, COStr_BASESIZE + newsize);
     if (*pv == NULL) {
         // TODO errors
         return -1;

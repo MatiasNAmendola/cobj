@@ -8,7 +8,7 @@ xstrndup(const char *str, size_t len)
 {
     char *p;
 
-    p = (char *)co_malloc(len + 1);
+    p = (char *)COMem_MALLOC(len + 1);
     memcpy(p, str, len);
     p[len] = '\0';
 

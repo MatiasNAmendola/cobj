@@ -82,7 +82,7 @@ COBytes_FromStringN(const char *bytes, size_t len)
         new->co_bytes = NULL;
         new->co_alloc = 0;
     } else {
-        new->co_bytes = co_malloc(len + 1);
+        new->co_bytes = COMem_MALLOC(len + 1);
         if (new->co_bytes == NULL) {
             // TODO errors
             return NULL;
@@ -125,7 +125,7 @@ COBytes_Resize(COObject *this, size_t size)
         alloc = size + 1;
     }
 
-    bytes = (char *)co_realloc(((COBytesObject *)this)->co_bytes, alloc);
+    bytes = (char *)COMem_REALLOC(((COBytesObject *)this)->co_bytes, alloc);
     if (bytes == NULL) {
         // TODO errors
         return -1;

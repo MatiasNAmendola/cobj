@@ -80,7 +80,7 @@ COObject _CO_None;              // Don't use this directly, using following one 
 #define CO_INCREF(co)   (((COObject *)co)->co_refcnt++)
 #define CO_DECREF(co)   \
     do {                \
-        if (--((COObject *)co)->co_refcnt == 0) co_free(co);    \
+        if (--((COObject *)co)->co_refcnt == 0) COMem_FREE(co);    \
     } while (0)
 
 /* Macros to used in case the object pointer may be NULL: */

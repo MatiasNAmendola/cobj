@@ -1,25 +1,22 @@
 #include "co.h"
 
 void *
-co_malloc(size_t size)
+_COMem_DebugMalloc(size_t n)
 {
-    void *ret = malloc(size);
-
-    if (!ret) {
-        error("Out of memory, malloc failed");
-    }
-
-    return ret;
+    // TODO DEBUG
+    return ((size_t)(n) > SIZE_MAX ? NULL : malloc((n) ? (n) : 1));
 }
 
 void *
-co_realloc(void *ptr, size_t size)
+_COMem_DebugRelloc(void *p, size_t n)
 {
-    void *ret = realloc(ptr, size);
+    // TODO DEBUG
+    return ((size_t)(n) > SIZE_MAX ? NULL : realloc((p), (n) ? (n) : 1));
+}
 
-    if (!ret) {
-        error("Out of memory, realloc failed");
-    }
-
-    return ret;
+void
+_COMem_DebugFree(void *p)
+{
+    // TODO DEBUG
+    free(p);
 }
