@@ -57,6 +57,7 @@ main(int argc, const char **argv)
     COInt_Init();
     threadstate_current = COThreadState_New();
     TS(frame) = COFrame_New();
+    COObject *ret;
 
     /* test only */
     if (verbose) {
@@ -98,7 +99,7 @@ main(int argc, const char **argv)
                     // TODO invalid code dump
                     return -1;
                 }
-                co_vm_eval(code);
+                ret = co_vm_eval(code);
                 return 0;
             }
         }
@@ -107,10 +108,29 @@ main(int argc, const char **argv)
         if (isatty((int)fileno(f))) {
             char *code;
             linenoiseSetCompletionCallback(cli_completion);
+            char *home = getenv("HOME");
+            char history[PATH_MAX];
+            char *history_path = NULL;
+            if (home) {
+                history_path = mksnpath(history, sizeof(history), "%s/.co_history", home);
+                linenoiseHistoryLoad(history_path);        
+            }
             printf("COObject 0.1\n");
             while ((code = linenoise(">>> ")) != NULL) {
                 co_scanner_setcode(code);
-                co_vm_eval(co_compile());
+                ret = co_vm_eval(co_compile());
+                linenoiseHistoryAdd(code);
+                if (history_path) {
+                    linenoiseHistorySave(history_path);
+                }
+                if (ret == NULL) {
+                    if (COErr_Occurred()) {
+                        COErr_Print();
+                    }
+                    // TODO print exception
+                    /*COObject_dump(COException);*/
+                    /*COObject_dump(COException_SystemError);*/
+                }
             }
         } else {
             co_scanner_setfile(COFile_FromFile(f, (char *)f_name, "r", fclose));
@@ -133,6 +153,6 @@ main(int argc, const char **argv)
         return 0;
     }
 
-    co_vm_eval(co);
+    ret = co_vm_eval(co);
     return 0;
 }

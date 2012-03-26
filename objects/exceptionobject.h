@@ -15,4 +15,15 @@ COTypeObject COException_Type;
 
 #define COException_Check(co) (CO_TYPE(co) == &COException_Type)
 
+/* Predefined exceptions
+ * 
+ * Hierarchy:
+ *  Exception
+ *    - SystemError
+ *    - NameError
+ */
+COObject *COException;
+COObject *COException_SystemError;
+COObject *COException_NameError;
+
 #endif

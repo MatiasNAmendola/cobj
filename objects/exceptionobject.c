@@ -16,3 +16,21 @@ COTypeObject COException_Type = {
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
 };
+
+COObject *COException = (COObject *)&COException_Type;
+
+#define SimpleExtendsException(EXCBASE, EXCNAME, EXCDOC)    \
+    COTypeObject _COException_ ## EXCNAME = {               \
+        COObject_HEAD_INIT(&COType_Type),                   \
+        # EXCNAME,                                          \
+        sizeof(COExceptionObject),                          \
+        0,                                                  \
+        (reprfunc)exception_repr,                           \
+        0,                                                  \
+        0,                                                  \
+        0,                                                  \
+    };                                                      \
+    COObject *COException_ ## EXCNAME = (COObject *)&_COException_ ## EXCNAME
+
+SimpleExtendsException(COException, SystemError, "test doc");
+SimpleExtendsException(COException, NameError, "test doc");

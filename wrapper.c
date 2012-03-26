@@ -33,3 +33,32 @@ safe_strtol(const char *str, long int *out)
     }
     return false;
 }
+
+static char bad_path[] = "/bad-path/";
+
+static char *cleanup_path(char *path)
+{
+    /* Clean it up */
+    if (!memcmp(path, "./", 2)) {
+        path += 2;
+        while (*path == '/')
+            path++;
+    }
+    return path;
+}
+
+char *mksnpath(char *buf, size_t n, const char *fmt, ...)
+{
+    va_list args;
+    unsigned len;
+
+    va_start(args, fmt);
+    len = vsnprintf(buf, n, fmt, args);
+    va_end(args);
+    if (len >= n) {
+        strlcpy(buf, bad_path, n); 
+        return buf;
+    }   
+    return cleanup_path(buf);
+}
+
