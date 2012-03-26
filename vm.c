@@ -20,7 +20,7 @@ COObject_get(COObject *name)
 {
     COObject *co;
 
-    struct co_exec_data *current_exec_data = S(current_exec_data);
+    struct co_exec_data *current_exec_data = TS(current_exec_data);
     if (current_exec_data->function_called) {
         co = CODict_GetItem(((COFunctionObject *)
                              current_exec_data->function_called)->func_upvalues,
@@ -45,7 +45,7 @@ COObject_get(COObject *name)
 int
 COObject_put(COObject *name, COObject *co)
 {
-    struct co_exec_data *current_exec_data = S(current_exec_data);
+    struct co_exec_data *current_exec_data = TS(current_exec_data);
     if (current_exec_data->function_called) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
@@ -57,13 +57,13 @@ COObject_put(COObject *name, COObject *co)
                            name, co);
         }
     }
-    return CODict_SetItem(S(current_exec_data)->symbol_table, name, co);
+    return CODict_SetItem(TS(current_exec_data)->symbol_table, name, co);
 }
 
 int
 COObject_del(COObject *name)
 {
-    return CODict_DelItem(S(current_exec_data)->symbol_table, name);
+    return CODict_DelItem(TS(current_exec_data)->symbol_table, name);
 }
 
 static COObject *
@@ -82,7 +82,7 @@ CNode_GetObject(struct cnode *node)
         return co;
         break;
     case IS_TMP_VAR:
-        return *(COObject **)((char *)S(current_exec_data)->ts +
+        return *(COObject **)((char *)TS(current_exec_data)->ts +
                               node->u.var);
         break;
     case IS_UNUSED:
@@ -104,7 +104,7 @@ CNode_SetObject(struct cnode *node, COObject *co)
         return COObject_put(node->u.co, co);
         break;
     case IS_TMP_VAR:
-        *(COObject **)((char *)S(current_exec_data)->ts + node->u.var) =
+        *(COObject **)((char *)TS(current_exec_data)->ts + node->u.var) =
             co;
         return 0;
         break;
@@ -119,14 +119,15 @@ CNode_SetObject(struct cnode *node, COObject *co)
 
 #define OP_JUMP(offset) \
     do {                \
-        S(current_exec_data)->op += offset - 1;             \
+        TS(current_exec_data)->op += offset - 1;             \
     } while (0)
 
 void
-co_vm_eval(COCodeObject *main)
+co_vm_eval(COObject *_main)
 {
     struct co_exec_data *exec_data;
-    COObject *f = COFrame_New();
+    COObject *f = TS(frame);
+    COCodeObject *main = (COCodeObject *)_main;
 
 vm_enter:
     exec_data =
@@ -139,21 +140,21 @@ vm_enter:
         (COOplineObject **)((COTupleObject *)main->co_oplines)->co_item;
     exec_data->prev_exec_data = NULL;
     exec_data->symbol_table = CODict_New();
-    exec_data->function_called = S(next_func);
-    exec_data->prev_exec_data = S(current_exec_data);
+    exec_data->function_called = TS(next_func);
+    exec_data->prev_exec_data = TS(current_exec_data);
 
-    S(current_exec_data) = exec_data;
+    TS(current_exec_data) = exec_data;
 
 #ifdef CO_DEBUG
     printf("vm enter: exec_data: %p, prev_exec_data: %p\n",
-           S(current_exec_data),
-           S(current_exec_data)->prev_exec_data);
+           TS(current_exec_data),
+           TS(current_exec_data)->prev_exec_data);
 #endif
 
     COOplineObject *op;
     COObject *co1, *co2, *co3;
     while (true) {
-        switch ((op = *(S(current_exec_data)->op++))->opcode) {
+        switch ((op = *(TS(current_exec_data)->op++))->opcode) {
         case OP_ADD:
             co1 = CNode_GetObject(&op->op1);
             co2 = CNode_GetObject(&op->op2);
@@ -267,7 +268,7 @@ vm_enter:
                 COFunctionObject *func =
                     (COFunctionObject *)COFunction_New(op->op1.u.co);
                 uint start =
-                    S(current_exec_data)->op -
+                    TS(current_exec_data)->op -
                     (COOplineObject **)((COTupleObject *)main->co_oplines)->
                     co_item - 1;
                 COObject *suboplines =
@@ -276,7 +277,7 @@ vm_enter:
                 // hack fix, using same temp variables num
                 COObject *code = COCode_New(suboplines, main->co_numoftmpvars);
                 func->func_code = code;
-                if (S(current_exec_data)->function_called) {
+                if (TS(current_exec_data)->function_called) {
                     // setup function's func_upvalues
                     COObject *co;
                     COObject *name;
@@ -314,16 +315,16 @@ vm_enter:
             {
                 COObject *co;
                 struct co_exec_data *old_exec_data;
-                old_exec_data = S(current_exec_data);
+                old_exec_data = TS(current_exec_data);
                 if (op->op1.type != IS_UNUSED) {
                     co = CNode_GetObject(&op->op1);
                 }
 #ifdef CO_DEBUG
-                printf("vm leave: %p, back: %p\n", S(current_exec_data),
-                       S(current_exec_data)->prev_exec_data);
+                printf("vm leave: %p, back: %p\n", TS(current_exec_data),
+                       TS(current_exec_data)->prev_exec_data);
 #endif
-                S(current_exec_data) =
-                    S(current_exec_data)->prev_exec_data;
+                TS(current_exec_data) =
+                    TS(current_exec_data)->prev_exec_data;
                 COFrame_Free(f, (COObject *)old_exec_data);
                 struct cnode *rt = (struct cnode *)COFrame_Pop(f);
                 if (op->op1.type != IS_UNUSED) {
@@ -342,21 +343,21 @@ vm_enter:
                 error("not a function");
             }
             COFrame_Push(f, (COObject *)&op->result);
-            S(next_func) = co1;
+            TS(next_func) = co1;
 
             main =
-                (COCodeObject *)((COFunctionObject *)S(next_func))->
+                (COCodeObject *)((COFunctionObject *)TS(next_func))->
                 func_code;
             goto vm_enter;
         case OP_PASS_PARAM:
             co1 = CNode_GetObject(&op->op1);
-            co_stack_push(&S(argument_stack), &co1, sizeof(COObject *));
+            co_stack_push(&TS(argument_stack), &co1, sizeof(COObject *));
             continue;
         case OP_RECV_PARAM:
             {
                 COObject **co;
-                co_stack_top(&S(argument_stack), (void **)&co);
-                co_stack_pop(&S(argument_stack));
+                co_stack_top(&TS(argument_stack), (void **)&co);
+                co_stack_pop(&TS(argument_stack));
                 COObject_put(op->op1.u.co, *co);
                 continue;
             }
@@ -386,8 +387,9 @@ vm_enter:
         default:
             error("unknown handle for opcode(%ld)\n", op->opcode);
         }
+
     }
 
 vm_exit:
-    COFrame_Destory(f);
+    return 0;
 }

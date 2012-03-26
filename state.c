@@ -1,11 +1,11 @@
 #include "co.h"
 
-COState *state_current = NULL;
+COThreadState *threadstate_current = NULL;
 
-COState *
-COState_New()
+COThreadState *
+COThreadState_New()
 {
-    COState *state = (COState *)malloc(sizeof(COState));
+    COThreadState *state = (COThreadState *)malloc(sizeof(COThreadState));
     if (state != NULL) {
         // TODO
     }

@@ -55,7 +55,8 @@ main(int argc, const char **argv)
 
     /* Init */
     COInt_Init();
-    state_current = COState_New();
+    threadstate_current = COThreadState_New();
+    TS(frame) = COFrame_New();
 
     /* test only */
     if (verbose) {
@@ -97,7 +98,7 @@ main(int argc, const char **argv)
                     // TODO invalid code dump
                     return -1;
                 }
-                co_vm_eval((COCodeObject *)code);
+                co_vm_eval(code);
                 return 0;
             }
         }
