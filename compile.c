@@ -7,7 +7,7 @@ struct compiler {
 
 struct compiler c;
 
-COCodeObject *
+COObject *
 co_compile(void)
 {
     c.c_oplines = COList_New(0);
@@ -19,10 +19,9 @@ co_compile(void)
     co_print_opcode(c.c_oplines);
 #endif
 
-    COCodeObject *co = (COCodeObject *)COCode_New(COList_AsTuple(c.c_oplines),
-                                                  c.c_numoftmpvars);
+   return COCode_New(COList_AsTuple(c.c_oplines),
+                                             c.c_numoftmpvars);
 
-    return co;
 }
 
 uint

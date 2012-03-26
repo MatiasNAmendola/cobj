@@ -3,6 +3,6 @@
 
 #include "objects/codeobject.h"
 
-void co_vm_eval(COObject *main);
+int co_vm_eval(COObject *main);
 
 #endif

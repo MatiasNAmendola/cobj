@@ -58,7 +58,7 @@ COInt_Init(void)
     int ival;
     COIntObject *o = small_ints;
     for (ival = -SMALL_NEG_INT; ival < SMALL_POS_INT; ival++, o++) {
-        COObject_Init(o, &COInt_Type);
+        (void)COObject_Init(o, &COInt_Type);
         o->co_ival = ival;
     }
     return 0;

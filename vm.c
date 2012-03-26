@@ -122,22 +122,22 @@ CNode_SetObject(struct cnode *node, COObject *co)
         TS(current_exec_data)->op += offset - 1;             \
     } while (0)
 
-void
-co_vm_eval(COObject *_main)
+int
+co_vm_eval(COObject *_mainfunc)
 {
     struct co_exec_data *exec_data;
     COObject *f = TS(frame);
-    COCodeObject *main = (COCodeObject *)_main;
+    COCodeObject *mainfunc = (COCodeObject *)_mainfunc;
 
 vm_enter:
     exec_data =
         (struct co_exec_data *)COFrame_Alloc(f, sizeof(struct co_exec_data) +
                                              sizeof(COObject *) *
-                                             main->co_numoftmpvars);
+                                             mainfunc->co_numoftmpvars);
     exec_data->ts =
         (COObject **)((char *)exec_data + sizeof(struct co_exec_data));
     exec_data->op =
-        (COOplineObject **)((COTupleObject *)main->co_oplines)->co_item;
+        (COOplineObject **)((COTupleObject *)mainfunc->co_oplines)->co_item;
     exec_data->prev_exec_data = NULL;
     exec_data->symbol_table = CODict_New();
     exec_data->function_called = TS(next_func);
@@ -269,13 +269,13 @@ vm_enter:
                     (COFunctionObject *)COFunction_New(op->op1.u.co);
                 uint start =
                     TS(current_exec_data)->op -
-                    (COOplineObject **)((COTupleObject *)main->co_oplines)->
+                    (COOplineObject **)((COTupleObject *)mainfunc->co_oplines)->
                     co_item - 1;
                 COObject *suboplines =
-                    COTuple_GetSlice(main->co_oplines, start + 1,
+                    COTuple_GetSlice(mainfunc->co_oplines, start + 1,
                                      start + 1 + op->op2.u.opline_num);
                 // hack fix, using same temp variables num
-                COObject *code = COCode_New(suboplines, main->co_numoftmpvars);
+                COObject *code = COCode_New(suboplines, mainfunc->co_numoftmpvars);
                 func->func_code = code;
                 if (TS(current_exec_data)->function_called) {
                     // setup function's func_upvalues
@@ -345,7 +345,7 @@ vm_enter:
             COFrame_Push(f, (COObject *)&op->result);
             TS(next_func) = co1;
 
-            main =
+            mainfunc =
                 (COCodeObject *)((COFunctionObject *)TS(next_func))->
                 func_code;
             goto vm_enter;

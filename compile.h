@@ -4,7 +4,6 @@
 #include "co_compat.h"
 #include "object.h"
 #include "objects/listobject.h"
-#include "objects/codeobject.h"
 
 /** cnode type **/
 #define IS_CONST        (1<<0)
@@ -22,7 +21,7 @@ struct cnode {
 };
 
 /* compiler */
-COCodeObject *co_compile(void);
+COObject *co_compile(void);
 uint co_get_next_opline_num(void);
 
 /* parser-driven code generators */

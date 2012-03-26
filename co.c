@@ -117,7 +117,7 @@ main(int argc, const char **argv)
         }
     }
 
-    COCodeObject *co;
+    COObject *co;
     co = co_compile();
     co_scanner_shutdown();
 
