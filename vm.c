@@ -74,13 +74,6 @@ COObject_del(COObject *name)
     return CODict_DelItem(vm_globals.current_exec_data->symbol_table, name);
 }
 
-void
-COObject_print(COObject *co)
-{
-    COStrObject *s = (COStrObject *)CO_TYPE(co)->tp_repr(co);
-    printf("%s\n", s->co_sval);
-}
-
 static COObject *
 CNode_GetObject(struct cnode *node)
 {
@@ -132,17 +125,10 @@ CNode_SetObject(struct cnode *node, COObject *co)
     return -1;
 }
 
-#ifdef CO_DEBUG
 #define OP_JUMP(offset) \
     do {                \
         vm_globals.current_exec_data->op += offset - 1;             \
     } while (0)
-#else
-#define OP_JUMP(offset) \
-    do {                \
-        vm_globals.current_exec_data->op += offset - 1;             \
-    } while (0)
-#endif
 
 void
 co_vm_eval(COCodeObject *main)

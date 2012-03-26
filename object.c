@@ -70,3 +70,10 @@ _COVarObject_New(COTypeObject *tp, size_t n)
     }
     return COVarObject_Init(co, tp, n);
 }
+
+void
+COObject_print(COObject *co)
+{
+    COStrObject *s = (COStrObject *)CO_TYPE(co)->tp_repr(co);
+    printf("%s\n", s->co_sval);
+}
