@@ -105,10 +105,10 @@ main(int argc, const char **argv)
         fseek(f, 0, SEEK_SET);
 
         if (isatty((int)fileno(f))) {
-            // TODO, current each statement is executed separately
             char *code;
             linenoiseSetCompletionCallback(cli_completion);
-            while ((code = linenoise("co> ")) != NULL) {
+            printf("COObject 0.1\n");
+            while ((code = linenoise(">>> ")) != NULL) {
                 co_scanner_setcode(code);
                 co_vm_eval(co_compile());
             }
