@@ -55,6 +55,7 @@ main(int argc, const char **argv)
 
     /* Init */
     COInt_Init();
+    state_current = COState_New();
 
     /* test only */
     if (verbose) {

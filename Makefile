@@ -36,7 +36,7 @@ LIB_OBJS += usage.o
 LIB_OBJS += vm.o
 LIB_OBJS += wrapper.o
 LIB_OBJS += mem.o
-LIB_OBJS += argparse/argparse.o
+LIB_OBJS += state.o
 LIB_OBJS += objects/typeobject.o
 LIB_OBJS += objects/boolobject.o
 LIB_OBJS += objects/intobject.o
@@ -53,6 +53,7 @@ LIB_OBJS += objects/bytesobject.o
 LIB_OBJS += objects/fileobject.o
 LIB_OBJS += objects/exceptionobject.o
 LIB_OBJS += linenoise/linenoise.o
+LIB_OBJS += argparse/argparse.o
 
 $(LIB_OBJS): $(LIB_H)
 
