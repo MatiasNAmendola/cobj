@@ -51,6 +51,4 @@ struct co_exception_buf {
 
 /* ! C Exception Emulator */
 
-/* Exception Objects */
-
 #endif

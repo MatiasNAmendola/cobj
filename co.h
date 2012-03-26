@@ -51,6 +51,7 @@
 #include "objects/oplineobject.h"
 #include "objects/bytesobject.h"
 #include "objects/fileobject.h"
+#include "objects/exceptionobject.h"
 
 #include "argparse/argparse.h"
 #include "linenoise/linenoise.h"

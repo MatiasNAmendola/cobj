@@ -51,6 +51,7 @@ LIB_OBJS += objects/dictobject.o
 LIB_OBJS += objects/oplineobject.o
 LIB_OBJS += objects/bytesobject.o
 LIB_OBJS += objects/fileobject.o
+LIB_OBJS += objects/exceptionobject.o
 LIB_OBJS += linenoise/linenoise.o
 
 $(LIB_OBJS): $(LIB_H)
