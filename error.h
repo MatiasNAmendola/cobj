@@ -4,6 +4,12 @@
  * Error Handling
  *
  * @example
+ */
+#include <setjmp.h>
+
+/**
+ * C Exception Emulator
+ *
  *  co_try(&exbuf) {
  *      // throw in current block
  *      co_throw(&exbuf, 1)
@@ -21,7 +27,6 @@
  *      // do, if code is 2
  *  } co_end_try
  */
-#include <setjmp.h>
 
 /* chain list of exception buffers */
 struct co_exception_buf {
@@ -43,5 +48,9 @@ struct co_exception_buf {
 #define co_end_try(b)               \
         (b) = (b)->prev;            \
         }} while(0)
+
+/* ! C Exception Emulator */
+
+/* Exception Objects */
 
 #endif

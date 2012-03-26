@@ -23,6 +23,15 @@ int compile = 0;
 char *eval = NULL;
 char *compile_outfile = NULL;
 
+void
+cli_completion(const char *buf, linenoiseCompletions *lc)
+{
+    // TODO
+    if (buf[0] == 'p') {
+        linenoiseAddCompletion(lc, "print");
+    }
+}
+
 int
 main(int argc, const char **argv)
 {
@@ -92,7 +101,18 @@ main(int argc, const char **argv)
             }
         }
         fseek(f, 0, SEEK_SET);
-        co_scanner_setfile(COFile_FromFile(f, (char *)f_name, "r", fclose));
+
+        if (isatty((int)fileno(f))) {
+            // TODO, current each statement is executed separately
+            char *code;
+            linenoiseSetCompletionCallback(cli_completion);
+            while ((code = linenoise("co> ")) != NULL) {
+                co_scanner_setcode(code);
+                co_vm_eval(co_compile());
+            }
+        } else {
+            co_scanner_setfile(COFile_FromFile(f, (char *)f_name, "r", fclose));
+        }
     }
 
     COCodeObject *co;

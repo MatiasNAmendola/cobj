@@ -1,20 +1,20 @@
 #ifndef CO_H
 #define CO_H
-/* 
+/*
  * Cache for header files for simplicity.
  *
  * Notice:
  *  Other header file should not include this!
  *
  * Dependencies:
- *          the-compat.h
- *      /       |       \
- *  a.h         b.h     c.h ...
- *      |   \   |       /   |
- *      |   co.h (cached)   |
- *      |   /   |       \   |
- *  a.c         b.c        c.c
- * 
+ *         the_compat.h
+ *      /      |       \
+ *  a.h       b.h      c.h ...
+ *    |   \    |       /  |
+ *    |  co.h (cached)    |
+ *    |   /    |       \  |
+ *  a.c       b.c        c.c
+ *
  * Author: Yecheng Fu <cofyc.jackson@gmail.com>
  */
 
@@ -53,6 +53,7 @@
 #include "objects/fileobject.h"
 
 #include "argparse/argparse.h"
+#include "linenoise/linenoise.h"
 
 /* Helper Functions */
 static inline ssize_t
