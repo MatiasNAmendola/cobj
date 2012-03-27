@@ -19,7 +19,8 @@ co_stack_push(co_stack *stack, const void *element, int size)
     if (stack->top >= stack->max) {     /* we need to allocate more memory */
         stack->max += STACK_BLOCK_SIZE;
         stack->elements =
-            (void **)COMem_REALLOC(stack->elements, sizeof(void *) * stack->max);
+            (void **)COMem_REALLOC(stack->elements,
+                                   sizeof(void *) * stack->max);
         if (!stack->elements) {
             return false;
         }

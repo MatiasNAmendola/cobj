@@ -36,7 +36,7 @@ vm_stack_new_page(size_t size)
 {
     struct vm_stack *page =
         (struct vm_stack *)COMem_MALLOC(sizeof(struct vm_stack) +
-                                   sizeof(page->elements[0]) * (size - 1));
+                                        sizeof(page->elements[0]) * (size - 1));
     page->top = page->elements;
     page->end = page->elements + size;
     page->prev = NULL;

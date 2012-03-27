@@ -35,7 +35,6 @@
 #include "mem.h"
 #include "gc.h"
 #include "state.h"
-
 #include "object.h"
 #include "objects/typeobject.h"
 #include "objects/intobject.h"
@@ -57,33 +56,7 @@
 #include "argparse/argparse.h"
 #include "linenoise/linenoise.h"
 
-/* Helper Functions */
-static inline ssize_t
-xread(int fd, void *buf, size_t len)
-{
-    ssize_t nr;
-
-    while (1) {
-        nr = read(fd, buf, len);
-        if ((nr < 0) && (errno == EAGAIN || errno == EINTR))
-            continue;
-        return nr;
-    }
-}
-
-static inline ssize_t
-xwrite(int fd, const void *buf, size_t len)
-{
-    ssize_t nr;
-
-    while (1) {
-        nr = write(fd, buf, len);
-        if ((nr < 0) && (errno == EAGAIN || errno == EINTR))
-            continue;
-        return nr;
-    }
-}
-
-int verbose;
+/* Help macros */
+#define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 
 #endif

@@ -14,6 +14,4 @@
  * Author: Yecheng Fu <cofyc.jackson@gmail.com> 
  */
 
-
-
 #endif

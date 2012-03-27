@@ -2,8 +2,8 @@
 
 /* status code for eval main loop (reason for stack unwind) */
 enum status_code {
-    STATUS_NONE         = 0x0001,   /* None */
-    STATUS_EXCEPTION    = 0x0002,   /* Exception occurred */
+    STATUS_NONE = 0x0001,       /* None */
+    STATUS_EXCEPTION = 0x0002,  /* Exception occurred */
 };
 
 /* execution frame */
@@ -55,8 +55,8 @@ COObject_put(COObject *name, COObject *co)
     if (current_exec_data->function_called) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
-                               current_exec_data->function_called)->
-                              func_upvalues, name);
+                               current_exec_data->
+                               function_called)->func_upvalues, name);
         if (myco) {
             CODict_SetItem(((COFunctionObject *)
                             current_exec_data->function_called)->func_upvalues,
@@ -83,13 +83,13 @@ CNode_GetObject(struct cnode *node)
     case IS_VAR:
         co = COObject_get(node->u.co);
         if (!co) {
-            error("not bind: %s", COStr_AsString(node->u.co));
+            COErr_Format(COException_NameError, "Undefined variable: %s",
+                         COStr_AsString(node->u.co));
         }
         return co;
         break;
     case IS_TMP_VAR:
-        return *(COObject **)((char *)TS(current_exec_data)->ts +
-                              node->u.var);
+        return *(COObject **)((char *)TS(current_exec_data)->ts + node->u.var);
         break;
     case IS_UNUSED:
         return NULL;
@@ -110,8 +110,7 @@ CNode_SetObject(struct cnode *node, COObject *co)
         return COObject_put(node->u.co, co);
         break;
     case IS_TMP_VAR:
-        *(COObject **)((char *)TS(current_exec_data)->ts + node->u.var) =
-            co;
+        *(COObject **)((char *)TS(current_exec_data)->ts + node->u.var) = co;
         return 0;
         break;
     case IS_UNUSED:
@@ -153,8 +152,7 @@ vm_enter:
 
 #ifdef CO_DEBUG
     printf("vm enter: exec_data: %p, prev_exec_data: %p\n",
-           TS(current_exec_data),
-           TS(current_exec_data)->prev_exec_data);
+           TS(current_exec_data), TS(current_exec_data)->prev_exec_data);
 #endif
 
     int status = STATUS_NONE;
@@ -246,6 +244,9 @@ vm_enter:
             break;
         case OP_PRINT:
             co1 = CNode_GetObject(&op->op1);
+            if (co1 == NULL) {
+                goto on_error;
+            }
             COObject_print(co1);
 
             break;
@@ -269,13 +270,14 @@ vm_enter:
                     (COFunctionObject *)COFunction_New(op->op1.u.co);
                 uint start =
                     TS(current_exec_data)->op -
-                    (COOplineObject **)((COTupleObject *)mainfunc->co_oplines)->
-                    co_item - 1;
+                    (COOplineObject **)((COTupleObject *)mainfunc->
+                                        co_oplines)->co_item - 1;
                 COObject *suboplines =
                     COTuple_GetSlice(mainfunc->co_oplines, start + 1,
                                      start + 1 + op->op2.u.opline_num);
                 // hack fix, using same temp variables num
-                COObject *code = COCode_New(suboplines, mainfunc->co_numoftmpvars);
+                COObject *code =
+                    COCode_New(suboplines, mainfunc->co_numoftmpvars);
                 func->func_code = code;
                 if (TS(current_exec_data)->function_called) {
                     // setup function's func_upvalues
@@ -323,8 +325,7 @@ vm_enter:
                 printf("vm leave: %p, back: %p\n", TS(current_exec_data),
                        TS(current_exec_data)->prev_exec_data);
 #endif
-                TS(current_exec_data) =
-                    TS(current_exec_data)->prev_exec_data;
+                TS(current_exec_data) = TS(current_exec_data)->prev_exec_data;
                 COFrame_Free(f, (COObject *)old_exec_data);
                 struct cnode *rt = (struct cnode *)COFrame_Pop(f);
                 if (op->op1.type != IS_UNUSED) {
@@ -346,8 +347,7 @@ vm_enter:
             TS(next_func) = co1;
 
             mainfunc =
-                (COCodeObject *)((COFunctionObject *)TS(next_func))->
-                func_code;
+                (COCodeObject *)((COFunctionObject *)TS(next_func))->func_code;
             goto vm_enter;
         case OP_PASS_PARAM:
             co1 = CNode_GetObject(&op->op1);
@@ -388,6 +388,7 @@ vm_enter:
             error("unknown handle for opcode(%ld)\n", op->opcode);
         }
 
+on_error:
         /* End the loop if we still have an error (or return) */
         if (status != STATUS_NONE)
             break;

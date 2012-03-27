@@ -26,9 +26,27 @@ char *compile_outfile = NULL;
 void
 cli_completion(const char *buf, linenoiseCompletions *lc)
 {
-    // TODO
-    if (buf[0] == 'p') {
-        linenoiseAddCompletion(lc, "print");
+    static const char *words[] = {
+        "print",
+        "if",
+        "else",
+        "elif",
+        "try",
+        "throw",
+        "catch",
+        "finally",
+        "func",
+        "while",
+        "end",
+        "None",
+        "True",
+        "False",
+    };
+
+    for (int i = 0; i < ARRAY_SIZE(words); i++) {
+        if (!prefixcmp(words[i], buf)) {
+            linenoiseAddCompletion(lc, (char *)words[i]);
+        }
     }
 }
 
@@ -112,8 +130,9 @@ main(int argc, const char **argv)
             char history[PATH_MAX];
             char *history_path = NULL;
             if (home) {
-                history_path = mksnpath(history, sizeof(history), "%s/.co_history", home);
-                linenoiseHistoryLoad(history_path);        
+                history_path =
+                    mksnpath(history, sizeof(history), "%s/.co_history", home);
+                linenoiseHistoryLoad(history_path);
             }
             printf("COObject 0.1\n");
             while ((code = linenoise(">>> ")) != NULL) {
@@ -128,8 +147,8 @@ main(int argc, const char **argv)
                         COErr_Print();
                     }
                     // TODO print exception
-                    /*COObject_dump(COException);*/
-                    /*COObject_dump(COException_SystemError);*/
+                    /*COObject_dump(COException); */
+                    /*COObject_dump(COException_SystemError); */
                 }
             }
         } else {

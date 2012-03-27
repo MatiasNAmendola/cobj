@@ -52,8 +52,8 @@ _dict_do_resize(CODictObject *this)
 
     if ((this->nTableSize << 1) > 0) {  // double the table size
         t = (DictBucket **)COMem_REALLOC(this->arBuckets,
-                                    (this->nTableSize << 1) *
-                                    sizeof(DictBucket *));
+                                         (this->nTableSize << 1) *
+                                         sizeof(DictBucket *));
         this->arBuckets = t;
         this->nTableSize = this->nTableSize << 1;
         this->nTableMask = this->nTableSize - 1;
@@ -180,7 +180,9 @@ CODict_New(void)
 
     dict->nTableMask = CODict_MINSIZE - 1;
     dict->nNumOfElements = 0;
-    tmp = (DictBucket **)COMem_MALLOC((dict->nTableMask + 1) * sizeof(DictBucket *));
+    tmp =
+        (DictBucket **)COMem_MALLOC((dict->nTableMask + 1) *
+                                    sizeof(DictBucket *));
     memset(tmp, 0, (dict->nTableMask + 1) * sizeof(DictBucket *));
     dict->arBuckets = tmp;
 

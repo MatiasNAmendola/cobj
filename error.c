@@ -10,7 +10,7 @@ void
 COErr_Restore(COObject *type, COObject *value, COObject *traceback)
 {
     COObject *oldtype, *oldvalue, *oldtraceback;
-    
+
     oldtype = TS(curexc_type);
     oldvalue = TS(curexc_value);
     oldtraceback = TS(curexc_traceback);
@@ -42,6 +42,27 @@ COErr_Print(void)
     COObject *type, *value, *traceback;
 
     COErr_Fetch(&type, &value, &traceback);
-    COObject_dump(type);
-    COObject_dump(value);
+    fprintf(stderr, "%s: %s\n", ((COTypeObject *)type)->tp_name,
+            COStr_AsString(value));
+}
+
+void
+COErr_SetObject(COObject *exception, COObject *value)
+{
+    // TODO
+    COErr_Restore(exception, value, NULL);
+}
+
+void
+COErr_Format(COObject *exception, const char *fmt, ...)
+{
+    va_list vargs;
+    COObject *str;
+
+    va_start(vargs, fmt);
+
+    str = COStr_FromFormatV(fmt, vargs);
+    COErr_SetObject(exception, str);
+
+    va_end(vargs);
 }

@@ -217,11 +217,22 @@ COStr_FromStringN(const char *s, size_t len)
 COObject *
 COStr_FromFormat(const char *fmt, ...)
 {
-    COStrObject *str;
-
+    COObject *str;
     va_list params;
 
     va_start(params, fmt);
+
+    str = COStr_FromFormatV(fmt, params);
+
+    va_end(params);
+
+    return str;
+}
+
+COObject *
+COStr_FromFormatV(const char *fmt, va_list params)
+{
+    COStrObject *str;
 
     /* step 1: figure out how large a buffer we need */
     const char *f;
@@ -295,8 +306,6 @@ step2:
         // TODO errors
         return NULL;
     }
-
-    va_end(params);
 
     return (COObject *)str;
 }
