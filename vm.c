@@ -130,6 +130,7 @@ CNode_SetObject(struct cnode *node, COObject *co)
 COObject *
 co_vm_eval(COObject *_mainfunc)
 {
+    COObject *ret = NULL;
     struct co_exec_data *exec_data;
     COObject *f = TS(frame);
     COCodeObject *mainfunc = (COCodeObject *)_mainfunc;
@@ -159,7 +160,8 @@ vm_enter:
     COOplineObject *op;
     COObject *co1, *co2, *co3;
     for (;;) {
-        switch ((op = *(TS(current_exec_data)->op++))->opcode) {
+        op = *(TS(current_exec_data)->op++);
+        switch (op->opcode) {
         case OP_ADD:
             co1 = CNode_GetObject(&op->op1);
             co2 = CNode_GetObject(&op->op2);
@@ -248,7 +250,6 @@ vm_enter:
                 goto on_error;
             }
             COObject_print(co1);
-
             break;
         case OP_JMPZ:
             co1 = CNode_GetObject(&op->op1);
@@ -262,8 +263,6 @@ vm_enter:
             co1 = CNode_GetObject(&op->op1);
             OP_JUMP(op->op1.u.opline_num);
             break;
-        case OP_EXIT:
-            goto vm_exit;
         case OP_DECLARE_FUNCTION:
             {
                 COFunctionObject *func =
@@ -333,6 +332,9 @@ vm_enter:
                 } else {
 
                 }
+                if (TS(current_exec_data) == NULL) {
+                    goto vm_exit;
+                }
                 break;
             }
         case OP_DO_FCALL:
@@ -395,5 +397,5 @@ on_error:
     }
 
 vm_exit:
-    return 0;
+    return ret;
 }

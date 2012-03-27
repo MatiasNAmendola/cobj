@@ -5,6 +5,11 @@
 #include "object.h"
 #include "objects/listobject.h"
 
+/* Change whenever the bytecode emmited by the compiler may no longer be
+ * understood by old code evaluator.
+ */
+#define CODEDUMP_MAGIC  (314 << 16 | 'c' << 8 | 'o')
+
 /** cnode type **/
 #define IS_CONST        (1<<0)
 #define IS_TMP_VAR      (1<<1)

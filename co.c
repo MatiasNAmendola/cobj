@@ -1,10 +1,5 @@
 #include "co.h"
 
-/* Change whenever the bytecode emmited by the compiler may no longer be
- * understood by old code evaluator.
- */
-#define CODEDUMP_MAGIC  (314 << 16 | 'c' << 8 | 'o')
-
 static const char *const usagestr[] = {
     "co [options] [file] [args]",
     NULL,
@@ -19,9 +14,7 @@ argparse_showversion(struct argparse *this,
 }
 
 int verbose = 0;
-int compile = 0;
 char *eval = NULL;
-char *compile_outfile = NULL;
 
 void
 cli_completion(const char *buf, linenoiseCompletions *lc)
@@ -50,29 +43,18 @@ cli_completion(const char *buf, linenoiseCompletions *lc)
     }
 }
 
-int
-run_code(COObject *co)
+COObject *
+eval_wrapper(COObject *co)
 {
-    if (compile) {
-        FILE *f;
-        if (compile_outfile) {
-            f = fopen(compile_outfile, "w");
-        } else {
-            f = fopen("co.out", "w");
-        }
-        COObject_serializeToFile(COInt_FromLong(CODEDUMP_MAGIC), f);
-        COObject_serializeToFile((COObject *)co, f);
-        return 0;
-    }
     COObject *ret;
     ret = co_vm_eval(co);
     if (ret == NULL) {
         if (COErr_Occurred()) {
             COErr_Print();
-            return -1;
+            return NULL;
         }
     }
-    return 0;
+    return ret;
 }
 
 int
@@ -87,10 +69,6 @@ main(int argc, const char **argv)
                     "show runtime info, can be supplied multiple times to increase verbosity",
                     NULL),
         OPT_STRING('e', "eval", &eval, "code passed as string", NULL),
-        OPT_BOOLEAN('c', "compile", &compile,
-                    "compile only, write compiled code to file", NULL),
-        OPT_STRING('o', "outfile", &compile_outfile,
-                   "compile output file, defaults to `co.out`", NULL),
         OPT_END(),
     };
     argparse_init(&argparse, options, usagestr);
@@ -140,7 +118,7 @@ main(int argc, const char **argv)
                     // TODO invalid code dump
                     return -1;
                 }
-                return run_code(code);
+                return eval_wrapper(code) ? 0 : -1;
             }
         }
         fseek(f, 0, SEEK_SET);
@@ -157,9 +135,10 @@ main(int argc, const char **argv)
                 linenoiseHistoryLoad(history_path);
             }
             printf("COObject 0.1\n");
+            /* Read-Eval-Print Loop */
             while ((code = linenoise(">>> ")) != NULL) {
                 co_scanner_setcode(code);
-                run_code(co_compile());
+                COObject_print(eval_wrapper(co_compile()));
                 linenoiseHistoryAdd(code);
                 if (history_path) {
                     linenoiseHistorySave(history_path);
@@ -171,5 +150,5 @@ main(int argc, const char **argv)
         }
     }
 
-    return run_code(co_compile());
+    return eval_wrapper(co_compile()) ? 0 : -1;
 }

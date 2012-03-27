@@ -284,7 +284,7 @@ ANY_CHAR    = [^];
     return T_BOOL;
 }
 
-<SC_INIT>["] {
+<SC_INIT>'"' {
     while (1) {
         if (YYCURSOR > YYLIMIT) {
             break;
@@ -304,7 +304,7 @@ ANY_CHAR    = [^];
     return T_STRING;
 }
 
-<SC_INIT>['] {
+<SC_INIT>"'" {
     while (1) {
         if (YYCURSOR > YYLIMIT) {
             break;

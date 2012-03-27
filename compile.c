@@ -286,7 +286,7 @@ co_end_compilation()
 {
     COOplineObject *op = next_op();
 
-    op->opcode = OP_EXIT;
+    op->opcode = OP_RETURN;
 }
 
 int
