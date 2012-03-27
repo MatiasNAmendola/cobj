@@ -51,6 +51,31 @@ cli_completion(const char *buf, linenoiseCompletions *lc)
 }
 
 int
+run_code(COObject *co)
+{
+    if (compile) {
+        FILE *f;
+        if (compile_outfile) {
+            f = fopen(compile_outfile, "w");
+        } else {
+            f = fopen("co.out", "w");
+        }
+        COObject_serializeToFile(COInt_FromLong(CODEDUMP_MAGIC), f);
+        COObject_serializeToFile((COObject *)co, f);
+        return 0;
+    }
+    COObject *ret;
+    ret = co_vm_eval(co);
+    if (ret == NULL) {
+        if (COErr_Occurred()) {
+            COErr_Print();
+            return -1;
+        }
+    }
+    return 0;
+}
+
+int
 main(int argc, const char **argv)
 {
     struct argparse argparse;
@@ -75,7 +100,6 @@ main(int argc, const char **argv)
     COInt_Init();
     threadstate_current = COThreadState_New();
     TS(frame) = COFrame_New();
-    COObject *ret;
 
     /* test only */
     if (verbose) {
@@ -95,7 +119,6 @@ main(int argc, const char **argv)
     }
 
     /* compilation */
-    co_scanner_startup();
     if (eval) {
         co_scanner_setcode(eval);
     } else {
@@ -117,8 +140,7 @@ main(int argc, const char **argv)
                     // TODO invalid code dump
                     return -1;
                 }
-                ret = co_vm_eval(code);
-                return 0;
+                return run_code(code);
             }
         }
         fseek(f, 0, SEEK_SET);
@@ -137,41 +159,17 @@ main(int argc, const char **argv)
             printf("COObject 0.1\n");
             while ((code = linenoise(">>> ")) != NULL) {
                 co_scanner_setcode(code);
-                ret = co_vm_eval(co_compile());
+                run_code(co_compile());
                 linenoiseHistoryAdd(code);
                 if (history_path) {
                     linenoiseHistorySave(history_path);
                 }
-                if (ret == NULL) {
-                    if (COErr_Occurred()) {
-                        COErr_Print();
-                    }
-                    // TODO print exception
-                    /*COObject_dump(COException); */
-                    /*COObject_dump(COException_SystemError); */
-                }
+                free(code);
             }
         } else {
             co_scanner_setfile(COFile_FromFile(f, (char *)f_name, "r", fclose));
         }
     }
 
-    COObject *co;
-    co = co_compile();
-    co_scanner_shutdown();
-
-    if (compile) {
-        FILE *f;
-        if (compile_outfile) {
-            f = fopen(compile_outfile, "w");
-        } else {
-            f = fopen("co.out", "w");
-        }
-        COObject_serializeToFile(COInt_FromLong(CODEDUMP_MAGIC), f);
-        COObject_serializeToFile((COObject *)co, f);
-        return 0;
-    }
-
-    ret = co_vm_eval(co);
-    return 0;
+    return run_code(co_compile());
 }

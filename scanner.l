@@ -172,18 +172,6 @@ co_scan_doublequoted_string(COStrObject *co)
     *t = 0;
 }
 
-void
-co_scanner_startup()
-{
-    // TODO
-}
-
-void
-co_scanner_shutdown()
-{
-    // TODO
-}
-
 int
 co_scanner_setfile(COObject *f)
 {

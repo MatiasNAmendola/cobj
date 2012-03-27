@@ -19,8 +19,7 @@ LDFLAGS =
 prefix = /usr/local
 bindir = $(prefix)/bin
 
-FIND_SOURCE_FILES = ( git ls-files '*.[hc]' 2>/dev/null || \
-			find . \( -name .git -type d -prune \) -o \( -name '*.[hc]' -type f -print \) )
+FIND_SOURCE_FILES = find . \( -name .git -type d -prune \) -o \( -name '*.[hc]' -type f -print \)
 
 # recompile all lib objs if any of header file changes, cuz dependencies is hard to maintain!
 LIB_H = $(wildcard *.h) parser.h scanner.h $(wildcard objects/*.h)
