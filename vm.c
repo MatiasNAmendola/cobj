@@ -83,7 +83,7 @@ CNode_GetObject(struct cnode *node)
     case IS_VAR:
         co = COObject_get(node->u.co);
         if (!co) {
-            COErr_Format(COException_NameError, "Undefined variable: %s",
+            COErr_Format(COException_NameError, "name '%s' is not defined",
                          COStr_AsString(node->u.co));
         }
         return co;
