@@ -138,7 +138,7 @@ main(int argc, const char **argv)
             /* Read-Eval-Print Loop */
             while ((code = linenoise(">>> ")) != NULL) {
                 co_scanner_setcode(code);
-                COObject_print(eval_wrapper(co_compile()));
+                eval_wrapper(co_compile());
                 linenoiseHistoryAdd(code);
                 if (history_path) {
                     linenoiseHistorySave(history_path);

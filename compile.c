@@ -33,8 +33,8 @@ static COOplineObject *
 next_op()
 {
     COOplineObject *next_op = (COOplineObject *)COOpline_New();
-    next_op->op1.type = IS_UNUSED;
-    next_op->op2.type = IS_UNUSED;
+    next_op->arg1.type = IS_UNUSED;
+    next_op->arg2.type = IS_UNUSED;
     next_op->result.type = IS_UNUSED;
 
     COList_Append(c.c_oplines, (COObject *)next_op);
@@ -49,14 +49,14 @@ get_temporary_variable()
 }
 
 void
-co_binary_op(uchar opcode, struct cnode *result, const struct cnode *op1,
-             const struct cnode *op2)
+co_binary_op(uchar opcode, struct cnode *result, const struct cnode *arg1,
+             const struct cnode *arg2)
 {
     COOplineObject *op = next_op();
 
     op->opcode = opcode;
-    op->op1 = *op1;
-    op->op2 = *op2;
+    op->arg1 = *arg1;
+    op->arg2 = *arg2;
     op->result.type = IS_TMP_VAR;
     op->result.u.var = get_temporary_variable();
     *result = op->result;
@@ -69,12 +69,12 @@ co_assign(struct cnode *result, struct cnode *variable,
     COOplineObject *op;
     op = next_op();
     op->opcode = OP_LOAD_NAME;
-    op->op1 = *variable;
+    op->arg1 = *variable;
 
     op = next_op();
     op->opcode = OP_ASSIGN;
-    op->op1 = *variable;
-    op->op2 = *value;
+    op->arg1 = *variable;
+    op->arg2 = *value;
     op->result.type = IS_TMP_VAR;
     op->result.u.var = get_temporary_variable();
     *result = op->result;
@@ -86,7 +86,7 @@ co_print(const struct cnode *arg)
     COOplineObject *op = next_op();
 
     op->opcode = OP_PRINT;
-    op->op1 = *arg;
+    op->arg1 = *arg;
 }
 
 void
@@ -95,7 +95,7 @@ co_return(const struct cnode *expr)
     COOplineObject *op = next_op();
 
     op->opcode = OP_RETURN;
-    op->op1 = *expr;
+    op->arg1 = *expr;
 }
 
 void
@@ -104,7 +104,7 @@ co_if_cond(const struct cnode *cond, struct cnode *if_token)
     int if_cond_opline_num = CO_SIZE(c.c_oplines);
     COOplineObject *opline = next_op();
     opline->opcode = OP_JMPZ;
-    opline->op1 = *cond;
+    opline->arg1 = *cond;
     if_token->u.opline_num = if_cond_opline_num;
 }
 
@@ -115,7 +115,7 @@ co_if_after_stmt(struct cnode *if_token)
     COOplineObject *opline = next_op();
     COOplineObject *ifopline =
         (COOplineObject *)COList_GetItem(c.c_oplines, if_token->u.opline_num);
-    ifopline->op2.u.opline_num =
+    ifopline->arg2.u.opline_num =
         if_after_stmt_op_num + 1 - if_token->u.opline_num;
     if_token->u.opline_num = if_after_stmt_op_num;
     opline->opcode = OP_JMP;
@@ -127,7 +127,7 @@ co_if_end(const struct cnode *if_token)
     int if_end_op_num = CO_SIZE(c.c_oplines);
     COOplineObject *ifopline =
         (COOplineObject *)COList_GetItem(c.c_oplines, if_token->u.opline_num);
-    ifopline->op1.u.opline_num = if_end_op_num - if_token->u.opline_num;
+    ifopline->arg1.u.opline_num = if_end_op_num - if_token->u.opline_num;
 }
 
 void
@@ -136,8 +136,8 @@ co_while_cond(const struct cnode *cond, struct cnode *while_token)
     int while_cond_opline_num = CO_SIZE(c.c_oplines);
     COOplineObject *opline = next_op();
     opline->opcode = OP_JMPZ;
-    opline->op1 = *cond;
-    opline->op2.u.opline_num = while_token->u.opline_num;       // while start
+    opline->arg1 = *cond;
+    opline->arg2.u.opline_num = while_token->u.opline_num;       // while start
     while_token->u.opline_num = while_cond_opline_num;
 }
 
@@ -150,10 +150,10 @@ co_while_end(const struct cnode *while_token)
     op->opcode = OP_JMP;
     COOplineObject *whileopline = (COOplineObject *)COList_GetItem(c.c_oplines,
                                                                    while_token->u.opline_num);
-    op->op1.u.opline_num = whileopline->op2.u.opline_num - while_end_opline_num;        // while start offset
+    op->arg1.u.opline_num = whileopline->arg2.u.opline_num - while_end_opline_num;        // while start offset
 
     int while_end_stmt_op_num = CO_SIZE(c.c_oplines);
-    whileopline->op2.u.opline_num =
+    whileopline->arg2.u.opline_num =
         while_end_stmt_op_num - while_token->u.opline_num;
 }
 
@@ -164,14 +164,14 @@ co_begin_func_declaration(struct cnode *func_token, struct cnode *func_name)
     if (func_name) {
         op = next_op();
         op->opcode = OP_LOAD_NAME;
-        op->op1 = *func_name;
+        op->arg1 = *func_name;
     }
 
     int func_opline_num = CO_SIZE(c.c_oplines);
     op = next_op();
     op->opcode = OP_DECLARE_FUNCTION;
     if (func_name) {
-        op->op1 = *func_name;
+        op->arg1 = *func_name;
     }
     func_token->u.opline_num = func_opline_num;
 }
@@ -185,7 +185,7 @@ co_end_func_declaration(const struct cnode *func_token, struct cnode *result)
     int func_end_opline_num = CO_SIZE(c.c_oplines);
     COOplineObject *funcopline =
         (COOplineObject *)COList_GetItem(c.c_oplines, func_token->u.opline_num);
-    funcopline->op2.u.opline_num =
+    funcopline->arg2.u.opline_num =
         func_end_opline_num - func_token->u.opline_num - 1;
 
     if (result) {
@@ -200,7 +200,7 @@ co_end_func_call(struct cnode *func_name, struct cnode *result)
 {
     COOplineObject *op = next_op();
     op->opcode = OP_DO_FCALL;
-    op->op1 = *func_name;
+    op->arg1 = *func_name;
     op->result.type = IS_TMP_VAR;
     op->result.u.var = get_temporary_variable();
     *result = op->result;
@@ -212,18 +212,18 @@ co_recv_param(struct cnode *param)
     COOplineObject *op;
     op = next_op();
     op->opcode = OP_LOAD_NAME;
-    op->op1 = *param;
+    op->arg1 = *param;
 
     op = next_op();
     op->opcode = OP_RECV_PARAM;
-    op->op1 = *param;
+    op->arg1 = *param;
 }
 
 void
 co_pass_param(struct cnode *param)
 {
     COOplineObject *op = next_op();
-    op->opcode = OP_PASS_PARAM, op->op1 = *param;
+    op->opcode = OP_PASS_PARAM, op->arg1 = *param;
 }
 
 void
@@ -243,8 +243,8 @@ co_list_add(struct cnode *node, struct cnode *element)
 {
     COOplineObject *op = next_op();
     op->opcode = OP_LIST_ADD;
-    op->op1 = *node;
-    op->op2 = *element;
+    op->arg1 = *node;
+    op->arg2 = *element;
 }
 
 void
@@ -264,8 +264,8 @@ co_dict_add(struct cnode *node, struct cnode *key, struct cnode *item)
 {
     COOplineObject *op = next_op();
     op->opcode = OP_DICT_ADD;
-    op->op1 = *node;
-    op->op2 = *key;;
+    op->arg1 = *node;
+    op->arg2 = *key;;
     op->result = *item;
 }
 

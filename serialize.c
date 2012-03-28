@@ -149,8 +149,8 @@ w_object(COObject *co, WFILE *p)
         w_byte(TYPE_OPLINE, p);
         w_byte(opline->opcode, p);
         w_cnode(&opline->result, p);
-        w_cnode(&opline->op1, p);
-        w_cnode(&opline->op2, p);
+        w_cnode(&opline->arg1, p);
+        w_cnode(&opline->arg2, p);
     } else if (COStr_Check(co)) {
         w_byte(TYPE_STRING, p);
         size_t n = CO_SIZE(co);
@@ -330,8 +330,8 @@ r_object(RFILE *p)
             SET_OBJECT(opline);
             opline->opcode = r_byte(p);
             r_cnode(&opline->result, p);
-            r_cnode(&opline->op1, p);
-            r_cnode(&opline->op2, p);
+            r_cnode(&opline->arg1, p);
+            r_cnode(&opline->arg2, p);
             rs = (COObject *)opline;
         }
         break;

@@ -1,5 +1,8 @@
 #ifndef OBJECTS_OPLINEOBJECT_H
 #define OBJECTS_OPLINEOBJECT_H
+/**
+ * Quadruple three-address instruction.
+ */
 
 #include "../object.h"
 #include "../compile.h"
@@ -7,9 +10,9 @@
 typedef struct _COOplineObject {
     COObject_HEAD;
     uchar opcode;
+    struct cnode arg1;
+    struct cnode arg2;
     struct cnode result;
-    struct cnode op1;
-    struct cnode op2;
 } COOplineObject;
 
 COTypeObject COOpline_Type;
