@@ -385,6 +385,10 @@ ANY_CHAR    = [^];
     return yytext[0];
 }
 
+<SC_INIT>"**" {
+    return T_POW;
+}
+
 <SC_INIT>TOKENS {
     return yytext[0];
 }

@@ -19,7 +19,7 @@
 %left   ','
 %left   '+' '-'
 %left   '*' '/' '%'
-%left T_SR T_SL
+%left T_SR T_SL T_POW
 %right  '['
 %right  T_PRINT
 %token  T_PRINT
@@ -97,6 +97,7 @@ expr: /* express something */
     |   expr '+' expr { co_binary_op(OP_ADD, &$$, &$1, &$3); }
     |   expr '-' expr { co_binary_op(OP_SUB, &$$, &$1, &$3); }
     |   expr '*' expr { co_binary_op(OP_MUL, &$$, &$1, &$3); }
+    |   expr T_POW expr { co_binary_op(OP_POW, &$$, &$1, &$3); }
     |   expr '/' expr { co_binary_op(OP_DIV, &$$, &$1, &$3); }
     |   expr '%' expr { co_binary_op(OP_MOD, &$$, &$1, &$3); }
     |   T_NAME '(' func_call_param_list ')' { co_end_func_call(&$1, &$$); }

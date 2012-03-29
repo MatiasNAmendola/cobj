@@ -10,6 +10,7 @@ co_print_opcode(COObject *oplines)
         "OP_MUL",
         "OP_DIV",
         "OP_MOD",
+        "OP_POW",
         "OP_SL",
         "OP_SR",
         "OP_IS_SMALLER",

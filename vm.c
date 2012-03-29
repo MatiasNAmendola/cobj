@@ -186,6 +186,16 @@ vm_enter:
                             COInt_FromLong(COInt_AsLong(co1) *
                                            COInt_AsLong(co2)));
             break;
+        case OP_POW:
+            co1 = CNode_GetObject(&op->arg1);
+            co2 = CNode_GetObject(&op->arg2);
+            COObject_dump(co1);
+            COObject_dump(co2);
+            CNode_SetObject(&op->result, COInt_FromLong(
+                         (int)pow(COInt_AsLong(co1), COInt_AsLong(co2))
+                        )
+                    );
+            break;
         case OP_DIV:
             co1 = CNode_GetObject(&op->arg1);
             co2 = CNode_GetObject(&op->arg2);
