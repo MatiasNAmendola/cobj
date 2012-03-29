@@ -59,4 +59,18 @@
 /* Help macros */
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 
+
+/* CO_SAFE_DOWNCAST(VALUE, WIDE, NARROW)
+ * Cast VALUE to type NARROW from type WIDE.  In CO_DEBUG mode, this
+ * assert-fails if any information is lost.
+ * Caution:
+ *    VALUE may be evaluated more than once.
+ */
+#ifdef CO_DEBUG
+#define CO_SAFE_DOWNCAST(VALUE, WIDE, NARROW) \
+    (assert((WIDE)(NARROW)(VALUE) == (VALUE)), (NARROW)(VALUE))
+#else
+#define CO_SAFE_DOWNCAST(VALUE, WIDE, NARROW) (NARROW)(VALUE)
+#endif
+
 #endif

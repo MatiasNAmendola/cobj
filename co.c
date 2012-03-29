@@ -83,18 +83,12 @@ main(int argc, const char **argv)
 
     /* test only */
     if (verbose) {
-        COObject *d = CODict_New();
-        CODict_SetItem(d, COInt_FromLong(0), COInt_FromLong(100));
-        CODict_SetItem(d, COInt_FromLong(1), COInt_FromLong(200));
-        CODict_SetItem(d, COInt_FromLong(2), d);
-
-        COObject *d_s = COObject_serialize(d);
-        d = COObject_unserialize(d_s);
-        COObject_dump(d);
-        COObject_dump(CODict_GetItem(d, COInt_FromLong(0)));
-        COObject_dump(CODict_GetItem(d, COInt_FromLong(1)));
-        COObject_dump(CODict_GetItem(d, COInt_FromLong(2)));
-
+        COObject *zero = COInt_FromLong(0);
+        COObject_dump(zero);
+        COObject *long_max = COInt_FromLong(9223372036854775807L);
+        COObject_dump(long_max);
+        COObject *long_min = COInt_FromLong(-9223372036854775807L-1);
+        COObject_dump(long_min);
         return 0;
     }
 

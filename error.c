@@ -66,3 +66,11 @@ COErr_Format(COObject *exception, const char *fmt, ...)
 
     va_end(vargs);
 }
+
+void
+COErr_SetString(COObject *exception, const char *str)
+{
+    COObject *o = COStr_FromString(str);
+    COErr_SetObject(exception, o);
+    CO_XDECREF(o);
+}

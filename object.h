@@ -3,7 +3,7 @@
 /*
  * Object interface (Object, Type, Value)
  *
- * This object system implementation is based on Python's objects code.
+ * !!! This object system implementation is based on Python's objects code.
  *
  * Objects are structures allocated on the heap. Objects are never allocated
  * statically or on the stack (program initialized objects are exceptions);
@@ -50,7 +50,7 @@
 // initial segment of every variable-size object
 #define COVarObject_HEAD COVarObject co_base;
 #define COVarObject_HEAD_INIT(type_ref, size) \
-    { COObject_HEAD_INIT(type_ref); size; }
+    { COObject_HEAD_INIT(type_ref), size }
 
 // types declared here cuz these is circular reference
 typedef struct _COTypeObject COTypeObject;
