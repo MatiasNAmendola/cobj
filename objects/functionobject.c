@@ -22,7 +22,7 @@ COTypeObject COFunction_Type = {
 };
 
 COObject *
-COFunction_New(COObject *func_name)
+COFunction_New(COObject *func_name, COObject *func_code, COObject *func_upvalues)
 {
     COFunctionObject *func = COObject_New(COFunctionObject, &COFunction_Type);
     if (!func_name) {
@@ -32,7 +32,8 @@ COFunction_New(COObject *func_name)
                                                          ("anonymous"));
     }
     func->func_name = func_name;
-    func->func_upvalues = CODict_New();
-    func->func_code = NULL;
+    if (!func_upvalues)
+        func->func_upvalues = CODict_New();
+    func->func_code = func_code;
     return (COObject *)func;
 }

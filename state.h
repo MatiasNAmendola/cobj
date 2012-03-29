@@ -8,7 +8,7 @@
 #include "stack.h"
 
 typedef struct _COThreadState {
-    COObject *next_func;
+    COObject *mainfunc;
     struct co_exec_data *current_exec_data;
     co_stack argument_stack;
 

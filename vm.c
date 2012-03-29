@@ -8,8 +8,8 @@ enum status_code {
 
 /* execution frame */
 struct co_exec_data {
-    COOplineObject **op;
     struct co_exec_data *prev_exec_data;
+    COOplineObject **op;
     COObject *function_called;
     COObject *symbol_table;     /* dict object for names */
     COObject **ts;              /* temp objects */
@@ -69,7 +69,8 @@ COObject_put(COObject *name, COObject *co)
 int
 COObject_del(COObject *name)
 {
-    return CODict_DelItem(TS(current_exec_data)->symbol_table, name);
+    // TODO
+    return 0;
 }
 
 static COObject *
@@ -128,32 +129,34 @@ CNode_SetObject(struct cnode *node, COObject *co)
     } while (0)
 
 COObject *
-co_vm_eval(COObject *_mainfunc)
+co_vm_eval(COObject *mainfunc)
 {
     COObject *ret = NULL;
     struct co_exec_data *exec_data;
     COObject *f = TS(frame);
-    COCodeObject *mainfunc = (COCodeObject *)_mainfunc;
+    COCodeObject *code;
+    TS(mainfunc) = mainfunc;
 
 vm_enter:
+    code = (COCodeObject *)((COFunctionObject *)mainfunc)->func_code;
     exec_data =
         (struct co_exec_data *)COFrame_Alloc(f, sizeof(struct co_exec_data) +
                                              sizeof(COObject *) *
-                                             mainfunc->co_numoftmpvars);
+                                             code->co_numoftmpvars);
     exec_data->ts =
         (COObject **)((char *)exec_data + sizeof(struct co_exec_data));
     exec_data->op =
-        (COOplineObject **)((COTupleObject *)mainfunc->co_oplines)->co_item;
+        (COOplineObject **)((COTupleObject *)code->co_oplines)->co_item;
     exec_data->prev_exec_data = NULL;
     exec_data->symbol_table = CODict_New();
-    exec_data->function_called = TS(next_func);
+    exec_data->function_called = mainfunc != TS(mainfunc) ? mainfunc : NULL;
     exec_data->prev_exec_data = TS(current_exec_data);
 
     TS(current_exec_data) = exec_data;
 
 #ifdef CO_DEBUG
-    printf("vm enter: exec_data: %p, prev_exec_data: %p\n",
-           TS(current_exec_data), TS(current_exec_data)->prev_exec_data);
+    printf("vm enter: exec_data: %p, prev_exec_data: %p, tmp: %d\n",
+           TS(current_exec_data), TS(current_exec_data)->prev_exec_data, code->co_numoftmpvars);
 #endif
 
     int status = STATUS_NONE;
@@ -266,26 +269,23 @@ vm_enter:
         case OP_DECLARE_FUNCTION:
             {
                 COFunctionObject *func =
-                    (COFunctionObject *)COFunction_New(op->arg1.u.co);
+                    (COFunctionObject *)COFunction_New(op->arg1.u.co, NULL, NULL);
                 uint start =
                     TS(current_exec_data)->op -
-                    (COOplineObject **)((COTupleObject *)mainfunc->
+                    (COOplineObject **)((COTupleObject *)code->
                                         co_oplines)->co_item - 1;
                 COObject *suboplines =
-                    COTuple_GetSlice(mainfunc->co_oplines, start + 1,
+                    COTuple_GetSlice(code->co_oplines, start + 1,
                                      start + 1 + op->arg2.u.opline_num);
-                // hack fix, using same temp variables num
-                COObject *code =
-                    COCode_New(suboplines, mainfunc->co_numoftmpvars);
-                func->func_code = code;
+                int numoftmpvars = code->co_numoftmpvars;
                 if (TS(current_exec_data)->function_called) {
                     // setup function's func_upvalues
                     COObject *co;
                     COObject *name;
                     for (int i = 0;
-                         i < CO_SIZE(((COCodeObject *)code)->co_oplines); i++) {
+                         i < CO_SIZE(suboplines); i++) {
                         COOplineObject *tmp = (COOplineObject *)
-                            COTuple_GET_ITEM(((COCodeObject *)code)->co_oplines,
+                            COTuple_GET_ITEM(suboplines,
                                              i);
                         if (tmp->arg1.type == IS_VAR) {
                             name = tmp->arg1.u.co;
@@ -303,6 +303,7 @@ vm_enter:
                         }
                     }
                 }
+                func->func_code = COCode_New(suboplines, numoftmpvars);
                 if (op->arg1.type != IS_UNUSED) {
                     CNode_SetObject(&op->arg1, (COObject *)func);
                 }
@@ -346,10 +347,8 @@ vm_enter:
                 error("not a function");
             }
             COFrame_Push(f, (COObject *)&op->result);
-            TS(next_func) = co1;
+            mainfunc = co1;
 
-            mainfunc =
-                (COCodeObject *)((COFunctionObject *)TS(next_func))->func_code;
             goto vm_enter;
         case OP_PASS_PARAM:
             co1 = CNode_GetObject(&op->arg1);

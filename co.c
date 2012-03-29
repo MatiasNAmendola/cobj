@@ -47,7 +47,9 @@ COObject *
 eval_wrapper(COObject *co)
 {
     COObject *ret;
-    ret = co_vm_eval(co);
+
+    COObject *func = COFunction_New(COStr_FromString("<main>"), co, NULL);
+    ret = co_vm_eval(func);
     if (ret == NULL) {
         if (COErr_Occurred()) {
             COErr_Print();
