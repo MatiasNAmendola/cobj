@@ -67,9 +67,6 @@ co_assign(struct cnode *result, struct cnode *variable,
           const struct cnode *value)
 {
     COOplineObject *op;
-    op = next_op();
-    op->opcode = OP_LOAD_NAME;
-    op->arg1 = *variable;
 
     op = next_op();
     op->opcode = OP_ASSIGN;
@@ -161,12 +158,6 @@ void
 co_begin_func_declaration(struct cnode *func_token, struct cnode *func_name)
 {
     COOplineObject *op;
-    if (func_name) {
-        op = next_op();
-        op->opcode = OP_LOAD_NAME;
-        op->arg1 = *func_name;
-    }
-
     int func_opline_num = CO_SIZE(c.c_oplines);
     op = next_op();
     op->opcode = OP_DECLARE_FUNCTION;
@@ -210,10 +201,6 @@ void
 co_recv_param(struct cnode *param)
 {
     COOplineObject *op;
-    op = next_op();
-    op->opcode = OP_LOAD_NAME;
-    op->arg1 = *param;
-
     op = next_op();
     op->opcode = OP_RECV_PARAM;
     op->arg1 = *param;

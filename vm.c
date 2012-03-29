@@ -149,7 +149,7 @@ vm_enter:
         (COOplineObject **)((COTupleObject *)code->co_oplines)->co_item;
     exec_data->prev_exec_data = NULL;
     exec_data->symbol_table = CODict_New();
-    exec_data->function_called = mainfunc != TS(mainfunc) ? mainfunc : NULL;
+    exec_data->function_called = mainfunc;
     exec_data->prev_exec_data = TS(current_exec_data);
 
     TS(current_exec_data) = exec_data;
@@ -362,12 +362,6 @@ vm_enter:
                 COObject_put(op->arg1.u.co, *co);
                 break;
             }
-        case OP_LOAD_NAME:
-            co1 = COObject_get(op->arg1.u.co);
-            if (!co1) {
-                CNode_SetObject(&op->arg1, CO_None);
-            }
-            break;
         case OP_LIST_BUILD:
             CNode_SetObject(&op->result, COList_New(0));
             break;
