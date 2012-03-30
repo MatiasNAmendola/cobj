@@ -117,4 +117,13 @@ void COObject_dump(COObject *co);
 long COObject_hash(COObject *co);
 void COObject_print(COObject *co);
 
+/* Object Interfaces */
+typedef COObject *(*unaryfunc)(COObject *);
+typedef COObject *(*binaryfunc)(COObject *, COObject *);
+
+typedef struct {
+    binaryfunc int_add;
+} COIntInterface;
+/* ! Object Interfaces */
+
 #endif

@@ -55,8 +55,8 @@ COObject_put(COObject *name, COObject *co)
     if (current_exec_data->function_called) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
-                               current_exec_data->function_called)->
-                              func_upvalues, name);
+                               current_exec_data->
+                               function_called)->func_upvalues, name);
         if (myco) {
             CODict_SetItem(((COFunctionObject *)
                             current_exec_data->function_called)->func_upvalues,
@@ -169,9 +169,8 @@ vm_enter:
         case OP_ADD:
             co1 = CNode_GetObject(&op->arg1);
             co2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(co1) +
-                                           COInt_AsLong(co2)));
+            co3 = COInt_Type.tp_int_interface->int_add(co1, co2);
+            CNode_SetObject(&op->result, co3);
             break;
         case OP_SUB:
             co1 = CNode_GetObject(&op->arg1);
@@ -283,8 +282,8 @@ vm_enter:
                                                        NULL);
                 uint start =
                     TS(current_exec_data)->op -
-                    (COOplineObject **)((COTupleObject *)code->co_oplines)->
-                    co_item - 1;
+                    (COOplineObject **)((COTupleObject *)code->
+                                        co_oplines)->co_item - 1;
                 COObject *suboplines =
                     COTuple_GetSlice(code->co_oplines, start + 1,
                                      start + 1 + op->arg2.u.opline_num);

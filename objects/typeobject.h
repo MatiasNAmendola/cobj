@@ -14,11 +14,14 @@ struct _COTypeObject {
     int tp_basicsize;           /* Following two are for allocation */
     int tp_itemsize;
 
-    /* Methods */
+    /* Basic Methods  */
     reprfunc tp_repr;
     getattrfunc tp_getattr;
     setattrfunc tp_setattr;
     hashfunc tp_hash;
+
+    /* Interfaces for standard types */
+    COIntInterface *tp_int_interface;
 };
 
 COTypeObject COType_Type;

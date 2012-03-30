@@ -84,7 +84,9 @@ _COIntObject_New(ssize_t size)
 }
 
 /*
- * Normalize (removing leading zeros from) a int object.
+ * Normalize a int object, removing leading zeros. Due to algorithm, there maybe
+ * leading zeors.
+ * Doesn't attempt to free the storage, which will change object address.
  */
 static COIntObject *
 int_normalize(COIntObject *o)
@@ -124,7 +126,7 @@ int_from_binary_base(char **str, int base)
         ++p;
     *str = p;
 
-    /* n <- number of digits need, = ceil(n / COInt_SHIFT). */
+    /* n <- number of digits need, = ceil(((p - start) * bits_per_char) / COInt_SHIFT). */
     n = (p - start) * bits_per_char + COInt_SHIFT - 1;
     if (n / bits_per_char < p - start) {
         COErr_SetString(COException_ValueError,
@@ -147,7 +149,6 @@ int_from_binary_base(char **str, int base)
 
     while (--p >= start) {
         int k = digit_values[CHAR_MASK(*p)];
-        assert(k >= 0 && k < base);
         accum |= (twodigits)k << bits_in_accum;
         bits_in_accum += bits_per_char;
         if (bits_in_accum >= COInt_SHIFT) {
@@ -164,10 +165,7 @@ int_from_binary_base(char **str, int base)
         assert(pdigit - o->co_digit <= n);
     }
 
-    while (pdigit - o->co_digit < n)
-        *pdigit++ = 0;
-
-    return int_normalize(o);
+    return o;
 }
 
 /*
@@ -265,15 +263,140 @@ int_repr(COIntObject *this)
     return str;
 }
 
-static COObject *
-int_add(COIntObject *a, COIntObject *b)
+/*
+ * Subtract the absolute values of two integers.
+ */
+static COIntObject *
+x_sub(COIntObject *a, COIntObject *b)
 {
-    COObject *o;
-    if (ABS(CO_SIZE(o)) <= 1 && ABS(CO_SIZE(b)) <= 1) {
-        return COInt_FromLong(ONEDIGIT_VALUE(a) + ONEDIGIT_VALUE(b));
+    ssize_t size_a = ABS(CO_SIZE(a));
+    ssize_t size_b = ABS(CO_SIZE(b));
+    COIntObject *o;
+    ssize_t i;
+    int sign = 1;
+
+    /* Ensure a is larger than b */
+    if (size_a < size_b) {
+        // if exchanged, negative sign
+        sign = -1;
+        {
+            COIntObject *tmp = a;
+            a = b;
+            b = tmp;
+            size_t size_tmp = size_a;
+            size_a = size_b;
+            size_b = size_tmp;
+        }
+    } else if (size_a == size_b) {
+        // Find highest digit whare a and b differ.
+        i = size_a;
+        while (--i >= 0 && a->co_digit[i] == b->co_digit[i]);
+        if (i < 0)
+            return (COIntObject *)COInt_FromLong(0);
+        if (a->co_digit[i] < b->co_digit[i]) {
+            sign = -1;
+            {
+                COIntObject *tmp = a;
+                a = b;
+                b = tmp;
+            }
+        }
+        size_a = size_b = i + 1;
     }
+    o = _COIntObject_New(size_a);
+    if (!o)
+        return NULL;
+
+    digit borrow = 0;
+    for (i = 0; i < size_b; i++) {
+        borrow = a->co_digit[i] - b->co_digit[i] - borrow;
+        o->co_digit[i] = borrow & COInt_MASK;
+        borrow >>= COInt_SHIFT;
+        borrow &= 1;
+    }
+    for (; i < size_a; i++) {
+        borrow = a->co_digit[i] - borrow;
+        o->co_digit[i] = borrow & COInt_MASK;
+        borrow >>= COInt_SHIFT;
+        borrow &= 1;
+    }
+    assert(borrow == 0);
+    if (sign < 0)
+        CO_SIZE(o) = -(CO_SIZE(o));
     return o;
 }
+
+/*
+ * Add the absolute values of two integers.
+ */
+static COIntObject *
+x_add(COIntObject *a, COIntObject *b)
+{
+    ssize_t size_a = ABS(CO_SIZE(a));
+    ssize_t size_b = ABS(CO_SIZE(b));
+    COIntObject *o;
+    ssize_t i;
+
+    /* Ensure a is larger than b */
+    if (size_a < size_b) {
+        {
+            COIntObject *tmp = a;
+            a = b;
+            b = tmp;
+            size_t size_tmp = size_a;
+            size_a = size_b;
+            size_b = size_tmp;
+        }
+    }
+    o = _COIntObject_New(size_a + 1);
+    if (!o)
+        return NULL;
+
+    digit carry = 0;
+    for (i = 0; i < size_b; ++i) {
+        carry += a->co_digit[i] + b->co_digit[i];
+        o->co_digit[i] = carry & COInt_MASK;
+        carry >>= COInt_SHIFT;
+    }
+    for (; i < size_a; ++i) {
+        carry += a->co_digit[i];
+        o->co_digit[i] = carry & COInt_MASK;
+        carry >>= COInt_SHIFT;
+    }
+    o->co_digit[i] = carry;
+    return int_normalize(o);
+}
+
+static COIntObject *
+int_add(COIntObject *a, COIntObject *b)
+{
+    COIntObject *o;
+    if (ABS(CO_SIZE(a)) <= 1 && ABS(CO_SIZE(b)) <= 1) {
+        return (COIntObject *)COInt_FromLong(ONEDIGIT_VALUE(a) +
+                                             ONEDIGIT_VALUE(b));
+    }
+
+    if (CO_SIZE(a) < 0) {
+        if (CO_SIZE(b) < 0) {
+            o = x_add(a, b);
+            if (o != NULL && CO_SIZE(o) != 0)
+                CO_SIZE(o) = -(CO_SIZE(o));
+        } else {
+            o = x_sub(b, a);
+        }
+    } else {
+        if (CO_SIZE(b) < 0) {
+            o = x_sub(a, b);
+        } else {
+            o = x_add(a, b);
+        }
+    }
+    return int_normalize(o);
+}
+
+static COIntInterface int_interface = {
+    (binaryfunc)int_add,
+};
 
 static long
 int_hash(COIntObject *o)
@@ -308,6 +431,7 @@ COTypeObject COInt_Type = {
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     (hashfunc)int_hash,         /* tp_hash */
+    &int_interface,             /* tp_int_interface */
 };
 
 int
@@ -510,8 +634,9 @@ COInt_FromString(char *s, char **pend, int base)
     if (s == start) {
         goto on_error;
     }
-    if (sign < 0)
+    if (sign < 0) {
         CO_SIZE(o) = -(CO_SIZE(o));
+    }
     while (*s && isspace(CHAR_MASK(*s)))
         s++;
     if (*s != '\0')

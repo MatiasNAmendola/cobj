@@ -158,6 +158,7 @@ COTypeObject COStr_Type = {
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     (hashfunc)str_hash,         /* tp_hash */
+    0,                          /* tp_int_interface */
 };
 
 char *

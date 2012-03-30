@@ -19,6 +19,7 @@ test_expect_result("31\n", "print 0b11111");
 test_expect_result("1234567890\n", "print 0o11145401322");
 test_expect_result("255\n", "print 0xFF;", "Int")
 test_expect_result("255\n", "print 0XFF;", "Int")
+test_expect_result("255\n", "print 0XFF;", "Int")
 
 # Float
 test_expect_result("3.14\n", "print 3.14;")

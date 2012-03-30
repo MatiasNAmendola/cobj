@@ -6,6 +6,24 @@
 # define SMALL_CHUNK BUFSIZ
 #endif
 
+static COObject *
+file_repr(COExceptionObject *this)
+{
+    return COStr_FromString("<Exception>");
+}
+
+COTypeObject COFile_Type = {
+    COObject_HEAD_INIT(&COType_Type),
+    "file",
+    sizeof(COFileObject),
+    0,
+    (reprfunc)file_repr,        /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
+    0,                          /* tp_hash */
+    0,                          /* tp_int_interface */
+};
+
 COObject *
 COFile_FromFile(FILE *fp, char *name, char *mode, int (*close) (FILE *))
 {
