@@ -4,8 +4,8 @@ static COStrObject *null_str = NULL;
 static COStrObject *char_strs[UCHAR_MAX + 1];
 
 #ifdef STR_COUNT
-size_t null_str_num = 0;
-size_t char_str_num = 0;
+ssize_t null_str_num = 0;
+ssize_t char_str_num = 0;
 #endif
 
 /*
@@ -26,7 +26,7 @@ str_repr(COObject *this)
 static COStrObject *
 str_concat(COStrObject *this, COStrObject *s)
 {
-    size_t size;
+    ssize_t size;
     COStrObject *co;
 
     size = CO_SIZE(this) + CO_SIZE(s);
@@ -50,7 +50,7 @@ str_concat(COStrObject *this, COStrObject *s)
  *  - it can only be used if there is only one reference
  */
 int
-str_resize(COStrObject **pv, size_t newsize)
+str_resize(COStrObject **pv, ssize_t newsize)
 {
     COStrObject *v;
     v = *pv;
@@ -180,7 +180,7 @@ COStr_FromString(const char *s)
  * do not have to be null-terminated.
  */
 COObject *
-COStr_FromStringN(const char *s, size_t len)
+COStr_FromStringN(const char *s, ssize_t len)
 {
     COStrObject *str;
 
@@ -236,7 +236,7 @@ COStr_FromFormatV(const char *fmt, va_list params)
 
     /* step 1: figure out how large a buffer we need */
     const char *f;
-    size_t n = 0;
+    ssize_t n = 0;
     va_list count;
     char *s;
     va_copy(count, params);

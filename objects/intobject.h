@@ -33,7 +33,7 @@ typedef int64_t stwodigits;
 #define COInt_DECIMAL_BASE    ((digit)1000000000) /* 10 ** DECIMAL_SHIFT */
 
 typedef struct _COIntObject {
-    COObject_HEAD;
+    COVarObject_HEAD;
     /* Big Integer Representation.
      *
      * The absolute value of a number is equal to 
@@ -45,7 +45,6 @@ typedef struct _COIntObject {
      * digit) is never zero. Also, in all cases, for all valid i, 0 <=
      * co_digit[i] <= MASK.
      */
-    int co_num;
     digit co_digit[1];
 } COIntObject;
 

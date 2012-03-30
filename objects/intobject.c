@@ -19,15 +19,14 @@ static COIntObject small_ints[SMALL_NEG_INT + SMALL_POS_INT];
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 
 COIntObject *
-_COIntObject_New(int num)
+_COIntObject_New(ssize_t size)
 {
     COIntObject *result;
-    if (num > MAX_LONG_DIGITS) {
+    if (size > MAX_LONG_DIGITS) {
         COErr_SetString(COException_SystemError, "too many digits in integer");
         return NULL;
     }
-    result = COObject_New(COIntObject, &COInt_Type);
-    result->co_num = num;
+    result = COVarObject_New(COIntObject, &COInt_Type, size);
     if (!result) {
         // TODO errors
         return NULL;
@@ -44,18 +43,18 @@ int_repr(COIntObject *this)
     COIntObject *scratch;
     COObject *str;
     digit *pout, *pin, rem, tenpow;
-    int num, num_a, i, j;
+    ssize_t size, size_a, i, j;
     int negative;
 
     if (this == NULL) {
         return NULL;
     }
-    num_a = ABS(this->co_num);
-    negative = this->co_num < 0;
+    size_a = ABS(CO_SIZE(this));
+    negative = CO_SIZE(this) < 0;
 
     /* TODO check overflow */
-    num = 1 + num_a * COInt_SHIFT / ( 3 * COInt_DECIMAL_SHIFT);
-    scratch = _COIntObject_New(num);
+    size = 1 + size_a * COInt_SHIFT / ( 3 * COInt_DECIMAL_SHIFT);
+    scratch = _COIntObject_New(size);
     if (scratch == NULL)
         return NULL;
 
@@ -66,29 +65,29 @@ int_repr(COIntObject *this)
      */
     pin = this->co_digit;
     pout = scratch->co_digit;
-    num = 0;
-    for (i = num_a; --i >= 0; ) {
+    size = 0;
+    for (i = size_a; --i >= 0; ) {
         digit hi = pin[i];
-        for (j = 0; j < num; j++) {
+        for (j = 0; j < size; j++) {
             twodigits z = (twodigits)pout[j] << COInt_SHIFT | hi;
             hi = (digit)(z / COInt_DECIMAL_BASE);
             pout[j] = (digit)(z - (twodigits)hi * COInt_DECIMAL_BASE);
         }
         while (hi) {
-            pout[num++] = hi % COInt_DECIMAL_BASE;
+            pout[size++] = hi % COInt_DECIMAL_BASE;
             hi /= COInt_DECIMAL_BASE;
         }
     }
 
     /* pout should have at least one digit, so that the case when this = 0
      * works correctly */
-    if (num == 0)
-        pout[num++] = 0;
+    if (size == 0)
+        pout[size++] = 0;
 
     /* calculate exact length of output string, and allocate */
-    size_t strlen = negative + 1 + (num - 1) * COInt_DECIMAL_SHIFT;
+    ssize_t strlen = negative + 1 + (size - 1) * COInt_DECIMAL_SHIFT;
     tenpow = 10;
-    rem = pout[num - 1];
+    rem = pout[size - 1];
     while (rem >= tenpow) {
         tenpow *= 10;
         strlen++;
@@ -103,9 +102,9 @@ int_repr(COIntObject *this)
     char *p = COStr_AsString(str) + strlen;
     *p = '\0';
 
-    /* pout[0] through pout[num - 2] contribute exactly COInt_DECIMAL_SHIFT
+    /* pout[0] through pout[size - 2] contribute exactly COInt_DECIMAL_SHIFT
      * digits each */
-    for (i = 0; i < num - 1; i++) {
+    for (i = 0; i < size - 1; i++) {
         rem = pout[i];
         for (j = 0; j < COInt_DECIMAL_SHIFT; j++) {
             *--p = '0' + rem % 10;
@@ -113,7 +112,7 @@ int_repr(COIntObject *this)
         }
     }
 
-    /* pout[num - 1]: always produce at least one decimal digit */
+    /* pout[size - 1]: always produce at least one decimal digit */
     rem = pout[i];
     do {
         *--p = '0' + rem % 10;
@@ -136,7 +135,7 @@ int_hash(COIntObject *o)
     unsigned long x;
     int i;
     int sign;
-    i = o->co_num;
+    i = CO_SIZE(o);
     switch (i) {
     case -1: return o->co_digit[0] == 1 ? -2 : -(sdigit)o->co_digit[0];
     case 0: return 0;
@@ -165,12 +164,11 @@ COTypeObject COInt_Type = {
 int
 COInt_Init(void)
 {
-    int ival, num;
+    int ival, size;
     COIntObject *o = small_ints;
     for (ival = -SMALL_NEG_INT; ival < SMALL_POS_INT; ival++, o++) {
-        num = (ival < 0) ? -1 : ((ival == 0) ? 0 : 1);
-        (void)COObject_Init(o, &COInt_Type);
-        o->co_num = num;
+        size = (ival < 0) ? -1 : ((ival == 0) ? 0 : 1);
+        (void)COVarObject_Init(o, &COInt_Type, size);
         o->co_digit[0] = abs(ival);
     }
     return 0;
@@ -185,7 +183,7 @@ COInt_AsLong(COObject *co)
 COObject *
 COInt_FromString(char *s, int base)
 {
-    COIntObject *num;
+    COIntObject *size;
 
     if (base != 0 && (base < 2 || base > 36)) {
         // TODO errors
@@ -195,10 +193,9 @@ COInt_FromString(char *s, int base)
 
     CHECK_SMALL_INT(ival);
 
-    num = COObject_New(COIntObject, &COInt_Type);
-    num->co_num = 1;
-    num->co_digit[0] = ival;
-    return (COObject *)num;
+    size = COVarObject_New(COIntObject, &COInt_Type, 1);
+    size->co_digit[0] = ival;
+    return (COObject *)size;
 }
 
 /**
@@ -226,7 +223,7 @@ COInt_FromLong(long ival)
         if (!o) {
             return NULL;
         }
-        o->co_num = sign;
+        CO_SIZE(o) = sign;
         o->co_digit[0] = CO_SAFE_DOWNCAST(abs_ival, unsigned long, digit);
         return (COObject*)o;
     }
@@ -244,7 +241,7 @@ COInt_FromLong(long ival)
         return NULL;
     }
     digit *p = o->co_digit;
-    o->co_num = ndigits * sign;
+    CO_SIZE(o) = ndigits * sign;
     t = abs_ival;
     while (t) {
         *p++ = CO_SAFE_DOWNCAST(t & COInt_MASK, unsigned long, digit);

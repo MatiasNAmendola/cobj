@@ -63,7 +63,9 @@ typedef struct _COObject {
 /* for variable-size objects */
 typedef struct _COVarObject {
     COObject_HEAD;
-    size_t co_size;             /* number of items */
+    /* we use signed integral type instead of size_t here because sometimes we
+     * need negative size, eg. int object */
+    ssize_t co_size;             
 } COVarObject;
 
 #define CO_TYPE(co)     (((COObject *)(co))->co_type)
