@@ -25,5 +25,6 @@ COTypeObject COException_Type;
 COObject *COException;
 COObject *COException_SystemError;
 COObject *COException_NameError;
+COObject *COException_ValueError;
 
 #endif

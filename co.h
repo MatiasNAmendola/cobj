@@ -56,9 +56,8 @@
 #include "argparse/argparse.h"
 #include "linenoise/linenoise.h"
 
-/* Help macros */
+/*** Help Macros ***/
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
-
 
 /* CO_SAFE_DOWNCAST(VALUE, WIDE, NARROW)
  * Cast VALUE to type NARROW from type WIDE.  In CO_DEBUG mode, this
@@ -72,5 +71,8 @@
 #else
 #define CO_SAFE_DOWNCAST(VALUE, WIDE, NARROW) (NARROW)(VALUE)
 #endif
+
+#define CHAR_MASK(c) ((unsigned char)((c) & 0xff))
+/*** ! Help Macros ***/
 
 #endif

@@ -1,5 +1,15 @@
 #include "../co.h"
 
+#define MAX_LONG_DIGITS \
+    ((SIZE_MAX - offsetof(COIntObject, co_digit))/sizeof(digit))
+#define ABS(x) ((x) < 0 ? -(x) : (x))
+
+/* Convert 0 or 1 size of COInt to an sdigit */
+#define ONEDIGIT_VALUE(x) \
+    (CO_SIZE(x) < 0 ? -(sdigit)(x)->co_digit[0] : \
+     (CO_SIZE(x) == 0 ? (sdigit) 0 : (sdigit)(x)->co_digit[0]))
+
+
 /*
  * Small integers are preallocated in this array so that they can be shared.
  *
@@ -9,14 +19,54 @@
 #define SMALL_POS_INT   257
 static COIntObject small_ints[SMALL_NEG_INT + SMALL_POS_INT];
 
+#if SMALL_NEG_INT + SMALL_POS_INT > 0
 #define CHECK_SMALL_INT(ival)   \
     do if (-SMALL_NEG_INT <= ival && ival < SMALL_POS_INT) {    \
         return (COObject *)(small_ints + ival + SMALL_NEG_INT); \
     } while (0);
 
-#define MAX_LONG_DIGITS \
-    ((SIZE_MAX - offsetof(COIntObject, co_digit))/sizeof(digit))
-#define ABS(x) ((x) < 0 ? -(x) : (x))
+static COIntObject *
+maybe_small_int(COIntObject *o)
+{
+    if (o && ABS(CO_SIZE(o)) <= 1) {
+        sdigit ival = ONEDIGIT_VALUE(o);
+        if (-SMALL_NEG_INT <= ival && ival < SMALL_POS_INT) {
+            CO_DECREF(o);
+            return (COIntObject *)(small_ints + ival + SMALL_NEG_INT);
+        }
+    }
+    return o;
+}
+#else
+#define CHECK_SMALL_INT(ival)
+#define maybe_small_int(val) (val)
+#endif
+
+/* Table of digit values for 8-bit string -> integer conversion.
+ * '0' maps to 0, ..., '9' maps to 9.
+ * 'a' and 'A' map to 10, ..., 'z' and 'Z' map to 35.
+ * All other indices map to 37.
+ * Note that when converting a base B string, a char c is a legitimate
+ * base B digit if digit_values[c] < B.
+ */
+unsigned char digit_values[256] = {
+    37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
+    37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
+    37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
+    0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  37, 37, 37, 37, 37, 37,
+    37, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+    25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 37, 37, 37, 37, 37,
+    37, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+    25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 37, 37, 37, 37, 37,
+    37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
+    37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
+    37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
+    37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
+    37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
+    37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
+    37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
+    37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37, 37,
+};
 
 COIntObject *
 _COIntObject_New(ssize_t size)
@@ -34,8 +84,94 @@ _COIntObject_New(ssize_t size)
     return result;
 }
 
-/**
- * Convert a big integer to a base 10 string.
+/*
+ * Normalize (removing leading zeros from) a int object.
+ */
+static COIntObject *
+int_normalize(COIntObject *o)
+{
+    ssize_t j = ABS(CO_SIZE(o));
+    ssize_t i = j;
+
+    while (i > 0 && o->co_digit[i - 1] == 0)
+        --i;
+    if (i != j)
+        CO_SIZE(o) = (CO_SIZE(o) < 0) ? -i : i;
+    return o;
+}
+
+/*
+ * *str points to the first digit in a string of base `base` digits. Base is pow
+ * of 2 (2, 4, 8, 16, or 32).
+ */
+static COIntObject *
+int_from_binary_base(char **str, int base)
+{
+    char *p = *str;
+    char *start = p;
+    int bits_per_char;
+    ssize_t n;
+    COIntObject *o;
+    twodigits accum;
+    int bits_in_accum;
+    digit *pdigit;
+
+    assert(base >= 2 && base <= 32 && (base & (base - 1)) == 0);
+    n = base;
+    for (bits_per_char = -1; n; ++bits_per_char)
+        n >>= 1;
+
+    while (digit_values[CHAR_MASK(*p)] < base)
+        ++p;
+    *str = p;
+
+    /* n <- number of digits need, = ceil(n / COInt_SHIFT). */
+    n = (p - start) * bits_per_char + COInt_SHIFT - 1;
+    if (n / bits_per_char < p - start) {
+        COErr_SetString(COException_ValueError, "int string too large to convert");
+        return NULL;
+    }
+    n = n / COInt_SHIFT;
+
+    o = _COIntObject_New(n);
+    if (!o) {
+        return NULL;
+    }
+
+    /* Read string from right, and fill in digits from left.
+     * From least to most significant in both.
+     */
+    accum = 0;
+    bits_in_accum = 0;
+    pdigit = o->co_digit;
+
+    while (--p >= start) {
+        int k = digit_values[CHAR_MASK(*p)];
+        assert(k >= 0 && k < base);
+        accum |= (twodigits)k << bits_in_accum;
+        bits_in_accum += bits_per_char;
+        if (bits_in_accum >= COInt_SHIFT) {
+            *pdigit++ = (digit)(accum & COInt_MASK);
+            assert(pdigit - o->co_digit <= n);
+            accum >>= COInt_SHIFT;
+            bits_in_accum -= COInt_SHIFT;
+            assert(bits_in_accum < COInt_SHIFT);
+        }
+    }
+    if (bits_in_accum) {
+        assert(bits_in_accum <= COInt_SHIFT);
+        *pdigit++ = (digit)accum;
+        assert(pdigit - o->co_digit <= n);
+    }
+
+    while (pdigit - o->co_digit < n)
+        *pdigit++ = 0;
+
+    return int_normalize(o);
+}
+
+/*
+ * Convert a integer to a base 10 string.
  */
 static COObject *
 int_repr(COIntObject *this)
@@ -129,6 +265,12 @@ int_repr(COIntObject *this)
     return str;
 }
 
+static COObject *
+int_add(COIntObject *a, COIntObject *b)
+{   
+    COObject *o;
+}
+
 static long
 int_hash(COIntObject *o)
 {
@@ -181,25 +323,190 @@ COInt_AsLong(COObject *co)
 }
 
 COObject *
-COInt_FromString(char *s, int base)
+COInt_FromString(char *s, char **pend, int base)
 {
-    COIntObject *size;
+    COIntObject *o;
+    int sign = 1;
+    char *start;
 
     if (base != 0 && (base < 2 || base > 36)) {
-        // TODO errors
+        COErr_SetString(COException_ValueError, "base must be >= 2 and <= 36");
         return NULL;
     }
-    long ival = strtol(s, NULL, base);
 
-    CHECK_SMALL_INT(ival);
+    while (*s != '\0' and isspace(*s))
+        s++;
+    
+    if (*s == '+') {
+        ++s;
+    } else if (*s == '-') {
+        ++s;
+        sign = -1;
+    }
 
-    size = COVarObject_New(COIntObject, &COInt_Type, 1);
-    size->co_digit[0] = ival;
-    return (COObject *)size;
+    if (base == 0) {
+        // auto-detect
+        if (s[0] != '0')
+            base = 10;
+        else if (s[1] == 'x' || s[1] == 'X')
+            base = 16;
+        else if (s[1] == 'o' || s[1] == 'O')
+            base = 8;
+        else if (s[1] == 'b' || s[1] == 'B')
+            base = 2;
+        else {
+            // TODO errros
+            return NULL;
+        }
+    }
+
+    if (s[0] == '0' && 
+        ((base == 16 && (s[1] == 'x' || s[1] == 'X')) ||
+         (base == 8  && (s[1] == 'o' || s[1] == 'O')) ||
+         (base == 2  && (s[1] == 'b' || s[1] == 'B')))) {
+        s += 2;
+    }
+
+    start = s;
+
+    if ((base & (base - 1)) == 0) {
+        o = int_from_binary_base(&s, base);
+    } else {
+        /* Other bases use the simple quadratic-time algorithm below.
+         *
+         * The largest integer that can be expressed in N base-B digits is
+         * B*N-1. Consequently, if we have an N-digit input in base B, the
+         * worest number of digits needed to hold it is the smallest integer n
+         * s.t. (BASE is COInt_BASE)
+         *
+         *  BASE**n - 1 >= B**N - 1 [adding 1 to both sides]
+         *  BASE**n >= B**N         [taking logs to base BASE]
+         *  n >= log(B**N)/log(BASE)  = N * log(B) / log(BASE)
+         *
+         *  The staci array log_base_BASE[base] == log(base)/log(BASE) so we can
+         *  compute this quickly. A int with that much space is reserved near
+         *  the start, and the result is computed into it.
+         *
+         *  The input string is actually treated as being in base base**i (i.e.,
+         *  i digits are processed at a time), where two more static arrays
+         *  hold:
+         *
+         *      convwidth_base[base] = the largest integer i such that base**i
+         *      <= BASE
+         *      convmultmax_base[base] = base ** convwidth_base[base]
+         * 
+         * The first of these is the largest i such that i consecutive input
+         * digits must fit in a single digit. The second is effectively the
+         * input base we're really using.
+         */
+        ssize_t size;
+        char *scan;
+
+        // compute & cache
+        static double log_base_BASE[37] = {0.0e0,};
+        static int convwidth_base[37] = {0,};
+        static twodigits convmultmax_base[37] = {0,};
+
+        if (log_base_BASE[base] == 0.0) {
+            twodigits convmax = base;
+            int i = 0;
+            log_base_BASE[base] = (log((double)base) / log((double)COInt_BASE));
+
+            for (;;) {
+                twodigits next = convmax * base;
+                if (next > COInt_BASE)
+                    break;
+
+                convmax = next;
+                ++i;
+            }
+            convmultmax_base[base] = convmax;
+            assert(i > 0);
+            convwidth_base[base] = i;
+        }
+
+        /* Find length of the sing of numeric characters. */
+        scan = s;
+        while (digit_values[CHAR_MASK(*scan)] < base)
+            ++scan;
+
+        /* Create a int object that can contain the largest possible integer
+         * with this base and length.
+         */
+        size = (ssize_t)((scan - s) * log_base_BASE[base]) + 1;
+        o = _COIntObject_New(size);
+        if (!o)
+            return NULL;
+        CO_SIZE(o) = 0;
+
+        /* `convwidth` consecutive input digits are treated as a single digit in
+         * base `convmultmax`.
+         */
+        int convwidth = convwidth_base[base];
+        twodigits convmultmax = convmultmax_base[base];
+
+        /* Loop */
+        register twodigits c;
+        twodigits convmult;
+        int i;
+        while (s < scan) {
+            /* grap up to convwidth digits from the input string */
+            c = (digit)digit_values[CHAR_MASK(*s++)];
+            for (i = 0; i < convwidth && s != scan; ++i, ++s) {
+                c = (twodigits)(c * base + digit_values[CHAR_MASK(*s)]);
+                assert(c < COInt_BASE);
+            }
+
+            convmult = convmultmax;
+
+            /* Calculate the shift only if we couldn't get convwidth digits. */
+            if (i != convwidth) {
+                convmult = base;
+                for (; i > 1; --i)
+                    convmult *= base;
+            }
+
+            /* Multiply o by convmult, and add c. */
+            digit *pdigit = o->co_digit;
+            digit *pdigit_stop = pdigit + CO_SIZE(o);
+            for (; pdigit < pdigit_stop; ++pdigit) {
+                c += (twodigits)*pdigit * convmult;
+                *pdigit = (digit)(c & COInt_MASK);
+                c >>= COInt_SHIFT;
+            }
+
+            /* Carry off the current end? */
+            if (c) {
+                *pdigit = (digit)c;
+                ++CO_SIZE(o);
+            }
+        }
+    }
+    if (!o)
+        return NULL;
+    if (s == start) {
+        goto on_error;
+    }
+    if (sign < 0)
+        CO_SIZE(o) = -(CO_SIZE(o));
+    while (*s && isspace(CHAR_MASK(*s)))
+        s++;
+    if (*s != '\0')
+        goto on_error;
+
+    if (pend)
+        *pend = s;
+
+    int_normalize(o);
+    return (COObject *)maybe_small_int(o);
+
+on_error:
+    CO_XDECREF(o);
+    return NULL;
 }
 
-/**
- * Create a new big int object from a C long int
+/*
+ * Create a new int object from a C long int
  */
 COObject *
 COInt_FromLong(long ival)
@@ -228,7 +535,7 @@ COInt_FromLong(long ival)
         return (COObject*)o;
     }
 
-    /* big int */
+    /* multi-digit int */
     unsigned long t;
     int ndigits = 0;
     t = abs_ival;

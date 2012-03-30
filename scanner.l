@@ -207,7 +207,7 @@ ANY_CHAR    = [^];
 <!*> := yyleng = YYCURSOR - scanner_globals.yy_text;
 
 <SC_INIT>NUM {
-    yylval->u.co = COInt_FromString(yytext, 0);
+    yylval->u.co = COInt_FromString(yytext, NULL, 0);
     yylval->type = IS_CONST;
     return T_NUM;
 }

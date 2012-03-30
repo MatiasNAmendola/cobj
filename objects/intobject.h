@@ -1,7 +1,7 @@
 #ifndef OBJECTS_INTOBJECT_H
 #define OBJECTS_INTOBJECT_H
 /**
- * Big Integer object type (Arbitrary Precision)
+ * Integer object type (Arbitrary Precision/Big Number)
  *
  * @link http://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic
  */
@@ -9,7 +9,7 @@
 #include "../object.h"
 
 /**
- * Parameters of the big integer representation. There are two different sets of
+ * Parameters of the big number representation. There are two different sets of
  * parameters: 
  *  one set of 30-bit digits, stored in an unsigned 32-bit integer type
  *  one set of 15-bit digits, stored in an unsinged 16-bit integer type
@@ -20,7 +20,6 @@
  * should be an unsigned integer type able to hold all integers up to
  * COInt_BASE*COInt_BASE-1.
  */
- 
 #define COInt_BITS_IN_DIGIT 30
 #define COInt_SHIFT 30
 typedef uint32_t digit;
@@ -53,7 +52,7 @@ COTypeObject COInt_Type;
 #define COInt_Check(co) (CO_TYPE(co) == &COInt_Type)
 
 int COInt_Init(void);
-COObject *COInt_FromString(char *s, int base);
+COObject *COInt_FromString(char *s, char **pend, int base);
 COObject *COInt_FromLong(long ival);
 long COInt_AsLong(COObject *co);
 

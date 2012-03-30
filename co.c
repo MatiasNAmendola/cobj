@@ -89,6 +89,11 @@ main(int argc, const char **argv)
         COObject_dump(long_max);
         COObject *long_min = COInt_FromLong(-9223372036854775807L-1);
         COObject_dump(long_min);
+
+        COObject_dump(COInt_FromString("0b11111", NULL, 0));
+        COObject_dump(COInt_FromString("0o11145401322", NULL, 0));
+        COObject_dump(COInt_FromString("0x499602D2", NULL, 0));
+        COObject_dump(COInt_FromString("123456789012345678901234567890", NULL, 0));
         return 0;
     }
 
