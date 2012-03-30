@@ -87,13 +87,17 @@ main(int argc, const char **argv)
         COObject_dump(zero);
         COObject *long_max = COInt_FromLong(9223372036854775807L);
         COObject_dump(long_max);
-        COObject *long_min = COInt_FromLong(-9223372036854775807L-1);
+        COObject *long_min = COInt_FromLong(-9223372036854775807L - 1);
         COObject_dump(long_min);
 
+        COObject_dump(COInt_FromString
+                      ("-10000000000000000000000000000000", NULL, 0));
+        COObject_dump(COInt_FromString("0", NULL, 0));
         COObject_dump(COInt_FromString("0b11111", NULL, 0));
         COObject_dump(COInt_FromString("0o11145401322", NULL, 0));
         COObject_dump(COInt_FromString("0x499602D2", NULL, 0));
-        COObject_dump(COInt_FromString("123456789012345678901234567890", NULL, 0));
+        COObject_dump(COInt_FromString
+                      ("123456789012345678901234567890", NULL, 0));
         return 0;
     }
 
@@ -151,5 +155,5 @@ main(int argc, const char **argv)
         }
     }
 
-    return eval_wrapper(co_compile()) ? 0 : -1;
+    return eval_wrapper(co_compile())? 0 : -1;
 }

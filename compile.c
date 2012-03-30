@@ -134,7 +134,7 @@ co_while_cond(const struct cnode *cond, struct cnode *while_token)
     COOplineObject *opline = next_op();
     opline->opcode = OP_JMPZ;
     opline->arg1 = *cond;
-    opline->arg2.u.opline_num = while_token->u.opline_num;       // while start
+    opline->arg2.u.opline_num = while_token->u.opline_num;      // while start
     while_token->u.opline_num = while_cond_opline_num;
 }
 
@@ -146,8 +146,10 @@ co_while_end(const struct cnode *while_token)
     COOplineObject *op = next_op();
     op->opcode = OP_JMP;
     COOplineObject *whileopline = (COOplineObject *)COList_GetItem(c.c_oplines,
-                                                                   while_token->u.opline_num);
-    op->arg1.u.opline_num = whileopline->arg2.u.opline_num - while_end_opline_num;        // while start offset
+                                                                   while_token->
+                                                                   u.
+                                                                   opline_num);
+    op->arg1.u.opline_num = whileopline->arg2.u.opline_num - while_end_opline_num;      // while start offset
 
     int while_end_stmt_op_num = CO_SIZE(c.c_oplines);
     whileopline->arg2.u.opline_num =

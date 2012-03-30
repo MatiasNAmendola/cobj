@@ -65,7 +65,7 @@ typedef struct _COVarObject {
     COObject_HEAD;
     /* we use signed integral type instead of size_t here because sometimes we
      * need negative size, eg. int object */
-    ssize_t co_size;             
+    ssize_t co_size;
 } COVarObject;
 
 #define CO_TYPE(co)     (((COObject *)(co))->co_type)

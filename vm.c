@@ -55,8 +55,8 @@ COObject_put(COObject *name, COObject *co)
     if (current_exec_data->function_called) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
-                               current_exec_data->
-                               function_called)->func_upvalues, name);
+                               current_exec_data->function_called)->
+                              func_upvalues, name);
         if (myco) {
             CODict_SetItem(((COFunctionObject *)
                             current_exec_data->function_called)->func_upvalues,
@@ -156,7 +156,8 @@ vm_enter:
 
 #ifdef CO_DEBUG
     printf("vm enter: exec_data: %p, prev_exec_data: %p, tmp: %d\n",
-           TS(current_exec_data), TS(current_exec_data)->prev_exec_data, code->co_numoftmpvars);
+           TS(current_exec_data), TS(current_exec_data)->prev_exec_data,
+           code->co_numoftmpvars);
 #endif
 
     int status = STATUS_NONE;
@@ -189,12 +190,11 @@ vm_enter:
         case OP_POW:
             co1 = CNode_GetObject(&op->arg1);
             co2 = CNode_GetObject(&op->arg2);
-            COObject_dump(co1);
-            COObject_dump(co2);
-            CNode_SetObject(&op->result, COInt_FromLong(
-                         (int)pow(COInt_AsLong(co1), COInt_AsLong(co2))
-                        )
-                    );
+            CNode_SetObject(&op->result, COInt_FromLong((int)
+                                                        pow(COInt_AsLong(co1),
+                                                            COInt_AsLong(co2))
+                            )
+                );
             break;
         case OP_DIV:
             co1 = CNode_GetObject(&op->arg1);
@@ -279,11 +279,12 @@ vm_enter:
         case OP_DECLARE_FUNCTION:
             {
                 COFunctionObject *func =
-                    (COFunctionObject *)COFunction_New(op->arg1.u.co, NULL, NULL);
+                    (COFunctionObject *)COFunction_New(op->arg1.u.co, NULL,
+                                                       NULL);
                 uint start =
                     TS(current_exec_data)->op -
-                    (COOplineObject **)((COTupleObject *)code->
-                                        co_oplines)->co_item - 1;
+                    (COOplineObject **)((COTupleObject *)code->co_oplines)->
+                    co_item - 1;
                 COObject *suboplines =
                     COTuple_GetSlice(code->co_oplines, start + 1,
                                      start + 1 + op->arg2.u.opline_num);
@@ -292,8 +293,7 @@ vm_enter:
                     // setup function's func_upvalues
                     COObject *co;
                     COObject *name;
-                    for (int i = 0;
-                         i < CO_SIZE(suboplines); i++) {
+                    for (int i = 0; i < CO_SIZE(suboplines); i++) {
                         COOplineObject *tmp = (COOplineObject *)
                             COTuple_GET_ITEM(suboplines,
                                              i);

@@ -194,9 +194,8 @@ co_scanner_lex(struct cnode *yylval)
 /*!re2c
 re2c:yyfill:check = 0;
 
-NUM         = [0-9]+;
+NUM         = [-]?([1-9][0-9]*|[0]|"0"[xX][0-9a-fA-F]+|"0"[oO][0-7]+|"0"[bB][01]+);
 FNUM        = ([0-9]*"."[0-9]+);
-HNUM        = "0x"[0-9a-fA-F]+;
 NAME        = [a-zA-Z_][a-zA-Z0-9_]*;
 TOKENS      = [-+()=>/<*^,;:{}%\[\]];
 WHITESPACE  = [ \t]+;
@@ -207,7 +206,10 @@ ANY_CHAR    = [^];
 <!*> := yyleng = YYCURSOR - scanner_globals.yy_text;
 
 <SC_INIT>NUM {
+    char c = yytext[yyleng];
+    yytext[yyleng] = '\0';
     yylval->u.co = COInt_FromString(yytext, NULL, 0);
+    yytext[yyleng] = c;
     yylval->type = IS_CONST;
     return T_NUM;
 }

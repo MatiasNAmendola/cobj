@@ -43,10 +43,10 @@ COBool_FromLong(long ok)
 
 COIntObject _CO_False = {
     COVarObject_HEAD_INIT(&COBool_Type, 0),
-    { 0 }
+    {0}
 };
 
 COIntObject _CO_True = {
     COVarObject_HEAD_INIT(&COBool_Type, 1),
-    { 1 }
+    {1}
 };

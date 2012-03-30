@@ -4,10 +4,23 @@ from TAP.Simple import *
 
 plan("no_plan")
 
+# None
 test_expect_result("None\n", "print None;")
+
+# Bool
 test_expect_result("True\n", "print True;")
 test_expect_result("False\n", "print False;")
-test_expect_result("10\n", "print 10;")
+
+# Int
+test_expect_result("0\n", "print 0;", "Int")
+test_expect_result("-123456789012345678901234567890\n", "print -123456789012345678901234567890");
+test_expect_result("123456789012345678901234567890\n", "print 123456789012345678901234567890");
+test_expect_result("31\n", "print 0b11111");
+test_expect_result("1234567890\n", "print 0o11145401322");
+test_expect_result("255\n", "print 0xFF;", "Int")
+test_expect_result("255\n", "print 0XFF;", "Int")
+
+# Float
 test_expect_result("3.14\n", "print 3.14;")
 test_expect_result("\n", """print ''""")
 test_expect_result("\n", """
