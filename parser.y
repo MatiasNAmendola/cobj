@@ -2,13 +2,12 @@
 #include "co.h"
 
 #define YYSTYPE struct cnode
-#define YYDEBUG 1
-#define YYERROR_VERBOSE 1
 
 %}
 
 %pure_parser
-
+%debug
+%error-verbose
 %expect 5
 
 %nonassoc T_EQUAL T_NOT_EQUAL 

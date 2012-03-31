@@ -2,7 +2,7 @@
 #define AST_H
 #include "object.h"
 
-enum Node_Type {
+typedef enum {
     NODE_IF,
     NODE_WHILE,
     NODE_ADD,
@@ -10,22 +10,15 @@ enum Node_Type {
     NODE_MUL,
     NODE_OR,
     NODE_RETURN,
-};
+} Node_Type;
 
 typedef struct _Node {
-    int type;
-    union {
-        struct _Node *node;
-        COObject *o;
-    } u1;
-    union {
-        struct _Node *node;
-        COObject *o;
-    } u2;
-    union {
-        struct _Node *node;
-        COObject *o;
-    } u3;
+    Node_Type type;
+    struct _Node *left;
+    struct _Node *right;
+    int lineno;
+    COObject *o;
 } Node;
 
+Node *node_new(Node_Type type, Node *nleft, Node *nright);
 #endif
