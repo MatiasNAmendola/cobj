@@ -277,7 +277,7 @@ x_sub(COIntObject *a, COIntObject *b)
 
     /* Ensure a is larger than b */
     if (size_a < size_b) {
-        // if exchanged, negative sign
+        // if exchanged, negate
         sign = -1;
         {
             COIntObject *tmp = a;
@@ -323,7 +323,7 @@ x_sub(COIntObject *a, COIntObject *b)
     assert(borrow == 0);
     if (sign < 0)
         CO_SIZE(o) = -(CO_SIZE(o));
-    return o;
+    return int_normalize(o);
 }
 
 /*
@@ -367,10 +367,78 @@ x_add(COIntObject *a, COIntObject *b)
     return int_normalize(o);
 }
 
+/*
+ * Multiply the absolute values of two integers.
+ */
+static COIntObject *
+x_mul(COIntObject *a, COIntObject *b)
+{
+    ssize_t size_a = ABS(CO_SIZE(a));
+    ssize_t size_b = ABS(CO_SIZE(b));
+    COIntObject *o;
+    ssize_t i;
+    
+    o = _COIntObject_New(size_a + size_b);
+    if (!o)
+        return NULL;
+
+    memset(o->co_digit, 0, CO_SIZE(o) * sizeof(digit));
+
+    if (a == b) {
+        /* Efficient squaring per HAC, Algorithm 14.16:
+         * http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf
+         */
+        for (i = 0; i < size_a; ++i) {
+            twodigits carry;
+            twodigits f = a->co_digit[i];
+            digit *po = o->co_digit + (i << 1);
+            digit *pa = a->co_digit + i + 1;
+            digit *paend = a->co_digit + size_a;
+
+            carry = *po + f * f;
+            *po++ = (digit)(carry & COInt_MASK);
+            carry >>= COInt_SHIFT;
+            assert(carry <= COInt_MASK);
+
+            f <<= 1;
+            while (pa < paend) {
+                carry += *po + *pa++ * f;
+                *po++ = (digit)(carry & COInt_MASK);
+                carry >>= COInt_SHIFT;
+            }
+            if (carry) {
+                carry += *po;
+                *po++ = (digit)(carry & COInt_MASK);
+                carry >>= COInt_SHIFT;
+            }
+            if (carry)
+                *po += (digit)(carry & COInt_MASK);
+        }
+    } else {
+        for (i = 0; i < size_a; ++i) {
+            twodigits carry = 0;
+            twodigits f = a->co_digit[i];
+            digit *po = o->co_digit + i;
+            digit *pb = b->co_digit;
+            digit *pbend = b->co_digit + size_b;
+
+            while (pb < pbend) {
+                carry += *po + *pb++ * f;
+                *po++ = (digit)(carry & COInt_MASK);
+                carry >>= COInt_SHIFT;
+            }
+            if (carry)
+                *po += (digit)(carry & COInt_MASK);
+        }
+    }
+    return int_normalize(o);
+}
+
 static COIntObject *
 int_add(COIntObject *a, COIntObject *b)
 {
     COIntObject *o;
+
     if (ABS(CO_SIZE(a)) <= 1 && ABS(CO_SIZE(b)) <= 1) {
         return (COIntObject *)COInt_FromLong(ONEDIGIT_VALUE(a) +
                                              ONEDIGIT_VALUE(b));
@@ -391,11 +459,57 @@ int_add(COIntObject *a, COIntObject *b)
             o = x_add(a, b);
         }
     }
-    return int_normalize(o);
+    return o;
+}
+
+static COIntObject *
+int_sub(COIntObject *a, COIntObject *b)
+{
+    COIntObject *o;
+
+    if (ABS(CO_SIZE(a)) <= 1 && ABS(CO_SIZE(b)) <= 1) {
+        return (COIntObject *)COInt_FromLong(ONEDIGIT_VALUE(a) -
+                                             ONEDIGIT_VALUE(b));
+    }
+
+    if (CO_SIZE(a) < 0) {
+        if (CO_SIZE(b) < 0) {
+            o = x_sub(a, b);
+        } else {
+            o = x_add(a, b);
+        }
+        if (o && CO_SIZE(o) != 0)
+            CO_SIZE(o) = -(CO_SIZE(o));
+    } else {
+        if (CO_SIZE(b) < 0) {
+            o = x_add(a, b);
+        } else {
+            o = x_sub(a, b);
+        }
+    }
+    return o;
+}
+
+static COIntObject *
+int_mul(COIntObject *a, COIntObject *b)
+{
+    COIntObject *o;
+
+    o = x_mul(a, b);
+    if (!o)
+        return NULL;
+
+    /* Negate if exactly one of operands is negative. */
+    if ((CO_SIZE(a) ^ CO_SIZE(b)) < 0)
+        CO_SIZE(o) = -(CO_SIZE(o));
+
+    return o;
 }
 
 static COIntInterface int_interface = {
     (binaryfunc)int_add,
+    (binaryfunc)int_sub,
+    (binaryfunc)int_mul,
 };
 
 static long

@@ -123,6 +123,8 @@ typedef COObject *(*binaryfunc)(COObject *, COObject *);
 
 typedef struct {
     binaryfunc int_add;
+    binaryfunc int_sub;
+    binaryfunc int_mul;
 } COIntInterface;
 /* ! Object Interfaces */
 

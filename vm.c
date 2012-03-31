@@ -175,16 +175,14 @@ vm_enter:
         case OP_SUB:
             co1 = CNode_GetObject(&op->arg1);
             co2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(co1) -
-                                           COInt_AsLong(co2)));
+            co3 = COInt_Type.tp_int_interface->int_sub(co1, co2);
+            CNode_SetObject(&op->result, co3);
             break;
         case OP_MUL:
             co1 = CNode_GetObject(&op->arg1);
             co2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(co1) *
-                                           COInt_AsLong(co2)));
+            co3 = COInt_Type.tp_int_interface->int_mul(co1, co2);
+            CNode_SetObject(&op->result, co3);
             break;
         case OP_POW:
             co1 = CNode_GetObject(&op->arg1);

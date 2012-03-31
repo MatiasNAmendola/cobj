@@ -1,15 +1,9 @@
-compiler
-========
-    * new bytecode eval logic
-    * support tuple literal
-    * implement keyword this
-    * add gc
-    * built-in functions (print, etc)
-    * error handling (exceptin)
-    * error message with location
-    * implement namespace & scope rules
-    * construct AST from parse.y according to ruby
-
-objects
-=======
-    * int support arbitrary precision
+* new bytecode eval logic
+* support tuple literal
+* implement keyword this
+* add gc
+* built-in functions (print, etc)
+* error handling (exceptin)
+* error message with location
+* implement namespace & scope rules
+* construct AST from parse.y according to ruby

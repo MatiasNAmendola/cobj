@@ -7,10 +7,13 @@ plan("no_plan")
 test_expect_result("[]\n", "print []");
 test_expect_result("[1, 2, 3]\n", "print [1,2,3]");
 
-# object operations
+# object binary operations
+# add
 test_expect_result("1\n", "print 0 + 1")
+# sub
 test_expect_result("2\n", "print 3 - 1")
-test_expect_result("3\n", "print 3 * 1")
+# mul
+test_expect_result("121932631112635269\n", "print 123456789 * 987654321")
 test_expect_result("4\n", "print 100 / 25")
 test_expect_result("5\n", "print 124 % 7")
 test_expect_result("1\n", "print 4 >> 2")
@@ -21,6 +24,8 @@ test_expect_result("True\n", "print 3 == 3")
 test_expect_result("True\n", "print 3 != 10")
 test_expect_result("True\n", "print 3 <= 10")
 test_expect_result("False\n", "print 3 >= 10")
+
+
 test_expect_result("6\n", "num = 6; print num", "assign")
 test_expect_result("8\n", "num = 6; num += 2; print num", "add assign")
 test_expect_result("4\n", "num = 6; num -= 2; print num", "sub assign")
