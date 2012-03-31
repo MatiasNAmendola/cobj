@@ -34,6 +34,7 @@
 #include "serialize.h"
 #include "mem.h"
 #include "gc.h"
+#include "ast.h"
 #include "state.h"
 #include "object.h"
 #include "objects/typeobject.h"

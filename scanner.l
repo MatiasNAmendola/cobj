@@ -187,8 +187,9 @@ co_scanner_setcode(char *code)
 }
 
 int
-co_scanner_lex(struct cnode *yylval)
+co_scanner_lex(Node *yylval)
 {
+    yylval = COMem_MALLOC(sizeof(*yylval));
     scanner_globals.yy_text = YYCURSOR;
 
 /*!re2c
@@ -208,15 +209,15 @@ ANY_CHAR    = [^];
 <SC_INIT>NUM {
     char c = yytext[yyleng];
     yytext[yyleng] = '\0';
-    yylval->u.co = COInt_FromString(yytext, NULL, 0);
+    yylval->o = COInt_FromString(yytext, NULL, 0);
     yytext[yyleng] = c;
-    yylval->type = IS_CONST;
+    yylval->type = NODE_CONST;
     return T_NUM;
 }
 
 <SC_INIT>FNUM {
-    yylval->u.co = COFloat_FromString(yytext);
-    yylval->type = IS_CONST;
+    yylval->o = COFloat_FromString(yytext);
+    yylval->type = NODE_CONST;
     return T_FNUM;
 }
 
@@ -269,20 +270,20 @@ ANY_CHAR    = [^];
 }
 
 <SC_INIT>"None" {
-    yylval->u.co = CO_None;
-    yylval->type = IS_CONST;
+    yylval->o = CO_None;
+    yylval->type = NODE_CONST;
     return T_NONE;
 }
 
 <SC_INIT>"True" {
-    yylval->u.co = CO_True;
-    yylval->type = IS_CONST;
+    yylval->o = CO_True;
+    yylval->type = NODE_CONST;
     return T_BOOL;
 }
 
 <SC_INIT>"False" {
-    yylval->u.co = CO_False;
-    yylval->type = IS_CONST;
+    yylval->o = CO_False;
+    yylval->type = NODE_CONST;
     return T_BOOL;
 }
 
@@ -300,9 +301,9 @@ ANY_CHAR    = [^];
             YYCURSOR++;
         }
     }
-    yylval->u.co = COStr_FromStringN(yytext + 1, yyleng - 2);
-    co_scan_doublequoted_string((COStrObject *)yylval->u.co);
-    yylval->type = IS_CONST;
+    yylval->o = COStr_FromStringN(yytext + 1, yyleng - 2);
+    co_scan_doublequoted_string((COStrObject *)yylval->o);
+    yylval->type = NODE_CONST;
     return T_STRING;
 }
 
@@ -319,14 +320,14 @@ ANY_CHAR    = [^];
             YYCURSOR++;
         }
     } 
-    yylval->u.co = COStr_FromStringN(yytext + 1, yyleng -2);
-    co_scan_singlequoted_string((COStrObject *)yylval->u.co);
-    yylval->type = IS_CONST;
+    yylval->o = COStr_FromStringN(yytext + 1, yyleng -2);
+    co_scan_singlequoted_string((COStrObject *)yylval->o);
+    yylval->type = NODE_CONST;
     return T_STRING;
 }
 
 <SC_INIT>NAME {
-    yylval->u.co = COStr_FromStringN(yytext, yyleng);
+    yylval->o = COStr_FromStringN(yytext, yyleng);
     yylval->type = IS_VAR;
     return T_NAME;
 }
@@ -408,7 +409,7 @@ ANY_CHAR    = [^];
 }
 
 <SC_INIT>ANY_CHAR   {
-    coerror("invalid token: %s", yytext);
+    coerror(NULL, "invalid token: %s", yytext);
 }
 */
 }

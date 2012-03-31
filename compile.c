@@ -1,10 +1,5 @@
 #include "co.h"
 
-struct compiler {
-    COObject *c_oplines;
-    uint c_numoftmpvars;
-};
-
 struct compiler c;
 
 COObject *
@@ -14,6 +9,8 @@ co_compile(void)
 
     // do parse
     coparse(&c);
+    node_listtree(c.xtop);
+    exit(0);
 
 #ifdef CO_DEBUG
     co_print_opcode(c.c_oplines);
@@ -277,12 +274,12 @@ co_end_compilation()
 }
 
 int
-colex(struct cnode *colval)
+colex(Node **colval)
 {
     int retval;
 
 again:
-    retval = co_scanner_lex(colval);
+    retval = co_scanner_lex(*colval);
     switch (retval) {
     case T_WHITESPACE:
     case T_COMMENT:
@@ -296,7 +293,7 @@ again:
 }
 
 void
-coerror(const char *err, ...)
+coerror(struct compiler *c, const char *err, ...)
 {
     va_list params;
 

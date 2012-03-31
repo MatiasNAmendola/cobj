@@ -4,6 +4,7 @@
 #include "co_compat.h"
 #include "object.h"
 #include "objects/listobject.h"
+#include "ast.h"
 
 /* Change whenever the bytecode emmited by the compiler may no longer be
  * understood by old code evaluator.
@@ -26,6 +27,12 @@ struct cnode {
 };
 
 /* compiler */
+struct compiler {
+    COObject *c_oplines;
+    uint c_numoftmpvars;
+    NodeList *xtop;
+};
+
 COObject *co_compile(void);
 uint co_get_next_opline_num(void);
 
@@ -56,11 +63,11 @@ void co_end_compilation();
 
 // parser
 int coparse();
-void coerror(const char *err, ...);
+void coerror(struct compiler *c, const char *err, ...);
 
 // scanner
-int colex(struct cnode *colval);
-int co_scanner_lex(struct cnode *yylval);
+int colex(Node **colval);
+int co_scanner_lex(Node *yylval);
 int co_scanner_setfile(COObject *f);
 int co_scanner_setcode(char *code);
 
