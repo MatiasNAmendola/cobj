@@ -188,6 +188,12 @@ vm_enter:
             x = COInt_Type.tp_int_interface->int_mul(o2, o1);
             PUSH(x);
             break;
+        case OP_DIV:
+            o1 = POP();
+            o2 = POP();
+            x = COInt_Type.tp_int_interface->int_div(o2, o1);
+            PUSH(x);
+            break;
         case OP_LOAD_CONST:
             oparg = NEXTARG();
             x = GETITEM(consts, oparg);

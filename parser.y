@@ -97,6 +97,8 @@ expr: /* express something */
     |   expr '+' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_ADD; }
     |   expr '-' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_SUB; }
     |   expr '*' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_MUL; }
+    |   expr '/' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_DIV; }
+    |   expr '%' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_MOD; }
     /*
     |   expr '<' expr { co_binary_op(OP_IS_SMALLER, &$$, &$1, &$3); }
     |   expr '>' expr { co_binary_op(OP_IS_SMALLER, &$$, &$3, &$1); }
@@ -107,8 +109,6 @@ expr: /* express something */
     |   expr T_SL expr { co_binary_op(OP_SL, &$$, &$1, &$3); }
     |   expr T_SR expr { co_binary_op(OP_SR, &$$, &$1, &$3); }
     |   expr T_POW expr { co_binary_op(OP_POW, &$$, &$1, &$3); }
-    |   expr '/' expr { co_binary_op(OP_DIV, &$$, &$1, &$3); }
-    |   expr '%' expr { co_binary_op(OP_MOD, &$$, &$1, &$3); }
     */
 ;
 
