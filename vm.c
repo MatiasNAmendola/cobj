@@ -179,12 +179,14 @@ vm_enter:
         case OP_SUB:
             o1 = POP();
             o2 = POP();
-            x = COInt_Type.tp_int_interface->int_sub(o1, o2);
+            x = COInt_Type.tp_int_interface->int_sub(o2, o1);
             PUSH(x);
             break;
         case OP_MUL:
             o1 = POP();
             o2 = POP();
+            x = COInt_Type.tp_int_interface->int_mul(o2, o1);
+            PUSH(x);
             break;
         case OP_LOAD_CONST:
             oparg = NEXTARG();
