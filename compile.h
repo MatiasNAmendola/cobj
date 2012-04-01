@@ -41,10 +41,15 @@ struct compiler {
     COObject *names;
     /* ! For Code Object */
 
+    int bytecode_offset;
+
+    /* AST */
     NodeList  *xtop;
-    struct instr *c_instr;  /* pointer to an array of instructions */
-    int c_iused;            /* number of instructions used */
-    int c_ialloc;           /* length of instructions array */
+    /* ! AST */
+
+    struct instr *instr;  /* pointer to an array of instructions */
+    int iused;            /* number of instructions used */
+    int ialloc;           /* length of instructions array */
 };
 
 COObject *co_compile(void);

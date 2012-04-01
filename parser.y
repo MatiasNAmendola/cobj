@@ -51,7 +51,10 @@
 
 %% /* Context-Free Grammar (BNF) */
 
-start: stmt_list { c->xtop = $$; }
+start: stmt_list { 
+     c->xtop = $$; 
+     c->xtop = node_concat(c->xtop, node_list(node_new(NODE_RETURN, NULL, NULL), NULL));
+    }
 ;
 
 stmt: /* state something */

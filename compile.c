@@ -2,6 +2,9 @@
 
 struct compiler c;
 
+#define DEFAULT_INSTR_SIZE      64
+#define DEFAULT_BYTECODE_SIZE   64
+
 COObject *compile_ast(NodeList *l);
 
 COObject *
@@ -10,16 +13,15 @@ co_compile(void)
     // init
     c.consts = COList_New(0);
     c.names = COList_New(0);
-    c.bytecode = COBytes_FromStringN(NULL, 0);
-    c.c_instr = NULL;
+    c.bytecode = COBytes_FromStringN(NULL, DEFAULT_BYTECODE_SIZE);
+    c.bytecode_offset = 0;
+    c.instr = NULL;
 
     // do parse
     coparse(&c);
 
-#ifdef CO_DEBUG
-    node_listtree(c.xtop);
-    exit(0);
-#endif
+    /*node_listtree(c.xtop);*/
+    /*exit(0);*/
 
     return compile_ast(c.xtop);
 }
@@ -28,38 +30,57 @@ co_compile(void)
  * Get next instruction.
  * Resizes instruction array as necessary.
  */
-#define DEFAULT_INSTR_SIZE 64
 static int
 compile_next_instr(void)
 {
-    if (c.c_instr == NULL) {
-        c.c_instr = (struct instr *)COMem_MALLOC(sizeof(struct instr) * DEFAULT_INSTR_SIZE);
-        if (!c.c_instr) {
+    if (c.instr == NULL) {
+        c.instr = (struct instr *)COMem_MALLOC(sizeof(struct instr) * DEFAULT_INSTR_SIZE);
+        if (!c.instr) {
             // TODO errors
             return -1;
         }
-        c.c_ialloc = DEFAULT_INSTR_SIZE;
-        c.c_iused = 0;
-        memset(c.c_instr, 0, sizeof(struct instr) * DEFAULT_INSTR_SIZE);
-    } else if (c.c_iused == c.c_ialloc) {
+        c.ialloc = DEFAULT_INSTR_SIZE;
+        c.iused = 0;
+        memset(c.instr, 0, sizeof(struct instr) * DEFAULT_INSTR_SIZE);
+    } else if (c.iused == c.ialloc) {
         size_t oldsize, newsize;
-        oldsize = c.c_ialloc * sizeof(struct instr);
+        oldsize = c.ialloc * sizeof(struct instr);
         newsize = oldsize << 1;
         if (oldsize > (SIZE_MAX >> 1) || newsize == 0) {
             // TODO errors
             return -1;
         }
-        c.c_ialloc <<= 1;
-        c.c_instr = (struct instr *)COMem_REALLOC(c.c_instr, newsize);
-        if (!c.c_instr) {
+        c.ialloc <<= 1;
+        c.instr = (struct instr *)COMem_REALLOC(c.instr, newsize);
+        if (!c.instr) {
             // TODO errors
             return -1;
         }
-        memset(c.c_instr + oldsize, 0, newsize - oldsize);
+        memset(c.instr + oldsize, 0, newsize - oldsize);
     }
-    return c.c_iused++;
+    return c.iused++;
 }
 
+/*
+ * Add an opcode with no argument.
+ */
+static int
+compile_addop(int opcode)
+{
+    struct instr *i;
+    int off;
+    off = compile_next_instr();
+    if (off < 0)
+        return -1;
+    i = &c.instr[off];
+    i->i_opcode = opcode;
+    i->i_hasarg = 0;
+    return 0;
+}
+
+/*
+ * Add an opcode with an integer argument.
+ */
 static int
 compile_addop_i(int opcode, int oparg)
 {
@@ -68,7 +89,7 @@ compile_addop_i(int opcode, int oparg)
     off = compile_next_instr();
     if (off < 0)
         return -1;
-    i = &c.c_instr[off];
+    i = &c.instr[off];
     i->i_opcode = opcode;
     i->i_oparg = oparg;
     i->i_hasarg = 1;
@@ -83,7 +104,7 @@ compile_visit_const(Node *n)
     }
 
     int arg = COList_Append(c.consts, n->o);
-    return compile_addop_i(OP_PRINT, arg);
+    return compile_addop_i(OP_LOAD_CONST, arg);
 }
 
 /*
@@ -92,6 +113,29 @@ compile_visit_const(Node *n)
 static int
 assemble_emit(struct instr *i)
 {
+    size_t len = COBytes_Size(c.bytecode);
+    int size;
+
+    if (i->i_hasarg) {
+        size = 3;   /* 1 (opcode) + 2 (oparg) */
+    } else {
+        size = 1;   /* 1 (opcode) */
+    }
+
+    // resize if necessary 
+    if (c.bytecode_offset + size >= len) {
+        if (COBytes_Resize(c.bytecode, len * 2) < 0)
+            return -1;
+    }
+
+    char *code = COBytes_AsString(c.bytecode) + c.bytecode_offset;
+    c.bytecode_offset += size;
+    *code++ = i->i_opcode;
+    if (i->i_hasarg) {
+        *code++ = i->i_oparg & 0xff;
+        *code++ = i->i_oparg >> 8;
+    }
+
     return 0;
 }
 
@@ -99,9 +143,10 @@ static int
 assemble(void)
 {
     int i;
-    for (i = 0; i < c.c_iused; i++) {
-        assemble_emit(c.c_instr + i);
+    for (i = 0; i < c.iused; i++) {
+        assemble_emit(c.instr + i);
     }
+    COBytes_Resize(c.bytecode, c.bytecode_offset);
     return 0;
 }
 
@@ -114,13 +159,23 @@ compile_ast(NodeList *l)
     Node *n;
     for (; l; l = l->next) {
         n = l->n;
-        if (n->type == NODE_PRINT) {
+        switch (n->type) {
+        case NODE_PRINT:
             if (n->left->type == NODE_CONST) {
                 compile_visit_const(n->left);
             }
+            compile_addop(OP_PRINT);
+            break;
+        case NODE_RETURN:
+            compile_addop(OP_RETURN);
+            break;
+        default:
+            error("unknow node type");
         }
     }
     assemble();
+    /*COObject_dump(c.bytecode);*/
+    /*exit(0);*/
     return COCode_New(c.bytecode, COList_AsTuple(c.consts), COList_AsTuple(c.names));
 }
 

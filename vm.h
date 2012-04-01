@@ -1,8 +1,13 @@
 #ifndef VM_H
 #define VM_H
+/**
+ * Stack-based Virtual Machine
+ *
+ * http://en.wikipedia.org/wiki/Stack_machine
+ */
 
-#include "objects/codeobject.h"
+#include "object.h"
 
-COObject *co_vm_eval(COObject *main);
+COObject *vm_eval(COObject *main);
 
 #endif
