@@ -140,13 +140,7 @@ co_vm_eval(COObject *mainfunc)
 vm_enter:
     code = (COCodeObject *)((COFunctionObject *)mainfunc)->func_code;
     exec_data =
-        (struct co_exec_data *)COFrame_Alloc(f, sizeof(struct co_exec_data) +
-                                             sizeof(COObject *) *
-                                             code->co_numoftmpvars);
-    exec_data->ts =
-        (COObject **)((char *)exec_data + sizeof(struct co_exec_data));
-    exec_data->op =
-        (COOplineObject **)((COTupleObject *)code->co_oplines)->co_item;
+        (struct co_exec_data *)COFrame_Alloc(f, sizeof(struct co_exec_data));
     exec_data->prev_exec_data = NULL;
     exec_data->symbol_table = CODict_New();
     exec_data->function_called = mainfunc;
@@ -273,6 +267,7 @@ vm_enter:
             co1 = CNode_GetObject(&op->arg1);
             OP_JUMP(op->arg1.u.opline_num);
             break;
+            /*
         case OP_DECLARE_FUNCTION:
             {
                 COFunctionObject *func =
@@ -320,6 +315,7 @@ vm_enter:
                 OP_JUMP(op->arg2.u.opline_num + 1);
                 break;
             }
+            */
         case OP_RETURN:
             {
                 COObject *co;

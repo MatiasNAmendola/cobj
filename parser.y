@@ -45,9 +45,9 @@
 %token  <node> T_STRING
 %token  <node> T_NAME
 
-%type <list> stmt_list start open_stmt_list
-%type <node> stmt simple_stmt
 %type <node> expr
+%type <node> simple_stmt
+%type <list> stmt stmt_list start open_stmt_list
 
 %% /* Context-Free Grammar (BNF) */
 
@@ -63,7 +63,7 @@ stmt_list:
 ;
 
 open_stmt_list:
-        stmt { $$ = node_list($1, NULL); }
+        stmt { $$ = $1; }
     |   open_stmt_list stmt_seps stmt { $$ = node_concat($1, $3); }
     |   { }/* empty */
 ;

@@ -25,7 +25,7 @@ FIND_SOURCE_FILES = find . \( -name .git -type d -prune \) -o \( -name '*.[hc]' 
 LIB_H = $(wildcard *.h) parser.h scanner.h $(wildcard objects/*.h)
 
 LIB_OBJS += co.o
-LIB_OBJS += serialize.o
+#LIB_OBJS += serialize.o
 LIB_OBJS += compile.o
 LIB_OBJS += debug.o
 LIB_OBJS += error.o

@@ -114,6 +114,7 @@ main(int argc, const char **argv)
             }
             f_name = *argv;
             // detect if it's a code cache
+            /*
             COObject *first_object;
             first_object = COObject_unserializeFromFile(f);
             if (first_object && COInt_Check(first_object)
@@ -125,6 +126,7 @@ main(int argc, const char **argv)
                 }
                 return eval_wrapper(code) ? 0 : -1;
             }
+            */
         }
         fseek(f, 0, SEEK_SET);
 

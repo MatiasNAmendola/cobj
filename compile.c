@@ -2,24 +2,130 @@
 
 struct compiler c;
 
+COObject *compile_ast(NodeList *l);
+
 COObject *
 co_compile(void)
 {
-    c.c_oplines = COList_New(0);
+    // init
+    c.consts = COList_New(0);
+    c.names = COList_New(0);
+    c.bytecode = COBytes_FromStringN(NULL, 0);
+    c.c_instr = NULL;
 
     // do parse
     coparse(&c);
-    node_listtree(c.xtop);
-    exit(0);
 
 #ifdef CO_DEBUG
-    co_print_opcode(c.c_oplines);
+    node_listtree(c.xtop);
+    exit(0);
 #endif
 
-    return COCode_New(COList_AsTuple(c.c_oplines), c.c_numoftmpvars);
-
+    return compile_ast(c.xtop);
 }
 
+/*
+ * Get next instruction.
+ * Resizes instruction array as necessary.
+ */
+#define DEFAULT_INSTR_SIZE 64
+static int
+compile_next_instr(void)
+{
+    if (c.c_instr == NULL) {
+        c.c_instr = (struct instr *)COMem_MALLOC(sizeof(struct instr) * DEFAULT_INSTR_SIZE);
+        if (!c.c_instr) {
+            // TODO errors
+            return -1;
+        }
+        c.c_ialloc = DEFAULT_INSTR_SIZE;
+        c.c_iused = 0;
+        memset(c.c_instr, 0, sizeof(struct instr) * DEFAULT_INSTR_SIZE);
+    } else if (c.c_iused == c.c_ialloc) {
+        size_t oldsize, newsize;
+        oldsize = c.c_ialloc * sizeof(struct instr);
+        newsize = oldsize << 1;
+        if (oldsize > (SIZE_MAX >> 1) || newsize == 0) {
+            // TODO errors
+            return -1;
+        }
+        c.c_ialloc <<= 1;
+        c.c_instr = (struct instr *)COMem_REALLOC(c.c_instr, newsize);
+        if (!c.c_instr) {
+            // TODO errors
+            return -1;
+        }
+        memset(c.c_instr + oldsize, 0, newsize - oldsize);
+    }
+    return c.c_iused++;
+}
+
+static int
+compile_addop_i(int opcode, int oparg)
+{
+    struct instr *i;
+    int off;
+    off = compile_next_instr();
+    if (off < 0)
+        return -1;
+    i = &c.c_instr[off];
+    i->i_opcode = opcode;
+    i->i_oparg = oparg;
+    i->i_hasarg = 1;
+    return 0;
+}
+
+static int
+compile_visit_const(Node *n)
+{
+    if (n->type != NODE_CONST) {
+        error("fatal");
+    }
+
+    int arg = COList_Append(c.consts, n->o);
+    return compile_addop_i(OP_PRINT, arg);
+}
+
+/*
+ * Assemble instruction into bytecode.
+ */
+static int
+assemble_emit(struct instr *i)
+{
+    return 0;
+}
+
+static int
+assemble(void)
+{
+    int i;
+    for (i = 0; i < c.c_iused; i++) {
+        assemble_emit(c.c_instr + i);
+    }
+    return 0;
+}
+
+/*
+ * Compiles an node list (ast) into code object.
+ */
+COObject *
+compile_ast(NodeList *l)
+{
+    Node *n;
+    for (; l; l = l->next) {
+        n = l->n;
+        if (n->type == NODE_PRINT) {
+            if (n->left->type == NODE_CONST) {
+                compile_visit_const(n->left);
+            }
+        }
+    }
+    assemble();
+    return COCode_New(c.bytecode, COList_AsTuple(c.consts), COList_AsTuple(c.names));
+}
+
+
+/*
 uint
 co_get_next_opline_num(void)
 {
@@ -272,14 +378,15 @@ co_end_compilation()
 
     op->opcode = OP_RETURN;
 }
+*/
 
 int
-colex(Node **colval)
+colex(YYSTYPE *colval)
 {
     int retval;
 
 again:
-    retval = co_scanner_lex(*colval);
+    retval = co_scanner_lex(colval);
     switch (retval) {
     case T_WHITESPACE:
     case T_COMMENT:

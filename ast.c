@@ -39,6 +39,7 @@ node_list(Node *n, ...)
     if (n) {
         l = COMem_MALLOC(sizeof(*l));
         l->n = n;
+        l->next = NULL;
         l->end = l;
     }
 
@@ -60,11 +61,11 @@ void
 node_listtree(NodeList *l)
 {
     printf("List Tree: %p\n", l);
-    /*Node *p;*/
-    /*int i = 0;*/
-    /*do {*/
-    /*p = n->left;*/
-    /*printf("  %d. %p (type: %d)\n", i, p, p->type);*/
-    /*i++;*/
-    /*} while (p->right != NULL);*/
+    Node *n;
+    int i = 0;
+    for (; l; l = l->next) {
+        n = l->n;
+        printf("  %d. %p (type: %d)\n", i, n, n->type);
+        i++;
+    }
 }

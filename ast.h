@@ -17,6 +17,7 @@ typedef enum {
     NODE_OR,
     NODE_RETURN,
     NODE_CONST,
+    NODE_NAME,
     NODE_ASSIGN,
     NODE_PRINT,
 } Node_Type;

@@ -21,12 +21,13 @@ COTypeObject COCode_Type = {
 };
 
 COObject *
-COCode_New(COObject *oplines, size_t numoftmpvars)
+COCode_New(COObject *code, COObject *consts, COObject *names)
 {
     COCodeObject *co = COObject_New(COCodeObject, &COCode_Type);
 
-    co->co_oplines = oplines;
-    co->co_numoftmpvars = numoftmpvars;
+    co->co_code = code;
+    co->co_consts = consts;
+    co->co_names = names;
 
     return (COObject *)co;
 }
