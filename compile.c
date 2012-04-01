@@ -121,10 +121,10 @@ compile_visit_node(Node *n)
     case NODE_CONST:
         compile_visit_const(n);
         break;
-    case NODE_ADD:
+    case NODE_BIN:
         compile_visit_node(n->left);
         compile_visit_node(n->right);
-        compile_addop(OP_ADD);
+        compile_addop(n->op);
         break;
     default:
         error("unknow node type: %d, %s", n->type, node_type(n->type));

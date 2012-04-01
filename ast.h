@@ -9,12 +9,9 @@
 #include "object.h"
 
 typedef enum {
+    NODE_BIN,   /* binary op */
     NODE_IF,
     NODE_WHILE,
-    NODE_ADD,
-    NODE_SUB,
-    NODE_MUL,
-    NODE_OR,
     NODE_RETURN,
     NODE_CONST,
     NODE_NAME,
@@ -24,6 +21,7 @@ typedef enum {
 
 typedef struct _Node {
     Node_Type type;
+    unsigned char op;
     int lineno;
     COObject *o;
     struct _Node *left;

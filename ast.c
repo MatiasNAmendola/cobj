@@ -64,10 +64,7 @@ node_type(Node_Type type)
     switch (type) {
         GIVE_NAME(NODE_IF);
         GIVE_NAME(NODE_WHILE);
-        GIVE_NAME(NODE_ADD);
-        GIVE_NAME(NODE_SUB);
-        GIVE_NAME(NODE_MUL);
-        GIVE_NAME(NODE_OR);
+        GIVE_NAME(NODE_BIN);
         GIVE_NAME(NODE_RETURN);
         GIVE_NAME(NODE_CONST);
         GIVE_NAME(NODE_NAME);
