@@ -174,6 +174,7 @@ vm_enter:
             o1 = POP();
             o2 = POP();
             x = COInt_Type.tp_int_interface->int_add(o1, o2);
+            PUSH(x);
             break;
         case OP_LOAD_CONST:
             oparg = NEXTARG();

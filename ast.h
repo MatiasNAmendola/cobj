@@ -40,5 +40,6 @@ Node *node_new(Node_Type type, Node *nleft, Node *nright);
 NodeList *node_list(Node *n, ...);
 NodeList *node_concat(NodeList *a, NodeList *b);
 void node_listtree(NodeList *n);
+const char *node_type(Node_Type type);
 
 #endif

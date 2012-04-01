@@ -54,6 +54,30 @@ node_list(Node *n, ...)
     return l;
 }
 
+const char *
+node_type(Node_Type type)
+{
+#define GIVE_NAME(type) \
+    case (type):        \
+        return #type
+
+    switch (type) {
+        GIVE_NAME(NODE_IF);
+        GIVE_NAME(NODE_WHILE);
+        GIVE_NAME(NODE_ADD);
+        GIVE_NAME(NODE_SUB);
+        GIVE_NAME(NODE_MUL);
+        GIVE_NAME(NODE_OR);
+        GIVE_NAME(NODE_RETURN);
+        GIVE_NAME(NODE_CONST);
+        GIVE_NAME(NODE_NAME);
+        GIVE_NAME(NODE_ASSIGN);
+        GIVE_NAME(NODE_PRINT);
+    }
+    error("unknow type: %d\n", type);
+    return NULL;
+}
+
 /*
  * List node tree.
  */

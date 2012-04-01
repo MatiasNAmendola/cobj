@@ -103,8 +103,33 @@ compile_visit_const(Node *n)
         error("fatal");
     }
 
-    int arg = COList_Append(c.consts, n->o);
-    return compile_addop_i(OP_LOAD_CONST, arg);
+    COList_Append(c.consts, n->o);
+    return compile_addop_i(OP_LOAD_CONST, COList_Size(c.consts) - 1);
+}
+
+static int
+compile_visit_node(Node *n)
+{
+    switch (n->type) {
+    case NODE_PRINT:
+        compile_visit_node(n->left);
+        compile_addop(OP_PRINT);
+        break;
+    case NODE_RETURN:
+        compile_addop(OP_RETURN);
+        break;
+    case NODE_CONST:
+        compile_visit_const(n);
+        break;
+    case NODE_ADD:
+        compile_visit_node(n->left);
+        compile_visit_node(n->right);
+        compile_addop(OP_ADD);
+        break;
+    default:
+        error("unknow node type: %d, %s", n->type, node_type(n->type));
+    }
+    return 0;
 }
 
 /*
@@ -150,30 +175,89 @@ assemble(void)
     return 0;
 }
 
+static char *
+opcode_name(unsigned char opcode)
+{
+#define GIVE_NAME(type) \
+    case (type):        \
+        return #type
+
+    switch (opcode) {
+        GIVE_NAME(OP_NOP);
+        GIVE_NAME(OP_ADD);
+        GIVE_NAME(OP_SUB);
+        GIVE_NAME(OP_MUL);
+        GIVE_NAME(OP_DIV);
+        GIVE_NAME(OP_MOD);
+        GIVE_NAME(OP_POW);
+        GIVE_NAME(OP_SL);
+        GIVE_NAME(OP_SR);
+        GIVE_NAME(OP_IS_SMALLER);
+        GIVE_NAME(OP_IS_SMALLER_OR_EQUAL);
+        GIVE_NAME(OP_IS_EQUAL);
+        GIVE_NAME(OP_IS_NOT_EQUAL);
+        GIVE_NAME(OP_ASSIGN);
+        GIVE_NAME(OP_PRINT);
+        GIVE_NAME(OP_JMPZ);
+        GIVE_NAME(OP_JMP);
+        GIVE_NAME(OP_DECLARE_FUNCTION);
+        GIVE_NAME(OP_RETURN);
+        GIVE_NAME(OP_DO_FCALL);
+        GIVE_NAME(OP_RECV_PARAM);
+        GIVE_NAME(OP_PASS_PARAM);
+        GIVE_NAME(OP_TRY);
+        GIVE_NAME(OP_THROW);
+        GIVE_NAME(OP_CATCH);
+        GIVE_NAME(OP_LOAD_NAME);
+        GIVE_NAME(OP_LOAD_CONST);
+        GIVE_NAME(OP_TUPLE_BUILD);
+        GIVE_NAME(OP_LIST_BUILD);
+        GIVE_NAME(OP_LIST_ADD);
+        GIVE_NAME(OP_POP_TOP);
+        GIVE_NAME(OP_DICT_BUILD);
+        GIVE_NAME(OP_DICT_ADD);
+    }
+    error("unknow opcode: %d\n", opcode);
+    return NULL;
+}
+
+static void
+dump_bytecode(char *bytecode)
+{
+#define NEXTOP()    (*bytecode++)
+#define NEXTARG()   (bytecode += 2, (bytecode[-1]<<8) + bytecode[-2])
+
+    unsigned char opcode;
+    for (;;) {
+        opcode = NEXTOP();
+        printf("%s", opcode_name(opcode));
+        switch (opcode) {
+        case OP_LOAD_CONST:
+            printf("    %d", NEXTARG());
+            break;
+        case OP_PRINT:
+            break;
+        case OP_RETURN:
+            return;
+            break;
+        }
+        printf("\n");
+    }
+}
+
 /*
  * Compiles an node list (ast) into code object.
  */
 COObject *
 compile_ast(NodeList *l)
 {
-    Node *n;
     for (; l; l = l->next) {
-        n = l->n;
-        switch (n->type) {
-        case NODE_PRINT:
-            if (n->left->type == NODE_CONST) {
-                compile_visit_const(n->left);
-            }
-            compile_addop(OP_PRINT);
-            break;
-        case NODE_RETURN:
-            compile_addop(OP_RETURN);
-            break;
-        default:
-            error("unknow node type");
-        }
+        compile_visit_node(l->n);
     }
     assemble();
+    dump_bytecode(COBytes_AsString(c.bytecode));
+    /*exit(0);*/
+
     /*COObject_dump(c.bytecode);*/
     /*exit(0);*/
     return COCode_New(c.bytecode, COList_AsTuple(c.consts), COList_AsTuple(c.names));

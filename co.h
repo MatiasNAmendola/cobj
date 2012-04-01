@@ -20,7 +20,6 @@
 
 #include "co_compat.h"
 #include "compile.h"
-#include "debug.h"
 #include "error.h"
 #include "llist.h"
 #include "object.h"

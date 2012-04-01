@@ -94,6 +94,7 @@ expr: /* express something */
     |   T_NUM
     |   T_FNUM
     |    '(' expr ')' { $$ = $2; }
+    |   expr '+' expr { $$ = node_new(NODE_ADD, $1, $3); }
     /*
     |   expr '<' expr { co_binary_op(OP_IS_SMALLER, &$$, &$1, &$3); }
     |   expr '>' expr { co_binary_op(OP_IS_SMALLER, &$$, &$3, &$1); }
@@ -103,7 +104,6 @@ expr: /* express something */
     |   expr T_GREATER_OR_EQUAL expr { co_binary_op(OP_IS_SMALLER_OR_EQUAL, &$$, &$3, &$1); }
     |   expr T_SL expr { co_binary_op(OP_SL, &$$, &$1, &$3); }
     |   expr T_SR expr { co_binary_op(OP_SR, &$$, &$1, &$3); }
-    |   expr '+' expr { co_binary_op(OP_ADD, &$$, &$1, &$3); }
     |   expr '-' expr { co_binary_op(OP_SUB, &$$, &$1, &$3); }
     |   expr '*' expr { co_binary_op(OP_MUL, &$$, &$1, &$3); }
     |   expr T_POW expr { co_binary_op(OP_POW, &$$, &$1, &$3); }
