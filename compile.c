@@ -109,7 +109,7 @@ compile_visit_const(Node *n)
 
 static int compile_visit_node(Node *n);
 
-static int
+static void
 compile_visit_nodelist(NodeList *l)
 {
     for (; l; l = l->next) {
@@ -143,6 +143,15 @@ compile_visit_node(Node *n)
     case NODE_LIST_ADD:
         compile_visit_node(n->left);
         compile_addop(OP_LIST_ADD);
+        break;
+    case NODE_DICT_BUILD:
+        compile_addop(OP_DICT_BUILD);
+        compile_visit_nodelist(n->list);
+        break;
+    case NODE_DICT_ADD:
+        compile_visit_node(n->left);
+        compile_visit_node(n->right);
+        compile_addop(OP_DICT_ADD);
         break;
     default:
         error("unknow node type: %d, %s", n->type, node_type(n->type));

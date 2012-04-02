@@ -49,6 +49,7 @@
 %type <node> simple_stmt
 %type <list> stmt stmt_list start open_stmt_list
 %type <list> expr_list non_empty_expr_list
+%type <list> assoc_list non_empty_assoc_list
 
 %% /* Context-Free Grammar (BNF) */
 
@@ -69,7 +70,7 @@ stmt_list:
 open_stmt_list:
         stmt { $$ = $1; }
     |   open_stmt_list stmt_seps stmt { $$ = node_concat($1, $3); }
-    |   { }/* empty */
+    |   /* empty */ {}
 ;
 
 stmt_sep:
@@ -101,8 +102,12 @@ expr: /* express something */
     |   expr '/' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_DIV; }
     |   expr '%' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_MOD; }
     |   '[' expr_list ']' { 
-        $$ = node_new(NODE_LIST_BUILD, NULL, NULL);
-        $$->list = $2; 
+            $$ = node_new(NODE_LIST_BUILD, NULL, NULL);
+            $$->list = $2; 
+        }
+    |   '{' assoc_list '}' {
+            $$ = node_new(NODE_DICT_BUILD, NULL, NULL);
+            $$->list = $2;
         }
     /*
     |   expr '<' expr { co_binary_op(OP_IS_SMALLER, &$$, &$1, &$3); }
@@ -129,7 +134,7 @@ opt_newlines:
 
 expr_list:
         non_empty_expr_list opt_comma
-    |   {}/* empty */
+    |   /* empty */ {}
 ;
 
 non_empty_expr_list:
@@ -138,6 +143,20 @@ non_empty_expr_list:
         }
     |   non_empty_expr_list ',' opt_newlines expr opt_newlines {
             $$ = node_append($1, node_new(NODE_LIST_ADD, $4, NULL));
+        }
+;
+
+assoc_list:
+        non_empty_assoc_list opt_comma
+    |   /* empty */ {}
+;   
+
+non_empty_assoc_list:
+        opt_newlines expr ':' expr opt_newlines { 
+            $$ = node_list(node_new(NODE_DICT_ADD, $2, $4), NULL);
+        }
+    |   non_empty_assoc_list ',' opt_newlines expr ':' expr opt_newlines { 
+            $$ = node_append($1, node_new(NODE_DICT_ADD, $4, $6));
         }
 ;
 

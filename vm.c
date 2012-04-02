@@ -73,63 +73,13 @@ COObject_del(COObject *name)
     return 0;
 }
 
-static COObject *
-CNode_GetObject(struct cnode *node)
-{
-    COObject *co;
-    switch (node->type) {
-    case IS_CONST:
-        return node->u.co;
-        break;
-    case IS_VAR:
-        co = COObject_get(node->u.co);
-        if (!co) {
-            COErr_Format(COException_NameError, "name '%s' is not defined",
-                         COStr_AsString(node->u.co));
-        }
-        return co;
-        break;
-    case IS_TMP_VAR:
-        return *(COObject **)((char *)TS(current_exec_data)->ts + node->u.var);
-        break;
-    case IS_UNUSED:
-        return NULL;
-        break;
-    }
-
-    return NULL;
-}
-
-static int
-CNode_SetObject(struct cnode *node, COObject *co)
-{
-    switch (node->type) {
-    case IS_CONST:
-        error("you cannot change const");
-        break;
-    case IS_VAR:
-        return COObject_put(node->u.co, co);
-        break;
-    case IS_TMP_VAR:
-        *(COObject **)((char *)TS(current_exec_data)->ts + node->u.var) = co;
-        return 0;
-        break;
-    case IS_UNUSED:
-        error("it's unused cnode");
-        return -1;
-        break;
-    }
-
-    return -1;
-}
-
 #define OP_JUMP(offset) \
     do {                \
         TS(current_exec_data)->op += offset - 1;             \
     } while (0)
 #define NEXTOP()    (*bytecode++)
 #define NEXTARG()   (bytecode += 2, (bytecode[-1]<<8) + bytecode[-2])
-#define GETITEM(v, i)   COTuple_GetItem((COTupleObject *)(v), i)
+#define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
 #define PUSH(o)     COFrame_Push(f, o);
 #define POP()       COFrame_Pop(f);
 
@@ -218,6 +168,18 @@ vm_enter:
             o2 = POP();
             COList_Append(o2, o1);
             x = o2;
+            PUSH(x);
+            break;
+        case OP_DICT_BUILD:
+            x = CODict_New();
+            PUSH(x);
+            break;
+        case OP_DICT_ADD:
+            o1 = POP();
+            o2 = POP();
+            o3 = POP();
+            CODict_SetItem(o3, o1, o2);
+            x = o3;
             PUSH(x);
             break;
         case OP_RETURN:
