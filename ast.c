@@ -89,18 +89,50 @@ node_type(Node_Type type)
     return NULL;
 }
 
+static void
+indent_printf(int level, const char *fmt, ...)
+{
+    va_list params;
+    va_start(params, fmt);
+
+    for (int i = 0; i < level; i++)
+        printf("----");
+    vprintf(fmt, params);
+
+    va_end(params);
+}
+
+void
+node_print(Node *n)
+{
+    static int level = 1;
+    indent_printf(level, "Node(%p, %s)\n", n, node_type(n->type));
+    level++;
+    if (n->left) {
+        indent_printf(level, "->left\n", n, node_type(n->type));
+        node_print(n->left);
+    }
+    if (n->right) {
+        indent_printf(level, "->right\n", n, node_type(n->type));
+        node_print(n->right);
+    }
+    if (n->list) {
+        indent_printf(level, "->list\n", n, node_type(n->type));
+        node_listtree(n->list);
+    }
+    level--;
+}
+
 /*
  * List node tree.
  */
 void
 node_listtree(NodeList *l)
 {
-    printf("List Tree: %p\n", l);
+    indent_printf(0, "NodeList(%)\n", l);
     Node *n;
-    int i = 0;
     for (; l; l = l->next) {
         n = l->n;
-        printf("  %d. %p (type: %d)\n", i, n, n->type);
-        i++;
+        node_print(n);
     }
 }

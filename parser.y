@@ -137,7 +137,7 @@ non_empty_expr_list:
             $$ = node_list(node_new(NODE_LIST_ADD, $2, NULL), NULL);
         }
     |   non_empty_expr_list ',' opt_newlines expr opt_newlines {
-            $$ = node_append($1, $4);
+            $$ = node_append($1, node_new(NODE_LIST_ADD, $4, NULL));
         }
 ;
 
