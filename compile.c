@@ -107,6 +107,16 @@ compile_visit_const(Node *n)
     return compile_addop_i(OP_LOAD_CONST, COList_Size(c.consts) - 1);
 }
 
+static int compile_visit_node(Node *n);
+
+static int
+compile_visit_nodelist(NodeList *l)
+{
+    for (; l; l = l->next) {
+        compile_visit_node(l->n);
+    }
+}
+
 static int
 compile_visit_node(Node *n)
 {
@@ -125,6 +135,14 @@ compile_visit_node(Node *n)
         compile_visit_node(n->left);
         compile_visit_node(n->right);
         compile_addop(n->op);
+        break;
+    case NODE_LIST_BUILD:
+        compile_addop(OP_LIST_BUILD);
+        compile_visit_nodelist(n->list);
+        break;
+    case NODE_LIST_ADD:
+        compile_visit_node(n->left);
+        compile_addop(OP_LIST_ADD);
         break;
     default:
         error("unknow node type: %d, %s", n->type, node_type(n->type));
@@ -251,9 +269,7 @@ dump_bytecode(char *bytecode)
 COObject *
 compile_ast(NodeList *l)
 {
-    for (; l; l = l->next) {
-        compile_visit_node(l->n);
-    }
+    compile_visit_nodelist(l);
     assemble();
     dump_bytecode(COBytes_AsString(c.bytecode));
     /*exit(0);*/

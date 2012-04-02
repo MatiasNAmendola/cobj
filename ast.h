@@ -8,8 +8,11 @@
 
 #include "object.h"
 
+typedef struct _NodeList NodeList;
+typedef struct _Node Node;
+
 typedef enum {
-    NODE_BIN,   /* binary op */
+    NODE_BIN,       /* binary op node */
     NODE_IF,
     NODE_WHILE,
     NODE_RETURN,
@@ -17,26 +20,30 @@ typedef enum {
     NODE_NAME,
     NODE_ASSIGN,
     NODE_PRINT,
+    NODE_LIST_BUILD,
+    NODE_LIST_ADD,
 } Node_Type;
 
-typedef struct _Node {
+struct _Node {
     Node_Type type;
     unsigned char op;
     int lineno;
     COObject *o;
+    NodeList *list;
     struct _Node *left;
     struct _Node *right;
-} Node;
+};
 
-typedef struct _NodeList {
+struct _NodeList {
     Node *n;
     struct _NodeList *next;
     struct _NodeList *end;
-} NodeList;
+};
 
 Node *node_new(Node_Type type, Node *nleft, Node *nright);
 NodeList *node_list(Node *n, ...);
 NodeList *node_concat(NodeList *a, NodeList *b);
+NodeList *node_append(NodeList *l, Node *n);
 void node_listtree(NodeList *n);
 const char *node_type(Node_Type type);
 

@@ -14,6 +14,18 @@ node_new(Node_Type type, Node *nleft, Node *nright)
     return n;
 }
 
+/*
+ * Append a node into list.
+ */
+NodeList *
+node_append(NodeList *l, Node *n)
+{
+    return node_concat(l, node_list(n, NULL));
+}
+ 
+/*
+ * Concatenate two list.
+ */
 NodeList *
 node_concat(NodeList *a, NodeList *b)
 {
@@ -70,6 +82,8 @@ node_type(Node_Type type)
         GIVE_NAME(NODE_NAME);
         GIVE_NAME(NODE_ASSIGN);
         GIVE_NAME(NODE_PRINT);
+        GIVE_NAME(NODE_LIST_BUILD);
+        GIVE_NAME(NODE_LIST_ADD);
     }
     error("unknow type: %d\n", type);
     return NULL;

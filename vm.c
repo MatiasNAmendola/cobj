@@ -194,6 +194,12 @@ vm_enter:
             x = COInt_Type.tp_int_interface->int_div(o2, o1);
             PUSH(x);
             break;
+        case OP_MOD:
+            o1 = POP();
+            o2 = POP();
+            x = COInt_Type.tp_int_interface->int_mod(o2, o1);
+            PUSH(x);
+            break;
         case OP_LOAD_CONST:
             oparg = NEXTARG();
             x = GETITEM(consts, oparg);
@@ -202,6 +208,17 @@ vm_enter:
         case OP_PRINT:
             x = POP();
             COObject_print(x);
+            break;
+        case OP_LIST_BUILD:
+            x = COList_New(0);
+            PUSH(x);
+            break; 
+        case OP_LIST_ADD:
+            o1 = POP();
+            o2 = POP();
+            COList_Append(o2, o1);
+            x = o2;
+            PUSH(x);
             break;
         case OP_RETURN:
             goto vm_exit;
