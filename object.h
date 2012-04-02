@@ -116,6 +116,7 @@ COVarObject *_COVarObject_New(COTypeObject *, size_t);
 void COObject_dump(COObject *co);
 long COObject_hash(COObject *co);
 void COObject_print(COObject *co);
+COObject *COObject_repr(COObject *o);
 
 /* Object Interfaces */
 typedef COObject *(*unaryfunc)(COObject *);

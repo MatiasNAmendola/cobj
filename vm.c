@@ -18,7 +18,6 @@ struct co_exec_data {
 /* Forward declaration */
 COObject *COObject_get(COObject *co);
 int COObject_put(COObject *name, COObject *co);
-int COObject_del(COObject *name);
 void COObject_print(COObject *co);
 
 COObject *
@@ -49,7 +48,7 @@ COObject_get(COObject *name)
 }
 
 int
-COObject_put(COObject *name, COObject *co)
+COObject_set(COObject *name, COObject *co)
 {
     struct co_exec_data *current_exec_data = TS(current_exec_data);
     if (current_exec_data->function_called) {
@@ -64,13 +63,6 @@ COObject_put(COObject *name, COObject *co)
         }
     }
     return CODict_SetItem(TS(current_exec_data)->symbol_table, name, co);
-}
-
-int
-COObject_del(COObject *name)
-{
-    // TODO
-    return 0;
 }
 
 #define OP_JUMP(offset) \
@@ -150,6 +142,56 @@ vm_enter:
             x = COInt_Type.tp_int_interface->int_mod(o2, o1);
             PUSH(x);
             break;
+        case OP_SL:
+            // TODO support int object
+            o1 = POP();
+            o2 = POP();
+            x = COInt_FromLong(COInt_AsLong(o2) << COInt_AsLong(o1));
+            PUSH(x);
+            break;
+        case OP_SR:
+            // TODO support int object
+            o1 = POP();
+            o2 = POP();
+            x = COInt_FromLong(COInt_AsLong(o2) >> COInt_AsLong(o1));
+            PUSH(x);
+            break;
+        case OP_IS_SMALLER:
+            o1 = POP();
+            o2 = POP();
+            x = COBool_FromLong(COInt_AsLong(o2) < COInt_AsLong(o1));
+            PUSH(x);
+            break;
+        case OP_IS_SMALLER_OR_EQUAL:
+            o1 = POP();
+            o2 = POP();
+            x = COBool_FromLong(COInt_AsLong(o2) <= COInt_AsLong(o1));
+            PUSH(x);
+            break;
+        case OP_IS_EQUAL:
+            o1 = POP();
+            o2 = POP();
+            x = COBool_FromLong(COInt_AsLong(o2) == COInt_AsLong(o1));
+            PUSH(x);
+            break;
+        case OP_IS_NOT_EQUAL:
+            o1 = POP();
+            o2 = POP();
+            x = COBool_FromLong(COInt_AsLong(o2) != COInt_AsLong(o1));
+            PUSH(x);
+            break;
+        case OP_LOAD_NAME:
+            oparg = NEXTARG();
+            o1 = GETITEM(names, oparg);
+            x = COObject_get(o1);
+            if (!x) {
+                COErr_Format(COException_NameError, "name '%s' is not defined",
+                         COStr_AsString(o1)); 
+                status = STATUS_EXCEPTION;
+                goto on_error;
+            }
+            PUSH(x);
+            break;
         case OP_LOAD_CONST:
             oparg = NEXTARG();
             x = GETITEM(consts, oparg);
@@ -181,6 +223,12 @@ vm_enter:
             CODict_SetItem(o3, o1, o2);
             x = o3;
             PUSH(x);
+            break;
+        case OP_ASSIGN:
+            oparg = NEXTARG();
+            o1 = GETITEM(names, oparg);
+            o2 = POP();
+            COObject_set(o1, o2);
             break;
         case OP_RETURN:
             goto vm_exit;

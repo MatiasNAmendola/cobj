@@ -1,6 +1,12 @@
 #include "co.h"
 
 /* For debugging convenience. */
+COObject *
+COObject_repr(COObject *o)
+{
+    return CO_TYPE(o)->tp_repr(o);
+}
+
 void
 COObject_dump(COObject *co)
 {
@@ -10,7 +16,7 @@ COObject_dump(COObject *co)
         fprintf(stderr, "object:\n");
         fprintf(stderr, "    type: %s\n",
                 CO_TYPE(co) == NULL ? "NULL" : CO_TYPE(co)->tp_name);
-        COStrObject *s = (COStrObject *)CO_TYPE(co)->tp_repr(co);
+         COStrObject *s = COObject_repr(co);
         fprintf(stderr, "    repr: %s\n", s->co_sval);
         fprintf(stderr, "    refcnt: %d\n", co->co_refcnt);
     }

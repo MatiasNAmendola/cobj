@@ -46,7 +46,7 @@
 %token  <node> T_NAME
 
 %type <node> expr
-%type <node> simple_stmt
+%type <list> simple_stmt
 %type <list> stmt stmt_list start open_stmt_list
 %type <list> expr_list non_empty_expr_list
 %type <list> assoc_list non_empty_assoc_list
@@ -60,7 +60,7 @@ start: stmt_list {
 ;
 
 stmt: /* state something */
-        simple_stmt { $$ = node_list($1, NULL); }
+        simple_stmt { $$ = $1; }
 ;
 
 stmt_list:
@@ -101,6 +101,15 @@ expr: /* express something */
     |   expr '*' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_MUL; }
     |   expr '/' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_DIV; }
     |   expr '%' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_MOD; }
+    |   expr '<' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_IS_SMALLER; }
+    |   expr '>' expr { $$ = node_new(NODE_BIN, $3, $1); $$->op = OP_IS_SMALLER; }
+    |   expr T_EQUAL expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_IS_EQUAL; }
+    |   expr T_NOT_EQUAL expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_IS_NOT_EQUAL; }
+    |   expr T_SMALLER_OR_EQUAL expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_IS_SMALLER_OR_EQUAL; }
+    |   expr T_GREATER_OR_EQUAL expr { $$ = node_new(NODE_BIN, $3, $1); $$->op = OP_IS_SMALLER_OR_EQUAL; }
+    |   expr T_SL expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_SL; }
+    |   expr T_SR expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_SR; }
+    |   expr T_POW expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_POW; }
     |   '[' expr_list ']' { 
             $$ = node_new(NODE_LIST_BUILD, NULL, NULL);
             $$->list = $2; 
@@ -109,17 +118,6 @@ expr: /* express something */
             $$ = node_new(NODE_DICT_BUILD, NULL, NULL);
             $$->list = $2;
         }
-    /*
-    |   expr '<' expr { co_binary_op(OP_IS_SMALLER, &$$, &$1, &$3); }
-    |   expr '>' expr { co_binary_op(OP_IS_SMALLER, &$$, &$3, &$1); }
-    |   expr T_EQUAL expr { co_binary_op(OP_IS_EQUAL, &$$, &$1, &$3); }
-    |   expr T_NOT_EQUAL expr { co_binary_op(OP_IS_NOT_EQUAL, &$$, &$1, &$3); }
-    |   expr T_SMALLER_OR_EQUAL expr { co_binary_op(OP_IS_SMALLER_OR_EQUAL, &$$, &$1, &$3); }
-    |   expr T_GREATER_OR_EQUAL expr { co_binary_op(OP_IS_SMALLER_OR_EQUAL, &$$, &$3, &$1); }
-    |   expr T_SL expr { co_binary_op(OP_SL, &$$, &$1, &$3); }
-    |   expr T_SR expr { co_binary_op(OP_SR, &$$, &$1, &$3); }
-    |   expr T_POW expr { co_binary_op(OP_POW, &$$, &$1, &$3); }
-    */
 ;
 
 opt_comma:
@@ -161,9 +159,44 @@ non_empty_assoc_list:
 ;
 
 simple_stmt:
-        T_NAME '=' expr { $$ = node_new(NODE_ASSIGN, $1, $3); }
-    |   T_PRINT expr { $$ = node_new(NODE_PRINT, $2, NULL); }
-    |   expr
+        T_NAME '=' expr { $$ = node_new(NODE_ASSIGN, $1, $3); $$ = node_list($$, NULL); }
+    |   T_NAME T_ADD_ASSIGN expr { 
+            Node *t;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_ADD;
+            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+        }
+    |   T_NAME T_SUB_ASSIGN expr  {
+            Node *t;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_SUB;
+            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+        }
+    |   T_NAME T_MUL_ASSIGN expr  {
+            Node *t;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_MUL;
+            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+        }
+    |   T_NAME T_DIV_ASSIGN expr  {
+            Node *t;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_DIV;
+            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+        }
+    |   T_NAME T_MOD_ASSIGN expr {
+            Node *t;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_MOD;
+            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+        }
+    |   T_NAME T_SR_ASSIGN expr {
+            Node *t;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_SR;
+            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+        }
+    |   T_NAME T_SL_ASSIGN expr {
+            Node *t;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_SL;
+            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+        }
+    |   T_PRINT expr { $$ = node_new(NODE_PRINT, $2, NULL); $$ = node_list($$, NULL); }
+    |   expr { $$ = node_list($$, NULL); }
 ;
 
 %%

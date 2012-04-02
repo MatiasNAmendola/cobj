@@ -11,8 +11,8 @@ COObject *
 co_compile(void)
 {
     // init
-    c.consts = COList_New(0);
-    c.names = COList_New(0);
+    c.consts = CODict_New();
+    c.names = CODict_New();
     c.bytecode = COBytes_FromStringN(NULL, DEFAULT_BYTECODE_SIZE);
     c.bytecode_offset = 0;
     c.instr = NULL;
@@ -96,16 +96,28 @@ compile_addop_i(int opcode, int oparg)
     return 0;
 }
 
-static int
-compile_visit_const(Node *n)
-{
-    if (n->type != NODE_CONST) {
-        error("fatal");
-    }
 
-    COList_Append(c.consts, n->o);
-    return compile_addop_i(OP_LOAD_CONST, COList_Size(c.consts) - 1);
+/*
+ * Add const/name and return index.
+ */
+static int
+compile_add(COObject *dict, COObject *o)
+{
+    int arg;
+    COObject *v;
+    v = CODict_GetItem(dict, o);
+    if (!v) {
+        arg = CODict_Size(dict);
+        v = COInt_FromLong(arg);
+        if (CODict_SetItem(dict, o, v) < 0) {
+            return -1;
+        }
+    } else {
+        arg = COInt_AsLong(v);
+    }
+    return arg;
 }
+
 
 static int compile_visit_node(Node *n);
 
@@ -120,6 +132,7 @@ compile_visit_nodelist(NodeList *l)
 static int
 compile_visit_node(Node *n)
 {
+    int oparg;
     switch (n->type) {
     case NODE_PRINT:
         compile_visit_node(n->left);
@@ -129,7 +142,8 @@ compile_visit_node(Node *n)
         compile_addop(OP_RETURN);
         break;
     case NODE_CONST:
-        compile_visit_const(n);
+        oparg = compile_add(c.consts, n->o);
+        compile_addop_i(OP_LOAD_CONST, oparg);
         break;
     case NODE_BIN:
         compile_visit_node(n->left);
@@ -152,6 +166,15 @@ compile_visit_node(Node *n)
         compile_visit_node(n->left);
         compile_visit_node(n->right);
         compile_addop(OP_DICT_ADD);
+        break;
+    case NODE_NAME:
+        oparg = compile_add(c.names, n->o);
+        compile_addop_i(OP_LOAD_NAME, oparg);
+        break;
+    case NODE_ASSIGN:
+        compile_visit_node(n->right);
+        oparg = compile_add(c.names, n->left->o);
+        compile_addop_i(OP_ASSIGN, oparg);
         break;
     default:
         error("unknow node type: %d, %s", n->type, node_type(n->type));
@@ -255,17 +278,24 @@ dump_bytecode(char *bytecode)
 #define NEXTARG()   (bytecode += 2, (bytecode[-1]<<8) + bytecode[-2])
 
     unsigned char opcode;
+    int oparg;
     for (;;) {
         opcode = NEXTOP();
         printf("%s", opcode_name(opcode));
         switch (opcode) {
         case OP_LOAD_CONST:
-            printf("    %d", NEXTARG());
+            oparg = NEXTARG();
+            printf("\t\t%d", oparg);
             break;
         case OP_PRINT:
             break;
         case OP_RETURN:
             return;
+        case OP_ASSIGN:
+            printf("\t\t%d", NEXTARG());
+            break;
+        case OP_LOAD_NAME:
+            printf("\t\t%d", NEXTARG());
             break;
         }
         printf("\n");
@@ -280,11 +310,30 @@ compile_ast(NodeList *l)
 {
     compile_visit_nodelist(l);
     assemble();
-    dump_bytecode(COBytes_AsString(c.bytecode));
+    /*dump_bytecode(COBytes_AsString(c.bytecode));*/
     /*exit(0);*/
 
     /*COObject_dump(c.bytecode);*/
     /*exit(0);*/
+
+    // Dict to List
+    COObject *consts = COList_New(0);
+    COObject *names = COList_New(0);
+    COObject *key;
+    COObject *val;
+    // consts
+    CODict_Rewind(c.consts);
+    while (CODict_Next(c.consts, &key, &val) == 0) {
+        COList_Insert(consts, COInt_AsLong(val), key);
+    }
+    c.consts = consts;
+    // names
+    CODict_Rewind(c.names);
+    while (CODict_Next(c.names, &key, &val) == 0) {
+        COList_Insert(names, COInt_AsLong(val), key);
+    }
+    c.names = names;
+
     return COCode_New(c.bytecode, COList_AsTuple(c.consts), COList_AsTuple(c.names));
 }
 
