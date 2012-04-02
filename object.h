@@ -125,6 +125,8 @@ typedef struct {
     binaryfunc int_add;
     binaryfunc int_sub;
     binaryfunc int_mul;
+    binaryfunc int_div;
+    binaryfunc int_mod;
 } COIntInterface;
 /* ! Object Interfaces */
 

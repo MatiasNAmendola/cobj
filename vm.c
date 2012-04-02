@@ -236,18 +236,16 @@ vm_enter:
                 );
             break;
         case OP_DIV:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(o1) /
-                                           COInt_AsLong(o2)));
+            co1 = CNode_GetObject(&op->arg1);
+            co2 = CNode_GetObject(&op->arg2);
+            co3 = COInt_Type.tp_int_interface->int_div(co1, co2);
+            CNode_SetObject(&op->result, co3);
             break;
         case OP_MOD:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(o1) %
-                                           COInt_AsLong(o2)));
+            co1 = CNode_GetObject(&op->arg1);
+            co2 = CNode_GetObject(&op->arg2);
+            co3 = COInt_Type.tp_int_interface->int_mod(co1, co2);
+            CNode_SetObject(&op->result, co3);
             break;
         case OP_SR:
             o1 = CNode_GetObject(&op->arg1);

@@ -14,8 +14,11 @@ test_expect_result("1\n", "print 0 + 1")
 test_expect_result("2\n", "print 3 - 1")
 # mul
 test_expect_result("121932631112635269\n", "print 123456789 * 987654321")
+# div
 test_expect_result("4\n", "print 100 / 25")
-test_expect_result("5\n", "print 124 % 7")
+# mod
+test_expect_result("-10000\n", "print -111111111111111111111111/11111111111111111111")
+
 test_expect_result("1\n", "print 4 >> 2")
 test_expect_result("4\n", "print 1 << 2")
 test_expect_result("True\n", "print 3 < 10")
