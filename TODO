@@ -7,3 +7,4 @@
 * error message with location
 * implement namespace & scope rules
 * construct AST from parse.y according to ruby
+* % change dividend from divisor

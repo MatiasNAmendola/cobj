@@ -73,6 +73,29 @@
 #endif
 
 #define CHAR_MASK(c) ((unsigned char)((c) & 0xff))
+
+
+/* COARITHMETIC_RIGHT_SHIFT
+ * C doesn't define whether a right-shift of a signed integer sign-extends
+ * or zero-fills.  Here a macro to force sign extension:
+ * COARITHMETIC_RIGHT_SHIFT(TYPE, I, J)
+ *    Return I >> J, forcing sign extension.  Arithmetically, return the
+ *    floor of I/2**J.
+ * Requirements:
+ *    I should have signed integer type.  In the terminology of C99, this can
+ *    be either one of the five standard signed integer types (signed char,
+ *    short, int, long, long long) or an extended signed integer type.
+ *    J is an integer >= 0 and strictly less than the number of bits in the
+ *    type of I (because C doesn't define what happens for J outside that
+ *    range either).
+ *    TYPE used to specify the type of I, but is now ignored.  It's been left
+ *    in for backwards compatibility with versions <= 2.6 or 3.0.
+ * Caution:
+ *    I may be evaluated more than once.
+ */
+#define CO_ARITHMETIC_RIGHT_SHIFT(TYPE, I, J) \
+    ((I) < 0 ? -1-((-1-(I)) >> (J)) : (I) >> (J))
+
 /*** ! Help Macros ***/
 
 #endif

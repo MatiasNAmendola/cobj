@@ -9,6 +9,37 @@
     (CO_SIZE(x) < 0 ? -(sdigit)(x)->co_digit[0] : \
      (CO_SIZE(x) == 0 ? (sdigit) 0 : (sdigit)(x)->co_digit[0]))
 
+/* If a long is already shared (which must be a small integer), negating it must
+ * go to COInt_FromLong */
+#define NEGATE(x) \
+    do if (CO_REFCNT(x) == 1) {         \
+        CO_SIZE(x) = - CO_SIZE(x);      \
+    } else {                            \
+        COObject *tmp = COInt_FromLong(-ONEDIGIT_VALUE(x)); \
+        CO_DECREF(x);                                       \
+        (x) = (COIntObject *)tmp;                           \
+    } while (0);
+
+/* bits_in_digit(d) returns the unique integer k such that 2**(k-1) <= d <
+   2**k if d is nonzero, else 0. */
+
+static const unsigned char BitLengthTable[32] = {
+    0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
+    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 
+};
+
+static int
+bits_in_digit(digit d)
+{
+    int d_bits = 0; 
+    while (d >= 32) {
+        d_bits += 6;
+        d >>= 6;
+    }    
+    d_bits += (int)BitLengthTable[d];
+    return d_bits;
+}
+
 /*
  * Small integers are preallocated in this array so that they can be shared.
  *
@@ -68,7 +99,7 @@ unsigned char digit_values[256] = {
 };
 
 COIntObject *
-_COIntObject_New(ssize_t size)
+_COInt_New(ssize_t size)
 {
     COIntObject *result;
     if (size > MAX_LONG_DIGITS) {
@@ -135,7 +166,7 @@ int_from_binary_base(char **str, int base)
     }
     n = n / COInt_SHIFT;
 
-    o = _COIntObject_New(n);
+    o = _COInt_New(n);
     if (!o) {
         return NULL;
     }
@@ -188,7 +219,7 @@ int_repr(COIntObject *this)
 
     /* TODO check overflow */
     size = 1 + size_a * COInt_SHIFT / (3 * COInt_DECIMAL_SHIFT);
-    scratch = _COIntObject_New(size);
+    scratch = _COInt_New(size);
     if (scratch == NULL)
         return NULL;
 
@@ -303,7 +334,7 @@ x_sub(COIntObject *a, COIntObject *b)
         }
         size_a = size_b = i + 1;
     }
-    o = _COIntObject_New(size_a);
+    o = _COInt_New(size_a);
     if (!o)
         return NULL;
 
@@ -322,7 +353,7 @@ x_sub(COIntObject *a, COIntObject *b)
     }
     assert(borrow == 0);
     if (sign < 0)
-        CO_SIZE(o) = -(CO_SIZE(o));
+        NEGATE(o);
     return int_normalize(o);
 }
 
@@ -348,7 +379,7 @@ x_add(COIntObject *a, COIntObject *b)
             size_b = size_tmp;
         }
     }
-    o = _COIntObject_New(size_a + 1);
+    o = _COInt_New(size_a + 1);
     if (!o)
         return NULL;
 
@@ -378,7 +409,7 @@ x_mul(COIntObject *a, COIntObject *b)
     COIntObject *o;
     ssize_t i;
     
-    o = _COIntObject_New(size_a + size_b);
+    o = _COInt_New(size_a + size_b);
     if (!o)
         return NULL;
 
@@ -434,6 +465,170 @@ x_mul(COIntObject *a, COIntObject *b)
     return int_normalize(o);
 }
 
+/* Shift digit vector a[0:m] d bits left, with 0 <= d < COInt_SHIFT.  Put
+ * result in z[0:m], and return the d bits shifted out of the top.
+ */ 
+static digit 
+v_lshift(digit *z, digit *a, ssize_t m, int d)
+{   
+    ssize_t i;
+    digit carry = 0;
+        
+    assert(0 <= d && d < COInt_SHIFT);
+    for (i=0; i < m; i++) {
+        twodigits acc = (twodigits)a[i] << d | carry;
+        z[i] = (digit)acc & COInt_MASK;
+        carry = (digit)(acc >> COInt_SHIFT);
+    }
+    return carry;
+}       
+
+/* Shift digit vector a[0:m] d bits right, with 0 <= d < COInt_SHIFT.  Put
+ * result in z[0:m], and return the d bits shifted out of the bottom.
+ */             
+static digit    
+v_rshift(digit *z, digit *a, ssize_t m, int d)
+{               
+    ssize_t i;
+    digit carry = 0;
+    digit mask = ((digit)1 << d) - 1U;
+        
+    assert(0 <= d && d < COInt_SHIFT);
+    for (i=m; i-- > 0;) {
+        twodigits acc = (twodigits)carry << COInt_SHIFT | a[i];
+        carry = (digit)acc & mask;
+        z[i] = (digit)(acc >> d);
+    }
+    return carry;
+}
+
+/*
+ * Divide the absolute values of two integers with remainder.
+ *
+ * The arguments v1 and w1 should satisfy 2 <= ABS(CO_SIZE(w1)) <=
+ * ABS(CO_SIZE(v1).
+ */
+static COIntObject *
+x_divrem(COIntObject *v1, COIntObject *w1, COIntObject **prem)
+{
+    COIntObject *v, *w, *a;
+    size_t i, k, size_v, size_w;
+    int d;
+    digit wm1, wm2, carry, q, r, vtop, *v0, *vk, *w0, *ak;
+    twodigits vv;
+    sdigit zhi;
+    stwodigits z;
+
+    /*
+     * We follow Kunth [TAOCP, Vol.2 (3rd, edn), section 4.3.1, Algorithm D],
+     * except that we don't explicitly handle the special case when the initial
+     * estimate q for a quotinent digit is >= COInt_BASE: the max value for q is
+     * COInt_BASE+1, and that won't overflow a digit.
+     */
+
+    // allocate space, w will also be used to hold the final remainder
+    size_v = ABS(CO_SIZE(v1));
+    size_w = ABS(CO_SIZE(w1));
+    assert(size_v >= size_w && size_w >= 2);
+
+    v = _COInt_New(size_v + 1);
+    if (!v) {
+        *prem = NULL;
+        return NULL;
+    }
+
+    w = _COInt_New(size_w);
+    if (!w) {
+        CO_DECREF(v);
+        *prem = NULL;
+        return NULL;
+    }
+
+    /* normalize: shift w1 left so that its top digit is >= COInt_BASE/2.
+       shift v1 left by the same amount.  Results go into w and v. */
+    d = COInt_SHIFT - bits_in_digit(w1->co_digit[size_w-1]);
+    carry = v_lshift(w->co_digit, w1->co_digit, size_w, d);
+    assert(carry == 0);
+    carry = v_lshift(v->co_digit, v1->co_digit, size_v, d);
+    if (carry != 0 || v->co_digit[size_v-1] >= w->co_digit[size_w-1]) {
+        v->co_digit[size_v] = carry;
+        size_v++;
+    }
+
+    /* Now v->co_digit[size_v-1] < w->co_digit[size_w-1], so quotient has
+       at most (and usually exactly) k = size_v - size_w digits. */
+    k = size_v - size_w;
+    assert(k >= 0);
+    a = _COInt_New(k);
+    if (a == NULL) {
+        CO_DECREF(w);
+        CO_DECREF(v);
+        *prem = NULL;
+        return NULL;
+    }
+    v0 = v->co_digit;
+    w0 = w->co_digit;
+    wm1 = w0[size_w-1];
+    wm2 = w0[size_w-2];
+
+
+    for (vk = v0+k, ak = a->co_digit + k; vk-- > v0;) {
+        /* inner loop: divide vk[0:size_w+1] by w0[0:size_w], giving
+           single-digit quotient q, remainder in vk[0:size_w]. */
+
+
+        /* estimate quotient digit q; may overestimate by 1 (rare) */
+        vtop = vk[size_w];
+        assert(vtop <= wm1);
+        vv = ((twodigits)vtop << COInt_SHIFT) | vk[size_w-1];
+        q = (digit)(vv / wm1);
+        r = (digit)(vv - (twodigits)wm1 * q); /* r = vv % wm1 */
+        while ((twodigits)wm2 * q > (((twodigits)r << COInt_SHIFT)
+                                     | vk[size_w-2])) {
+            --q;
+            r += wm1;
+            if (r >= COInt_BASE)
+                break;
+        }
+        assert(q <= COInt_BASE);
+
+        /* subtract q*w0[0:size_w] from vk[0:size_w+1] */
+        zhi = 0;
+        for (i = 0; i < size_w; ++i) {
+            /* invariants: -COInt_BASE <= -q <= zhi <= 0;
+               -COInt_BASE * q <= z < COInt_BASE */
+            z = (sdigit)vk[i] + zhi -
+                (stwodigits)q * (stwodigits)w0[i];
+            vk[i] = (digit)z & COInt_MASK;
+            zhi = (sdigit)CO_ARITHMETIC_RIGHT_SHIFT(stwodigits,
+                                                    z, COInt_SHIFT);
+        }
+        /* add w back if q was too large (this branch taken rarely) */
+        assert((sdigit)vtop + zhi == -1 || (sdigit)vtop + zhi == 0);
+        if ((sdigit)vtop + zhi < 0) {
+            carry = 0;
+            for (i = 0; i < size_w; ++i) {
+                carry += vk[i] + w0[i];
+                vk[i] = carry & COInt_MASK;
+                carry >>= COInt_SHIFT;
+            }
+            --q;
+        }
+
+        /* store quotient digit */
+        assert(q < COInt_BASE);
+        *--ak = q;
+    }
+
+    /* unshift remainder; we reuse w to store the result */
+    carry = v_rshift(w0, v0, size_w, d);
+    assert(carry==0);
+    CO_DECREF(v);
+
+    *prem = int_normalize(w);
+    return int_normalize(a);
+}
+
 static COIntObject *
 int_add(COIntObject *a, COIntObject *b)
 {
@@ -448,7 +643,7 @@ int_add(COIntObject *a, COIntObject *b)
         if (CO_SIZE(b) < 0) {
             o = x_add(a, b);
             if (o != NULL && CO_SIZE(o) != 0)
-                CO_SIZE(o) = -(CO_SIZE(o));
+                NEGATE(o);
         } else {
             o = x_sub(b, a);
         }
@@ -479,7 +674,7 @@ int_sub(COIntObject *a, COIntObject *b)
             o = x_add(a, b);
         }
         if (o && CO_SIZE(o) != 0)
-            CO_SIZE(o) = -(CO_SIZE(o));
+            NEGATE(o);
     } else {
         if (CO_SIZE(b) < 0) {
             o = x_add(a, b);
@@ -501,15 +696,132 @@ int_mul(COIntObject *a, COIntObject *b)
 
     /* Negate if exactly one of operands is negative. */
     if ((CO_SIZE(a) ^ CO_SIZE(b)) < 0)
-        CO_SIZE(o) = -(CO_SIZE(o));
+        NEGATE(o);
 
     return o;
+}
+
+/*
+ * Divide pin with size digits, by non-zero digit n, storing quotient in pout,
+ * and returning the remainer.
+ */
+static digit
+inplace_divrem1(digit *pout, digit *pin, ssize_t size, digit n)
+{
+    twodigits rem = 0;
+    assert(n > 0 && n <= COInt_MASK);
+    pin += size;
+    pout += size;
+    while (--size >= 0) {
+        digit hi;
+        rem = (rem << COInt_SHIFT) | *--pin;
+        *--pout = hi = (digit)(rem / n);
+        rem -= (twodigits)hi * n;
+    }
+    return (digit)rem;
+}
+
+/*
+ * Divide a int object by a digit, returning both the quotient (as function
+ * result) and the remainder (through *prem).
+ * The sign of a is ignored; n should not be zero.
+ */
+static COIntObject *
+divrem1(COIntObject *a, digit n, digit *prem)
+{
+    const ssize_t size = ABS(CO_SIZE(a));
+    COIntObject *o;
+    o = _COInt_New(size);
+    if (!o)
+        return NULL;
+    *prem = inplace_divrem1(o->co_digit, a->co_digit, size, n);
+    return int_normalize(o);
+}
+
+/* 
+ * Division with remainder.
+ */
+static int
+int_divrem(COIntObject *a, COIntObject *b, COIntObject **pdiv, COIntObject **prem)
+{
+    ssize_t size_a = ABS(CO_SIZE(a));
+    ssize_t size_b = ABS(CO_SIZE(b));
+    COIntObject *o;
+
+    if (size_b == 0) {
+        COErr_SetString(COException_ValueError, "integer division or modulo by zero");
+        return -1;
+    }
+
+    // If |a| < |b|, it's simple.
+    if (size_a < size_b ||
+        (size_a == size_b && a->co_digit[size_a - 1] < b->co_digit[size_b - 1])) {
+        *pdiv = (COIntObject *)COInt_FromLong(0);
+        if (!*pdiv)
+            return -1;
+        CO_INCREF(a);
+        *prem = (COIntObject *)a;
+        return 0;
+    }
+
+    if (size_b == 1) {
+        digit rem = 0;
+        o = divrem1(a, b->co_digit[0], &rem);
+        if (!o)
+            return -1;
+        *prem = (COIntObject *)COInt_FromLong((long)rem);
+        if (!*prem) {
+            CO_DECREF(o);
+            return -1;
+        }
+    } else {
+        o = x_divrem(a, b, prem);
+        if (!o)
+            return -1;
+    }
+
+    // Set the sign.
+    if ((CO_SIZE(a) ^ CO_SIZE(b)) < 0)
+        NEGATE(o);
+    if (CO_SIZE(a) < 0 && CO_SIZE(*prem) != 0)
+        NEGATE(*prem);
+
+    *pdiv = maybe_small_int(o);
+    return 0;
+}
+
+static COIntObject *
+int_div(COIntObject *a, COIntObject *b)
+{
+    COIntObject *div;
+    COIntObject *rem;
+
+    if (int_divrem(a, b, &div, &rem) < 0) {
+        div = NULL;
+        rem = NULL;
+    }
+    return div;
+}
+
+static COIntObject *
+int_mod(COIntObject *a, COIntObject *b)
+{
+    COIntObject *div;
+    COIntObject *rem;
+
+    if (int_divrem(a, b, &div, &rem) < 0) {
+        div = NULL;
+        rem = NULL;
+    }
+    return rem;
 }
 
 static COIntInterface int_interface = {
     (binaryfunc)int_add,
     (binaryfunc)int_sub,
     (binaryfunc)int_mul,
+    (binaryfunc)int_div,
+    (binaryfunc)int_mod,
 };
 
 static long
@@ -682,7 +994,7 @@ COInt_FromString(char *s, char **pend, int base)
          * with this base and length.
          */
         size = (ssize_t) ((scan - s) * log_base_BASE[base]) + 1;
-        o = _COIntObject_New(size);
+        o = _COInt_New(size);
         if (!o)
             return NULL;
         CO_SIZE(o) = 0;
@@ -790,7 +1102,7 @@ COInt_FromLong(long ival)
 
     /* single-digit int */
     if (!(abs_ival >> COInt_SHIFT)) {
-        o = _COIntObject_New(1);
+        o = _COInt_New(1);
         if (!o) {
             return NULL;
         }
@@ -807,7 +1119,7 @@ COInt_FromLong(long ival)
         ++ndigits;
         t >>= COInt_SHIFT;
     }
-    o = _COIntObject_New(ndigits);
+    o = _COInt_New(ndigits);
     if (!o) {
         return NULL;
     }
