@@ -9,7 +9,6 @@ enum status_code {
 /* execution frame */
 struct co_exec_data {
     struct co_exec_data *prev_exec_data;
-    COOplineObject **op;
     COObject *function_called;
     COObject *symbol_table;     /* dict object for names */
     COObject **ts;              /* temp objects */

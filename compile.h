@@ -12,21 +12,6 @@
  */
 #define CODEDUMP_MAGIC  (314 << 16 | 'c' << 8 | 'o')
 
-/** cnode type **/
-#define IS_CONST        (1<<0)
-#define IS_TMP_VAR      (1<<1)
-#define IS_VAR          (1<<2)
-#define IS_UNUSED       (1<<3)
-
-struct cnode {
-    int type;
-    union {
-        COObject *co;
-        uint var;
-        int opline_num;
-    } u;
-};
-
 // compiler
 struct instr {
     unsigned int i_hasarg : 1;

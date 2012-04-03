@@ -387,7 +387,7 @@ compile_ast(NodeList *l)
 {
     compile_visit_nodelist(l);
     assemble();
-    /*dump_bytecode(COBytes_AsString(c.bytecode));*/
+    dump_bytecode(COBytes_AsString(c.bytecode));
     /*exit(0);*/
 
     /*COObject_dump(c.bytecode);*/

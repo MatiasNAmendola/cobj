@@ -48,7 +48,6 @@
 #include "objects/frameobject.h"
 #include "objects/dictobject.h"
 #include "objects/codeobject.h"
-#include "objects/oplineobject.h"
 #include "objects/bytesobject.h"
 #include "objects/fileobject.h"
 #include "objects/exceptionobject.h"

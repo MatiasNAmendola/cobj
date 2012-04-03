@@ -79,7 +79,7 @@ _dict_lookup(CODictObject *this, COObject *key)
 
     h = COObject_hash(key);
     if (h == -1)
-        return -1;
+        return NULL;
 
     nIndex = h & this->nTableMask;
     p = this->arBuckets[nIndex];
