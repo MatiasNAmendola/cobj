@@ -8,7 +8,7 @@
 %pure_parser
 %debug
 %error-verbose
-%expect 1
+%expect 2
 
 %union {
     Node *node;    
@@ -56,8 +56,13 @@
 %% /* Context-Free Grammar (BNF) */
 
 start: stmt_list { 
-     c->xtop = $$; 
-     c->xtop = node_concat(c->xtop, node_list(node_new(NODE_RETURN, NULL, NULL), NULL));
+        if ($$) {
+            c->xtop = $$; 
+            c->xtop = node_concat($$, node_list(node_new(NODE_RETURN, NULL, NULL), NULL));
+        } else {
+            c->xtop = node_list(node_new(NODE_RETURN, NULL, NULL),
+            NULL);
+        }
     }
 ;
 
@@ -126,6 +131,10 @@ expr: /* express something */
     |   '{' assoc_list '}' {
             $$ = node_new(NODE_DICT_BUILD, NULL, NULL);
             $$->list = $2;
+        }
+    |   T_NAME '(' expr_list ')' {
+            $$ = node_new(NODE_FUNC_CALL, $1, NULL);
+            $$->list = $3;
         }
 ;
 

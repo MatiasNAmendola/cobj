@@ -1,78 +1,122 @@
 #include "co.h"
 
-struct compiler c;
-
 #define DEFAULT_INSTR_SIZE      64
 #define DEFAULT_BYTECODE_SIZE   64
 
-COObject *compile_ast(NodeList *l);
+COObject *compile_ast(struct compiler *c);
+static int compile_visit_node(struct compiler *c, Node *n);
+static COObject *assemble(struct compiler *c);
+
+static void
+compiler_unit_free(struct compiler_unit *u)
+{
+    // TODO
+}
+
+static void
+compiler_enter_scope(struct compiler *c)
+{
+    struct compiler_unit *u;
+    u = (struct compiler_unit *)COMem_MALLOC(sizeof(struct compiler_unit));
+    if (!u) {
+        return;
+    }
+    memset(u, 0, sizeof(struct compiler_unit));
+
+    u->consts = CODict_New();
+    u->names = CODict_New();
+    u->bytecode = COBytes_FromStringN(NULL, DEFAULT_BYTECODE_SIZE);
+    u->bytecode_offset = 0;
+
+    /* Push the old compiler_unit on the stack. */
+    if (c->u) {
+        if (COList_Append(c->stack, (COObject *)c->u) < 0) {
+            compiler_unit_free(u);
+            return;
+        }
+    }
+    c->u = u;
+    c->nestlevel++;
+}
+
+static void
+compiler_exit_scope(struct compiler *c)
+{
+    int n;
+    c->nestlevel--;
+    compiler_unit_free(c->u);
+
+    /* Restore c->U to the parent unit. */
+    n = COList_Size(c->stack) - 1;
+    if (n >= 0) {
+        c->u = (struct compiler_unit *)COList_GetItem(c->stack, n);
+    } else {
+        c->u = NULL;
+    }
+}
 
 COObject *
-co_compile(void)
+compile(void)
 {
     // init
-    c.consts = CODict_New();
-    c.names = CODict_New();
-    c.bytecode = COBytes_FromStringN(NULL, DEFAULT_BYTECODE_SIZE);
-    c.bytecode_offset = 0;
-    c.instr = NULL;
+    struct compiler c;
+    memset(&c, 0, sizeof(struct compiler));
+    c.stack = COList_New(0);
 
     // do parse
     coparse(&c);
 
-    /*node_listtree(c.xtop);*/
-    /*exit(0);*/
-
-    return compile_ast(c.xtop);
+    return compile_ast(&c);
 }
+
 
 /*
  * Get next instruction.
  * Resizes instruction array as necessary.
  */
 static int
-compile_next_instr(void)
+compile_next_instr(struct compiler *c)
 {
-    if (c.instr == NULL) {
-        c.instr = (struct instr *)COMem_MALLOC(sizeof(struct instr) * DEFAULT_INSTR_SIZE);
-        if (!c.instr) {
+    if (c->u->instr == NULL) {
+        c->u->instr = (struct instr *)COMem_MALLOC(sizeof(struct instr) * DEFAULT_INSTR_SIZE);
+        if (!c->u->instr) {
             // TODO errors
             return -1;
         }
-        c.ialloc = DEFAULT_INSTR_SIZE;
-        c.iused = 0;
-        memset(c.instr, 0, sizeof(struct instr) * DEFAULT_INSTR_SIZE);
-    } else if (c.iused == c.ialloc) {
+        c->u->ialloc = DEFAULT_INSTR_SIZE;
+        c->u->iused = 0;
+        memset(c->u->instr, 0, sizeof(struct instr) * DEFAULT_INSTR_SIZE);
+    } else if (c->u->iused == c->u->ialloc) {
         size_t oldsize, newsize;
-        oldsize = c.ialloc * sizeof(struct instr);
+        oldsize = c->u->ialloc * sizeof(struct instr);
         newsize = oldsize << 1;
         if (oldsize > (SIZE_MAX >> 1) || newsize == 0) {
             // TODO errors
             return -1;
         }
-        c.ialloc <<= 1;
-        c.instr = (struct instr *)COMem_REALLOC(c.instr, newsize);
-        if (!c.instr) {
+        c->u->ialloc <<= 1;
+        c->u->instr = (struct instr *)COMem_REALLOC(c->u->instr, newsize);
+        if (!c->u->instr) {
             // TODO errors
             return -1;
         }
-        memset(c.instr + oldsize, 0, newsize - oldsize);
+        memset(c->u->instr + oldsize, 0, newsize - oldsize);
     }
-    return c.iused++;
+    return c->u->iused++;
 }
 
 /*
  * Add an opcode with no argument.
  */
 static int
-compile_addop(int opcode)
+compile_addop(struct compiler *c, int opcode)
 {
     struct instr *i;
     int off;
-    off = compile_next_instr();
+    off = compile_next_instr(c);
     if (off < 0)
         return -1;
-    i = &c.instr[off];
+    i = &c->u->instr[off];
     i->i_opcode = opcode;
     i->i_hasarg = 0;
     return 0;
@@ -82,14 +126,14 @@ compile_addop(int opcode)
  * Add an opcode with an integer argument.
  */
 static int
-compile_addop_i(int opcode, int oparg)
+compile_addop_i(struct compiler *c, int opcode, int oparg)
 {
     struct instr *i;
     int off;
-    off = compile_next_instr();
+    off = compile_next_instr(c);
     if (off < 0)
         return -1;
-    i = &c.instr[off];
+    i = &c->u->instr[off];
     i->i_opcode = opcode;
     i->i_oparg = oparg;
     i->i_hasarg = 1;
@@ -122,89 +166,107 @@ compile_add(COObject *dict, COObject *o)
  * Backpatch instruction.
  */
 static void
-compile_backpatch(int offset)
+compile_backpatch(struct compiler *c, int offset)
 {
-    c.instr[offset].i_oparg = c.iused - offset;
+    c->u->instr[offset].i_oparg = c->u->iused - offset;
 }
 
-static int compile_visit_node(Node *n);
-
 static void
-compile_visit_nodelist(NodeList *l)
+compile_visit_nodelist(struct compiler *c, NodeList *l)
 {
+    if (!l)
+        return;
+
     for (; l; l = l->next) {
-        compile_visit_node(l->n);
+        compile_visit_node(c, l->n);
     }
 }
 
 static int
-compile_visit_node(Node *n)
+compile_visit_node(struct compiler *c, Node *n)
 {
     int oparg;
     switch (n->type) {
     case NODE_PRINT:
-        compile_visit_node(n->left);
-        compile_addop(OP_PRINT);
+        compile_visit_node(c, n->left);
+        compile_addop(c, OP_PRINT);
         break;
     case NODE_RETURN:
-        compile_addop(OP_RETURN);
+        compile_addop(c, OP_RETURN);
         break;
     case NODE_CONST:
-        oparg = compile_add(c.consts, n->o);
-        compile_addop_i(OP_LOAD_CONST, oparg);
+        oparg = compile_add(c->u->consts, n->o);
+        compile_addop_i(c, OP_LOAD_CONST, oparg);
         break;
     case NODE_BIN:
-        compile_visit_node(n->left);
-        compile_visit_node(n->right);
-        compile_addop(n->op);
+        compile_visit_node(c, n->left);
+        compile_visit_node(c, n->right);
+        compile_addop(c, n->op);
         break;
     case NODE_LIST_BUILD:
-        compile_addop(OP_LIST_BUILD);
-        compile_visit_nodelist(n->list);
+        compile_addop(c, OP_LIST_BUILD);
+        compile_visit_nodelist(c, n->list);
         break;
     case NODE_LIST_ADD:
-        compile_visit_node(n->left);
-        compile_addop(OP_LIST_ADD);
+        compile_visit_node(c, n->left);
+        compile_addop(c, OP_LIST_ADD);
         break;
     case NODE_DICT_BUILD:
-        compile_addop(OP_DICT_BUILD);
-        compile_visit_nodelist(n->list);
+        compile_addop(c, OP_DICT_BUILD);
+        compile_visit_nodelist(c, n->list);
         break;
     case NODE_DICT_ADD:
-        compile_visit_node(n->left);
-        compile_visit_node(n->right);
-        compile_addop(OP_DICT_ADD);
+        compile_visit_node(c, n->left);
+        compile_visit_node(c, n->right);
+        compile_addop(c, OP_DICT_ADD);
         break;
     case NODE_NAME:
-        oparg = compile_add(c.names, n->o);
-        compile_addop_i(OP_LOAD_NAME, oparg);
+        oparg = compile_add(c->u->names, n->o);
+        compile_addop_i(c, OP_LOAD_NAME, oparg);
         break;
     case NODE_ASSIGN:
-        compile_visit_node(n->right);
-        oparg = compile_add(c.names, n->left->o);
-        compile_addop_i(OP_ASSIGN, oparg);
+        compile_visit_node(c, n->right);
+        oparg = compile_add(c->u->names, n->left->o);
+        compile_addop_i(c, OP_ASSIGN, oparg);
         break;
     case NODE_IF:
-        compile_visit_node(n->ntest);
-        int offset = compile_addop_i(OP_JMPZ, -1);
-        compile_visit_nodelist(n->nbody);
-        int offset_else = compile_addop_i(OP_JMP, -1);
-        compile_backpatch(offset);
-        compile_visit_nodelist(n->nelse);
-        compile_backpatch(offset_else);
+        compile_visit_node(c, n->ntest);
+        int offset = compile_addop_i(c, OP_JMPZ, -1);
+        compile_visit_nodelist(c, n->nbody);
+        int offset_else = compile_addop_i(c, OP_JMP, -1);
+        compile_backpatch(c, offset);
+        compile_visit_nodelist(c, n->nelse);
+        compile_backpatch(c, offset_else);
         break;
     case NODE_WHILE:
         {
-        int while_start = c.iused;
-        compile_visit_node(n->ntest);
-        int offset = compile_addop_i(OP_JMPZ, -1);
-        compile_visit_nodelist(n->nbody);
-        compile_addop_i(OP_JMPX, while_start);
-        compile_backpatch(offset);
+        int while_start = c->u->iused;
+        compile_visit_node(c, n->ntest);
+        int offset = compile_addop_i(c, OP_JMPZ, -1);
+        compile_visit_nodelist(c, n->nbody);
+        compile_addop_i(c, OP_JMPX, while_start);
+        compile_backpatch(c, offset);
         }
         break;
     case NODE_FUNC:
-        oparg = compile_add(c.names, n->nfuncname->o);
+        {
+            /*compiler_enter_scope(c);*/
+            /*compile_visit_nodelist(c, n->nfuncbody);*/
+            /*COObject *co = assemble(c);*/
+            /*COObject_dump(co);*/
+            /*compiler_exit_scope(c);*/
+            /*oparg = compile_add(c->u->consts, co);*/
+            /*compile_addop_i(c, OP_LOAD_CONST, oparg);*/
+        
+            /*compile_addop(c, OP_DECLARE_FUNCTION);*/
+
+            /*oparg = compile_add(c->u->names, n->nfuncname->o);*/
+            /*compile_addop_i(c, OP_ASSIGN, oparg);*/
+        }
+        break;
+    case NODE_FUNC_CALL:
+        compile_visit_node(c, n->left);
+        compile_addop(c, OP_DO_FCALL);
         break;
     default:
         error("unknown node type: %d, %s", n->type, node_type(n->type));
@@ -226,22 +288,26 @@ instrsize(struct instr *i)
  * Compute jump offset before emit bytecode.
  */
 static void
-assemble_jump_offsets()
+assemble_jump_offsets(struct compiler *c)
 {
     int i;
     int j;
-    for (i = 0; i < c.iused; i++) {
-        struct instr *instr = c.instr + i;
+    for (i = 0; i < c->u->iused; i++) {
+        struct instr *instr = c->u->instr + i;
         int offset = 0;
-        if (instr->i_opcode == OP_JMPZ || instr->i_opcode == OP_JMP) {
+        if (instr->i_opcode == OP_JMPZ
+            || instr->i_opcode == OP_JMP
+            || instr->i_opcode == OP_DECLARE_FUNCTION) {
+            // relatively
             for (j = 1; j < instr->i_oparg; j++) {
                 struct instr *subinstr = instr + j;
                 offset += instrsize(subinstr);
             }
             instr->i_oparg = offset;
         } else if (instr->i_opcode == OP_JMPX) {
+            // absolutely
             for (j = 0; j < instr->i_oparg; j++) {
-                struct instr *subinstr = instr + j;
+                struct instr *subinstr = c->u->instr + j;
                 offset += instrsize(subinstr);
             }
             instr->i_oparg = offset;
@@ -253,21 +319,21 @@ assemble_jump_offsets()
  * Assemble instruction into bytecode.
  */
 static int
-assemble_emit(struct instr *i)
+assemble_emit(struct compiler *c, struct instr *i)
 {
-    size_t len = COBytes_Size(c.bytecode);
+    size_t len = COBytes_Size(c->u->bytecode);
     int size;
 
     size = instrsize(i);
 
     // resize if necessary 
-    if (c.bytecode_offset + size >= len) {
-        if (COBytes_Resize(c.bytecode, len * 2) < 0)
+    if (c->u->bytecode_offset + size >= len) {
+        if (COBytes_Resize(c->u->bytecode, len * 2) < 0)
             return -1;
     }
 
-    char *code = COBytes_AsString(c.bytecode) + c.bytecode_offset;
-    c.bytecode_offset += size;
+    char *code = COBytes_AsString(c->u->bytecode) + c->u->bytecode_offset;
+    c->u->bytecode_offset += size;
     *code++ = i->i_opcode;
     if (i->i_hasarg) {
         *code++ = i->i_oparg & 0xff;
@@ -277,20 +343,44 @@ assemble_emit(struct instr *i)
     return 0;
 }
 
-static int
-assemble(void)
+/*
+ * Assemble instructions into code object.
+ */
+static COObject *
+assemble(struct compiler *c)
 {
-    assemble_jump_offsets();
+    assemble_jump_offsets(c);
 
     int i;
-    for (i = 0; i < c.iused; i++) {
-        assemble_emit(c.instr + i);
+    for (i = 0; i < c->u->iused; i++) {
+        assemble_emit(c, c->u->instr + i);
     }
 
-    COBytes_Resize(c.bytecode, c.bytecode_offset);
-    return 0;
+    COBytes_Resize(c->u->bytecode, c->u->bytecode_offset);
+
+    // Dict to List
+    COObject *consts = COList_New(0);
+    COObject *names = COList_New(0);
+    COObject *key;
+    COObject *val;
+    // consts
+    CODict_Rewind(c->u->consts);
+    while (CODict_Next(c->u->consts, &key, &val) == 0) {
+        COList_Insert(consts, COInt_AsLong(val), key);
+    }
+    c->u->consts = consts;
+    // names
+    CODict_Rewind(c->u->names);
+    while (CODict_Next(c->u->names, &key, &val) == 0) {
+        COList_Insert(names, COInt_AsLong(val), key);
+    }
+    c->u->names = names;
+
+    return COCode_New(c->u->bytecode, COList_AsTuple(c->u->consts), COList_AsTuple(c->u->names));
 }
 
+
+#ifdef CO_DEBUG
 static char *
 opcode_name(unsigned char opcode)
 {
@@ -339,10 +429,11 @@ opcode_name(unsigned char opcode)
 }
 
 static void
-dump_bytecode(char *bytecode)
+dump_code(COObject *code)
 {
 #define NEXTOP()    (*bytecode++)
 #define NEXTARG()   (bytecode += 2, (bytecode[-1]<<8) + bytecode[-2])
+    char *bytecode = COBytes_AsString(((COCodeObject *)code)->co_code);
     char *start = bytecode;
     unsigned char opcode;
     int oparg;
@@ -357,7 +448,9 @@ dump_bytecode(char *bytecode)
         case OP_PRINT:
             break;
         case OP_RETURN:
+            printf("\n");
             return;
+            break;
         case OP_ASSIGN:
             printf("\t\t%d", NEXTARG());
             break;
@@ -373,302 +466,31 @@ dump_bytecode(char *bytecode)
         case OP_JMPX:
             printf("\t\t%d", NEXTARG());
             break;
+        case OP_DECLARE_FUNCTION:
+            printf("\t\t%d", NEXTARG());
+            break;
         }
         printf("\n");
     }
-    printf("\n");
 }
+#endif
 
 /*
  * Compiles an node list (ast) into code object.
  */
 COObject *
-compile_ast(NodeList *l)
+compile_ast(struct compiler *c)
 {
-    compile_visit_nodelist(l);
-    assemble();
-    dump_bytecode(COBytes_AsString(c.bytecode));
-    /*exit(0);*/
+    compiler_enter_scope(c);
+    compile_visit_nodelist(c, c->xtop);
+    COObject *co = assemble(c);
+    compiler_exit_scope(c);
 
-    /*COObject_dump(c.bytecode);*/
-    /*exit(0);*/
-
-    // Dict to List
-    COObject *consts = COList_New(0);
-    COObject *names = COList_New(0);
-    COObject *key;
-    COObject *val;
-    // consts
-    CODict_Rewind(c.consts);
-    while (CODict_Next(c.consts, &key, &val) == 0) {
-        COList_Insert(consts, COInt_AsLong(val), key);
-    }
-    c.consts = consts;
-    // names
-    CODict_Rewind(c.names);
-    while (CODict_Next(c.names, &key, &val) == 0) {
-        COList_Insert(names, COInt_AsLong(val), key);
-    }
-    c.names = names;
-
-    return COCode_New(c.bytecode, COList_AsTuple(c.consts), COList_AsTuple(c.names));
+#ifdef CO_DEBUG
+    dump_code(co);
+#endif
+    return co;
 }
-
-
-/*
-uint
-co_get_next_opline_num(void)
-{
-    return COList_Size(c.c_oplines);
-}
-
-static COOplineObject *
-next_op()
-{
-    COOplineObject *next_op = (COOplineObject *)COOpline_New();
-    next_op->arg1.type = IS_UNUSED;
-    next_op->arg2.type = IS_UNUSED;
-    next_op->result.type = IS_UNUSED;
-
-    COList_Append(c.c_oplines, (COObject *)next_op);
-
-    return next_op;
-}
-
-static uint
-get_temporary_variable()
-{
-    return c.c_numoftmpvars++ * sizeof(COObject *);
-}
-
-void
-co_binary_op(uchar opcode, struct cnode *result, const struct cnode *arg1,
-             const struct cnode *arg2)
-{
-    COOplineObject *op = next_op();
-
-    op->opcode = opcode;
-    op->arg1 = *arg1;
-    op->arg2 = *arg2;
-    op->result.type = IS_TMP_VAR;
-    op->result.u.var = get_temporary_variable();
-    *result = op->result;
-}
-
-void
-co_assign(struct cnode *result, struct cnode *variable,
-          const struct cnode *value)
-{
-    COOplineObject *op;
-
-    op = next_op();
-    op->opcode = OP_ASSIGN;
-    op->arg1 = *variable;
-    op->arg2 = *value;
-    op->result.type = IS_TMP_VAR;
-    op->result.u.var = get_temporary_variable();
-    *result = op->result;
-}
-
-void
-co_print(const struct cnode *arg)
-{
-    COOplineObject *op = next_op();
-
-    op->opcode = OP_PRINT;
-    op->arg1 = *arg;
-}
-
-void
-co_return(const struct cnode *expr)
-{
-    COOplineObject *op = next_op();
-
-    op->opcode = OP_RETURN;
-    op->arg1 = *expr;
-}
-
-void
-co_if_cond(const struct cnode *cond, struct cnode *if_token)
-{
-    int if_cond_opline_num = CO_SIZE(c.c_oplines);
-    COOplineObject *opline = next_op();
-    opline->opcode = OP_JMPZ;
-    opline->arg1 = *cond;
-    if_token->u.opline_num = if_cond_opline_num;
-}
-
-void
-co_if_after_stmt(struct cnode *if_token)
-{
-    int if_after_stmt_op_num = CO_SIZE(c.c_oplines);
-    COOplineObject *opline = next_op();
-    COOplineObject *ifopline =
-        (COOplineObject *)COList_GetItem(c.c_oplines, if_token->u.opline_num);
-    ifopline->arg2.u.opline_num =
-        if_after_stmt_op_num + 1 - if_token->u.opline_num;
-    if_token->u.opline_num = if_after_stmt_op_num;
-    opline->opcode = OP_JMP;
-}
-
-void
-co_if_end(const struct cnode *if_token)
-{
-    int if_end_op_num = CO_SIZE(c.c_oplines);
-    COOplineObject *ifopline =
-        (COOplineObject *)COList_GetItem(c.c_oplines, if_token->u.opline_num);
-    ifopline->arg1.u.opline_num = if_end_op_num - if_token->u.opline_num;
-}
-
-void
-co_while_cond(const struct cnode *cond, struct cnode *while_token)
-{
-    int while_cond_opline_num = CO_SIZE(c.c_oplines);
-    COOplineObject *opline = next_op();
-    opline->opcode = OP_JMPZ;
-    opline->arg1 = *cond;
-    opline->arg2.u.opline_num = while_token->u.opline_num;      // while start
-    while_token->u.opline_num = while_cond_opline_num;
-}
-
-void
-co_while_end(const struct cnode *while_token)
-{
-    // add unconditional jumpback
-    int while_end_opline_num = CO_SIZE(c.c_oplines);
-    COOplineObject *op = next_op();
-    op->opcode = OP_JMP;
-    COOplineObject *whileopline = (COOplineObject *)COList_GetItem(c.c_oplines,
-                                                                   while_token->u.opline_num);
-    op->arg1.u.opline_num = whileopline->arg2.u.opline_num - while_end_opline_num;      // while start offset
-
-    int while_end_stmt_op_num = CO_SIZE(c.c_oplines);
-    whileopline->arg2.u.opline_num =
-        while_end_stmt_op_num - while_token->u.opline_num;
-}
-
-void
-co_begin_func_declaration(struct cnode *func_token, struct cnode *func_name)
-{
-    COOplineObject *op;
-    int func_opline_num = CO_SIZE(c.c_oplines);
-    op = next_op();
-    op->opcode = OP_DECLARE_FUNCTION;
-    if (func_name) {
-        op->arg1 = *func_name;
-    }
-    func_token->u.opline_num = func_opline_num;
-}
-
-void
-co_end_func_declaration(const struct cnode *func_token, struct cnode *result)
-{
-    COOplineObject *op = next_op();
-    op->opcode = OP_RETURN;
-
-    int func_end_opline_num = CO_SIZE(c.c_oplines);
-    COOplineObject *funcopline =
-        (COOplineObject *)COList_GetItem(c.c_oplines, func_token->u.opline_num);
-    funcopline->arg2.u.opline_num =
-        func_end_opline_num - func_token->u.opline_num - 1;
-
-    if (result) {
-        funcopline->result.type = IS_TMP_VAR;
-        funcopline->result.u.var = get_temporary_variable();
-        *result = funcopline->result;
-    }
-}
-
-void
-co_end_func_call(struct cnode *func_name, struct cnode *result)
-{
-    COOplineObject *op = next_op();
-    op->opcode = OP_DO_FCALL;
-    op->arg1 = *func_name;
-    op->result.type = IS_TMP_VAR;
-    op->result.u.var = get_temporary_variable();
-    *result = op->result;
-}
-
-void
-co_recv_param(struct cnode *param)
-{
-    COOplineObject *op;
-    op = next_op();
-    op->opcode = OP_RECV_PARAM;
-    op->arg1 = *param;
-}
-
-void
-co_pass_param(struct cnode *param)
-{
-    COOplineObject *op = next_op();
-    op->opcode = OP_PASS_PARAM, op->arg1 = *param;
-}
-
-void
-co_list_build(struct cnode *result, struct cnode *tag)
-{
-    COOplineObject *op = next_op();
-    op->opcode = OP_LIST_BUILD;
-    op->result.type = IS_TMP_VAR;
-    op->result.u.var = get_temporary_variable();
-    *result = op->result;
-
-    *tag = op->result;
-}
-
-void
-co_list_add(struct cnode *node, struct cnode *element)
-{
-    COOplineObject *op = next_op();
-    op->opcode = OP_LIST_ADD;
-    op->arg1 = *node;
-    op->arg2 = *element;
-}
-
-void
-co_dict_build(struct cnode *result, struct cnode *tag)
-{
-    COOplineObject *op = next_op();
-    op->opcode = OP_DICT_BUILD;
-    op->result.type = IS_TMP_VAR;
-    op->result.u.var = get_temporary_variable();
-    *result = op->result;
-
-    *tag = op->result;
-}
-
-void
-co_dict_add(struct cnode *node, struct cnode *key, struct cnode *item)
-{
-    COOplineObject *op = next_op();
-    op->opcode = OP_DICT_ADD;
-    op->arg1 = *node;
-    op->arg2 = *key;;
-    op->result = *item;
-}
-
-void
-co_tuple_build(struct cnode *result, struct cnode *tag)
-{
-    COOplineObject *op = next_op();
-    op->opcode = OP_TUPLE_BUILD;
-    op->result.type = IS_TMP_VAR;
-    op->result.u.var = get_temporary_variable();
-    *result = op->result;
-
-    *tag = op->result;
-}
-
-void
-co_end_compilation()
-{
-    COOplineObject *op = next_op();
-
-    op->opcode = OP_RETURN;
-}
-*/
 
 int
 colex(YYSTYPE *colval)

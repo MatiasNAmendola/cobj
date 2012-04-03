@@ -50,7 +50,6 @@ LIB_OBJS += objects/listobject.o
 LIB_OBJS += objects/tupleobject.o
 LIB_OBJS += objects/frameobject.o
 LIB_OBJS += objects/dictobject.o
-LIB_OBJS += objects/oplineobject.o
 LIB_OBJS += objects/bytesobject.o
 LIB_OBJS += objects/fileobject.o
 LIB_OBJS += objects/exceptionobject.o

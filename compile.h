@@ -12,32 +12,36 @@
  */
 #define CODEDUMP_MAGIC  (314 << 16 | 'c' << 8 | 'o')
 
-// compiler
+// instruction
 struct instr {
     unsigned int i_hasarg : 1;
     unsigned char i_opcode;
     int i_oparg;
 };
 
-struct compiler {
-    /* For Code object */
+/* 
+ * Compliation unit, change on entry of exit of function scope.
+ */
+struct compiler_unit {
     COObject *bytecode;
     COObject *consts;
     COObject *names;
-    /* ! For Code Object */
 
     int bytecode_offset;
-
-    /* AST */
-    NodeList  *xtop;
-    /* ! AST */
-
     struct instr *instr;  /* pointer to an array of instructions */
     int iused;            /* number of instructions used */
     int ialloc;           /* length of instructions array */
 };
 
-COObject *co_compile(void);
+struct compiler {
+    NodeList  *xtop;
+
+    struct compiler_unit *u;    /* Current compiler unit. */
+    COObject *stack;            /* List object to hold compiler unit pointers. */
+    int nestlevel;
+};
+
+COObject *compile(void);
 
 // parser
 int coparse();

@@ -16,6 +16,7 @@ typedef enum {
     NODE_IF,
     NODE_WHILE,
     NODE_FUNC,
+    NODE_FUNC_CALL,
     NODE_RETURN,
     NODE_CONST,
     NODE_NAME,

@@ -145,7 +145,7 @@ main(int argc, const char **argv)
             /* Read-Eval-Print Loop */
             while ((code = linenoise(">>> ")) != NULL) {
                 co_scanner_setcode(code);
-                eval_wrapper(co_compile());
+                eval_wrapper(compile());
                 linenoiseHistoryAdd(code);
                 if (history_path) {
                     linenoiseHistorySave(history_path);
@@ -157,5 +157,5 @@ main(int argc, const char **argv)
         }
     }
 
-    return eval_wrapper(co_compile())? 0 : -1;
+    return eval_wrapper(compile())? 0 : -1;
 }

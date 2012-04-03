@@ -69,7 +69,7 @@ COObject_set(COObject *name, COObject *co)
 #define NEXTOP()    (*bytecode++)
 #define NEXTARG()   (bytecode += 2, (bytecode[-1]<<8) + bytecode[-2])
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
-#define PUSH(o)     COFrame_Push(f, o);
+#define PUSH(o)     COFrame_Push(f, (COObject *)o);
 #define POP()       COFrame_Pop(f);
 
 /*
@@ -244,233 +244,24 @@ vm_enter:
             oparg = NEXTARG();
             JUMPTO(oparg);
             break;
+        case OP_DECLARE_FUNCTION:
+            oparg = NEXTARG();
+            COFunctionObject *x =
+                (COFunctionObject *)COFunction_New(NULL, NULL,
+                                                   NULL);
+            // TODO
+            PUSH(x);
+            JUMPBY(oparg);
+            break;
+        case OP_DO_FCALL:
+            o1 = POP();
+            // TODO
+            break;
         case OP_RETURN:
             goto vm_exit;
-        }
-        /*
-        switch (op->opcode) {
-        case OP_ADD:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            o3 = COInt_Type.tp_int_interface->int_add(o1, o2);
-            CNode_SetObject(&op->result, o3);
-            break;
-        case OP_SUB:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            o3 = COInt_Type.tp_int_interface->int_sub(o1, o2);
-            CNode_SetObject(&op->result, o3);
-            break;
-        case OP_MUL:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            o3 = COInt_Type.tp_int_interface->int_mul(o1, o2);
-            CNode_SetObject(&op->result, o3);
-            break;
-        case OP_POW:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->result, COInt_FromLong((int)
-                                                        pow(COInt_AsLong(o1),
-                                                            COInt_AsLong(o2))
-                            )
-                );
-            break;
-        case OP_DIV:
-            co1 = CNode_GetObject(&op->arg1);
-            co2 = CNode_GetObject(&op->arg2);
-            co3 = COInt_Type.tp_int_interface->int_div(co1, co2);
-            CNode_SetObject(&op->result, co3);
-            break;
-        case OP_MOD:
-            co1 = CNode_GetObject(&op->arg1);
-            co2 = CNode_GetObject(&op->arg2);
-            co3 = COInt_Type.tp_int_interface->int_mod(co1, co2);
-            CNode_SetObject(&op->result, co3);
-            break;
-        case OP_SR:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(o1) >>
-                                           COInt_AsLong(o2)));
-            break;
-        case OP_SL:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->result,
-                            COInt_FromLong(COInt_AsLong(o1) <<
-                                           COInt_AsLong(o2)));
-            break;
-        case OP_IS_EQUAL:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->result,
-                            COBool_FromLong(COInt_AsLong(o1) ==
-                                            COInt_AsLong(o2)));
-            break;
-        case OP_IS_NOT_EQUAL:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->result,
-                            COBool_FromLong(COInt_AsLong(o1) !=
-                                            COInt_AsLong(o2)));
-            break;
-        case OP_IS_SMALLER:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->result,
-                            COBool_FromLong(COInt_AsLong(o1) <
-                                            COInt_AsLong(o2)));
-            break;
-        case OP_IS_SMALLER_OR_EQUAL:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->result,
-                            COBool_FromLong(COInt_AsLong(o1) <=
-                                            COInt_AsLong(o2)));
-            break;
-        case OP_ASSIGN:
-            o2 = CNode_GetObject(&op->arg2);
-            CNode_SetObject(&op->arg1, o2);
-            CNode_SetObject(&op->result, o2);
-            break;
-        case OP_PRINT:
-            o1 = CNode_GetObject(&op->arg1);
-            if (o1 == NULL) {
-                goto on_error;
-            }
-            COObject_print(o1);
-            break;
-        case OP_JMPZ:
-            o1 = CNode_GetObject(&op->arg1);
-
-            if (o1 != CO_True && COBool_FromLong(COInt_AsLong(o1)) != CO_True) {
-                JUMPBY(op->arg2.u.opline_num);
-            }
-
-            break;
-        case OP_JMP:
-            o1 = CNode_GetObject(&op->arg1);
-            JUMPBY(op->arg1.u.opline_num);
-            break;
-        case OP_DECLARE_FUNCTION:
-            {
-                COFunctionObject *func =
-                    (COFunctionObject *)COFunction_New(op->arg1.u.co, NULL,
-                                                       NULL);
-                uint start =
-                    TS(current_exec_data)->op -
-                    (COOplineObject **)((COTupleObject *)code->
-                                        co_oplines)->co_item - 1;
-                COObject *suboplines =
-                    COTuple_GetSlice(code->co_oplines, start + 1,
-                                     start + 1 + op->arg2.u.opline_num);
-                int numoftmpvars = code->co_numoftmpvars;
-                if (TS(current_exec_data)->function_called) {
-                    // setup function's func_upvalues
-                    COObject *co;
-                    COObject *name;
-                    for (int i = 0; i < CO_SIZE(suboplines); i++) {
-                        COOplineObject *tmp = (COOplineObject *)
-                            COTuple_GET_ITEM(suboplines,
-                                             i);
-                        if (tmp->arg1.type == IS_VAR) {
-                            name = tmp->arg1.u.co;
-                            co = COObject_get(name);
-                            if (co) {
-                                CODict_SetItem(func->func_upvalues, name, co);
-                            }
-                        }
-                        if (tmp->arg2.type == IS_VAR) {
-                            name = tmp->arg2.u.co;
-                            co = COObject_get(name);
-                            if (co) {
-                                CODict_SetItem(func->func_upvalues, name, co);
-                            }
-                        }
-                    }
-                }
-                func->func_code = COCode_New(suboplines, numoftmpvars);
-                if (op->arg1.type != IS_UNUSED) {
-                    CNode_SetObject(&op->arg1, (COObject *)func);
-                }
-                if (op->result.type != IS_UNUSED) {
-                    CNode_SetObject(&op->result, (COObject *)func);
-                }
-                JUMPBY(op->arg2.u.opline_num + 1);
-                break;
-            }
-        case OP_RETURN:
-            {
-                COObject *co;
-                struct co_exec_data *old_exec_data;
-                old_exec_data = TS(current_exec_data);
-                if (op->arg1.type != IS_UNUSED) {
-                    co = CNode_GetObject(&op->arg1);
-                }
-#ifdef CO_DEBUG
-                printf("vm leave: %p, back: %p\n", TS(current_exec_data),
-                       TS(current_exec_data)->prev_exec_data);
-#endif
-                TS(current_exec_data) = TS(current_exec_data)->prev_exec_data;
-                COFrame_Free(f, (COObject *)old_exec_data);
-                struct cnode *rt = (struct cnode *)COFrame_Pop(f);
-                if (op->arg1.type != IS_UNUSED) {
-                    CNode_SetObject(rt, co);
-                } else {
-
-                }
-                if (TS(current_exec_data) == NULL) {
-                    goto vm_exit;
-                }
-                break;
-            }
-        case OP_DO_FCALL:
-            o1 = CNode_GetObject(&op->arg1);
-#ifdef CO_DEBUG
-            printf("call function: %p\n", o1);
-#endif
-            if (CO_TYPE(o1) != &COFunction_Type) {
-                error("not a function");
-            }
-            COFrame_Push(f, (COObject *)&op->result);
-            mainfunc = o1;
-
-            goto vm_enter;
-        case OP_PASS_PARAM:
-            o1 = CNode_GetObject(&op->arg1);
-            co_stack_push(&TS(argument_stack), &o1, sizeof(COObject *));
-            break;
-        case OP_RECV_PARAM:
-            {
-                COObject **co;
-                co_stack_top(&TS(argument_stack), (void **)&co);
-                co_stack_pop(&TS(argument_stack));
-                COObject_put(op->arg1.u.co, *co);
-                break;
-            }
-        case OP_LIST_BUILD:
-            CNode_SetObject(&op->result, COList_New(0));
-            break;
-        case OP_LIST_ADD:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            COList_Append(o1, o2);
-            break;
-        case OP_DICT_BUILD:
-            CNode_SetObject(&op->result, CODict_New());
-            break;
-        case OP_DICT_ADD:
-            o1 = CNode_GetObject(&op->arg1);
-            o2 = CNode_GetObject(&op->arg2);
-            o3 = CNode_GetObject(&op->result);
-            CODict_SetItem(o1, o2, o3);
-            break;
         default:
-            error("unknown handle for opcode(%ld)\n", op->opcode);
+            error("unknown handle for opcode(%ld)\n", opcode);
         }
-        */
 on_error:
         /* End the loop if we still have an error (or return) */
         if (status != STATUS_NONE)
