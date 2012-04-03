@@ -74,9 +74,10 @@ node_type(Node_Type type)
         return #type
 
     switch (type) {
+        GIVE_NAME(NODE_BIN);       /* binary op node */
         GIVE_NAME(NODE_IF);
         GIVE_NAME(NODE_WHILE);
-        GIVE_NAME(NODE_BIN);
+        GIVE_NAME(NODE_FUNC);
         GIVE_NAME(NODE_RETURN);
         GIVE_NAME(NODE_CONST);
         GIVE_NAME(NODE_NAME);
@@ -87,7 +88,7 @@ node_type(Node_Type type)
         GIVE_NAME(NODE_DICT_BUILD);
         GIVE_NAME(NODE_DICT_ADD);
     }
-    error("unknow type: %d\n", type);
+    error("unknown type: %d\n", type);
     return NULL;
 }
 

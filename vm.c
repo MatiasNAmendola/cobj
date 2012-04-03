@@ -65,7 +65,8 @@ COObject_set(COObject *name, COObject *co)
     return CODict_SetItem(TS(current_exec_data)->symbol_table, name, co);
 }
 
-#define JUMPOP(offset)  bytecode += offset
+#define JUMPBY(offset)  bytecode += offset
+#define JUMPTO(offset)  bytecode = firstcode + offset
 #define NEXTOP()    (*bytecode++)
 #define NEXTARG()   (bytecode += 2, (bytecode[-1]<<8) + bytecode[-2])
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
@@ -233,12 +234,16 @@ vm_enter:
             oparg = NEXTARG();
             o1 = POP();
             if (o1 != CO_True && COBool_FromLong(COInt_AsLong(o1)) != CO_True) {
-                JUMPOP(oparg);
+                JUMPBY(oparg);
             }
             break;
         case OP_JMP:
             oparg = NEXTARG();
-            JUMPOP(oparg);
+            JUMPBY(oparg);
+            break;
+        case OP_JMPX:
+            oparg = NEXTARG();
+            JUMPTO(oparg);
             break;
         case OP_RETURN:
             goto vm_exit;
@@ -342,13 +347,13 @@ vm_enter:
             o1 = CNode_GetObject(&op->arg1);
 
             if (o1 != CO_True && COBool_FromLong(COInt_AsLong(o1)) != CO_True) {
-                JUMPOP(op->arg2.u.opline_num);
+                JUMPBY(op->arg2.u.opline_num);
             }
 
             break;
         case OP_JMP:
             o1 = CNode_GetObject(&op->arg1);
-            JUMPOP(op->arg1.u.opline_num);
+            JUMPBY(op->arg1.u.opline_num);
             break;
         case OP_DECLARE_FUNCTION:
             {
@@ -394,7 +399,7 @@ vm_enter:
                 if (op->result.type != IS_UNUSED) {
                     CNode_SetObject(&op->result, (COObject *)func);
                 }
-                JUMPOP(op->arg2.u.opline_num + 1);
+                JUMPBY(op->arg2.u.opline_num + 1);
                 break;
             }
         case OP_RETURN:

@@ -193,8 +193,21 @@ compile_visit_node(Node *n)
         compile_visit_nodelist(n->nelse);
         compile_backpatch(offset_else);
         break;
+    case NODE_WHILE:
+        {
+        int while_start = c.iused;
+        compile_visit_node(n->ntest);
+        int offset = compile_addop_i(OP_JMPZ, -1);
+        compile_visit_nodelist(n->nbody);
+        compile_addop_i(OP_JMPX, while_start);
+        compile_backpatch(offset);
+        }
+        break;
+    case NODE_FUNC:
+        oparg = compile_add(c.names, n->nfuncname->o);
+        break;
     default:
-        error("unknow node type: %d, %s", n->type, node_type(n->type));
+        error("unknown node type: %d, %s", n->type, node_type(n->type));
     }
     return 0;
 }
@@ -222,6 +235,12 @@ assemble_jump_offsets()
         int offset = 0;
         if (instr->i_opcode == OP_JMPZ || instr->i_opcode == OP_JMP) {
             for (j = 1; j < instr->i_oparg; j++) {
+                struct instr *subinstr = instr + j;
+                offset += instrsize(subinstr);
+            }
+            instr->i_oparg = offset;
+        } else if (instr->i_opcode == OP_JMPX) {
+            for (j = 0; j < instr->i_oparg; j++) {
                 struct instr *subinstr = instr + j;
                 offset += instrsize(subinstr);
             }
@@ -297,6 +316,7 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_PRINT);
         GIVE_NAME(OP_JMPZ);
         GIVE_NAME(OP_JMP);
+        GIVE_NAME(OP_JMPX);
         GIVE_NAME(OP_DECLARE_FUNCTION);
         GIVE_NAME(OP_RETURN);
         GIVE_NAME(OP_DO_FCALL);
@@ -348,6 +368,9 @@ dump_bytecode(char *bytecode)
             printf("\t\t%d", NEXTARG());
             break;
         case OP_JMP:
+            printf("\t\t%d", NEXTARG());
+            break;
+        case OP_JMPX:
             printf("\t\t%d", NEXTARG());
             break;
         }

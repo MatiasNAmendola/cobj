@@ -8,7 +8,8 @@
 %pure_parser
 %debug
 %error-verbose
-/*%expect 5*/
+%expect 1
+
 %union {
     Node *node;    
     NodeList *list;
@@ -50,6 +51,7 @@
 %type <list> simple_stmt compound_stmt opt_else if_tail
 %type <list> expr_list non_empty_expr_list
 %type <list> assoc_list non_empty_assoc_list
+%type <list> opt_param_list param_list non_empty_param_list
 
 %% /* Context-Free Grammar (BNF) */
 
@@ -214,8 +216,39 @@ compound_stmt:
             t->nelse = $4;
             $$ = node_list(t, NULL);
         }
+    |   T_WHILE expr stmt_list T_END {
+            Node *t = node_new(NODE_WHILE, NULL, NULL);
+            t->ntest = $2;
+            t->nbody = $3;
+            $$ = node_list(t, NULL);
+        }
+    |   T_FUNC T_NAME opt_param_list stmt_list T_END {
+            Node *t = node_new(NODE_FUNC, NULL, NULL);
+            t->nfuncname = $2;
+            t->nfuncparams = $3;
+            t->nfuncbody = $4;
+            $$ = node_list(t, NULL);
+        }
 ;
 
+opt_param_list:
+        '(' param_list ')' { $$ = $2; }
+    |   /* empty */ { $$ = 0; }
+;
+
+param_list:       
+        non_empty_param_list
+    |   /* empty */ {}
+;   
+    
+non_empty_param_list: 
+        T_NAME {
+            $$ = node_list($1, NULL);
+        }
+    |   non_empty_param_list ',' T_NAME { 
+            $$ = node_append($1, $3);
+        }
+;
 
 opt_else:   
         /* empty */ { $$ = 0; }

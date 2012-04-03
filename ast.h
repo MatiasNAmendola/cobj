@@ -15,6 +15,7 @@ typedef enum {
     NODE_BIN,       /* binary op node */
     NODE_IF,
     NODE_WHILE,
+    NODE_FUNC,
     NODE_RETURN,
     NODE_CONST,
     NODE_NAME,
@@ -33,15 +34,22 @@ struct _Node {
     unsigned char op;
     COObject *o;
 
-    /* Tree structure */
+    /* For Binary/Unary Node */
     Node *left;
     Node *right;
 
+    /* For Dict/List, etc */
     NodeList *list;
 
+    /* For If/While, etc */
     Node *ntest;
     NodeList *nbody;
     NodeList *nelse;
+
+    /* For func */
+    Node *nfuncname;
+    NodeList *nfuncparams;
+    NodeList *nfuncbody;
 };
 
 struct _NodeList {
