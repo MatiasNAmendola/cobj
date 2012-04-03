@@ -99,6 +99,7 @@ COFrame_Free(COObject *this, COObject *co)
 {
     if ((void **)((COFrameObject *)this)->vm_stack == (void **)co) {
         // free if it's current stack frame
+        printf("here\n");
         struct vm_stack *p = ((COFrameObject *)this)->vm_stack;
         ((COFrameObject *)this)->vm_stack = p->prev;
         free(p);

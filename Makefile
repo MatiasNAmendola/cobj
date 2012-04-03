@@ -32,7 +32,6 @@ LIB_OBJS += llist.o
 LIB_OBJS += object.o
 LIB_OBJS += parser.o
 LIB_OBJS += scanner.o
-LIB_OBJS += stack.o
 LIB_OBJS += usage.o
 LIB_OBJS += vm.o
 LIB_OBJS += wrapper.o
@@ -53,6 +52,7 @@ LIB_OBJS += objects/dictobject.o
 LIB_OBJS += objects/bytesobject.o
 LIB_OBJS += objects/fileobject.o
 LIB_OBJS += objects/exceptionobject.o
+LIB_OBJS += objects/capsuleobject.o
 LIB_OBJS += linenoise/linenoise.o
 LIB_OBJS += argparse/argparse.o
 

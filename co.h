@@ -25,7 +25,6 @@
 #include "object.h"
 #include "parser.h"
 #include "scanner.h"
-#include "stack.h"
 #include "usage.h"
 #include "vm.h"
 #include "vm_opcodes.h"
@@ -51,6 +50,7 @@
 #include "objects/bytesobject.h"
 #include "objects/fileobject.h"
 #include "objects/exceptionobject.h"
+#include "objects/capsuleobject.h"
 
 #include "argparse/argparse.h"
 #include "linenoise/linenoise.h"

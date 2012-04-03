@@ -11,7 +11,8 @@ struct co_exec_data {
     struct co_exec_data *prev_exec_data;
     COObject *function_called;
     COObject *symbol_table;     /* dict object for names */
-    COObject **ts;              /* temp objects */
+    unsigned char *firstcode;
+    unsigned char *bytecode;
 };
 
 /* Forward declaration */
@@ -64,10 +65,10 @@ COObject_set(COObject *name, COObject *co)
     return CODict_SetItem(TS(current_exec_data)->symbol_table, name, co);
 }
 
-#define JUMPBY(offset)  bytecode += offset
-#define JUMPTO(offset)  bytecode = firstcode + offset
-#define NEXTOP()    (*bytecode++)
-#define NEXTARG()   (bytecode += 2, (bytecode[-1]<<8) + bytecode[-2])
+#define JUMPBY(offset)  exec_data->bytecode += offset
+#define JUMPTO(offset)  exec_data->bytecode = exec_data->firstcode + offset
+#define NEXTOP()    (*exec_data->bytecode++)
+#define NEXTARG()   (exec_data->bytecode += 2, (exec_data->bytecode[-1]<<8) + exec_data->bytecode[-2])
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
 #define PUSH(o)     COFrame_Push(f, (COObject *)o);
 #define POP()       COFrame_Pop(f);
@@ -76,37 +77,37 @@ COObject_set(COObject *name, COObject *co)
  * Evaluate a function object into a object.
  */
 COObject *
-vm_eval(COObject *mainfunc)
+vm_eval(COObject *func)
 {
     struct co_exec_data *exec_data;
     COObject *f = TS(frame);
-    COCodeObject *code;
-    unsigned char *bytecode;
-    unsigned char *firstcode;
     COObject *names;
     COObject *consts;
+    COCodeObject *code;
+
     register unsigned char opcode;       /* Current opcode */
     register int oparg;                  /* Current opcode argument, if any */
     register COObject *x;                /* Result object -- NULL if error */
     register COObject *o1, *o2, *o3;     /* Temporary objects popped of stack */
-    TS(mainfunc) = mainfunc;
+    TS(mainfunc) = func;
+    int status;
 
-vm_enter:
-    code = (COCodeObject *)((COFunctionObject *)mainfunc)->func_code;
+new_frame:
     exec_data = (struct co_exec_data *)COFrame_Alloc(f, sizeof(struct co_exec_data));
+    code = (COCodeObject *)((COFunctionObject *)func)->func_code;
     exec_data->prev_exec_data = NULL;
     exec_data->symbol_table = CODict_New();
-    exec_data->function_called = mainfunc;
+    exec_data->function_called = func;
     exec_data->prev_exec_data = TS(current_exec_data);
-
+    exec_data->bytecode = (unsigned char *)COBytes_AsString(code->co_code);
+    exec_data->firstcode = exec_data->bytecode;
     TS(current_exec_data) = exec_data;
 
-
-    int status = STATUS_NONE;
+start_frame:
+    status = STATUS_NONE;
+    code = (COCodeObject *)((COFunctionObject *)exec_data->function_called)->func_code;
     names = code->co_names;
     consts = code->co_consts;
-    bytecode = (unsigned char *)COBytes_AsString(code->co_code);
-    firstcode = bytecode;
 
     for (;;) {
         opcode = NEXTOP();
@@ -245,20 +246,31 @@ vm_enter:
             JUMPTO(oparg);
             break;
         case OP_DECLARE_FUNCTION:
-            oparg = NEXTARG();
+            o1 = POP();
             COFunctionObject *x =
-                (COFunctionObject *)COFunction_New(NULL, NULL,
+                (COFunctionObject *)COFunction_New(NULL, o1,
                                                    NULL);
-            // TODO
             PUSH(x);
-            JUMPBY(oparg);
             break;
         case OP_DO_FCALL:
             o1 = POP();
-            // TODO
+
+            func = o1;
+            goto new_frame;
             break;
         case OP_RETURN:
-            goto vm_exit;
+            {
+                struct co_exec_data *old_exec_data;
+                old_exec_data = TS(current_exec_data);
+                TS(current_exec_data) = TS(current_exec_data)->prev_exec_data;
+                COFrame_Free(f, (COObject *)old_exec_data);
+                if (!TS(current_exec_data)) {
+                    goto vm_exit;
+                }
+                exec_data = TS(current_exec_data);
+                goto start_frame;
+                break;
+            }
         default:
             error("unknown handle for opcode(%ld)\n", opcode);
         }

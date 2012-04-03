@@ -235,7 +235,7 @@ compound_stmt:
             Node *t = node_new(NODE_FUNC, NULL, NULL);
             t->nfuncname = $2;
             t->nfuncparams = $3;
-            t->nfuncbody = $4;
+            t->nfuncbody = node_append($4, node_new(NODE_RETURN, NULL, NULL));
             $$ = node_list(t, NULL);
         }
 ;

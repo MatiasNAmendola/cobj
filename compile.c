@@ -3,6 +3,10 @@
 #define DEFAULT_INSTR_SIZE      64
 #define DEFAULT_BYTECODE_SIZE   64
 
+#ifdef CO_DEBUG
+static void dump_code(COObject *code);
+#endif
+
 COObject *compile_ast(struct compiler *c);
 static int compile_visit_node(struct compiler *c, Node *n);
 static COObject *assemble(struct compiler *c);
@@ -30,7 +34,8 @@ compiler_enter_scope(struct compiler *c)
 
     /* Push the old compiler_unit on the stack. */
     if (c->u) {
-        if (COList_Append(c->stack, (COObject *)c->u) < 0) {
+        COObject *capsule = COCapsule_New(c->u);
+        if (COList_Append(c->stack, capsule) < 0) {
             compiler_unit_free(u);
             return;
         }
@@ -49,7 +54,9 @@ compiler_exit_scope(struct compiler *c)
     /* Restore c->U to the parent unit. */
     n = COList_Size(c->stack) - 1;
     if (n >= 0) {
-        c->u = (struct compiler_unit *)COList_GetItem(c->stack, n);
+        COCapsuleObject *capsule = (COCapsuleObject *)COList_GetItem(c->stack, n);
+        c->u = (struct compiler_unit *)capsule->pointer;
+        COList_DelItem(c->stack, n);
     } else {
         c->u = NULL;
     }
@@ -250,18 +257,21 @@ compile_visit_node(struct compiler *c, Node *n)
         break;
     case NODE_FUNC:
         {
-            /*compiler_enter_scope(c);*/
-            /*compile_visit_nodelist(c, n->nfuncbody);*/
-            /*COObject *co = assemble(c);*/
-            /*COObject_dump(co);*/
-            /*compiler_exit_scope(c);*/
-            /*oparg = compile_add(c->u->consts, co);*/
-            /*compile_addop_i(c, OP_LOAD_CONST, oparg);*/
+            compiler_enter_scope(c);
+            compile_visit_nodelist(c, n->nfuncbody);
+            COObject *co = assemble(c);
+#ifdef CO_DEBUG
+            printf("make function\n");
+            dump_code(co);
+#endif
+            compiler_exit_scope(c);
+            oparg = compile_add(c->u->consts, co);
+            compile_addop_i(c, OP_LOAD_CONST, oparg);
         
-            /*compile_addop(c, OP_DECLARE_FUNCTION);*/
+            compile_addop(c, OP_DECLARE_FUNCTION);
 
-            /*oparg = compile_add(c->u->names, n->nfuncname->o);*/
-            /*compile_addop_i(c, OP_ASSIGN, oparg);*/
+            oparg = compile_add(c->u->names, n->nfuncname->o);
+            compile_addop_i(c, OP_ASSIGN, oparg);
         }
         break;
     case NODE_FUNC_CALL:
@@ -467,7 +477,6 @@ dump_code(COObject *code)
             printf("\t\t%d", NEXTARG());
             break;
         case OP_DECLARE_FUNCTION:
-            printf("\t\t%d", NEXTARG());
             break;
         }
         printf("\n");

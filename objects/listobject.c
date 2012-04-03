@@ -161,6 +161,26 @@ COList_GetItem(COObject *this, size_t index)
     return ((COListObject *)this)->co_item[index];
 }
 
+int 
+COList_DelItem(COObject *this, size_t index)
+{
+    size_t n = ((COListObject *)this)->co_size;
+    if (index < 0 || index >= n) {
+        return -1;
+    }
+
+    COObject **items = ((COListObject *)this)->co_item;
+    size_t i;
+    for (i = 0; i < n; i++) {
+        if (i > index) {
+            items[i - 1] = items[i];
+        }
+    }
+
+    ((COListObject *)this)->co_size -= 1;
+    return 0;
+}
+
 int
 COList_SetItem(COObject *this, size_t index, COObject *item)
 {
