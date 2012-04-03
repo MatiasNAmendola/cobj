@@ -150,7 +150,7 @@ opt_newlines:
 
 expr_list:
         non_empty_expr_list opt_comma
-    |   /* empty */ {}
+    |   /* empty */ { $$ = 0; }
 ;
 
 non_empty_expr_list:
@@ -164,7 +164,7 @@ non_empty_expr_list:
 
 assoc_list:
         non_empty_assoc_list opt_comma
-    |   /* empty */ {}
+    |   /* empty */ { $$ = 0; }
 ;   
 
 non_empty_assoc_list:
@@ -247,7 +247,7 @@ opt_param_list:
 
 param_list:       
         non_empty_param_list
-    |   /* empty */ {}
+    |   /* empty */ { $$ = 0; }
 ;   
     
 non_empty_param_list: 
