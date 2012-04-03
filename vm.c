@@ -65,10 +65,7 @@ COObject_set(COObject *name, COObject *co)
     return CODict_SetItem(TS(current_exec_data)->symbol_table, name, co);
 }
 
-#define OP_JUMP(offset) \
-    do {                \
-        TS(current_exec_data)->op += offset - 1;             \
-    } while (0)
+#define JUMPOP(offset)  bytecode += offset
 #define NEXTOP()    (*bytecode++)
 #define NEXTARG()   (bytecode += 2, (bytecode[-1]<<8) + bytecode[-2])
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
@@ -85,6 +82,7 @@ vm_eval(COObject *mainfunc)
     COObject *f = TS(frame);
     COCodeObject *code;
     unsigned char *bytecode;
+    unsigned char *firstcode;
     COObject *names;
     COObject *consts;
     register unsigned char opcode;       /* Current opcode */
@@ -108,6 +106,7 @@ vm_enter:
     names = code->co_names;
     consts = code->co_consts;
     bytecode = (unsigned char *)COBytes_AsString(code->co_code);
+    firstcode = bytecode;
 
     for (;;) {
         opcode = NEXTOP();
@@ -230,6 +229,17 @@ vm_enter:
             o2 = POP();
             COObject_set(o1, o2);
             break;
+        case OP_JMPZ:
+            oparg = NEXTARG();
+            o1 = POP();
+            if (o1 != CO_True && COBool_FromLong(COInt_AsLong(o1)) != CO_True) {
+                JUMPOP(oparg);
+            }
+            break;
+        case OP_JMP:
+            oparg = NEXTARG();
+            JUMPOP(oparg);
+            break;
         case OP_RETURN:
             goto vm_exit;
         }
@@ -332,13 +342,13 @@ vm_enter:
             o1 = CNode_GetObject(&op->arg1);
 
             if (o1 != CO_True && COBool_FromLong(COInt_AsLong(o1)) != CO_True) {
-                OP_JUMP(op->arg2.u.opline_num);
+                JUMPOP(op->arg2.u.opline_num);
             }
 
             break;
         case OP_JMP:
             o1 = CNode_GetObject(&op->arg1);
-            OP_JUMP(op->arg1.u.opline_num);
+            JUMPOP(op->arg1.u.opline_num);
             break;
         case OP_DECLARE_FUNCTION:
             {
@@ -384,7 +394,7 @@ vm_enter:
                 if (op->result.type != IS_UNUSED) {
                     CNode_SetObject(&op->result, (COObject *)func);
                 }
-                OP_JUMP(op->arg2.u.opline_num + 1);
+                JUMPOP(op->arg2.u.opline_num + 1);
                 break;
             }
         case OP_RETURN:

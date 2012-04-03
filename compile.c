@@ -93,7 +93,7 @@ compile_addop_i(int opcode, int oparg)
     i->i_opcode = opcode;
     i->i_oparg = oparg;
     i->i_hasarg = 1;
-    return 0;
+    return off;
 }
 
 
@@ -118,6 +118,14 @@ compile_add(COObject *dict, COObject *o)
     return arg;
 }
 
+/*
+ * Backpatch instruction.
+ */
+static void
+compile_backpatch(int offset)
+{
+    c.instr[offset].i_oparg = c.iused - offset;
+}
 
 static int compile_visit_node(Node *n);
 
@@ -176,10 +184,50 @@ compile_visit_node(Node *n)
         oparg = compile_add(c.names, n->left->o);
         compile_addop_i(OP_ASSIGN, oparg);
         break;
+    case NODE_IF:
+        compile_visit_node(n->ntest);
+        int offset = compile_addop_i(OP_JMPZ, -1);
+        compile_visit_nodelist(n->nbody);
+        int offset_else = compile_addop_i(OP_JMP, -1);
+        compile_backpatch(offset);
+        compile_visit_nodelist(n->nelse);
+        compile_backpatch(offset_else);
+        break;
     default:
         error("unknow node type: %d, %s", n->type, node_type(n->type));
     }
     return 0;
+}
+
+static int
+instrsize(struct instr *i)
+{
+    if (i->i_hasarg) {
+        return 3;   /* 1 (opcode) + 2 (oparg) */
+    } else {
+        return 1;   /* 1 (opcode) */
+    }
+}
+
+/*
+ * Compute jump offset before emit bytecode.
+ */
+static void
+assemble_jump_offsets()
+{
+    int i;
+    int j;
+    for (i = 0; i < c.iused; i++) {
+        struct instr *instr = c.instr + i;
+        int offset = 0;
+        if (instr->i_opcode == OP_JMPZ || instr->i_opcode == OP_JMP) {
+            for (j = 1; j < instr->i_oparg; j++) {
+                struct instr *subinstr = instr + j;
+                offset += instrsize(subinstr);
+            }
+            instr->i_oparg = offset;
+        }
+    }
 }
 
 /*
@@ -191,11 +239,7 @@ assemble_emit(struct instr *i)
     size_t len = COBytes_Size(c.bytecode);
     int size;
 
-    if (i->i_hasarg) {
-        size = 3;   /* 1 (opcode) + 2 (oparg) */
-    } else {
-        size = 1;   /* 1 (opcode) */
-    }
+    size = instrsize(i);
 
     // resize if necessary 
     if (c.bytecode_offset + size >= len) {
@@ -217,10 +261,13 @@ assemble_emit(struct instr *i)
 static int
 assemble(void)
 {
+    assemble_jump_offsets();
+
     int i;
     for (i = 0; i < c.iused; i++) {
         assemble_emit(c.instr + i);
     }
+
     COBytes_Resize(c.bytecode, c.bytecode_offset);
     return 0;
 }
@@ -276,12 +323,12 @@ dump_bytecode(char *bytecode)
 {
 #define NEXTOP()    (*bytecode++)
 #define NEXTARG()   (bytecode += 2, (bytecode[-1]<<8) + bytecode[-2])
-
+    char *start = bytecode;
     unsigned char opcode;
     int oparg;
     for (;;) {
         opcode = NEXTOP();
-        printf("%s", opcode_name(opcode));
+        printf("%ld.\t%s", bytecode - start - 1, opcode_name(opcode));
         switch (opcode) {
         case OP_LOAD_CONST:
             oparg = NEXTARG();
@@ -297,9 +344,16 @@ dump_bytecode(char *bytecode)
         case OP_LOAD_NAME:
             printf("\t\t%d", NEXTARG());
             break;
+        case OP_JMPZ:
+            printf("\t\t%d", NEXTARG());
+            break;
+        case OP_JMP:
+            printf("\t\t%d", NEXTARG());
+            break;
         }
         printf("\n");
     }
+    printf("\n");
 }
 
 /*

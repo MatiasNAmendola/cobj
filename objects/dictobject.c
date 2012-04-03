@@ -78,6 +78,9 @@ _dict_lookup(CODictObject *this, COObject *key)
     DictBucket *p;
 
     h = COObject_hash(key);
+    if (h == -1)
+        return -1;
+
     nIndex = h & this->nTableMask;
     p = this->arBuckets[nIndex];
 
@@ -115,6 +118,8 @@ _dict_insert(CODictObject *this, COObject *key, COObject *item)
 {
     DictBucket *p;
     ulong h = COObject_hash(key);
+    if (h == -1)
+        return -1;
     p = (DictBucket *)COMem_MALLOC(sizeof(DictBucket));
     p->pKey = key;
     p->pItem = item;

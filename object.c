@@ -1,6 +1,5 @@
 #include "co.h"
 
-/* For debugging convenience. */
 COObject *
 COObject_repr(COObject *o)
 {
@@ -8,22 +7,22 @@ COObject_repr(COObject *o)
 }
 
 void
-COObject_dump(COObject *co)
+COObject_dump(COObject *o)
 {
-    if (co == NULL) {
+    if (o == NULL) {
         fprintf(stderr, "NULL\n");
     } else {
         fprintf(stderr, "object:\n");
         fprintf(stderr, "    type: %s\n",
-                CO_TYPE(co) == NULL ? "NULL" : CO_TYPE(co)->tp_name);
-         COStrObject *s = COObject_repr(co);
+                CO_TYPE(o) == NULL ? "NULL" : CO_TYPE(o)->tp_name);
+        COStrObject *s = (COStrObject *)COObject_repr(o);
         fprintf(stderr, "    repr: %s\n", s->co_sval);
-        fprintf(stderr, "    refcnt: %d\n", co->co_refcnt);
+        fprintf(stderr, "    refcnt: %d\n", o->co_refcnt);
     }
 }
 
 static COObject *
-none_repr(COObject *co)
+none_repr(COObject *o)
 {
     return COStr_FromString("None");
 }
@@ -41,45 +40,60 @@ static COTypeObject CONone_Type = {
 COObject _CO_None = COObject_HEAD_INIT(&CONone_Type);
 
 long
-COObject_hash(COObject *co)
+_CO_HashPointer(void *p)
 {
-    COTypeObject *tp = co->co_type;
+    long x;
+    size_t y = (size_t)p;
+    /* bottom 3 or 4 bits are likely to be 0; rotate y by 4 to avoid
+       excessive hash collisions for dicts and sets */
+    y = (y >> 4) | (y << (8 * sizeof(void *) - 4)); 
+    x = (long)y;
+    if (x == -1)
+        x = -2;
+    return x;
+}
+
+long
+COObject_hash(COObject *o)
+{
+    COTypeObject *tp = o->co_type;
     if (tp->tp_hash != NULL) {
-        return tp->tp_hash(co);
+        return tp->tp_hash(o);
     }
-    error("fatal");
-    return -1;
+    return _CO_HashPointer(o);
+    /*COErr_Format(COException_ValueError, "unhashable type: '%.200s'", CO_TYPE(o)->tp_name);*/
+    /*return -1;*/
 }
 
 COObject *
 _COObject_New(COTypeObject *tp)
 {
-    COObject *co;
-    co = (COObject *)COMem_MALLOC(tp->tp_basicsize);
-    if (co == NULL) {
+    COObject *o;
+    o = (COObject *)COMem_MALLOC(tp->tp_basicsize);
+    if (o == NULL) {
         // TODO errors
         return NULL;
     }
 
-    return COObject_Init(co, tp);
+    return COObject_Init(o, tp);
 }
 
 COVarObject *
 _COVarObject_New(COTypeObject *tp, size_t n)
 {
-    COVarObject *co;
+    COVarObject *o;
     const size_t size = COObject_VAR_SIZE(tp, n);
-    co = (COVarObject *)COMem_MALLOC(size);
-    if (co == NULL) {
+    o = (COVarObject *)COMem_MALLOC(size);
+    if (o == NULL) {
         // TODO errors
         return NULL;
     }
-    return COVarObject_Init(co, tp, n);
+    return COVarObject_Init(o, tp, n);
 }
 
 void
-COObject_print(COObject *co)
+COObject_print(COObject *o)
 {
-    COStrObject *s = (COStrObject *)CO_TYPE(co)->tp_repr(co);
+    COStrObject *s = (COStrObject *)CO_TYPE(o)->tp_repr(o);
     printf("%s\n", s->co_sval);
 }

@@ -28,18 +28,26 @@ typedef enum {
 
 struct _Node {
     Node_Type type;
+
+    /* Associated data */
     unsigned char op;
-    int lineno;
     COObject *o;
+
+    /* Tree structure */
+    Node *left;
+    Node *right;
+
     NodeList *list;
-    struct _Node *left;
-    struct _Node *right;
+
+    Node *ntest;
+    NodeList *nbody;
+    NodeList *nelse;
 };
 
 struct _NodeList {
     Node *n;
-    struct _NodeList *next;
-    struct _NodeList *end;
+    NodeList *next;
+    NodeList *end;
 };
 
 Node *node_new(Node_Type type, Node *nleft, Node *nright);

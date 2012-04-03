@@ -46,8 +46,8 @@
 %token  <node> T_NAME
 
 %type <node> expr
-%type <list> simple_stmt
 %type <list> stmt stmt_list start open_stmt_list
+%type <list> simple_stmt compound_stmt opt_else if_tail
 %type <list> expr_list non_empty_expr_list
 %type <list> assoc_list non_empty_assoc_list
 
@@ -61,6 +61,7 @@ start: stmt_list {
 
 stmt: /* state something */
         simple_stmt { $$ = $1; }
+    |   compound_stmt { $$ = $1; }
 ;
 
 stmt_list:
@@ -69,8 +70,14 @@ stmt_list:
 
 open_stmt_list:
         stmt { $$ = $1; }
-    |   open_stmt_list stmt_seps stmt { $$ = node_concat($1, $3); }
-    |   /* empty */ {}
+    |   open_stmt_list stmt_seps stmt {
+            if ($1) {
+                $$ = node_concat($1, $3);
+            } else {
+                $$ = $3;
+            }
+        }
+    |   /* empty */ { $$ = 0; }
 ;
 
 stmt_sep:
@@ -159,7 +166,7 @@ non_empty_assoc_list:
 ;
 
 simple_stmt:
-        T_NAME '=' expr { $$ = node_new(NODE_ASSIGN, $1, $3); $$ = node_list($$, NULL); }
+        T_NAME '=' expr { Node *t = node_new(NODE_ASSIGN, $1, $3); $$ = node_list(t, NULL); }
     |   T_NAME T_ADD_ASSIGN expr { 
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_ADD;
@@ -195,8 +202,35 @@ simple_stmt:
             t = node_new(NODE_BIN, $1, $3); t->op = OP_SL;
             $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
-    |   T_PRINT expr { $$ = node_new(NODE_PRINT, $2, NULL); $$ = node_list($$, NULL); }
-    |   expr { $$ = node_list($$, NULL); }
+    |   T_PRINT expr { Node *t = node_new(NODE_PRINT, $2, NULL); $$ = node_list(t, NULL); }
+    |   expr { $$ = node_list($1, NULL); }
+;
+
+compound_stmt:
+        T_IF expr stmt_list if_tail T_END {
+            Node *t = node_new(NODE_IF, NULL, NULL);
+            t->ntest = $2;
+            t->nbody = $3;
+            t->nelse = $4;
+            $$ = node_list(t, NULL);
+        }
+;
+
+
+opt_else:   
+        /* empty */ { $$ = 0; }
+    |   T_ELSE stmt_list { $$ = $2; }
+;
+
+if_tail:
+       opt_else
+    |  T_ELIF expr stmt_list if_tail {
+            Node *t = node_new(NODE_IF, NULL, NULL);
+            t->ntest = $2;
+            t->nbody = $3;
+            t->nelse = $4;
+            $$ = node_list(t, NULL);
+        }
 ;
 
 %%
