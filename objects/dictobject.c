@@ -100,6 +100,8 @@ _dict_lookup(CODictObject *this, COObject *key)
                 if (COInt_AsLong(p->pKey) == COInt_AsLong(key)) {
                     return p;
                 }
+            } else if (key == CO_None) {
+                return p;
             } else {
                 // TODO errors
                 assert(0);

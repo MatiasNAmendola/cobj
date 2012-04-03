@@ -60,9 +60,8 @@ COObject_hash(COObject *o)
     if (tp->tp_hash != NULL) {
         return tp->tp_hash(o);
     }
+    // TODO this is only tmp fix
     return _CO_HashPointer(o);
-    /*COErr_Format(COException_ValueError, "unhashable type: '%.200s'", CO_TYPE(o)->tp_name);*/
-    /*return -1;*/
 }
 
 COObject *

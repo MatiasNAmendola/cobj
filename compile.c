@@ -199,6 +199,7 @@ compile_visit_node(struct compiler *c, Node *n)
         compile_addop(c, OP_PRINT);
         break;
     case NODE_RETURN:
+        compile_visit_node(c, n->left);
         compile_addop(c, OP_RETURN);
         break;
     case NODE_CONST:

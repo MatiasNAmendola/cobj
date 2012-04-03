@@ -259,18 +259,18 @@ start_frame:
             goto new_frame;
             break;
         case OP_RETURN:
-            {
-                struct co_exec_data *old_exec_data;
-                old_exec_data = TS(current_exec_data);
-                TS(current_exec_data) = TS(current_exec_data)->prev_exec_data;
-                COFrame_Free(f, (COObject *)old_exec_data);
-                if (!TS(current_exec_data)) {
-                    goto vm_exit;
-                }
-                exec_data = TS(current_exec_data);
-                goto start_frame;
-                break;
+            x = POP();
+            struct co_exec_data *old_exec_data;
+            old_exec_data = TS(current_exec_data);
+            TS(current_exec_data) = TS(current_exec_data)->prev_exec_data;
+            COFrame_Free(f, (COObject *)old_exec_data);
+            if (!TS(current_exec_data)) {
+                goto vm_exit;
             }
+            exec_data = TS(current_exec_data);
+            PUSH(x);
+            goto start_frame;
+            break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);
         }

@@ -1,7 +1,15 @@
 %{
 #include "co.h"
 
-//#define YYSTYPE Node *
+static Node *
+return_none_node()
+{
+    Node *n;
+    n = COMem_MALLOC(sizeof(Node));
+    n->o = CO_None;
+    n->type = NODE_CONST;
+    return node_new(NODE_RETURN, n, NULL);
+}
 
 %}
 
@@ -58,9 +66,9 @@
 start: stmt_list { 
         if ($$) {
             c->xtop = $$; 
-            c->xtop = node_concat($$, node_list(node_new(NODE_RETURN, NULL, NULL), NULL));
+            c->xtop = node_concat($$, node_list(return_none_node(), NULL));
         } else {
-            c->xtop = node_list(node_new(NODE_RETURN, NULL, NULL),
+            c->xtop = node_list(return_none_node(),
             NULL);
         }
     }
@@ -215,6 +223,8 @@ simple_stmt:
         }
     |   T_PRINT expr { Node *t = node_new(NODE_PRINT, $2, NULL); $$ = node_list(t, NULL); }
     |   expr { $$ = node_list($1, NULL); }
+    |   T_RETURN { $$ = node_list(return_none_node(), NULL); }
+    |   T_RETURN expr { $$ = node_list(node_new(NODE_RETURN, $2, NULL), NULL); }
 ;
 
 compound_stmt:
@@ -235,7 +245,7 @@ compound_stmt:
             Node *t = node_new(NODE_FUNC, NULL, NULL);
             t->nfuncname = $2;
             t->nfuncparams = $3;
-            t->nfuncbody = node_append($4, node_new(NODE_RETURN, NULL, NULL));
+            t->nfuncbody = node_append($4, return_none_node());
             $$ = node_list(t, NULL);
         }
 ;
