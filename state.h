@@ -8,6 +8,7 @@
 
 typedef struct _COThreadState {
     COObject *mainfunc;
+    COObject *funcargs;
     struct co_exec_data *current_exec_data;
 
     COObject *frame;

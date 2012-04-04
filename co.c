@@ -50,11 +50,9 @@ eval_wrapper(COObject *co)
 
     COObject *func = COFunction_New(COStr_FromString("<main>"), co, NULL);
     ret = vm_eval(func);
-    if (ret == NULL) {
-        if (COErr_Occurred()) {
-            COErr_Print();
-            return NULL;
-        }
+    if (COErr_Occurred()) {
+        COErr_Print();
+        return NULL;
     }
     return ret;
 }

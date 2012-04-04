@@ -18,16 +18,16 @@ node_new(Node_Type type, Node *nleft, Node *nright)
  * Append a node into list.
  */
 NodeList *
-node_append(NodeList *l, Node *n)
+nodelist_append(NodeList *l, Node *n)
 {
-    return node_concat(l, node_list(n, NULL));
+    return nodelist_concat(l, nodelist(n, NULL));
 }
  
 /*
  * Concatenate two list.
  */
 NodeList *
-node_concat(NodeList *a, NodeList *b)
+nodelist_concat(NodeList *a, NodeList *b)
 {
     a->end->next = b;
     a->end = b->end;
@@ -40,7 +40,7 @@ node_concat(NodeList *a, NodeList *b)
  * argument list.
  */
 NodeList *
-node_list(Node *n, ...)
+nodelist(Node *n, ...)
 {
     va_list params;
 
@@ -59,7 +59,7 @@ node_list(Node *n, ...)
         n = va_arg(params, Node *);
         if (!n)
             break;
-        l = node_concat(l, node_list(n, NULL));
+        l = nodelist_concat(l, nodelist(n, NULL));
     }
 
     va_end(params);
@@ -122,7 +122,7 @@ node_print(Node *n)
     }
     if (n->list) {
         indent_printf(level, "->list\n", n, node_type(n->type));
-        node_listtree(n->list);
+        nodelisttree(n->list);
     }
     level--;
 }
@@ -131,7 +131,7 @@ node_print(Node *n)
  * List node tree.
  */
 void
-node_listtree(NodeList *l)
+nodelisttree(NodeList *l)
 {
     indent_printf(0, "NodeList(%)\n", l);
     Node *n;
@@ -139,4 +139,25 @@ node_listtree(NodeList *l)
         n = l->n;
         node_print(n);
     }
+}
+
+int
+nodelist_len(NodeList *l)
+{
+    int i = 0;
+    while (l) {
+        i++;
+        l = l->next;
+    }
+    return i;
+}
+
+NodeList *
+nodelist_changetype(NodeList *l, Node_Type t)
+{
+    while (l) {
+        l->n->type = t;
+        l = l->next;
+    }
+    return l;
 }

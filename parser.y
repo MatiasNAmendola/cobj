@@ -66,9 +66,9 @@ return_none_node()
 start: stmt_list { 
         if ($$) {
             c->xtop = $$; 
-            c->xtop = node_concat($$, node_list(return_none_node(), NULL));
+            c->xtop = nodelist_concat($$, nodelist(return_none_node(), NULL));
         } else {
-            c->xtop = node_list(return_none_node(),
+            c->xtop = nodelist(return_none_node(),
             NULL);
         }
     }
@@ -87,7 +87,7 @@ open_stmt_list:
         stmt { $$ = $1; }
     |   open_stmt_list stmt_seps stmt {
             if ($1) {
-                $$ = node_concat($1, $3);
+                $$ = nodelist_concat($1, $3);
             } else {
                 $$ = $3;
             }
@@ -134,6 +134,13 @@ expr: /* express something */
     |   expr T_POW expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_POW; }
     |   '[' expr_list ']' { 
             $$ = node_new(NODE_LIST_BUILD, NULL, NULL);
+            if ($2) {
+                NodeList *t = $2;
+                while (t) {
+                    t->n = node_new(NODE_LIST_ADD, t->n, NULL);
+                    t = t->next;
+                }
+            }
             $$->list = $2; 
         }
     |   '{' assoc_list '}' {
@@ -157,16 +164,16 @@ opt_newlines:
 ;
 
 expr_list:
-        non_empty_expr_list opt_comma
+        non_empty_expr_list opt_comma { $$ = $1; }
     |   /* empty */ { $$ = 0; }
 ;
 
 non_empty_expr_list:
         opt_newlines expr opt_newlines { 
-            $$ = node_list(node_new(NODE_LIST_ADD, $2, NULL), NULL);
+            $$ = nodelist($2, NULL);
         }
     |   non_empty_expr_list ',' opt_newlines expr opt_newlines {
-            $$ = node_append($1, node_new(NODE_LIST_ADD, $4, NULL));
+            $$ = nodelist_append($1, $4);
         }
 ;
 
@@ -177,54 +184,54 @@ assoc_list:
 
 non_empty_assoc_list:
         opt_newlines expr ':' expr opt_newlines { 
-            $$ = node_list(node_new(NODE_DICT_ADD, $2, $4), NULL);
+            $$ = nodelist(node_new(NODE_DICT_ADD, $2, $4), NULL);
         }
     |   non_empty_assoc_list ',' opt_newlines expr ':' expr opt_newlines { 
-            $$ = node_append($1, node_new(NODE_DICT_ADD, $4, $6));
+            $$ = nodelist_append($1, node_new(NODE_DICT_ADD, $4, $6));
         }
 ;
 
 simple_stmt:
-        T_NAME '=' expr { Node *t = node_new(NODE_ASSIGN, $1, $3); $$ = node_list(t, NULL); }
+        T_NAME '=' expr { Node *t = node_new(NODE_ASSIGN, $1, $3); $$ = nodelist(t, NULL); }
     |   T_NAME T_ADD_ASSIGN expr { 
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_ADD;
-            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_SUB_ASSIGN expr  {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_SUB;
-            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_MUL_ASSIGN expr  {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_MUL;
-            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_DIV_ASSIGN expr  {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_DIV;
-            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_MOD_ASSIGN expr {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_MOD;
-            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_SR_ASSIGN expr {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_SR;
-            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_SL_ASSIGN expr {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_SL;
-            $$ = node_list(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
-    |   T_PRINT expr { Node *t = node_new(NODE_PRINT, $2, NULL); $$ = node_list(t, NULL); }
-    |   expr { $$ = node_list($1, NULL); }
-    |   T_RETURN { $$ = node_list(return_none_node(), NULL); }
-    |   T_RETURN expr { $$ = node_list(node_new(NODE_RETURN, $2, NULL), NULL); }
+    |   T_PRINT expr { Node *t = node_new(NODE_PRINT, $2, NULL); $$ = nodelist(t, NULL); }
+    |   expr { $$ = nodelist($1, NULL); }
+    |   T_RETURN { $$ = nodelist(return_none_node(), NULL); }
+    |   T_RETURN expr { $$ = nodelist(node_new(NODE_RETURN, $2, NULL), NULL); }
 ;
 
 compound_stmt:
@@ -233,20 +240,20 @@ compound_stmt:
             t->ntest = $2;
             t->nbody = $3;
             t->nelse = $4;
-            $$ = node_list(t, NULL);
+            $$ = nodelist(t, NULL);
         }
     |   T_WHILE expr stmt_list T_END {
             Node *t = node_new(NODE_WHILE, NULL, NULL);
             t->ntest = $2;
             t->nbody = $3;
-            $$ = node_list(t, NULL);
+            $$ = nodelist(t, NULL);
         }
     |   T_FUNC T_NAME opt_param_list stmt_list T_END {
             Node *t = node_new(NODE_FUNC, NULL, NULL);
             t->nfuncname = $2;
-            t->nfuncparams = $3;
-            t->nfuncbody = node_append($4, return_none_node());
-            $$ = node_list(t, NULL);
+            t->nfuncargs = $3;
+            t->nfuncbody = nodelist_append($4, return_none_node());
+            $$ = nodelist(t, NULL);
         }
 ;
 
@@ -262,10 +269,10 @@ param_list:
     
 non_empty_param_list: 
         T_NAME {
-            $$ = node_list($1, NULL);
+            $$ = nodelist($1, NULL);
         }
     |   non_empty_param_list ',' T_NAME { 
-            $$ = node_append($1, $3);
+            $$ = nodelist_append($1, $3);
         }
 ;
 
@@ -281,7 +288,7 @@ if_tail:
             t->ntest = $2;
             t->nbody = $3;
             t->nelse = $4;
-            $$ = node_list(t, NULL);
+            $$ = nodelist(t, NULL);
         }
 ;
 

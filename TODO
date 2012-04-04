@@ -3,11 +3,11 @@
 * implement keyword this
 * add gc
 * built-in functions (print, etc)
-* error handling (exceptin)
+* error handling (exception)
 * error message with location
 * implement namespace & scope rules
 * construct AST from parse.y according to ruby
 * add "Derived from" notice at header files
 * % change dividend from divisor
-* support function passing params & receiving
 * function support closure
+* finish richcompare & COObject_hash method

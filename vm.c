@@ -93,8 +93,21 @@ vm_eval(COObject *func)
     int status;
 
 new_frame:
-    exec_data = (struct co_exec_data *)COFrame_Alloc(f, sizeof(struct co_exec_data));
     code = (COCodeObject *)((COFunctionObject *)func)->func_code;
+    exec_data = (struct co_exec_data *)COFrame_Alloc(f, sizeof(struct co_exec_data));
+    if (COList_Size(TS(funcargs))) {
+        // check arguments count
+        if (code->co_argcount != COList_Size(TS(funcargs))) {
+            COErr_Format(COException_ValueError, "takes exactly %d arguments (%d given)", code->co_argcount, COList_Size(TS(funcargs)));
+            status = STATUS_EXCEPTION;
+            goto on_error;
+        }
+        size_t n = COList_Size(TS(funcargs));
+        for (int i = 0; i < n; i++) {
+            COFrame_Push(f, COList_GetItem(TS(funcargs), 0));
+            COList_DelItem(TS(funcargs), 0);
+        }
+    }
     exec_data->prev_exec_data = NULL;
     exec_data->symbol_table = CODict_New();
     exec_data->function_called = func;
@@ -254,8 +267,12 @@ start_frame:
             break;
         case OP_DO_FCALL:
             o1 = POP();
-
+            oparg = NEXTARG();
             func = o1;
+            while (oparg--) {
+                o2 = POP();
+                COList_Append(TS(funcargs), o2);
+            }
             goto new_frame;
             break;
         case OP_RETURN:

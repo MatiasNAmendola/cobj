@@ -49,7 +49,7 @@ struct _Node {
 
     /* For func */
     Node *nfuncname;
-    NodeList *nfuncparams;
+    NodeList *nfuncargs;
     NodeList *nfuncbody;
 };
 
@@ -60,10 +60,12 @@ struct _NodeList {
 };
 
 Node *node_new(Node_Type type, Node *nleft, Node *nright);
-NodeList *node_list(Node *n, ...);
-NodeList *node_concat(NodeList *a, NodeList *b);
-NodeList *node_append(NodeList *l, Node *n);
-void node_listtree(NodeList *n);
+NodeList *nodelist(Node *n, ...);
+NodeList *nodelist_concat(NodeList *a, NodeList *b);
+NodeList *nodelist_append(NodeList *l, Node *n);
+int nodelist_len(NodeList *l);
+NodeList * nodelist_changetype(NodeList *l, Node_Type t);
+void nodelisttree(NodeList *n);
 const char *node_type(Node_Type type);
 
 #endif

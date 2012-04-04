@@ -8,7 +8,7 @@ static void dump_code(COObject *code);
 #endif
 
 COObject *compile_ast(struct compiler *c);
-static int compile_visit_node(struct compiler *c, Node *n);
+static void compile_visit_node(struct compiler *c, Node *n);
 static COObject *assemble(struct compiler *c);
 
 static void
@@ -31,6 +31,7 @@ compiler_enter_scope(struct compiler *c)
     u->names = CODict_New();
     u->bytecode = COBytes_FromStringN(NULL, DEFAULT_BYTECODE_SIZE);
     u->bytecode_offset = 0;
+    u->argcount = 0;
 
     /* Push the old compiler_unit on the stack. */
     if (c->u) {
@@ -189,10 +190,13 @@ compile_visit_nodelist(struct compiler *c, NodeList *l)
     }
 }
 
-static int
+static void
 compile_visit_node(struct compiler *c, Node *n)
 {
     int oparg;
+    if (!n)
+        return;
+
     switch (n->type) {
     case NODE_PRINT:
         compile_visit_node(c, n->left);
@@ -257,32 +261,39 @@ compile_visit_node(struct compiler *c, Node *n)
         }
         break;
     case NODE_FUNC:
-        {
-            compiler_enter_scope(c);
-            compile_visit_nodelist(c, n->nfuncbody);
-            COObject *co = assemble(c);
-#ifdef CO_DEBUG
-            printf("make function\n");
-            dump_code(co);
-#endif
-            compiler_exit_scope(c);
-            oparg = compile_add(c->u->consts, co);
-            compile_addop_i(c, OP_LOAD_CONST, oparg);
-        
-            compile_addop(c, OP_DECLARE_FUNCTION);
-
-            oparg = compile_add(c->u->names, n->nfuncname->o);
+        compiler_enter_scope(c);
+        c->u->argcount = nodelist_len(n->nfuncargs);
+        NodeList *l = n->nfuncargs;
+        while (l) {
+            oparg = compile_add(c->u->names, l->n->o);
             compile_addop_i(c, OP_ASSIGN, oparg);
+            l = l->next;
         }
+        compile_visit_nodelist(c, n->nfuncbody);
+        COObject *co = assemble(c);
+#ifdef CO_DEBUG
+        printf("begin function\n");
+        dump_code(co);
+        printf("end function\n");
+#endif
+        compiler_exit_scope(c);
+        oparg = compile_add(c->u->consts, co);
+        compile_addop_i(c, OP_LOAD_CONST, oparg);
+    
+        compile_addop(c, OP_DECLARE_FUNCTION);
+
+        oparg = compile_add(c->u->names, n->nfuncname->o);
+        compile_addop_i(c, OP_ASSIGN, oparg);
         break;
     case NODE_FUNC_CALL:
+        compile_visit_nodelist(c, n->list);
         compile_visit_node(c, n->left);
-        compile_addop(c, OP_DO_FCALL);
+        oparg = nodelist_len(n->list);
+        compile_addop_i(c, OP_DO_FCALL, oparg);
         break;
     default:
         error("unknown node type: %d, %s", n->type, node_type(n->type));
     }
-    return 0;
 }
 
 static int
@@ -387,7 +398,7 @@ assemble(struct compiler *c)
     }
     c->u->names = names;
 
-    return COCode_New(c->u->bytecode, COList_AsTuple(c->u->consts), COList_AsTuple(c->u->names));
+    return COCode_New(c->u->bytecode, COList_AsTuple(c->u->consts), COList_AsTuple(c->u->names), c->u->argcount);
 }
 
 
@@ -447,37 +458,24 @@ dump_code(COObject *code)
     char *bytecode = COBytes_AsString(((COCodeObject *)code)->co_code);
     char *start = bytecode;
     unsigned char opcode;
-    int oparg;
     for (;;) {
         opcode = NEXTOP();
         printf("%ld.\t%s", bytecode - start - 1, opcode_name(opcode));
         switch (opcode) {
-        case OP_LOAD_CONST:
-            oparg = NEXTARG();
-            printf("\t\t%d", oparg);
-            break;
-        case OP_PRINT:
-            break;
         case OP_RETURN:
+            /* exit bytecode */
             printf("\n");
             return;
             break;
+            /* op with arg */
         case OP_ASSIGN:
-            printf("\t\t%d", NEXTARG());
-            break;
+        case OP_LOAD_CONST:
         case OP_LOAD_NAME:
-            printf("\t\t%d", NEXTARG());
-            break;
-        case OP_JMPZ:
-            printf("\t\t%d", NEXTARG());
-            break;
         case OP_JMP:
-            printf("\t\t%d", NEXTARG());
-            break;
         case OP_JMPX:
+        case OP_JMPZ:
+        case OP_DO_FCALL:
             printf("\t\t%d", NEXTARG());
-            break;
-        case OP_DECLARE_FUNCTION:
             break;
         }
         printf("\n");

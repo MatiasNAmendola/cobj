@@ -31,6 +31,8 @@ struct compiler_unit {
     struct instr *instr;  /* pointer to an array of instructions */
     int iused;            /* number of instructions used */
     int ialloc;           /* length of instructions array */
+
+    int argcount;
 };
 
 struct compiler {

@@ -9,6 +9,7 @@ COThreadState_New()
     if (state != NULL) {
         // TODO
     }
+    state->funcargs = COList_New(0);
 
     return state;
 }
