@@ -6,7 +6,7 @@
  * This object can map str/int objects to any objects.
  */
 
-#include "../co_compat.h"
+#include "../compat.h"
 #include "../object.h"
 
 typedef ulong (*dict_hash_func_t) (const char *arKey, uint nKeyLen);

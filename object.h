@@ -39,7 +39,7 @@
  * pointer to the proper type and back.
  */
 
-#include "co_compat.h"
+#include "compat.h"
 #include "mem.h"
 
 // initial segment of every object

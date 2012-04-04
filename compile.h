@@ -1,7 +1,7 @@
 #ifndef COMPILE_H
 #define COMPILE_H
 
-#include "co_compat.h"
+#include "compat.h"
 #include "object.h"
 #include "objects/listobject.h"
 #include "ast.h"

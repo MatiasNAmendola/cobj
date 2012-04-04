@@ -4,7 +4,7 @@
  * Cache for header files for simplicity.
  *
  * Notice:
- *  Other header file should not include this!
+ *  Other header files should not include this!
  *
  * Dependencies:
  *         the_compat.h
@@ -18,7 +18,7 @@
  * Author: Yecheng Fu <cofyc.jackson@gmail.com>
  */
 
-#include "co_compat.h"
+#include "compat.h"
 #include "compile.h"
 #include "error.h"
 #include "llist.h"
