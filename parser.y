@@ -16,7 +16,7 @@ return_none_node()
 %pure_parser
 %debug
 %error-verbose
-%expect 2
+%expect 5
 
 %union {
     Node *node;    
@@ -151,6 +151,18 @@ expr: /* express something */
             $$ = node_new(NODE_FUNC_CALL, $1, NULL);
             $$->list = $3;
         }
+    |   T_FUNC opt_param_list stmt_list T_END {
+            Node *t = node_new(NODE_FUNC, NULL, NULL);
+            t->nfuncname = 0;
+            t->nfuncargs = $2;
+            t->nfuncbody = $3;
+            if (t->nfuncbody) {
+                t->nfuncbody = nodelist_append(t->nfuncbody, return_none_node());
+            } else {
+                t->nfuncbody = nodelist(return_none_node(), NULL);
+            }
+            $$ = t;
+        }
 ;
 
 opt_comma:
@@ -252,7 +264,12 @@ compound_stmt:
             Node *t = node_new(NODE_FUNC, NULL, NULL);
             t->nfuncname = $2;
             t->nfuncargs = $3;
-            t->nfuncbody = nodelist_append($4, return_none_node());
+            t->nfuncbody = $4;
+            if (t->nfuncbody) {
+                t->nfuncbody = nodelist_append(t->nfuncbody, return_none_node());
+            } else {
+                t->nfuncbody = nodelist(return_none_node());
+            }
             $$ = nodelist(t, NULL);
         }
 ;

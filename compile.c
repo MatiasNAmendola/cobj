@@ -283,8 +283,10 @@ compile_visit_node(struct compiler *c, Node *n)
 
         compile_addop(c, OP_DECLARE_FUNCTION);
 
-        oparg = compile_add(c->u->names, n->nfuncname->o);
-        compile_addop_i(c, OP_ASSIGN, oparg);
+        if (n->nfuncname) {
+            oparg = compile_add(c->u->names, n->nfuncname->o);
+            compile_addop_i(c, OP_ASSIGN, oparg);
+        }
         break;
     case NODE_FUNC_CALL:
         compile_visit_nodelist(c, n->list);
