@@ -22,7 +22,7 @@ nodelist_append(NodeList *l, Node *n)
 {
     return nodelist_concat(l, nodelist(n, NULL));
 }
- 
+
 /*
  * Concatenate two list.
  */
@@ -74,7 +74,7 @@ node_type(Node_Type type)
         return #type
 
     switch (type) {
-        GIVE_NAME(NODE_BIN);       /* binary op node */
+        GIVE_NAME(NODE_BIN);    /* binary op node */
         GIVE_NAME(NODE_IF);
         GIVE_NAME(NODE_WHILE);
         GIVE_NAME(NODE_FUNC);

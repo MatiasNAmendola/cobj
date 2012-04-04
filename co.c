@@ -77,7 +77,7 @@ main(int argc, const char **argv)
     /* Init */
     COInt_Init();
     threadstate_current = COThreadState_New();
-    TS(frame) = COFrame_New();
+    TS(frame) = COStack_New();
 
     /* test only */
     if (verbose) {
@@ -113,18 +113,18 @@ main(int argc, const char **argv)
             f_name = *argv;
             // detect if it's a code cache
             /*
-            COObject *first_object;
-            first_object = COObject_unserializeFromFile(f);
-            if (first_object && COInt_Check(first_object)
-                && COInt_AsLong(first_object) == CODEDUMP_MAGIC) {
-                COObject *code = COObject_unserializeFromFile(f);
-                if (!code) {
-                    // TODO invalid code dump
-                    return -1;
-                }
-                return eval_wrapper(code) ? 0 : -1;
-            }
-            */
+               COObject *first_object;
+               first_object = COObject_unserializeFromFile(f);
+               if (first_object && COInt_Check(first_object)
+               && COInt_AsLong(first_object) == CODEDUMP_MAGIC) {
+               COObject *code = COObject_unserializeFromFile(f);
+               if (!code) {
+               // TODO invalid code dump
+               return -1;
+               }
+               return eval_wrapper(code) ? 0 : -1;
+               }
+             */
         }
         fseek(f, 0, SEEK_SET);
 

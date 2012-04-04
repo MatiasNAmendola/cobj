@@ -25,17 +25,17 @@
 
 static const unsigned char BitLengthTable[32] = {
     0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4,
-    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 
+    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
 };
 
 static int
 bits_in_digit(digit d)
 {
-    int d_bits = 0; 
+    int d_bits = 0;
     while (d >= 32) {
         d_bits += 6;
         d >>= 6;
-    }    
+    }
     d_bits += (int)BitLengthTable[d];
     return d_bits;
 }
@@ -408,7 +408,7 @@ x_mul(COIntObject *a, COIntObject *b)
     ssize_t size_b = ABS(CO_SIZE(b));
     COIntObject *o;
     ssize_t i;
-    
+
     o = _COInt_New(size_a + size_b);
     if (!o)
         return NULL;
@@ -467,34 +467,34 @@ x_mul(COIntObject *a, COIntObject *b)
 
 /* Shift digit vector a[0:m] d bits left, with 0 <= d < COInt_SHIFT.  Put
  * result in z[0:m], and return the d bits shifted out of the top.
- */ 
-static digit 
+ */
+static digit
 v_lshift(digit *z, digit *a, ssize_t m, int d)
-{   
+{
     ssize_t i;
     digit carry = 0;
-        
+
     assert(0 <= d && d < COInt_SHIFT);
-    for (i=0; i < m; i++) {
+    for (i = 0; i < m; i++) {
         twodigits acc = (twodigits)a[i] << d | carry;
         z[i] = (digit)acc & COInt_MASK;
         carry = (digit)(acc >> COInt_SHIFT);
     }
     return carry;
-}       
+}
 
 /* Shift digit vector a[0:m] d bits right, with 0 <= d < COInt_SHIFT.  Put
  * result in z[0:m], and return the d bits shifted out of the bottom.
- */             
-static digit    
+ */
+static digit
 v_rshift(digit *z, digit *a, ssize_t m, int d)
-{               
+{
     ssize_t i;
     digit carry = 0;
     digit mask = ((digit)1 << d) - 1U;
-        
+
     assert(0 <= d && d < COInt_SHIFT);
-    for (i=m; i-- > 0;) {
+    for (i = m; i-- > 0;) {
         twodigits acc = (twodigits)carry << COInt_SHIFT | a[i];
         carry = (digit)acc & mask;
         z[i] = (digit)(acc >> d);
@@ -546,11 +546,11 @@ x_divrem(COIntObject *v1, COIntObject *w1, COIntObject **prem)
 
     /* normalize: shift w1 left so that its top digit is >= COInt_BASE/2.
        shift v1 left by the same amount.  Results go into w and v. */
-    d = COInt_SHIFT - bits_in_digit(w1->co_digit[size_w-1]);
+    d = COInt_SHIFT - bits_in_digit(w1->co_digit[size_w - 1]);
     carry = v_lshift(w->co_digit, w1->co_digit, size_w, d);
     assert(carry == 0);
     carry = v_lshift(v->co_digit, v1->co_digit, size_v, d);
-    if (carry != 0 || v->co_digit[size_v-1] >= w->co_digit[size_w-1]) {
+    if (carry != 0 || v->co_digit[size_v - 1] >= w->co_digit[size_w - 1]) {
         v->co_digit[size_v] = carry;
         size_v++;
     }
@@ -568,23 +568,21 @@ x_divrem(COIntObject *v1, COIntObject *w1, COIntObject **prem)
     }
     v0 = v->co_digit;
     w0 = w->co_digit;
-    wm1 = w0[size_w-1];
-    wm2 = w0[size_w-2];
+    wm1 = w0[size_w - 1];
+    wm2 = w0[size_w - 2];
 
-
-    for (vk = v0+k, ak = a->co_digit + k; vk-- > v0;) {
+    for (vk = v0 + k, ak = a->co_digit + k; vk-- > v0;) {
         /* inner loop: divide vk[0:size_w+1] by w0[0:size_w], giving
            single-digit quotient q, remainder in vk[0:size_w]. */
-
 
         /* estimate quotient digit q; may overestimate by 1 (rare) */
         vtop = vk[size_w];
         assert(vtop <= wm1);
-        vv = ((twodigits)vtop << COInt_SHIFT) | vk[size_w-1];
+        vv = ((twodigits)vtop << COInt_SHIFT) | vk[size_w - 1];
         q = (digit)(vv / wm1);
-        r = (digit)(vv - (twodigits)wm1 * q); /* r = vv % wm1 */
+        r = (digit)(vv - (twodigits)wm1 * q);   /* r = vv % wm1 */
         while ((twodigits)wm2 * q > (((twodigits)r << COInt_SHIFT)
-                                     | vk[size_w-2])) {
+                                     | vk[size_w - 2])) {
             --q;
             r += wm1;
             if (r >= COInt_BASE)
@@ -597,11 +595,9 @@ x_divrem(COIntObject *v1, COIntObject *w1, COIntObject **prem)
         for (i = 0; i < size_w; ++i) {
             /* invariants: -COInt_BASE <= -q <= zhi <= 0;
                -COInt_BASE * q <= z < COInt_BASE */
-            z = (sdigit)vk[i] + zhi -
-                (stwodigits)q * (stwodigits)w0[i];
+            z = (sdigit)vk[i] + zhi - (stwodigits)q *(stwodigits)w0[i];
             vk[i] = (digit)z & COInt_MASK;
-            zhi = (sdigit)CO_ARITHMETIC_RIGHT_SHIFT(stwodigits,
-                                                    z, COInt_SHIFT);
+            zhi = (sdigit)CO_ARITHMETIC_RIGHT_SHIFT(stwodigits, z, COInt_SHIFT);
         }
         /* add w back if q was too large (this branch taken rarely) */
         assert((sdigit)vtop + zhi == -1 || (sdigit)vtop + zhi == 0);
@@ -622,7 +618,7 @@ x_divrem(COIntObject *v1, COIntObject *w1, COIntObject **prem)
 
     /* unshift remainder; we reuse w to store the result */
     carry = v_rshift(w0, v0, size_w, d);
-    assert(carry==0);
+    assert(carry == 0);
     CO_DECREF(v);
 
     *prem = int_normalize(w);
@@ -716,7 +712,7 @@ inplace_divrem1(digit *pout, digit *pin, ssize_t size, digit n)
         digit hi;
         rem = (rem << COInt_SHIFT) | *--pin;
         *--pout = hi = (digit)(rem / n);
-        rem -= (twodigits)hi * n;
+        rem -= (twodigits)hi *n;
     }
     return (digit)rem;
 }
@@ -742,20 +738,22 @@ divrem1(COIntObject *a, digit n, digit *prem)
  * Division with remainder.
  */
 static int
-int_divrem(COIntObject *a, COIntObject *b, COIntObject **pdiv, COIntObject **prem)
+int_divrem(COIntObject *a, COIntObject *b, COIntObject **pdiv,
+           COIntObject **prem)
 {
     ssize_t size_a = ABS(CO_SIZE(a));
     ssize_t size_b = ABS(CO_SIZE(b));
     COIntObject *o;
 
     if (size_b == 0) {
-        COErr_SetString(COException_ValueError, "integer division or modulo by zero");
+        COErr_SetString(COException_ValueError,
+                        "integer division or modulo by zero");
         return -1;
     }
-
     // If |a| < |b|, it's simple.
     if (size_a < size_b ||
-        (size_a == size_b && a->co_digit[size_a - 1] < b->co_digit[size_b - 1])) {
+        (size_a == size_b
+         && a->co_digit[size_a - 1] < b->co_digit[size_b - 1])) {
         *pdiv = (COIntObject *)COInt_FromLong(0);
         if (!*pdiv)
             return -1;

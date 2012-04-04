@@ -18,5 +18,6 @@ COTypeObject COCode_Type;
 
 #define COCode_Check(co) (CO_TYPE(co) == &COCode_Type)
 
-COObject *COCode_New(COObject *code, COObject *consts, COObject *names, int argcount);
+COObject *COCode_New(COObject *code, COObject *consts, COObject *names,
+                     int argcount);
 #endif

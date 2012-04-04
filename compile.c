@@ -55,7 +55,8 @@ compiler_exit_scope(struct compiler *c)
     /* Restore c->U to the parent unit. */
     n = COList_Size(c->stack) - 1;
     if (n >= 0) {
-        COCapsuleObject *capsule = (COCapsuleObject *)COList_GetItem(c->stack, n);
+        COCapsuleObject *capsule =
+            (COCapsuleObject *)COList_GetItem(c->stack, n);
         c->u = (struct compiler_unit *)capsule->pointer;
         COList_DelItem(c->stack, n);
     } else {
@@ -77,7 +78,6 @@ compile(void)
     return compile_ast(&c);
 }
 
-
 /*
  * Get next instruction.
  * Resizes instruction array as necessary.
@@ -86,7 +86,9 @@ static int
 compile_next_instr(struct compiler *c)
 {
     if (c->u->instr == NULL) {
-        c->u->instr = (struct instr *)COMem_MALLOC(sizeof(struct instr) * DEFAULT_INSTR_SIZE);
+        c->u->instr =
+            (struct instr *)COMem_MALLOC(sizeof(struct instr) *
+                                         DEFAULT_INSTR_SIZE);
         if (!c->u->instr) {
             // TODO errors
             return -1;
@@ -147,7 +149,6 @@ compile_addop_i(struct compiler *c, int opcode, int oparg)
     i->i_hasarg = 1;
     return off;
 }
-
 
 /*
  * Add const/name and return index.
@@ -252,12 +253,12 @@ compile_visit_node(struct compiler *c, Node *n)
         break;
     case NODE_WHILE:
         {
-        int while_start = c->u->iused;
-        compile_visit_node(c, n->ntest);
-        int offset = compile_addop_i(c, OP_JMPZ, -1);
-        compile_visit_nodelist(c, n->nbody);
-        compile_addop_i(c, OP_JMPX, while_start);
-        compile_backpatch(c, offset);
+            int while_start = c->u->iused;
+            compile_visit_node(c, n->ntest);
+            int offset = compile_addop_i(c, OP_JMPZ, -1);
+            compile_visit_nodelist(c, n->nbody);
+            compile_addop_i(c, OP_JMPX, while_start);
+            compile_backpatch(c, offset);
         }
         break;
     case NODE_FUNC:
@@ -279,7 +280,7 @@ compile_visit_node(struct compiler *c, Node *n)
         compiler_exit_scope(c);
         oparg = compile_add(c->u->consts, co);
         compile_addop_i(c, OP_LOAD_CONST, oparg);
-    
+
         compile_addop(c, OP_DECLARE_FUNCTION);
 
         oparg = compile_add(c->u->names, n->nfuncname->o);
@@ -300,9 +301,9 @@ static int
 instrsize(struct instr *i)
 {
     if (i->i_hasarg) {
-        return 3;   /* 1 (opcode) + 2 (oparg) */
+        return 3;               /* 1 (opcode) + 2 (oparg) */
     } else {
-        return 1;   /* 1 (opcode) */
+        return 1;               /* 1 (opcode) */
     }
 }
 
@@ -398,9 +399,9 @@ assemble(struct compiler *c)
     }
     c->u->names = names;
 
-    return COCode_New(c->u->bytecode, COList_AsTuple(c->u->consts), COList_AsTuple(c->u->names), c->u->argcount);
+    return COCode_New(c->u->bytecode, COList_AsTuple(c->u->consts),
+                      COList_AsTuple(c->u->names), c->u->argcount);
 }
-
 
 #ifdef CO_DEBUG
 static char *
@@ -501,7 +502,7 @@ compile_ast(struct compiler *c)
 }
 
 int
-colex(YYSTYPE *colval)
+colex(YYSTYPE * colval)
 {
     int retval;
 

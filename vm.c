@@ -54,8 +54,8 @@ COObject_set(COObject *name, COObject *co)
     if (current_exec_data->function_called) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
-                               current_exec_data->
-                               function_called)->func_upvalues, name);
+                               current_exec_data->function_called)->
+                              func_upvalues, name);
         if (myco) {
             CODict_SetItem(((COFunctionObject *)
                             current_exec_data->function_called)->func_upvalues,
@@ -70,8 +70,8 @@ COObject_set(COObject *name, COObject *co)
 #define NEXTOP()    (*exec_data->bytecode++)
 #define NEXTARG()   (exec_data->bytecode += 2, (exec_data->bytecode[-1]<<8) + exec_data->bytecode[-2])
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
-#define PUSH(o)     COFrame_Push(f, (COObject *)o);
-#define POP()       COFrame_Pop(f);
+#define PUSH(o)     COStack_Push(f, (COObject *)o);
+#define POP()       COStack_Pop(f);
 
 /*
  * Evaluate a function object into a object.
@@ -85,26 +85,29 @@ vm_eval(COObject *func)
     COObject *consts;
     COCodeObject *code;
 
-    register unsigned char opcode;       /* Current opcode */
-    register int oparg;                  /* Current opcode argument, if any */
-    register COObject *x;                /* Result object -- NULL if error */
-    register COObject *o1, *o2, *o3;     /* Temporary objects popped of stack */
+    register unsigned char opcode;      /* Current opcode */
+    register int oparg;         /* Current opcode argument, if any */
+    register COObject *x;       /* Result object -- NULL if error */
+    register COObject *o1, *o2, *o3;    /* Temporary objects popped of stack */
     TS(mainfunc) = func;
     int status;
 
 new_frame:
     code = (COCodeObject *)((COFunctionObject *)func)->func_code;
-    exec_data = (struct co_exec_data *)COFrame_Alloc(f, sizeof(struct co_exec_data));
+    exec_data =
+        (struct co_exec_data *)COStack_Alloc(f, sizeof(struct co_exec_data));
     if (COList_Size(TS(funcargs))) {
         // check arguments count
         if (code->co_argcount != COList_Size(TS(funcargs))) {
-            COErr_Format(COException_ValueError, "takes exactly %d arguments (%d given)", code->co_argcount, COList_Size(TS(funcargs)));
+            COErr_Format(COException_ValueError,
+                         "takes exactly %d arguments (%d given)",
+                         code->co_argcount, COList_Size(TS(funcargs)));
             status = STATUS_EXCEPTION;
             goto on_error;
         }
         size_t n = COList_Size(TS(funcargs));
         for (int i = 0; i < n; i++) {
-            COFrame_Push(f, COList_GetItem(TS(funcargs), 0));
+            COStack_Push(f, COList_GetItem(TS(funcargs), 0));
             COList_DelItem(TS(funcargs), 0);
         }
     }
@@ -118,7 +121,9 @@ new_frame:
 
 start_frame:
     status = STATUS_NONE;
-    code = (COCodeObject *)((COFunctionObject *)exec_data->function_called)->func_code;
+    code =
+        (COCodeObject *)((COFunctionObject *)exec_data->function_called)->
+        func_code;
     names = code->co_names;
     consts = code->co_consts;
 
@@ -199,7 +204,7 @@ start_frame:
             x = COObject_get(o1);
             if (!x) {
                 COErr_Format(COException_NameError, "name '%s' is not defined",
-                         COStr_AsString(o1)); 
+                             COStr_AsString(o1));
                 status = STATUS_EXCEPTION;
                 goto on_error;
             }
@@ -217,7 +222,7 @@ start_frame:
         case OP_LIST_BUILD:
             x = COList_New(0);
             PUSH(x);
-            break; 
+            break;
         case OP_LIST_ADD:
             o1 = POP();
             o2 = POP();
@@ -260,9 +265,7 @@ start_frame:
             break;
         case OP_DECLARE_FUNCTION:
             o1 = POP();
-            COFunctionObject *x =
-                (COFunctionObject *)COFunction_New(NULL, o1,
-                                                   NULL);
+            x = COFunction_New(NULL, o1, NULL);
             PUSH(x);
             break;
         case OP_DO_FCALL:
@@ -280,7 +283,7 @@ start_frame:
             struct co_exec_data *old_exec_data;
             old_exec_data = TS(current_exec_data);
             TS(current_exec_data) = TS(current_exec_data)->prev_exec_data;
-            COFrame_Free(f, (COObject *)old_exec_data);
+            COStack_Free(f, (COObject *)old_exec_data);
             if (!TS(current_exec_data)) {
                 goto vm_exit;
             }

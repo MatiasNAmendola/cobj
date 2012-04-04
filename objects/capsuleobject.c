@@ -13,7 +13,7 @@ COTypeObject COCapsule_Type = {
     "capsule",
     sizeof(COCapsuleObject),
     0,
-    (reprfunc)capsule_repr,        /* tp_repr */
+    (reprfunc)capsule_repr,     /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_hash */

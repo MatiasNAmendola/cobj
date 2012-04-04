@@ -17,4 +17,3 @@ COTypeObject COCapsule_Type;
 
 COObject *COCapsule_New(void *pointer);
 #endif
-

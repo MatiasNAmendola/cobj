@@ -145,7 +145,7 @@ w_object(COObject *co, WFILE *p)
         w_int64((long)code->co_numoftmpvars, p);
         w_object(code->co_oplines, p);
     } else if (COOpline_Check(co)) {
-        COOplineObject *opline = (COOplineObject *)co;
+        COOplineObject *opline = (COOplineObject *) co;
         w_byte(TYPE_OPLINE, p);
         w_byte(opline->opcode, p);
         w_cnode(&opline->result, p);
@@ -326,7 +326,7 @@ r_object(RFILE *p)
         break;
     case TYPE_OPLINE:
         {
-            COOplineObject *opline = (COOplineObject *)COOpline_New();
+            COOplineObject *opline = (COOplineObject *) COOpline_New();
             SET_OBJECT(opline);
             opline->opcode = r_byte(p);
             r_cnode(&opline->result, p);

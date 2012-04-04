@@ -44,7 +44,7 @@
 #include "objects/codeobject.h"
 #include "objects/listobject.h"
 #include "objects/tupleobject.h"
-#include "objects/frameobject.h"
+#include "objects/stackobject.h"
 #include "objects/dictobject.h"
 #include "objects/codeobject.h"
 #include "objects/bytesobject.h"
@@ -72,7 +72,6 @@
 #endif
 
 #define CHAR_MASK(c) ((unsigned char)((c) & 0xff))
-
 
 /* COARITHMETIC_RIGHT_SHIFT
  * C doesn't define whether a right-shift of a signed integer sign-extends

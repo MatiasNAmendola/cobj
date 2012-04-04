@@ -14,7 +14,7 @@
 
 // instruction
 struct instr {
-    unsigned int i_hasarg : 1;
+    unsigned int i_hasarg:1;
     unsigned char i_opcode;
     int i_oparg;
 };
@@ -28,15 +28,15 @@ struct compiler_unit {
     COObject *names;
 
     int bytecode_offset;
-    struct instr *instr;  /* pointer to an array of instructions */
-    int iused;            /* number of instructions used */
-    int ialloc;           /* length of instructions array */
+    struct instr *instr;        /* pointer to an array of instructions */
+    int iused;                  /* number of instructions used */
+    int ialloc;                 /* length of instructions array */
 
     int argcount;
 };
 
 struct compiler {
-    NodeList  *xtop;
+    NodeList *xtop;
 
     struct compiler_unit *u;    /* Current compiler unit. */
     COObject *stack;            /* List object to hold compiler unit pointers. */
@@ -50,8 +50,8 @@ int coparse();
 void coerror(struct compiler *c, const char *err, ...);
 
 // scanner
-int colex(YYSTYPE *colval);
-int co_scanner_lex(YYSTYPE *yylval);
+int colex(YYSTYPE * colval);
+int co_scanner_lex(YYSTYPE * yylval);
 int co_scanner_setfile(COObject *f);
 int co_scanner_setcode(char *code);
 

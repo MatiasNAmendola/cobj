@@ -1,17 +1,17 @@
 #include "../co.h"
 
 static COObject *
-frame_repr(COFrameObject *this)
+stack_repr(COStackObject *this)
 {
-    return COStr_FromString("<frame>");
+    return COStr_FromString("<stack>");
 }
 
-COTypeObject COFrame_Type = {
+COTypeObject COStack_Type = {
     COObject_HEAD_INIT(&COType_Type),
-    "frame",
-    sizeof(COFrameObject),
+    "stack",
+    sizeof(COStackObject),
     0,
-    (reprfunc)frame_repr,       /* tp_repr */
+    (reprfunc)stack_repr,       /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
@@ -27,8 +27,8 @@ struct vm_stack {
 
 #define VM_STACK_PAGE_SIZE (64 * 1024)
 #define VM_STACK_GROW_IF_NEEDED(size)                \
-    if (size > ((COFrameObject *)this)->vm_stack->end                  \
-            - ((COFrameObject *)this)->vm_stack->top) {                \
+    if (size > ((COStackObject *)this)->vm_stack->end                  \
+            - ((COStackObject *)this)->vm_stack->top) {                \
             vm_stack_extend(this, size);                   \
     }
 
@@ -50,21 +50,21 @@ vm_stack_extend(COObject *this, size_t size)
     struct vm_stack *p =
         vm_stack_new_page(size >=
                           VM_STACK_PAGE_SIZE ? size : VM_STACK_PAGE_SIZE);
-    p->prev = ((COFrameObject *)this)->vm_stack;
-    ((COFrameObject *)this)->vm_stack = p;
+    p->prev = ((COStackObject *)this)->vm_stack;
+    ((COStackObject *)this)->vm_stack = p;
 }
 
 COObject *
-COFrame_New(void)
+COStack_New(void)
 {
-    COFrameObject *f = COObject_New(COFrameObject, &COFrame_Type);
+    COStackObject *f = COObject_New(COStackObject, &COStack_Type);
 
     f->vm_stack = vm_stack_new_page(VM_STACK_PAGE_SIZE);
     return (COObject *)f;
 }
 
 COObject *
-COFrame_Alloc(COObject *this, size_t size)
+COStack_Alloc(COObject *this, size_t size)
 {
     void *ret;
 
@@ -73,21 +73,21 @@ COFrame_Alloc(COObject *this, size_t size)
 
     VM_STACK_GROW_IF_NEEDED(size);
 
-    ret = (void *)((COFrameObject *)this)->vm_stack->top;
-    ((COFrameObject *)this)->vm_stack->top += size;
+    ret = (void *)((COStackObject *)this)->vm_stack->top;
+    ((COStackObject *)this)->vm_stack->top += size;
     return ret;
 }
 
 COObject *
-COFrame_Pop(COObject *this)
+COStack_Pop(COObject *this)
 {
-    void *e = *(--((COFrameObject *)this)->vm_stack->top);
+    void *e = *(--((COStackObject *)this)->vm_stack->top);
 
-    if (((COFrameObject *)this)->vm_stack->top ==
-        ((COFrameObject *)this)->vm_stack->elements) {
-        struct vm_stack *p = ((COFrameObject *)this)->vm_stack;
+    if (((COStackObject *)this)->vm_stack->top ==
+        ((COStackObject *)this)->vm_stack->elements) {
+        struct vm_stack *p = ((COStackObject *)this)->vm_stack;
 
-        ((COFrameObject *)this)->vm_stack = p->prev;
+        ((COStackObject *)this)->vm_stack = p->prev;
         free(p);
     }
 
@@ -95,31 +95,30 @@ COFrame_Pop(COObject *this)
 }
 
 void
-COFrame_Free(COObject *this, COObject *co)
+COStack_Free(COObject *this, COObject *co)
 {
-    if ((void **)((COFrameObject *)this)->vm_stack == (void **)co) {
+    if ((void **)((COStackObject *)this)->vm_stack == (void **)co) {
         // free if it's current stack frame
-        printf("here\n");
-        struct vm_stack *p = ((COFrameObject *)this)->vm_stack;
-        ((COFrameObject *)this)->vm_stack = p->prev;
+        struct vm_stack *p = ((COStackObject *)this)->vm_stack;
+        ((COStackObject *)this)->vm_stack = p->prev;
         free(p);
     } else {
         // else only mark it free
-        ((COFrameObject *)this)->vm_stack->top = (void **)co;
+        ((COStackObject *)this)->vm_stack->top = (void **)co;
     }
 }
 
 void
-COFrame_Push(COObject *this, COObject *co)
+COStack_Push(COObject *this, COObject *co)
 {
     VM_STACK_GROW_IF_NEEDED(1);
-    *(((COFrameObject *)this)->vm_stack->top++) = co;
+    *(((COStackObject *)this)->vm_stack->top++) = co;
 }
 
 void
-COFrame_Destory(COObject *this)
+COStack_Destory(COObject *this)
 {
-    struct vm_stack *stack = ((COFrameObject *)this)->vm_stack;
+    struct vm_stack *stack = ((COStackObject *)this)->vm_stack;
 
     while (stack != NULL) {
         struct vm_stack *p = stack->prev;

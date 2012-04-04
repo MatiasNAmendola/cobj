@@ -12,7 +12,7 @@ typedef struct _NodeList NodeList;
 typedef struct _Node Node;
 
 typedef enum {
-    NODE_BIN,       /* binary op node */
+    NODE_BIN,                   /* binary op node */
     NODE_IF,
     NODE_WHILE,
     NODE_FUNC,
@@ -64,7 +64,7 @@ NodeList *nodelist(Node *n, ...);
 NodeList *nodelist_concat(NodeList *a, NodeList *b);
 NodeList *nodelist_append(NodeList *l, Node *n);
 int nodelist_len(NodeList *l);
-NodeList * nodelist_changetype(NodeList *l, Node_Type t);
+NodeList *nodelist_changetype(NodeList *l, Node_Type t);
 void nodelisttree(NodeList *n);
 const char *node_type(Node_Type type);
 

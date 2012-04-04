@@ -161,7 +161,7 @@ COList_GetItem(COObject *this, size_t index)
     return ((COListObject *)this)->co_item[index];
 }
 
-int 
+int
 COList_DelItem(COObject *this, size_t index)
 {
     size_t n = ((COListObject *)this)->co_size;
