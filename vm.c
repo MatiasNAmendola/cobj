@@ -15,10 +15,9 @@ struct co_exec_data {
     unsigned char *bytecode;
 };
 
-/* Forward declaration */
+/* Forward declarations */
 COObject *COObject_get(COObject *co);
 int COObject_put(COObject *name, COObject *co);
-void COObject_print(COObject *co);
 
 COObject *
 COObject_get(COObject *name)
@@ -86,8 +85,8 @@ vm_eval(COObject *func)
     COCodeObject *code;
 
     register unsigned char opcode;      /* Current opcode */
-    register int oparg;         /* Current opcode argument, if any */
-    register COObject *x;       /* Result object -- NULL if error */
+    register int oparg;                 /* Current opcode argument, if any */
+    register COObject *x;               /* Result object -- NULL if error */
     register COObject *o1, *o2, *o3;    /* Temporary objects popped of stack */
     TS(mainfunc) = func;
     int status;
@@ -294,8 +293,10 @@ start_frame:
         default:
             error("unknown handle for opcode(%ld)\n", opcode);
         }
+
 on_error:
         /* End the loop if we still have an error (or return) */
+        x = NULL;
         if (status != STATUS_NONE)
             break;
     }
