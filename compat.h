@@ -40,4 +40,7 @@ typedef unsigned int uint;
 typedef unsigned long ulong;
 typedef unsigned char uchar;
 
+/* Smallest negative value of type ssize_t. */
+#define SSIZE_MIN   ((ssize_t)(-SSIZE_MAX-1))
+
 #endif

@@ -160,17 +160,15 @@ start_frame:
             PUSH(x);
             break;
         case OP_SL:
-            // TODO support int object
             o1 = POP();
             o2 = POP();
-            x = COInt_FromLong(COInt_AsLong(o2) << COInt_AsLong(o1));
+            x = COInt_Type.tp_int_interface->int_lshift(o2, o1);
             PUSH(x);
             break;
         case OP_SR:
-            // TODO support int object
             o1 = POP();
             o2 = POP();
-            x = COInt_FromLong(COInt_AsLong(o2) >> COInt_AsLong(o1));
+            x = COInt_Type.tp_int_interface->int_rshift(o2, o1);
             PUSH(x);
             break;
         case OP_IS_SMALLER:

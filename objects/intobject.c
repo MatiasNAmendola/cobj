@@ -140,6 +140,56 @@ _COInt_Copy(COIntObject *src)
 }
 
 /*
+ * Get a ssize_t from a int object.
+ * Returns -1 and sets an error if overflow occurs.
+ */
+ssize_t
+COInt_AsSsize_t(COObject *o)
+{
+    register COIntObject *_o;
+    size_t x, prev;
+    ssize_t i;
+    int sign;
+
+    assert(o != NULL);
+    if (!COInt_Check(o)) {
+        COErr_SetString(COException_ValueError, "an integer is required");
+        return -1;
+    }
+    _o = (COIntObject *)o;
+    i = CO_SIZE(_o);
+    switch (i) {
+    case -1: return -(sdigit)_o->co_digit[0];
+    case 0: return 0;
+    case 1: return _o->co_digit[0];
+    }
+
+    sign = 1;
+    x = 0;
+    if (i < 0) {
+        sign = -1;
+        i = -i;
+    }
+    while (--i >= 0) {
+        prev = x;
+        x = (x << COInt_SHIFT) | _o->co_digit[i];
+        if ((x >> COInt_SHIFT) != prev)
+            goto overflow;
+    }
+
+    if (x <= (size_t)SSIZE_MAX) {
+        return (ssize_t) x * sign;
+    } else if (sign < 0 && x == (0 - (size_t)SSIZE_MIN)) {
+        return SSIZE_MIN;
+    }
+    /* else overflow */
+
+overflow:
+    COErr_SetString(COException_OverflowError, "int too large to convert to C ssize_t");
+    return -1;
+}
+
+/*
  * Normalize a int object, removing leading zeros. Due to algorithm, there maybe
  * leading zeors.
  * Doesn't attempt to free the storage, which will change object address.
@@ -871,13 +921,97 @@ int_invert(COIntObject *o)
     return (COObject *)maybe_small_int(x);
 }
 
-/*static COIntObject **/
-/*int_rshift(COIntObject *a, COIntObject *b)*/
-/*{*/
-/*if (CO_SIZE(a) < 0) {*/
-/*} else {*/
-/*}*/
-/*}*/
+static COObject *
+int_lshift(COIntObject *a, COIntObject *b)
+{
+    COIntObject *x = NULL;
+    ssize_t shiftby, oldsize, newsize, wordshift, remshift, i, j;
+    twodigits accum;
+
+    shiftby = COInt_AsSsize_t((COObject *)b);
+    if (shiftby == -1L && COErr_Occurred())
+        goto lshift_error;
+    if (shiftby <0) {
+        COErr_SetString(COException_ValueError, "negative shift count");
+        goto lshift_error;
+    }
+    wordshift = shiftby / COInt_SHIFT;
+    remshift = shiftby - wordshift * COInt_SHIFT;
+
+    oldsize = ABS(CO_SIZE(a));
+    newsize = oldsize + wordshift;
+    if (remshift)
+        ++newsize;
+    x = _COInt_New(newsize);
+    if (!x)
+        goto lshift_error;
+    if (CO_SIZE(a) < 0)
+        NEGATE(x);
+
+    for (i = 0; i < wordshift; i++)
+        x->co_digit[i] = 0;
+    accum = 0;
+    for (i = wordshift, j = 0; j < oldsize; i++, j++) {
+        accum |= (twodigits)a->co_digit[j] << remshift;
+        x->co_digit[i] = (digit)(accum & COInt_MASK);
+        accum >>= COInt_SHIFT;
+    }
+    if (remshift)
+        x->co_digit[newsize - 1] = (digit)accum;
+    else
+        assert(!accum);
+    x = int_normalize(x);
+lshift_error:
+    return (COObject *)maybe_small_int(x);
+}
+
+static COObject *
+int_rshift(COIntObject *a, COIntObject *b)
+{
+    ssize_t shiftby, wordshift, newsize, loshift, hishift, i, j;
+    digit lomask, himask;
+    COIntObject *x = NULL;
+    if (CO_SIZE(a) < 0) {
+        COIntObject *a1, *a2;
+        a1 = (COIntObject *)int_invert(a);
+        if (!a1)
+            goto rshift_error;
+        a2 = (COIntObject *)int_rshift(a1, b);
+        CO_DECREF(a1);
+        if (!a2)
+            goto rshift_error;
+        x = (COIntObject *)int_invert(a2);
+        CO_DECREF(a2);
+    } else {
+        shiftby = COInt_AsSsize_t((COObject *)b);
+        if (shiftby == -1L && COErr_Occurred())
+            goto rshift_error;
+        if (shiftby <0) {
+            COErr_SetString(COException_ValueError, "negative shift count");
+            goto rshift_error;
+        }
+        wordshift = shiftby / COInt_SHIFT;
+        newsize = ABS(CO_SIZE(a)) - wordshift;
+        if (newsize <= 0)
+            return COInt_FromLong(0);
+        loshift = shiftby % COInt_SHIFT;
+        hishift = COInt_SHIFT - loshift;
+        lomask = ((digit)1 << hishift) -1;
+        himask = COInt_MASK ^ lomask;
+        x = _COInt_New(newsize);
+        if (!x)
+            goto rshift_error;
+        for (i = 0, j = wordshift; i < newsize; i++, j++) {
+            x->co_digit[i] = (a->co_digit[j] >> loshift) & lomask;
+            if (i + 1 < newsize)
+                x->co_digit[i] |= (a->co_digit[j + 1] << hishift) & himask;
+        }
+        x = int_normalize(x);
+    }
+
+rshift_error:
+    return (COObject *)maybe_small_int(x);
+}
 
 static COIntInterface int_interface = {
     (binaryfunc)int_add,
@@ -885,6 +1019,8 @@ static COIntInterface int_interface = {
     (binaryfunc)int_mul,
     (binaryfunc)int_div,
     (binaryfunc)int_mod,
+    (binaryfunc)int_lshift,
+    (binaryfunc)int_rshift,
     (unaryfunc)int_neg,
     (unaryfunc)int_invert,
 };

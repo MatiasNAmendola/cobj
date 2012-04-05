@@ -74,3 +74,9 @@ COErr_SetString(COObject *exception, const char *str)
     COErr_SetObject(exception, o);
     CO_XDECREF(o);
 }
+
+void
+_COErr_BadInternalCall(const char *filename, int lineno)
+{
+    COErr_Format(COException_SystemError, "%s:%d: bad argument to internal function", filename, lineno);
+}

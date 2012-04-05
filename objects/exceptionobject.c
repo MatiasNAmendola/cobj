@@ -35,4 +35,7 @@ COObject *COException = (COObject *)&COException_Type;
 
 SimpleExtendsException(COException, SystemError, "test doc");
 SimpleExtendsException(COException, NameError, "test doc");
+SimpleExtendsException(COException, TypeError, "test doc");
 SimpleExtendsException(COException, ValueError, "test doc");
+SimpleExtendsException(COException, OverflowError, "test doc");
+SimpleExtendsException(COException, MemoryError, "test doc");

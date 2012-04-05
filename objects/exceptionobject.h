@@ -21,10 +21,17 @@ COTypeObject COException_Type;
  *  Exception
  *    - SystemError
  *    - NameError
+ *    - TypeError
+ *    - ValueError
+ *    - OverflowError
+ *    - MemoryError
  */
 COObject *COException;
 COObject *COException_SystemError;
 COObject *COException_NameError;
+COObject *COException_TypeError;
 COObject *COException_ValueError;
+COObject *COException_OverflowError;
+COObject *COException_MemoryError;
 
 #endif
