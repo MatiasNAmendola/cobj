@@ -170,6 +170,8 @@ expr: /* express something */
     |   expr T_POW expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_POW; }
     |   '-' expr %prec UNARY_OP { $$ = node_new(NODE_UNARY, $2, NULL); $$->op =
     OP_UNARY_NEGATE; }
+    |   '~' expr %prec UNARY_OP { $$ = node_new(NODE_UNARY, $2, NULL); $$->op =
+    OP_UNARY_INVERT; }
     |   '[' expr_list ']' {
             $$ = node_new(NODE_LIST_BUILD, NULL, NULL);
             if ($2) {

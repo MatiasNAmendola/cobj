@@ -851,6 +851,26 @@ int_neg(COIntObject *o)
     return (COObject *)x;
 }
 
+static COObject *
+int_invert(COIntObject *o)
+{
+    /* ~x -> -(x+1) */
+    if (ABS(CO_SIZE(o)) <= 1)
+        return COInt_FromLong(-(ONEDIGIT_VALUE(o) + 1));
+
+    COIntObject *x;
+    COIntObject *w;
+    w = (COIntObject *)COInt_FromLong(1L);
+    if (!w)
+        return NULL;
+    x = (COIntObject *)int_add(o, w);
+    CO_DECREF(w);
+    if (!x)
+        return NULL;
+    CO_SIZE(x) = - (CO_SIZE(x));
+    return (COObject *)maybe_small_int(x);
+}
+
 /*static COIntObject **/
 /*int_rshift(COIntObject *a, COIntObject *b)*/
 /*{*/
@@ -866,6 +886,7 @@ static COIntInterface int_interface = {
     (binaryfunc)int_div,
     (binaryfunc)int_mod,
     (unaryfunc)int_neg,
+    (unaryfunc)int_invert,
 };
 
 static long

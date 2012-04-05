@@ -428,6 +428,7 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_SL);
         GIVE_NAME(OP_SR);
         GIVE_NAME(OP_UNARY_NEGATE);
+        GIVE_NAME(OP_UNARY_INVERT);
         GIVE_NAME(OP_IS_SMALLER);
         GIVE_NAME(OP_IS_SMALLER_OR_EQUAL);
         GIVE_NAME(OP_IS_EQUAL);

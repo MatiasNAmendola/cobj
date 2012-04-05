@@ -18,6 +18,10 @@ test_expect_result("121932631112635269\n", "print 123456789 * 987654321")
 test_expect_result("4\n", "print 100 / 25")
 # mod
 test_expect_result("-10000\n", "print -111111111111111111111111/11111111111111111111")
+# unary_negate
+test_expect_result("-10\n", "print -10");
+# unary_invert
+test_expect_result("-11\n", "print ~10");
 
 test_expect_result("1\n", "print 4 >> 2")
 test_expect_result("4\n", "print 1 << 2")

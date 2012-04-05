@@ -129,6 +129,7 @@ typedef struct {
     binaryfunc int_div;
     binaryfunc int_mod;
     unaryfunc  int_neg;
+    unaryfunc  int_invert;
 } COIntInterface;
 /* ! Object Interfaces */
 
