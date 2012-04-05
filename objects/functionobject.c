@@ -23,19 +23,18 @@ COTypeObject COFunction_Type = {
 };
 
 COObject *
-COFunction_New(COObject *func_code,
-               COObject *func_upvalues)
+COFunction_New(COObject *func_code)
 {
     COFunctionObject *func = COObject_New(COFunctionObject, &COFunction_Type);
     if (((COCodeObject *)func_code)->co_name) {
         func->func_name = ((COCodeObject *)func_code)->co_name;
     } else {
-        func->func_name = anonymous_func_name ? anonymous_func_name : (anonymous_func_name =
+        func->func_name =
+            anonymous_func_name ? anonymous_func_name : (anonymous_func_name =
                                                          COStr_FromString
                                                          ("anonymous"));
     }
-    if (!func_upvalues)
-        func->func_upvalues = CODict_New();
+    func->func_upvalues = CODict_New();
     func->func_code = func_code;
     return (COObject *)func;
 }

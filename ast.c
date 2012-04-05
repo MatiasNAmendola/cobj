@@ -89,6 +89,7 @@ node_type(Node_Type type)
         GIVE_NAME(NODE_LIST_ADD);
         GIVE_NAME(NODE_DICT_BUILD);
         GIVE_NAME(NODE_DICT_ADD);
+        GIVE_NAME(NODE_TRY);
     }
     error("unknown type: %d\n", type);
     return NULL;

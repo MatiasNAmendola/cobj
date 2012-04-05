@@ -18,10 +18,8 @@ end
 
 try
     print "try-catch-finally: try"
-catch asf
+catch (a, b, c)
     print "try-catch-finally: catch 1"
-catch 2
-    print "try-catch-finally: catch 2"
 finally
     print "try-catch-finally: finally"
 end

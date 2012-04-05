@@ -83,25 +83,25 @@ while i < 5
 end
 """, "closures")
 
-#test_expect_result("""10
-#11
-#13
-#""", """
+test_expect_result("""10
+11
+13
+""", """
 
-#newIncrer = func(n)
-    #return func(i)
-        #n = n + i
-        #return n
-    #end
-#end
+newIncrer = func(n)
+    return func(i)
+        n = n + i
+        return n
+    end
+end
 
-#f = newIncrer(10)
-#i = 0
-#while i < 3
-    #print f(i)
-    #i = i + 1
-#end
-#""", "closures")
+f = newIncrer(10)
+i = 0
+while i < 3
+    print f(i)
+    i = i + 1
+end
+""", "closures")
 
 test_expect_result("""1
 2

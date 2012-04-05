@@ -24,8 +24,6 @@ COTypeObject COFunction_Type;
 
 #define COFunction_Check(co) (CO_TYPE(co) == &COFunction_Type)
 
-COObject *
-COFunction_New(COObject *func_code,
-               COObject *func_upvalues);
+COObject *COFunction_New(COObject *func_code);
 
 #endif

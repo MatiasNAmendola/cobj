@@ -27,6 +27,7 @@ typedef enum {
     NODE_LIST_ADD,
     NODE_DICT_BUILD,
     NODE_DICT_ADD,
+    NODE_TRY,
 } Node_Type;
 
 struct _Node {

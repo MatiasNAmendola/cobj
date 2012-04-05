@@ -300,6 +300,8 @@ compile_visit_node(struct compiler *c, Node *n)
         oparg = nodelist_len(n->list);
         compile_addop_i(c, OP_CALL_FUNCTION, oparg);
         break;
+    case NODE_TRY:
+        break;
     default:
         error("unknown node type: %d, %s", n->type, node_type(n->type));
     }
@@ -326,8 +328,7 @@ assemble_jump_offsets(struct compiler *c)
     for (i = 0; i < c->u->iused; i++) {
         struct instr *instr = c->u->instr + i;
         int offset = 0;
-        if (instr->i_opcode == OP_JMPZ
-            || instr->i_opcode == OP_JMP) {
+        if (instr->i_opcode == OP_JMPZ || instr->i_opcode == OP_JMP) {
             // relatively
             for (j = 1; j < instr->i_oparg; j++) {
                 struct instr *subinstr = instr + j;
@@ -481,14 +482,15 @@ dump_code(COObject *code)
         case OP_LOAD_CONST:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
-            printf("(%s)", COStr_AsString(COObject_repr(GETITEM(_code->co_consts, oparg))));
+            printf("(%s)",
+                   COStr_AsString(COObject_repr
+                                  (GETITEM(_code->co_consts, oparg))));
             break;
         case OP_ASSIGN:
         case OP_LOAD_NAME:
         case OP_JMP:
         case OP_JMPX:
         case OP_JMPZ:
-        case OP_DECLARE_FUNCTION:
         case OP_CALL_FUNCTION:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
@@ -517,7 +519,7 @@ compile_ast(struct compiler *c)
 }
 
 int
-colex(YYSTYPE * colval)
+colex(YYSTYPE *colval)
 {
     int retval;
 

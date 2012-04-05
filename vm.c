@@ -53,8 +53,8 @@ COObject_set(COObject *name, COObject *co)
     if (current_exec_data->function_called) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
-                               current_exec_data->
-                               function_called)->func_upvalues, name);
+                               current_exec_data->function_called)->
+                              func_upvalues, name);
         if (myco) {
             CODict_SetItem(((COFunctionObject *)
                             current_exec_data->function_called)->func_upvalues,
@@ -85,8 +85,8 @@ vm_eval(COObject *func)
     COCodeObject *code;
 
     register unsigned char opcode;      /* Current opcode */
-    register int oparg;                 /* Current opcode argument, if any */
-    register COObject *x;               /* Result object -- NULL if error */
+    register int oparg;         /* Current opcode argument, if any */
+    register COObject *x;       /* Result object -- NULL if error */
     register COObject *o1, *o2, *o3;    /* Temporary objects popped of stack */
     TS(mainfunc) = func;
     int status;
@@ -121,8 +121,8 @@ new_frame:
 start_frame:
     status = STATUS_NONE;
     code =
-        (COCodeObject *)((COFunctionObject *)exec_data->
-                         function_called)->func_code;
+        (COCodeObject *)((COFunctionObject *)exec_data->function_called)->
+        func_code;
     names = code->co_names;
     consts = code->co_consts;
 
@@ -272,7 +272,16 @@ start_frame:
             break;
         case OP_DECLARE_FUNCTION:
             o1 = POP();
-            x = COFunction_New(o1, NULL);
+            x = COFunction_New(o1);
+            COCodeObject *c = (COCodeObject *)o1;
+            for (int i = 0; i < CO_SIZE(c->co_names); i++) {
+                COObject *name = COTuple_GET_ITEM(c->co_names, i);
+                COObject *upvalue = COObject_get(name);
+                if (upvalue) {
+                    CODict_SetItem(((COFunctionObject *)x)->func_upvalues, name,
+                                   upvalue);
+                }
+            }
             PUSH(x);
             break;
         case OP_CALL_FUNCTION:

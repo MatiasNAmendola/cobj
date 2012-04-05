@@ -65,7 +65,7 @@ return_none_node()
 %type <list> simple_stmt compound_stmt opt_else if_tail
 %type <list> expr_list non_empty_expr_list
 %type <list> assoc_list non_empty_assoc_list
-%type <list> opt_param_list param_list non_empty_param_list
+%type <list> opt_param_list name_list non_empty_name_list
 
 /*
  * Manual override of shift/reduce conflicts.
@@ -312,23 +312,46 @@ compound_stmt:
             }
             $$ = nodelist(t, NULL);
         }
+    |   T_TRY stmt_list opt_catch_list opt_finally_block T_END {
+            Node *t = node_new(NODE_TRY, NULL, NULL);
+            $$ = nodelist(t, NULL);
+        }
+;
+
+opt_finally_block:
+        T_FINALLY stmt_list
+    |   /* empty */
+;
+
+catch_block:
+        T_CATCH opt_param_list stmt_list 
+;
+
+catch_list:
+        catch_block
+    |   catch_list catch_block
+;
+
+opt_catch_list:
+        catch_list
+    |   /* empty */
 ;
 
 opt_param_list:
-        '(' param_list ')' { $$ = $2; }
+        '(' name_list ')' { $$ = $2; }
     |   %prec NotParen /* empty */ { $$ = 0; }
 ;
 
-param_list:
-        non_empty_param_list
+name_list:
+        non_empty_name_list
     |   /* empty */ { $$ = 0; }
 ;
 
-non_empty_param_list:
+non_empty_name_list:
         T_NAME {
             $$ = nodelist($1, NULL);
         }
-    |   non_empty_param_list ',' T_NAME {
+    |   non_empty_name_list ',' T_NAME {
             $$ = nodelist_append($1, $3);
         }
 ;

@@ -50,8 +50,8 @@ int coparse();
 void coerror(struct compiler *c, const char *err, ...);
 
 // scanner
-int colex(YYSTYPE * colval);
-int co_scanner_lex(YYSTYPE * yylval);
+int colex(YYSTYPE *colval);
+int co_scanner_lex(YYSTYPE *yylval);
 int co_scanner_setfile(COObject *f);
 int co_scanner_setcode(char *code);
 

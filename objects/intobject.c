@@ -159,9 +159,12 @@ COInt_AsSsize_t(COObject *o)
     _o = (COIntObject *)o;
     i = CO_SIZE(_o);
     switch (i) {
-    case -1: return -(sdigit)_o->co_digit[0];
-    case 0: return 0;
-    case 1: return _o->co_digit[0];
+    case -1:
+        return -(sdigit)_o->co_digit[0];
+    case 0:
+        return 0;
+    case 1:
+        return _o->co_digit[0];
     }
 
     sign = 1;
@@ -177,15 +180,16 @@ COInt_AsSsize_t(COObject *o)
             goto overflow;
     }
 
-    if (x <= (size_t)SSIZE_MAX) {
-        return (ssize_t) x * sign;
-    } else if (sign < 0 && x == (0 - (size_t)SSIZE_MIN)) {
+    if (x <= (size_t) SSIZE_MAX) {
+        return (ssize_t) x *sign;
+    } else if (sign < 0 && x == (0 - (size_t) SSIZE_MIN)) {
         return SSIZE_MIN;
     }
     /* else overflow */
 
 overflow:
-    COErr_SetString(COException_OverflowError, "int too large to convert to C ssize_t");
+    COErr_SetString(COException_OverflowError,
+                    "int too large to convert to C ssize_t");
     return -1;
 }
 
@@ -897,7 +901,7 @@ int_neg(COIntObject *o)
         return COInt_FromLong(-ONEDIGIT_VALUE(o));
     x = (COIntObject *)_COInt_Copy(o);
     if (x)
-        CO_SIZE(x) = - (CO_SIZE(x));
+        CO_SIZE(x) = -(CO_SIZE(x));
     return (COObject *)x;
 }
 
@@ -917,7 +921,7 @@ int_invert(COIntObject *o)
     CO_DECREF(w);
     if (!x)
         return NULL;
-    CO_SIZE(x) = - (CO_SIZE(x));
+    CO_SIZE(x) = -(CO_SIZE(x));
     return (COObject *)maybe_small_int(x);
 }
 
@@ -931,7 +935,7 @@ int_lshift(COIntObject *a, COIntObject *b)
     shiftby = COInt_AsSsize_t((COObject *)b);
     if (shiftby == -1L && COErr_Occurred())
         goto lshift_error;
-    if (shiftby <0) {
+    if (shiftby < 0) {
         COErr_SetString(COException_ValueError, "negative shift count");
         goto lshift_error;
     }
@@ -986,7 +990,7 @@ int_rshift(COIntObject *a, COIntObject *b)
         shiftby = COInt_AsSsize_t((COObject *)b);
         if (shiftby == -1L && COErr_Occurred())
             goto rshift_error;
-        if (shiftby <0) {
+        if (shiftby < 0) {
             COErr_SetString(COException_ValueError, "negative shift count");
             goto rshift_error;
         }
@@ -996,7 +1000,7 @@ int_rshift(COIntObject *a, COIntObject *b)
             return COInt_FromLong(0);
         loshift = shiftby % COInt_SHIFT;
         hishift = COInt_SHIFT - loshift;
-        lomask = ((digit)1 << hishift) -1;
+        lomask = ((digit)1 << hishift) - 1;
         himask = COInt_MASK ^ lomask;
         x = _COInt_New(newsize);
         if (!x)
