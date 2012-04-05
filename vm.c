@@ -272,10 +272,10 @@ start_frame:
             break;
         case OP_DECLARE_FUNCTION:
             o1 = POP();
-            x = COFunction_New(NULL, o1, NULL);
+            x = COFunction_New(o1, NULL);
             PUSH(x);
             break;
-        case OP_DO_FCALL:
+        case OP_CALL_FUNCTION:
             o1 = POP();
             oparg = NEXTARG();
             func = o1;

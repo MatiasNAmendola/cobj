@@ -276,6 +276,9 @@ compile_visit_node(struct compiler *c, Node *n)
         }
         compile_visit_nodelist(c, n->nfuncbody);
         COObject *co = assemble(c);
+        if (n->nfuncname) {
+            ((COCodeObject *)co)->co_name = n->nfuncname->o;
+        }
 #ifdef CO_DEBUG
         printf("begin function\n");
         dump_code(co);
@@ -284,7 +287,6 @@ compile_visit_node(struct compiler *c, Node *n)
         compiler_exit_scope(c);
         oparg = compile_add(c->u->consts, co);
         compile_addop_i(c, OP_LOAD_CONST, oparg);
-
         compile_addop(c, OP_DECLARE_FUNCTION);
 
         if (n->nfuncname) {
@@ -296,7 +298,7 @@ compile_visit_node(struct compiler *c, Node *n)
         compile_visit_nodelist(c, n->list);
         compile_visit_node(c, n->left);
         oparg = nodelist_len(n->list);
-        compile_addop_i(c, OP_DO_FCALL, oparg);
+        compile_addop_i(c, OP_CALL_FUNCTION, oparg);
         break;
     default:
         error("unknown node type: %d, %s", n->type, node_type(n->type));
@@ -325,8 +327,7 @@ assemble_jump_offsets(struct compiler *c)
         struct instr *instr = c->u->instr + i;
         int offset = 0;
         if (instr->i_opcode == OP_JMPZ
-            || instr->i_opcode == OP_JMP
-            || instr->i_opcode == OP_DECLARE_FUNCTION) {
+            || instr->i_opcode == OP_JMP) {
             // relatively
             for (j = 1; j < instr->i_oparg; j++) {
                 struct instr *subinstr = instr + j;
@@ -406,7 +407,7 @@ assemble(struct compiler *c)
     c->u->names = names;
 
     return COCode_New(c->u->bytecode, COList_AsTuple(c->u->consts),
-                      COList_AsTuple(c->u->names), c->u->argcount);
+                      COList_AsTuple(c->u->names), c->u->argcount, NULL);
 }
 
 #ifdef CO_DEBUG
@@ -440,7 +441,7 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_JMPX);
         GIVE_NAME(OP_DECLARE_FUNCTION);
         GIVE_NAME(OP_RETURN);
-        GIVE_NAME(OP_DO_FCALL);
+        GIVE_NAME(OP_CALL_FUNCTION);
         GIVE_NAME(OP_TRY);
         GIVE_NAME(OP_THROW);
         GIVE_NAME(OP_CATCH);
@@ -487,7 +488,8 @@ dump_code(COObject *code)
         case OP_JMP:
         case OP_JMPX:
         case OP_JMPZ:
-        case OP_DO_FCALL:
+        case OP_DECLARE_FUNCTION:
+        case OP_CALL_FUNCTION:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             break;

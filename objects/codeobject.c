@@ -21,7 +21,7 @@ COTypeObject COCode_Type = {
 };
 
 COObject *
-COCode_New(COObject *code, COObject *consts, COObject *names, int argcount)
+COCode_New(COObject *code, COObject *consts, COObject *names, int argcount, COObject *name)
 {
     COCodeObject *co = COObject_New(COCodeObject, &COCode_Type);
 
