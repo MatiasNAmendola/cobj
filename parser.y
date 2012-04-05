@@ -42,6 +42,7 @@ return_none_node()
 %token  T_CATCH
 %token  T_FINALLY
 %token  T_END
+%token  T_THEN
 %token  <node> T_NONE
 %token  <node> T_BOOL
 %token  <node> T_NUM
@@ -55,9 +56,9 @@ return_none_node()
 %left   '+' '-'
 %left   '*' '/' '%'
 %left   T_SR T_SL T_POW
-%right  NEGATIVE
 %right  '[' '{'
 %right  T_PRINT
+%left   UNARY_OP
 
 %type <node> expr
 %type <list> stmt stmt_list start open_stmt_list
@@ -82,7 +83,6 @@ return_none_node()
 %left ')'
 %left PreferToRightParen
 
-
 %% /* Context-Free Grammar (BNF) */
 
 start: stmt_list {
@@ -102,12 +102,12 @@ stmt: /* state something */
 ;
 
 stmt_list:
-         open_stmt_list opt_stmt_seps { $$ = $1; }
+         open_stmt_list opt_stmt_terms { $$ = $1; }
 ;
 
 open_stmt_list:
         stmt { $$ = $1; }
-    |   open_stmt_list stmt_seps stmt {
+    |   open_stmt_list stmt_terms stmt {
             if ($1) {
                 $$ = nodelist_concat($1, $3);
             } else {
@@ -117,19 +117,29 @@ open_stmt_list:
     |   /* empty */ { $$ = 0; }
 ;
 
-stmt_sep:
+stmt_term:
         T_NEWLINES
     |   ';'
 ;
 
-stmt_seps:
-        stmt_sep
-    |   stmt_seps stmt_sep
+stmt_terms:
+        stmt_term
+    |   stmt_terms stmt_term
 ;
 
-opt_stmt_seps:
+opt_stmt_terms:
         /* empty */
-    |   stmt_seps
+    |   stmt_terms
+;
+
+/*
+ * `then` is nessary to distinguish expr with following statements, cuz expr can
+ * also be statement. e.g. if `then` is omit, there is reduce/reduce conflict in
+ * stmt: if a - b end.
+ */
+then:
+        T_NEWLINES
+    |   T_THEN
 ;
 
 funcliteral:
@@ -158,6 +168,8 @@ expr: /* express something */
     |   expr T_SL expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_SL; }
     |   expr T_SR expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_SR; }
     |   expr T_POW expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_POW; }
+    |   '-' expr %prec UNARY_OP { $$ = node_new(NODE_UNARY, $2, NULL); $$->op =
+    OP_UNARY_NEGATE; }
     |   '[' expr_list ']' {
             $$ = node_new(NODE_LIST_BUILD, NULL, NULL);
             if ($2) {
@@ -273,17 +285,17 @@ simple_stmt:
 ;
 
 compound_stmt:
-        T_IF expr stmt_list if_tail T_END {
+        T_IF expr then stmt_list if_tail T_END {
             Node *t = node_new(NODE_IF, NULL, NULL);
             t->ntest = $2;
-            t->nbody = $3;
-            t->nelse = $4;
+            t->nbody = $4;
+            t->nelse = $5;
             $$ = nodelist(t, NULL);
         }
-    |   T_WHILE expr stmt_list T_END {
+    |   T_WHILE expr then stmt_list T_END {
             Node *t = node_new(NODE_WHILE, NULL, NULL);
             t->ntest = $2;
-            t->nbody = $3;
+            t->nbody = $4;
             $$ = nodelist(t, NULL);
         }
     |   T_FUNC T_NAME opt_param_list stmt_list T_END {
@@ -326,11 +338,11 @@ opt_else:
 
 if_tail:
        opt_else
-    |  T_ELIF expr stmt_list if_tail {
+    |  T_ELIF expr then stmt_list if_tail {
             Node *t = node_new(NODE_IF, NULL, NULL);
             t->ntest = $2;
-            t->nbody = $3;
-            t->nelse = $4;
+            t->nbody = $4;
+            t->nelse = $5;
             $$ = nodelist(t, NULL);
         }
 ;

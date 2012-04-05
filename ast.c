@@ -75,6 +75,7 @@ node_type(Node_Type type)
 
     switch (type) {
         GIVE_NAME(NODE_BIN);    /* binary op node */
+        GIVE_NAME(NODE_UNARY);
         GIVE_NAME(NODE_IF);
         GIVE_NAME(NODE_WHILE);
         GIVE_NAME(NODE_FUNC);

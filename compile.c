@@ -216,6 +216,10 @@ compile_visit_node(struct compiler *c, Node *n)
         compile_visit_node(c, n->right);
         compile_addop(c, n->op);
         break;
+    case NODE_UNARY:
+        compile_visit_node(c, n->left);
+        compile_addop(c, n->op);
+        break;
     case NODE_LIST_BUILD:
         compile_addop(c, OP_LIST_BUILD);
         compile_visit_nodelist(c, n->list);
@@ -423,6 +427,7 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_POW);
         GIVE_NAME(OP_SL);
         GIVE_NAME(OP_SR);
+        GIVE_NAME(OP_UNARY_NEGATE);
         GIVE_NAME(OP_IS_SMALLER);
         GIVE_NAME(OP_IS_SMALLER_OR_EQUAL);
         GIVE_NAME(OP_IS_EQUAL);
@@ -435,8 +440,6 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_DECLARE_FUNCTION);
         GIVE_NAME(OP_RETURN);
         GIVE_NAME(OP_DO_FCALL);
-        GIVE_NAME(OP_RECV_PARAM);
-        GIVE_NAME(OP_PASS_PARAM);
         GIVE_NAME(OP_TRY);
         GIVE_NAME(OP_THROW);
         GIVE_NAME(OP_CATCH);
@@ -445,7 +448,6 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_TUPLE_BUILD);
         GIVE_NAME(OP_LIST_BUILD);
         GIVE_NAME(OP_LIST_ADD);
-        GIVE_NAME(OP_POP_TOP);
         GIVE_NAME(OP_DICT_BUILD);
         GIVE_NAME(OP_DICT_ADD);
     }
@@ -458,9 +460,12 @@ dump_code(COObject *code)
 {
 #define NEXTOP()    (*bytecode++)
 #define NEXTARG()   (bytecode += 2, (bytecode[-1]<<8) + bytecode[-2])
-    char *bytecode = COBytes_AsString(((COCodeObject *)code)->co_code);
+#define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
+    COCodeObject *_code = (COCodeObject *)code;
+    char *bytecode = COBytes_AsString(_code->co_code);
     char *start = bytecode;
     unsigned char opcode;
+    int oparg;
     for (;;) {
         opcode = NEXTOP();
         printf("%ld.\t%s", bytecode - start - 1, opcode_name(opcode));
@@ -471,14 +476,19 @@ dump_code(COObject *code)
             return;
             break;
             /* op with arg */
-        case OP_ASSIGN:
         case OP_LOAD_CONST:
+            oparg = NEXTARG();
+            printf("\t\t%d", oparg);
+            printf("(%s)", COStr_AsString(COObject_repr(GETITEM(_code->co_consts, oparg))));
+            break;
+        case OP_ASSIGN:
         case OP_LOAD_NAME:
         case OP_JMP:
         case OP_JMPX:
         case OP_JMPZ:
         case OP_DO_FCALL:
-            printf("\t\t%d", NEXTARG());
+            oparg = NEXTARG();
+            printf("\t\t%d", oparg);
             break;
         }
         printf("\n");

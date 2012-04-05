@@ -114,6 +114,31 @@ _COInt_New(ssize_t size)
     return result;
 }
 
+COObject *
+_COInt_Copy(COIntObject *src)
+{
+    COIntObject *x;
+    ssize_t i;
+
+    assert(src != NULL);
+
+    i = CO_SIZE(src);
+    if (i < 0)
+        i = -i;
+    if (i < 2) {
+        sdigit ival = src->co_digit[0];
+        CHECK_SMALL_INT(ival);
+    }
+    x = _COInt_New(i);
+    if (x) {
+        CO_SIZE(x) = CO_SIZE(src);
+        while (--i >= 0)
+            x->co_digit[i] = src->co_digit[i];
+    }
+
+    return (COObject *)x;
+}
+
 /*
  * Normalize a int object, removing leading zeros. Due to algorithm, there maybe
  * leading zeors.
@@ -814,12 +839,33 @@ int_mod(COIntObject *a, COIntObject *b)
     return rem;
 }
 
+static COObject *
+int_neg(COIntObject *o)
+{
+    COIntObject *x;
+    if (ABS(CO_SIZE(o)) <= 1)
+        return COInt_FromLong(-ONEDIGIT_VALUE(o));
+    x = (COIntObject *)_COInt_Copy(o);
+    if (x)
+        CO_SIZE(x) = - (CO_SIZE(x));
+    return (COObject *)x;
+}
+
+/*static COIntObject **/
+/*int_rshift(COIntObject *a, COIntObject *b)*/
+/*{*/
+/*if (CO_SIZE(a) < 0) {*/
+/*} else {*/
+/*}*/
+/*}*/
+
 static COIntInterface int_interface = {
     (binaryfunc)int_add,
     (binaryfunc)int_sub,
     (binaryfunc)int_mul,
     (binaryfunc)int_div,
     (binaryfunc)int_mod,
+    (unaryfunc)int_neg,
 };
 
 static long

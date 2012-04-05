@@ -197,6 +197,11 @@ start_frame:
             x = COBool_FromLong(COInt_AsLong(o2) != COInt_AsLong(o1));
             PUSH(x);
             break;
+        case OP_UNARY_NEGATE:
+            o1 = POP();
+            x = COInt_Type.tp_int_interface->int_neg(o1);
+            PUSH(x);
+            break;
         case OP_LOAD_NAME:
             oparg = NEXTARG();
             o1 = GETITEM(names, oparg);

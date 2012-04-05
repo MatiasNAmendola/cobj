@@ -13,6 +13,7 @@ typedef struct _Node Node;
 
 typedef enum {
     NODE_BIN,                   /* binary op node */
+    NODE_UNARY,
     NODE_IF,
     NODE_WHILE,
     NODE_FUNC,
