@@ -16,24 +16,19 @@ return_none_node()
 %pure_parser
 %debug
 %error-verbose
-%expect 5
 
 %union {
-    Node *node;    
+    Node *node;
     NodeList *list;
 }
 
 %parse-param {struct compiler *c}
 
-%nonassoc T_EQUAL T_NOT_EQUAL 
-%token T_MOD_ASSIGN T_DIV_ASSIGN T_MUL_ASSIGN T_SUB_ASSIGN T_ADD_ASSIGN T_SR_ASSIGN T_SL_ASSIGN
-%nonassoc '<' '>' T_SMALLER_OR_EQUAL T_GREATER_OR_EQUAL
-%left   ','
-%left   '+' '-'
-%left   '*' '/' '%'
-%left T_SR T_SL T_POW
-%right  '['
-%right  T_PRINT
+/*
+ * The relative precedence of different operators is controlled by the order in
+ * which they are declared, from lower to higher.
+ * See http://www.gnu.org/software/bison/manual/bison.html#Decl-Summary.
+ */
 %token  T_IF T_ELIF T_ELSE
 %token  T_FUNC
 %token  T_RETURN
@@ -53,6 +48,16 @@ return_none_node()
 %token  <node> T_FNUM
 %token  <node> T_STRING
 %token  <node> T_NAME
+%nonassoc T_EQUAL T_NOT_EQUAL
+%token T_MOD_ASSIGN T_DIV_ASSIGN T_MUL_ASSIGN T_SUB_ASSIGN T_ADD_ASSIGN T_SR_ASSIGN T_SL_ASSIGN
+%nonassoc '<' '>' T_SMALLER_OR_EQUAL T_GREATER_OR_EQUAL
+%left   ','
+%left   '+' '-'
+%left   '*' '/' '%'
+%left   T_SR T_SL T_POW
+%right  NEGATIVE
+%right  '[' '{'
+%right  T_PRINT
 
 %type <node> expr
 %type <list> stmt stmt_list start open_stmt_list
@@ -61,11 +66,28 @@ return_none_node()
 %type <list> assoc_list non_empty_assoc_list
 %type <list> opt_param_list param_list non_empty_param_list
 
+/*
+ * Manual override of shift/reduce conflicts.
+ * The general form is that we assign a precedence to the token being shifted
+ * and the introuce NotToken with lower precedence or PreferToToken with higher
+ * and annotate the reducing rule accordingly.
+ * (learn from go/gc.y)
+ */
+%left NotName
+%left T_NAME
+
+%left NotParen
+%left '('
+
+%left ')'
+%left PreferToRightParen
+
+
 %% /* Context-Free Grammar (BNF) */
 
-start: stmt_list { 
+start: stmt_list {
         if ($$) {
-            c->xtop = $$; 
+            c->xtop = $$;
             c->xtop = nodelist_concat($$, nodelist(return_none_node(), NULL));
         } else {
             c->xtop = nodelist(return_none_node(),
@@ -110,8 +132,12 @@ opt_stmt_seps:
     |   stmt_seps
 ;
 
+funcliteral:
+        T_FUNC %prec NotName
+;
+
 expr: /* express something */
-        T_NAME
+        T_NAME %prec NotParen
     |   T_STRING
     |   T_BOOL
     |   T_NONE
@@ -132,7 +158,7 @@ expr: /* express something */
     |   expr T_SL expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_SL; }
     |   expr T_SR expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_SR; }
     |   expr T_POW expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_POW; }
-    |   '[' expr_list ']' { 
+    |   '[' expr_list ']' {
             $$ = node_new(NODE_LIST_BUILD, NULL, NULL);
             if ($2) {
                 NodeList *t = $2;
@@ -141,7 +167,7 @@ expr: /* express something */
                     t = t->next;
                 }
             }
-            $$->list = $2; 
+            $$->list = $2;
         }
     |   '{' assoc_list '}' {
             $$ = node_new(NODE_DICT_BUILD, NULL, NULL);
@@ -151,7 +177,7 @@ expr: /* express something */
             $$ = node_new(NODE_FUNC_CALL, $1, NULL);
             $$->list = $3;
         }
-    |   T_FUNC opt_param_list stmt_list T_END {
+    |   funcliteral opt_param_list stmt_list T_END {
             Node *t = node_new(NODE_FUNC, NULL, NULL);
             t->nfuncname = 0;
             t->nfuncargs = $2;
@@ -181,7 +207,7 @@ expr_list:
 ;
 
 non_empty_expr_list:
-        opt_newlines expr opt_newlines { 
+        opt_newlines expr opt_newlines {
             $$ = nodelist($2, NULL);
         }
     |   non_empty_expr_list ',' opt_newlines expr opt_newlines {
@@ -192,20 +218,20 @@ non_empty_expr_list:
 assoc_list:
         non_empty_assoc_list opt_comma
     |   /* empty */ { $$ = 0; }
-;   
+;
 
 non_empty_assoc_list:
-        opt_newlines expr ':' expr opt_newlines { 
+        opt_newlines expr ':' expr opt_newlines {
             $$ = nodelist(node_new(NODE_DICT_ADD, $2, $4), NULL);
         }
-    |   non_empty_assoc_list ',' opt_newlines expr ':' expr opt_newlines { 
+    |   non_empty_assoc_list ',' opt_newlines expr ':' expr opt_newlines {
             $$ = nodelist_append($1, node_new(NODE_DICT_ADD, $4, $6));
         }
 ;
 
 simple_stmt:
         T_NAME '=' expr { Node *t = node_new(NODE_ASSIGN, $1, $3); $$ = nodelist(t, NULL); }
-    |   T_NAME T_ADD_ASSIGN expr { 
+    |   T_NAME T_ADD_ASSIGN expr {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_ADD;
             $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
@@ -276,24 +302,24 @@ compound_stmt:
 
 opt_param_list:
         '(' param_list ')' { $$ = $2; }
+    |   %prec NotParen /* empty */ { $$ = 0; }
+;
+
+param_list:
+        non_empty_param_list
     |   /* empty */ { $$ = 0; }
 ;
 
-param_list:       
-        non_empty_param_list
-    |   /* empty */ { $$ = 0; }
-;   
-    
-non_empty_param_list: 
+non_empty_param_list:
         T_NAME {
             $$ = nodelist($1, NULL);
         }
-    |   non_empty_param_list ',' T_NAME { 
+    |   non_empty_param_list ',' T_NAME {
             $$ = nodelist_append($1, $3);
         }
 ;
 
-opt_else:   
+opt_else:
         /* empty */ { $$ = 0; }
     |   T_ELSE stmt_list { $$ = $2; }
 ;
