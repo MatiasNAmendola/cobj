@@ -16,7 +16,7 @@ test_expect_result("", "func end", "empty function iteral");
 test_expect_result("", "func (a,b) return a + b end", "function iteral");
 
 # exeptions
-test_expect_result("", "try end", "allow empty try block")
+#test_expect_result("", "try end", "allow empty try block")
 
 # literal
 test_expect_result("""[1, 2]
