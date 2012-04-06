@@ -25,6 +25,7 @@ COTypeObject COException_Type;
  *    - ValueError
  *    - OverflowError
  *    - MemoryError
+ *    - UndefinedError
  */
 COObject *COException;
 COObject *COException_SystemError;
@@ -33,5 +34,6 @@ COObject *COException_TypeError;
 COObject *COException_ValueError;
 COObject *COException_OverflowError;
 COObject *COException_MemoryError;
+COObject *COException_UndefinedError;
 
 #endif

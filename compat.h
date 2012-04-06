@@ -1,5 +1,5 @@
-#ifndef CO_COMPAT_H
-#define CO_COMPAT_H
+#ifndef COMPAT_H
+#define COMPAT_H
 /* 
  * CObject Compatible Header.
  *

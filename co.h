@@ -26,7 +26,7 @@
 #include "scanner.h"
 #include "usage.h"
 #include "vm.h"
-#include "vm_opcodes.h"
+#include "opcodes.h"
 #include "wrapper.h"
 #include "marshal.h"
 #include "mem.h"

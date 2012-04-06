@@ -15,7 +15,7 @@ COTypeObject COException_Type = {
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
-    0,                          /* tp_richcompare */
+    0,                          /* tp_compare */
     0,                          /* tp_int_interface */
 };
 
@@ -40,3 +40,4 @@ SimpleExtendsException(COException, TypeError, "test doc");
 SimpleExtendsException(COException, ValueError, "test doc");
 SimpleExtendsException(COException, OverflowError, "test doc");
 SimpleExtendsException(COException, MemoryError, "test doc");
+SimpleExtendsException(COException, UndefinedError, "test doc");

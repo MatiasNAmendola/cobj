@@ -10,14 +10,14 @@ none_repr(COObject *o)
 
 COTypeObject CONone_Type = {
     COObject_HEAD_INIT(&COType_Type),
-    "none",
+    "None",
     sizeof(long),
     0,
     none_repr,                  /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
-    0,                          /* tp_richcompare */
+    0,                          /* tp_compare */
     0,                          /* tp_int_interface */
 };
 

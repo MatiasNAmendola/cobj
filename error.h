@@ -62,6 +62,6 @@ void COErr_SetString(COObject *exception, const char *str);
 /* Convenience functions */
 #define COErr_BadInternalCall() _COErr_BadInternalCall(__FILE__, __LINE__)
 void _COErr_BadInternalCall(const char *filename, int lineno);
-COObject *COErr_NoMemory(void);
+void COErr_NoMemory(void);
 /* ! Convenience function */
 #endif

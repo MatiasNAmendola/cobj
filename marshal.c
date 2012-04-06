@@ -328,7 +328,8 @@ r_object(RFILE *p)
         {
             int offset = r_int64(p);
             COCapsuleObject *found =
-                (COCapsuleObject *)CODict_GetItem(p->objects, COInt_FromLong(offset));
+                (COCapsuleObject *)CODict_GetItem(p->objects,
+                                                  COInt_FromLong(offset));
             if (found) {
                 rs = found->pointer;
             } else {

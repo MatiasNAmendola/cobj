@@ -1053,6 +1053,73 @@ int_hash(COIntObject *o)
     return x;
 }
 
+/*
+ * -1: a < b
+ *  0: a = b
+ *  1: a > b
+ */
+static int
+int_cmp(COIntObject *a, COIntObject *b)
+{
+    ssize_t sign;
+    if (CO_SIZE(a) != CO_SIZE(b)) {
+        sign = CO_SIZE(a) - CO_SIZE(b);
+    } else {
+        ssize_t i = ABS(CO_SIZE(a));
+        while (--i >= 0 && a->co_digit[i] == b->co_digit[i]);
+        if (i < 0) {
+            sign = 0;
+        } else {
+            sign = (sdigit)a->co_digit[i] - (sdigit)b->co_digit[i];
+            if (CO_SIZE(a) < 0)
+                sign = -sign;
+        }
+    }
+    return sign < 0 ? -1 : sign > 0 ? 1 : 0;
+}
+
+static COObject *
+int_compare(COIntObject *this, COIntObject *that, int op)
+{
+    int result;
+
+    if (this == that)
+        result = 0;
+    else
+        result = int_cmp(this, that);
+
+#define TEST_COND(cond) \
+        ((cond) ? CO_True : CO_False)
+
+    COObject *x;
+    switch (op) {
+    case CMP_EQ:
+        x = TEST_COND(result == 0);
+        break;
+    case CMP_NE:
+        x = TEST_COND(result != 0);
+        break;
+    case CMP_LE:
+        x = TEST_COND(result <= 0);
+        break;
+    case CMP_GE:
+        x = TEST_COND(result >= 0);
+        break;
+    case CMP_LT:
+        x = TEST_COND(result < 0);
+        break;
+    case CMP_GT:
+        x = TEST_COND(result > 0);
+        break;
+    default:
+        COErr_BadInternalCall();
+        return NULL;
+    }
+
+    CO_INCREF(x);
+    return x;
+}
+
 COTypeObject COInt_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "int",
@@ -1062,7 +1129,7 @@ COTypeObject COInt_Type = {
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     (hashfunc)int_hash,         /* tp_hash */
-    0,                          /* tp_richcompare */
+    (richcmpfunc)int_compare,   /* tp_compare */
     &int_interface,             /* tp_int_interface */
 };
 

@@ -1,5 +1,5 @@
-#ifndef VM_OPCODES_H
-#define VM_OPCODES_H
+#ifndef OPCODES_H
+#define OPCODES_H
 
 /* Instruction opcodes */
 
@@ -25,7 +25,7 @@
 #define OP_JMPX                     19
 #define OP_DECLARE_FUNCTION         20
 #define OP_RETURN                   21
-#define OP_CALL_FUNCTION                 22
+#define OP_CALL_FUNCTION            22
 #define OP_TRY                      23
 #define OP_THROW                    24
 #define OP_CATCH                    25

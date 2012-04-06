@@ -52,7 +52,8 @@ _COObject_New(COTypeObject *tp)
     COObject *o;
     o = (COObject *)COMem_MALLOC(tp->tp_basicsize);
     if (o == NULL) {
-        return COErr_NoMemory();
+        COErr_NoMemory();
+        return NULL;
     }
 
     return COObject_Init(o, tp);
@@ -65,9 +66,10 @@ _COVarObject_New(COTypeObject *tp, ssize_t n)
     const size_t size = COObject_VAR_SIZE(tp, n);
     o = (COVarObject *)COMem_MALLOC(size);
     if (o == NULL) {
-        return COErr_NoMemory();
+        COErr_NoMemory();
+        return NULL;
     }
-    return COVarObject_Init(o, tp, n);
+    return (COObject *)COVarObject_Init(o, tp, n);
 }
 
 void
@@ -78,25 +80,48 @@ COObject_print(COObject *o)
 }
 
 /*
- * COObject RichCompare
+ * COObject Compare
  * 
- * Every object's type have a tp_richcompare function slot, it's not NULL, it
- * gets called with two objects, and should return an object as follows:
+ * Every object's type have a tp_compare function slot, it's not NULL, it
+ * gets called with two objects and Cmp_Op, and should return an object as follows:
  *  - NULL if an exception occurred
  *  - UnDefined if the requested comparison is not defined
  *  - False object is comparison is false
  *  - True object is comparison is true
  */
-
-/* Map rich comparison operators to their swapped version, e.g. LT <--> GT */
 static COObject *
-do_richcompare(COObject *a, COObject *b, int op)
+do_compare(COObject *a, COObject *b, int op)
 {
-    static int CMP_SwappedOp[] = {CMP_GT, CMP_GE, CMP_EQ, CMP_NE, CMP_LT, CMP_LE};
-    static char *opstrings[] = {"<", "<=", "==", "!=", ">", ">="};
+    /* Map rich comparison operators to their swapped version, e.g. LT <--> GT */
+    static int CMP_SwappedOp[] =
+        { CMP_GT, CMP_GE, CMP_EQ, CMP_NE, CMP_LT, CMP_LE };
+    static char *opstrings[] = { "<", "<=", "==", "!=", ">", ">=" };
 
     richcmpfunc f;
     COObject *x;
 
-    /*if (a->co_type != b->co_type &&*/
+    if (a->co_type == b->co_type && (f = a->co_type->tp_compare) != NULL) {
+        x = (*f) (a, b, op);
+    } else {
+        COErr_Format(COException_UndefinedError,
+                     "undefined comparison: %.100s() %s %.100s()",
+                     a->co_type->tp_name, opstrings[op], b->co_type->tp_name);
+        return NULL;
+    }
+    return x;
+}
+
+COObject *
+COObject_Compare(COObject *a, COObject *b, int op)
+{
+    assert(CMP_LT <= op && op <= CMP_GE);
+    COObject *x;
+
+    if (!a || !b) {
+        COErr_BadInternalCall();
+        return NULL;
+    }
+
+    x = do_compare(a, b, op);
+    return x;
 }

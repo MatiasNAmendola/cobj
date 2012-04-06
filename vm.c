@@ -53,8 +53,8 @@ COObject_set(COObject *name, COObject *co)
     if (current_exec_data->function_called) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
-                               current_exec_data->
-                               function_called)->func_upvalues, name);
+                               current_exec_data->function_called)->
+                              func_upvalues, name);
         if (myco) {
             CODict_SetItem(((COFunctionObject *)
                             current_exec_data->function_called)->func_upvalues,
@@ -121,8 +121,8 @@ new_frame:
 start_frame:
     status = STATUS_NONE;
     code =
-        (COCodeObject *)((COFunctionObject *)exec_data->
-                         function_called)->func_code;
+        (COCodeObject *)((COFunctionObject *)exec_data->function_called)->
+        func_code;
     names = code->co_names;
     consts = code->co_consts;
 
@@ -174,7 +174,11 @@ start_frame:
         case OP_IS_SMALLER:
             o1 = POP();
             o2 = POP();
-            x = COBool_FromLong(COInt_AsLong(o2) < COInt_AsLong(o1));
+            x = COObject_Compare(o2, o1, CMP_LT);
+            if (!x) {
+                status = STATUS_EXCEPTION;
+                goto on_error;
+            }
             PUSH(x);
             break;
         case OP_IS_SMALLER_OR_EQUAL:

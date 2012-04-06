@@ -38,7 +38,7 @@ struct _COTypeObject {
     getattrfunc tp_getattr;
     setattrfunc tp_setattr;
     hashfunc tp_hash;
-    richcmpfunc tp_richcompare;
+    richcmpfunc tp_compare;
 
     /* Interfaces for standard types */
     COIntInterface *tp_int_interface;

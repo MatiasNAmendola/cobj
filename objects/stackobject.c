@@ -15,7 +15,7 @@ COTypeObject COStack_Type = {
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
-    0,                          /* tp_richcompare */
+    0,                          /* tp_compare */
     0,                          /* tp_int_interface */
 };
 
