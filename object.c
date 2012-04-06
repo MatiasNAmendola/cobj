@@ -70,22 +70,20 @@ _COObject_New(COTypeObject *tp)
     COObject *o;
     o = (COObject *)COMem_MALLOC(tp->tp_basicsize);
     if (o == NULL) {
-        // TODO errors
-        return NULL;
+        return COErr_NoMemory();
     }
 
     return COObject_Init(o, tp);
 }
 
-COVarObject *
-_COVarObject_New(COTypeObject *tp, size_t n)
+COObject *
+_COVarObject_New(COTypeObject *tp, ssize_t n)
 {
     COVarObject *o;
     const size_t size = COObject_VAR_SIZE(tp, n);
     o = (COVarObject *)COMem_MALLOC(size);
     if (o == NULL) {
-        // TODO errors
-        return NULL;
+        return COErr_NoMemory();
     }
     return COVarObject_Init(o, tp, n);
 }
@@ -95,4 +93,29 @@ COObject_print(COObject *o)
 {
     COStrObject *s = (COStrObject *)CO_TYPE(o)->tp_repr(o);
     printf("%s\n", s->co_sval);
+}
+
+/*
+ * COObject RichCompare
+ * 
+ * Every object's type have a tp_richcompare function slot, it's not NULL, it
+ * gets called with two objects, and should return an object as follows:
+ *  - NULL if an exception occurred
+ *  - UnDefined if the requested comparison is not defined
+ *  - False object is comparison is false
+ *  - True object is comparison is true
+ */
+
+/* Map rich comparison operators to their swapped version, e.g. LT <--> GT */
+static int CO_SwappedOp[] = {CO_GT, CO_GE, CO_EQ, CO_NE, CO_LT, CO_LE};
+
+static char *opstrings[] = {"<", "<=", "==", "!=", ">", ">="};
+
+static COObject *
+do_richcompare(COObject *a, COObject *b, int op)
+{
+    richcmpfunc f;
+    COObject *x;
+
+    /*if (a->co_type != b->co_type &&*/
 }

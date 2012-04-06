@@ -7,5 +7,4 @@
 * implement namespace & scope rules
 * add "Derived from" notice at header files
 * % change dividend from divisor
-* function support closure
 * finish richcompare & COObject_hash method

@@ -49,7 +49,10 @@ COErr_Print(void)
 void
 COErr_SetObject(COObject *exception, COObject *value)
 {
-    // TODO
+    /*if (!COException_Check(exception)) {*/
+    /*COErr_Format(COException_SystemError, "not a exception");*/
+    /*return;*/
+    /*}*/
     COErr_Restore(exception, value, NULL);
 }
 
@@ -80,4 +83,11 @@ _COErr_BadInternalCall(const char *filename, int lineno)
 {
     COErr_Format(COException_SystemError,
                  "%s:%d: bad argument to internal function", filename, lineno);
+}
+
+COObject *
+COErr_NoMemory(void)
+{
+    COErr_SetObject(COException_MemoryError, CO_None);
+    return NULL;
 }

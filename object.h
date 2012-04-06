@@ -106,7 +106,7 @@ COObject _CO_None;              // Don't use this directly, using following one 
     )
 
 COObject *_COObject_New(COTypeObject *);
-COVarObject *_COVarObject_New(COTypeObject *, size_t);
+COObject *_COVarObject_New(COTypeObject *tp, ssize_t n);
 
 #define COObject_New(type, typeobj)         \
     ((type *)_COObject_New((typeobj)))
@@ -118,21 +118,12 @@ long COObject_hash(COObject *co);
 void COObject_print(COObject *co);
 COObject *COObject_repr(COObject *o);
 
-/* Object Interfaces */
-typedef COObject *(*unaryfunc)(COObject *);
-typedef COObject *(*binaryfunc)(COObject *, COObject *);
-
-typedef struct {
-    binaryfunc int_add;
-    binaryfunc int_sub;
-    binaryfunc int_mul;
-    binaryfunc int_div;
-    binaryfunc int_mod;
-    binaryfunc int_lshift;
-    binaryfunc int_rshift;
-    unaryfunc int_neg;
-    unaryfunc int_invert;
-} COIntInterface;
-/* ! Object Interfaces */
+/* Rich comparison opcodes */
+#define CO_LT 0
+#define CO_LE 1
+#define CO_EQ 2
+#define CO_NE 3
+#define CO_GT 4
+#define CO_GE 5
 
 #endif

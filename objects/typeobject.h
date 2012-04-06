@@ -3,10 +3,29 @@
 
 #include "../object.h"
 
+/* Object Methods */
 typedef COObject *(*reprfunc)(COObject *);
 typedef COObject *(*getattrfunc)(COObject *, char *);
 typedef int (*setattrfunc) (COObject *, char *, COObject *);
 typedef long (*hashfunc) (COObject *);
+typedef COObject *(*richcmpfunc)(COObject *, COObject *, int);
+typedef COObject *(*unaryfunc)(COObject *);
+typedef COObject *(*binaryfunc)(COObject *, COObject *);
+/* ! Object Methods */
+
+/* Object Interfaces */
+typedef struct {
+    binaryfunc int_add;
+    binaryfunc int_sub;
+    binaryfunc int_mul;
+    binaryfunc int_div;
+    binaryfunc int_mod;
+    binaryfunc int_lshift;
+    binaryfunc int_rshift;
+    unaryfunc int_neg;
+    unaryfunc int_invert;
+} COIntInterface;
+/* ! Object Interfaces */
 
 struct _COTypeObject {
     COObject_HEAD;
@@ -19,6 +38,7 @@ struct _COTypeObject {
     getattrfunc tp_getattr;
     setattrfunc tp_setattr;
     hashfunc tp_hash;
+    richcmpfunc tp_richcompare;
 
     /* Interfaces for standard types */
     COIntInterface *tp_int_interface;
