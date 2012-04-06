@@ -37,6 +37,7 @@
 #include "objects/typeobject.h"
 #include "objects/intobject.h"
 #include "objects/boolobject.h"
+#include "objects/noneobject.h"
 #include "objects/floatobject.h"
 #include "objects/strobject.h"
 #include "objects/functionobject.h"

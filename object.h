@@ -71,13 +71,11 @@ typedef struct _COVarObject {
 #define CO_TYPE(co)     (((COObject *)(co))->co_type)
 #define CO_REFCNT(co)     (((COObject *)(co))->co_refcnt)
 #define CO_SIZE(co)     (((COVarObject *)(co))->co_size)
+
 #define COObject_Init(co, typeobj)          \
     ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1, (co))
 #define COVarObject_Init(co, typeobj, size) \
     ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1, CO_SIZE(co) = size, (co))
-
-COObject _CO_None;              // Don't use this directly, using following one instead!
-#define CO_None         (&_CO_None)
 
 #define CO_INCREF(co)   (((COObject *)co)->co_refcnt++)
 #define CO_DECREF(co)   \
@@ -119,11 +117,11 @@ void COObject_print(COObject *co);
 COObject *COObject_repr(COObject *o);
 
 /* Rich comparison opcodes */
-#define CO_LT 0
-#define CO_LE 1
-#define CO_EQ 2
-#define CO_NE 3
-#define CO_GT 4
-#define CO_GE 5
+#define CMP_LT 0
+#define CMP_LE 1
+#define CMP_EQ 2
+#define CMP_NE 3
+#define CMP_GT 4
+#define CMP_GE 5
 
 #endif

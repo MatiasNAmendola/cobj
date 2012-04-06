@@ -21,24 +21,6 @@ COObject_dump(COObject *o)
     }
 }
 
-static COObject *
-none_repr(COObject *o)
-{
-    return COStr_FromString("None");
-}
-
-static COTypeObject CONone_Type = {
-    COObject_HEAD_INIT(&COType_Type),
-    "NoneType",
-    0,
-    0,
-    none_repr,                  /* tp_repr */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
-};
-
-COObject _CO_None = COObject_HEAD_INIT(&CONone_Type);
-
 long
 _CO_HashPointer(void *p)
 {
@@ -107,13 +89,12 @@ COObject_print(COObject *o)
  */
 
 /* Map rich comparison operators to their swapped version, e.g. LT <--> GT */
-static int CO_SwappedOp[] = {CO_GT, CO_GE, CO_EQ, CO_NE, CO_LT, CO_LE};
-
-static char *opstrings[] = {"<", "<=", "==", "!=", ">", ">="};
-
 static COObject *
 do_richcompare(COObject *a, COObject *b, int op)
 {
+    static int CMP_SwappedOp[] = {CMP_GT, CMP_GE, CMP_EQ, CMP_NE, CMP_LT, CMP_LE};
+    static char *opstrings[] = {"<", "<=", "==", "!=", ">", ">="};
+
     richcmpfunc f;
     COObject *x;
 

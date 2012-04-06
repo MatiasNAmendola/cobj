@@ -39,6 +39,7 @@ LIB_OBJS += state.o
 LIB_OBJS += ast.o
 LIB_OBJS += objects/typeobject.o
 LIB_OBJS += objects/boolobject.o
+LIB_OBJS += objects/noneobject.o
 LIB_OBJS += objects/intobject.o
 LIB_OBJS += objects/floatobject.o
 LIB_OBJS += objects/strobject.o
