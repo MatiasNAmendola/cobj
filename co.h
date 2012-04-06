@@ -21,7 +21,6 @@
 #include "compat.h"
 #include "compile.h"
 #include "error.h"
-#include "llist.h"
 #include "object.h"
 #include "parser.h"
 #include "scanner.h"

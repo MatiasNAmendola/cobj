@@ -28,7 +28,6 @@ LIB_OBJS += co.o
 #LIB_OBJS += serialize.o
 LIB_OBJS += compile.o
 LIB_OBJS += error.o
-LIB_OBJS += llist.o
 LIB_OBJS += object.o
 LIB_OBJS += parser.o
 LIB_OBJS += scanner.o
