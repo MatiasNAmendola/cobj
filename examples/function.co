@@ -15,8 +15,8 @@
 #end
 
 func fibo(n)
-    if n == 0 return 0 end
-    if n == 1 return 1 end
+    if n == 0 then return 0 end
+    if n == 1 then return 1 end
     return fibo(n - 1) + fibo(n - 2)
 end
 

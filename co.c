@@ -14,6 +14,7 @@ argparse_showversion(struct argparse *this,
 }
 
 int verbose = 0;
+int flag_compile = 0;
 char *eval = NULL;
 
 void
@@ -70,6 +71,7 @@ main(int argc, const char **argv)
         OPT_BOOLEAN('V', "verbose", &verbose,
                     "show runtime info, can be supplied multiple times to increase verbosity",
                     NULL),
+        OPT_BOOLEAN('c', "compile", &flag_compile, "compile only", NULL),
         OPT_STRING('e', "eval", &eval, "code passed as string", NULL),
         OPT_END(),
     };
@@ -83,21 +85,6 @@ main(int argc, const char **argv)
 
     /* test only */
     if (verbose) {
-        COObject *zero = COInt_FromLong(0);
-        COObject_dump(zero);
-        COObject *long_max = COInt_FromLong(9223372036854775807L);
-        COObject_dump(long_max);
-        COObject *long_min = COInt_FromLong(-9223372036854775807L - 1);
-        COObject_dump(long_min);
-
-        COObject_dump(COInt_FromString
-                      ("-10000000000000000000000000000000", NULL, 0));
-        COObject_dump(COInt_FromString("0", NULL, 0));
-        COObject_dump(COInt_FromString("0b11111", NULL, 0));
-        COObject_dump(COInt_FromString("0o11145401322", NULL, 0));
-        COObject_dump(COInt_FromString("0x499602D2", NULL, 0));
-        COObject_dump(COInt_FromString
-                      ("123456789012345678901234567890", NULL, 0));
         return 0;
     }
 
@@ -114,19 +101,16 @@ main(int argc, const char **argv)
             }
             f_name = *argv;
             // detect if it's a code cache
-            /*
-               COObject *first_object;
-               first_object = COObject_unserializeFromFile(f);
-               if (first_object && COInt_Check(first_object)
-               && COInt_AsLong(first_object) == CODEDUMP_MAGIC) {
-               COObject *code = COObject_unserializeFromFile(f);
-               if (!code) {
-               // TODO invalid code dump
-               return -1;
-               }
-               return eval_wrapper(code) ? 0 : -1;
-               }
-             */
+            COObject *first_object;
+            first_object = unmarshal_fromfile(f);
+            if (first_object && COInt_Check(first_object)
+                && COInt_AsLong(first_object) == CODEDUMP_MAGIC) {
+                COObject *code = unmarshal_fromfile(f);
+                if (!code) {
+                    return -1;
+                }
+                return eval_wrapper(code) ? 0 : -1;
+            }
         }
         fseek(f, 0, SEEK_SET);
 
@@ -157,5 +141,14 @@ main(int argc, const char **argv)
         }
     }
 
-    return eval_wrapper(compile())? 0 : -1;
+    COObject *code = compile();
+    if (flag_compile) {
+        FILE *f;
+        f = fopen("a.out", "wb");
+        marshal_tofile(COInt_FromLong(CODEDUMP_MAGIC), f);
+        marshal_tofile(code, f);
+        return 0;
+    }
+
+    return eval_wrapper(code) ? 0 : -1;
 }

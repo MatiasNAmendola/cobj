@@ -26,6 +26,7 @@ COCode_New(COObject *code, COObject *consts, COObject *names, int argcount,
 {
     COCodeObject *co = COObject_New(COCodeObject, &COCode_Type);
 
+    co->co_name = name;
     co->co_code = code;
     co->co_consts = consts;
     co->co_names = names;

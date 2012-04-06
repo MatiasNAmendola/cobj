@@ -20,14 +20,15 @@ typedef WFILE RFILE;
 #define TYPE_INT        'i'
 #define TYPE_FLOAT      'f'
 #define TYPE_STRING     's'
+#define TYPE_BYTES      'b'
 #define TYPE_TUPLE      '('
 #define TYPE_LIST       '['
 #define TYPE_DICT       '{'
 #define TYPE_CODE       'c'
-#define TYPE_OPLINE     'o'
 #define TYPE_REFER      'r'
 
-#define SET_OBJECT(co) CODict_SetItem(p->objects, COInt_FromLong(offset), COInt_FromLong((long)co))
+#define SET_OBJECT(co) \
+    CODict_SetItem(p->objects, COInt_FromLong(offset), COCapsule_New(co))
 
 #define w_byte(c, p)                        \
     if (((p)->fp)) {                        \
@@ -38,7 +39,6 @@ typedef WFILE RFILE;
         (p)->offset++;                      \
     } else w_more(c, p)
 
-static void w_cnode(struct cnode *node, WFILE *p);
 static COObject *r_object(RFILE *p);
 
 static void
@@ -142,35 +142,23 @@ w_object(COObject *co, WFILE *p)
     } else if (COCode_Check(co)) {
         COCodeObject *code = (COCodeObject *)co;
         w_byte(TYPE_CODE, p);
-        w_int64((long)code->co_numoftmpvars, p);
-        w_object(code->co_oplines, p);
-    } else if (COOpline_Check(co)) {
-        COOplineObject *opline = (COOplineObject *) co;
-        w_byte(TYPE_OPLINE, p);
-        w_byte(opline->opcode, p);
-        w_cnode(&opline->result, p);
-        w_cnode(&opline->arg1, p);
-        w_cnode(&opline->arg2, p);
+        w_object(code->co_name, p);
+        w_object(code->co_code, p);
+        w_object(code->co_consts, p);
+        w_object(code->co_names, p);
+        w_int64((long)code->co_argcount, p);
     } else if (COStr_Check(co)) {
         w_byte(TYPE_STRING, p);
         size_t n = CO_SIZE(co);
         w_int64((long)n, p);
         w_string(COStr_AsString(co), (int)n, p);
+    } else if (COBytes_Check(co)) {
+        w_byte(TYPE_BYTES, p);
+        size_t n = COBytes_Size(co);
+        w_int64((long)n, p);
+        w_string(COBytes_AsString(co), (int)n, p);
     } else {
-        error("unknow object to write");
-    }
-}
-
-static void
-w_cnode(struct cnode *node, WFILE *p)
-{
-    w_byte(node->type, p);
-    if (node->type == IS_CONST || node->type == IS_VAR) {
-        w_object(node->u.co, p);
-    } else if (node->type == IS_TMP_VAR) {
-        w_int64(node->u.var, p);
-    } else {
-        w_int64(node->u.opline_num, p);
+        error("unknown object to write");
     }
 }
 
@@ -222,19 +210,6 @@ r_int64(RFILE *p)
     long hi4 = r_int32(p);
     long x = (hi4 << 32) | (lo4 & 0xFFFFFFFFL);
     return x;
-}
-
-static void
-r_cnode(struct cnode *node, RFILE *p)
-{
-    node->type = r_byte(p);
-    if (node->type == IS_CONST || node->type == IS_VAR) {
-        node->u.co = r_object(p);
-    } else if (node->type == IS_TMP_VAR) {
-        node->u.var = r_int64(p);
-    } else {
-        node->u.opline_num = r_int64(p);
-    }
 }
 
 static COObject *
@@ -317,22 +292,14 @@ r_object(RFILE *p)
         break;
     case TYPE_CODE:
         {
-            rs = COCode_New(NULL, 0);
-            SET_OBJECT(rs);
+            COObject *name = r_object(p);
+            COObject *code = r_object(p);
+            COObject *consts = r_object(p);
+            COObject *names = r_object(p);
+            int argcount = r_int64(p);
 
-            ((COCodeObject *)rs)->co_numoftmpvars = r_int64(p);
-            ((COCodeObject *)rs)->co_oplines = r_object(p);
-        }
-        break;
-    case TYPE_OPLINE:
-        {
-            COOplineObject *opline = (COOplineObject *) COOpline_New();
-            SET_OBJECT(opline);
-            opline->opcode = r_byte(p);
-            r_cnode(&opline->result, p);
-            r_cnode(&opline->arg1, p);
-            r_cnode(&opline->arg2, p);
-            rs = (COObject *)opline;
+            rs = COCode_New(code, consts, names, argcount, name);
+            SET_OBJECT(rs);
         }
         break;
     case TYPE_STRING:
@@ -346,13 +313,24 @@ r_object(RFILE *p)
             }
         }
         break;
+    case TYPE_BYTES:
+        {
+            int n = r_int64(p);
+            rs = COBytes_FromStringN(NULL, n);
+            SET_OBJECT(rs);
+            if (r_string(COBytes_AsString(rs), n, p) != n) {
+                error("EOD read where bytes object expected");
+                rs = NULL;
+            }
+        }
+        break;
     case TYPE_REFER:
         {
             int offset = r_int64(p);
-            COObject *found =
-                CODict_GetItem(p->objects, COInt_FromLong(offset));
+            COCapsuleObject *found =
+                (COCapsuleObject *)CODict_GetItem(p->objects, COInt_FromLong(offset));
             if (found) {
-                rs = (COObject *)COInt_AsLong(found);
+                rs = found->pointer;
             } else {
                 // TODO errors
                 assert(0);
@@ -360,18 +338,13 @@ r_object(RFILE *p)
         }
         break;
     default:
-        /*error("unknow object to read: %d", type); */
         return NULL;
-    }
-    if (type != TYPE_REFER) {
-        CODict_SetItem(p->objects, COInt_FromLong(offset),
-                       COInt_FromLong((long)rs));
     }
     return rs;
 }
 
 COObject *
-COObject_serialize(COObject *co)
+marshal(COObject *co)
 {
     WFILE p;
     p.objects = CODict_New();
@@ -385,7 +358,7 @@ COObject_serialize(COObject *co)
 }
 
 COObject *
-COObject_unserialize(COObject *s)
+unmarshal(COObject *s)
 {
     RFILE p;
     p.objects = CODict_New();
@@ -398,19 +371,19 @@ COObject_unserialize(COObject *s)
     return r_object(&p);
 }
 
-COObject *
-COObject_serializeToFile(COObject *co, FILE *fp)
+int
+marshal_tofile(COObject *co, FILE *fp)
 {
     WFILE p;
     p.objects = CODict_New();
     p.offset = 0;
     p.fp = fp;
     w_object(co, &p);
-    return p.str;
+    return 0;
 }
 
 COObject *
-COObject_unserializeFromFile(FILE *fp)
+unmarshal_fromfile(FILE *fp)
 {
     RFILE p;
     p.objects = CODict_New();

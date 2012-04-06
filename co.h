@@ -28,7 +28,7 @@
 #include "vm.h"
 #include "vm_opcodes.h"
 #include "wrapper.h"
-#include "serialize.h"
+#include "marshal.h"
 #include "mem.h"
 #include "gc.h"
 #include "ast.h"
