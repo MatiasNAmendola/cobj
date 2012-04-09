@@ -116,5 +116,6 @@ long COObject_hash(COObject *co);
 void COObject_print(COObject *co);
 COObject *COObject_repr(COObject *o);
 COObject *COObject_Compare(COObject *a, COObject *b, int op);
+int COObject_CompareBool(COObject *a, COObject *b, int op);
 
 #endif

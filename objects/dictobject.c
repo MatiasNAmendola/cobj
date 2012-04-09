@@ -97,14 +97,16 @@ _dict_lookup(CODictObject *this, COObject *key)
                      ((COStrObject *)key)->co_sval, CO_SIZE(key))) {
                     return p;
                 }
-            } else if (COInt_Check(key)) {
-                if (COInt_AsLong(p->pKey) == COInt_AsLong(key)) {
-                    return p;
-                }
             } else if (key == CO_None) {
                 return p;
+            } else if (COInt_Check(key)) {
+                int cmp = COObject_CompareBool(p->pKey, key, Cmp_EQ);
+                if (cmp <= 0)
+                    return NULL; 
+                if (cmp == 1)
+                    return p;
             } else {
-                // TODO errors
+                // TODO
                 assert(0);
             }
         }

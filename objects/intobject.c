@@ -182,7 +182,7 @@ COInt_AsSsize_t(COObject *o)
 
     if (x <= (size_t) SSIZE_MAX) {
         return (ssize_t) x *sign;
-    } else if (sign < 0 && x == (0 - (size_t) SSIZE_MIN)) {
+    } else if (sign < 0 && x == CO_ABS_SSIZE_MIN) {
         return SSIZE_MIN;
     }
     /* else overflow */
@@ -1146,10 +1146,76 @@ COInt_Init(void)
     return 0;
 }
 
+
+/* 
+ * Get a C long int from a int object.
+ * Returns -1 and sets an error condition if overflow occurs.
+ */
 long
-COInt_AsLong(COObject *co)
+COInt_AsLong(COObject *_o)
 {
-    return (long)((COIntObject *)co)->co_digit[0];
+    COIntObject *o = (COIntObject *)_o;
+    int overflow = 0;
+    long x;
+    unsigned long accum, prev;
+    ssize_t i;
+    int sign;
+
+    if (!o) {
+        COErr_BadInternalCall();
+        return -1;
+    }
+
+    if (!COInt_Check(o)) {
+        COErr_SetString(COException_TypeError, "an integer is required");
+        return -1;
+    }
+
+    i = CO_SIZE(o);
+    switch (i) {
+    case -1:
+        x = -(sdigit)o->co_digit[0];
+        break;
+    case 0:
+        x = 0;
+        break;
+    case 1:
+        x = o->co_digit[0];
+        break;
+    default:
+        x = -1;
+        sign = 1;
+        if (i < 0) {
+            sign = -1;
+            i = -(i);
+        }
+        accum = 0;
+        while (--i >= 0) {
+            prev = accum;
+            accum = (accum << COInt_SHIFT) | o->co_digit[i];
+            if ((accum >> COInt_SHIFT) != prev) {
+                overflow = -1;
+                goto exit;
+            }
+        }
+
+        /* Haven't lost any bits, but casting to long requires extra care */
+        if (accum <= (unsigned long)LONG_MAX) {
+            x = (long)accum * sign;
+        } else if (sign < 0 && accum == CO_ABS_LONG_MIN) {
+            x = LONG_MIN;
+        } else {
+            overflow = -1;
+            goto exit;
+        }
+    }
+
+exit:
+    if (overflow) {
+        COErr_SetString(COException_OverflowError, "COObject int too large to convert to C long int");
+        return -1;
+    }
+    return x;
 }
 
 COObject *

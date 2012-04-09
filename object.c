@@ -85,7 +85,6 @@ COObject_print(COObject *o)
  * Every object's type have a tp_compare function slot, it's not NULL, it
  * gets called with two objects and Cmp_Op, and should return an object as follows:
  *  - NULL if an exception occurred
- *  - UnDefined if the requested comparison is not defined
  *  - False object is comparison is false
  *  - True object is comparison is true
  */
@@ -121,4 +120,32 @@ COObject_Compare(COObject *a, COObject *b, int op)
 
     x = do_compare(a, b, op);
     return x;
+}
+
+
+/*
+ * -1 for error, 0 for falce, 1 for true
+ */
+int
+COObject_CompareBool(COObject *a, COObject *b, int op)
+{
+    COObject *x;
+    int ok;
+    /* Quick result when objects are the same.
+       Guarantees that identity implies equality. */
+    if (a == b) {
+        if (op == Cmp_EQ)
+            return 1;
+        else if (op == Cmp_NE)
+            return 0;
+    }
+    x = COObject_Compare(a, b, op);
+    if (!x)
+        return -1;
+    if (x == CO_True)
+        ok = 1;
+    else
+        ok = 0;
+    CO_DECREF(x);
+    return ok;
 }
