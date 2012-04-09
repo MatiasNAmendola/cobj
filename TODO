@@ -7,6 +7,5 @@
 * implement namespace & scope rules
 * add "Derived from" notice at header files
 * % change dividend from divisor
-* finish richcompare & COObject_hash method
+* finish COObject_hash method
 * fix prime.co malloc bug
-* merge all comparison opcodes into OP_CMP, give it CMP_* args
