@@ -44,7 +44,7 @@
 #include "objects/codeobject.h"
 #include "objects/listobject.h"
 #include "objects/tupleobject.h"
-#include "objects/stackobject.h"
+#include "objects/frameobject.h"
 #include "objects/dictobject.h"
 #include "objects/codeobject.h"
 #include "objects/bytesobject.h"

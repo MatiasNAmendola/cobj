@@ -69,8 +69,8 @@ COObject_set(COObject *name, COObject *co)
 #define NEXTOP()    (*exec_data->bytecode++)
 #define NEXTARG()   (exec_data->bytecode += 2, (exec_data->bytecode[-1]<<8) + exec_data->bytecode[-2])
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
-#define PUSH(o)     COStack_Push(f, (COObject *)o);
-#define POP()       COStack_Pop(f);
+#define PUSH(o)     COFrame_Push(f, (COObject *)o);
+#define POP()       COFrame_Pop(f);
 
 /*
  * Evaluate a function object into a object.
@@ -92,10 +92,11 @@ vm_eval(COObject *func)
     register int err;                   /* C function error code */
 
     TS(mainfunc) = func;
+
 new_frame:
     code = (COCodeObject *)((COFunctionObject *)func)->func_code;
     exec_data =
-        (struct co_exec_data *)COStack_Alloc(f, sizeof(struct co_exec_data));
+        (struct co_exec_data *)COFrame_Alloc(f, sizeof(struct co_exec_data));
     if (COList_Size(TS(funcargs))) {
         // check arguments count
         if (code->co_argcount != COList_Size(TS(funcargs))) {
@@ -107,7 +108,7 @@ new_frame:
         }
         size_t n = COList_Size(TS(funcargs));
         for (int i = 0; i < n; i++) {
-            COStack_Push(f, COList_GetItem(TS(funcargs), 0));
+            COFrame_Push(f, COList_GetItem(TS(funcargs), 0));
             COList_DelItem(TS(funcargs), 0);
         }
     }
@@ -291,10 +292,9 @@ start_frame:
             break;
         case OP_RETURN:
             x = POP();
-            struct co_exec_data *old_exec_data;
-            old_exec_data = TS(current_exec_data);
+            struct co_exec_data *old_exec_data = TS(current_exec_data);
             TS(current_exec_data) = TS(current_exec_data)->prev_exec_data;
-            COStack_Free(f, (COObject *)old_exec_data);
+            COFrame_Free(f, (COObject *)old_exec_data);
             if (!TS(current_exec_data)) {
                 goto vm_exit;
             }
