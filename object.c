@@ -149,3 +149,25 @@ COObject_CompareBool(COObject *a, COObject *b, int op)
     CO_DECREF(x);
     return ok;
 }
+
+/*
+ * Return -1 if an error occured. 0 for false, 1 for true.
+ */
+int
+COObject_IsTrue(COObject *o)
+{
+    ssize_t size;
+    if (o == CO_True)
+        return 1;
+    if (o == CO_False)
+        return 0;
+    if (o == CO_None)
+        return 0;
+    if (COInt_Check(o)) {
+        size = CO_SIZE(o);
+    } else {
+        // default
+        return 1;
+    }
+    return (size == 0) ? 0 : 1;
+}

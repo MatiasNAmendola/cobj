@@ -85,12 +85,13 @@ vm_eval(COObject *func)
     COCodeObject *code;
 
     register unsigned char opcode;      /* Current opcode */
-    register int oparg;         /* Current opcode argument, if any */
-    register COObject *x;       /* Result object -- NULL if error */
+    register int oparg;                 /* Current opcode argument, if any */
+    register COObject *x;               /* Result object -- NULL if error */
     register COObject *o1, *o2, *o3;    /* Temporary objects popped of stack */
-    TS(mainfunc) = func;
-    int status;
+    register int status;                /* VM status */
+    register int err;                   /* C function error code */
 
+    TS(mainfunc) = func;
 new_frame:
     code = (COCodeObject *)((COFunctionObject *)func)->func_code;
     exec_data =
@@ -245,9 +246,16 @@ start_frame:
         case OP_JMPZ:
             oparg = NEXTARG();
             o1 = POP();
-            if (o1 != CO_True && COBool_FromLong(COInt_AsLong(o1)) != CO_True) {
+            if (o1 == CO_True) {
+            } else if (o1 == CO_False) {
                 JUMPBY(oparg);
-            }
+            } else {
+                err = COObject_IsTrue(o1);
+                if (err > 0)
+                    err = 0;
+                else if (err == 0)
+                    JUMPBY(oparg);
+            }   
             break;
         case OP_JMP:
             oparg = NEXTARG();
