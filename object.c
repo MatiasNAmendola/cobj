@@ -92,9 +92,6 @@ COObject_print(COObject *o)
 static COObject *
 do_compare(COObject *a, COObject *b, int op)
 {
-    /* Map rich comparison operators to their swapped version, e.g. LT <--> GT */
-    static int CMP_SwappedOp[] =
-        { CMP_GT, CMP_GE, CMP_EQ, CMP_NE, CMP_LT, CMP_LE };
     static char *opstrings[] = { "<", "<=", "==", "!=", ">", ">=" };
 
     richcmpfunc f;
@@ -114,7 +111,7 @@ do_compare(COObject *a, COObject *b, int op)
 COObject *
 COObject_Compare(COObject *a, COObject *b, int op)
 {
-    assert(CMP_LT <= op && op <= CMP_GE);
+    assert(Cmp_LT <= op && op <= Cmp_GE);
     COObject *x;
 
     if (!a || !b) {

@@ -216,6 +216,11 @@ compile_visit_node(struct compiler *c, Node *n)
         compile_visit_node(c, n->right);
         compile_addop(c, n->op);
         break;
+    case NODE_CMP:
+        compile_visit_node(c, n->left);
+        compile_visit_node(c, n->right);
+        compile_addop_i(c, OP_CMP, n->oparg);
+        break;
     case NODE_UNARY:
         compile_visit_node(c, n->left);
         compile_addop(c, n->op);
@@ -431,10 +436,7 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_SR);
         GIVE_NAME(OP_UNARY_NEGATE);
         GIVE_NAME(OP_UNARY_INVERT);
-        GIVE_NAME(OP_IS_SMALLER);
-        GIVE_NAME(OP_IS_SMALLER_OR_EQUAL);
-        GIVE_NAME(OP_IS_EQUAL);
-        GIVE_NAME(OP_IS_NOT_EQUAL);
+        GIVE_NAME(OP_CMP);
         GIVE_NAME(OP_ASSIGN);
         GIVE_NAME(OP_PRINT);
         GIVE_NAME(OP_JMPZ);
@@ -492,6 +494,7 @@ dump_code(COObject *code)
         case OP_JMPX:
         case OP_JMPZ:
         case OP_CALL_FUNCTION:
+        case OP_CMP:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             break;

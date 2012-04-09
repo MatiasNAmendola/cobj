@@ -13,6 +13,7 @@ typedef struct _Node Node;
 
 typedef enum {
     NODE_BIN,                   /* binary op node */
+    NODE_CMP,
     NODE_UNARY,
     NODE_IF,
     NODE_WHILE,
@@ -35,6 +36,7 @@ struct _Node {
 
     /* Associated data */
     unsigned char op;
+    int oparg;
     COObject *o;
 
     /* For Binary/Unary Node */

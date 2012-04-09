@@ -159,12 +159,15 @@ expr: /* express something */
     |   expr '*' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_MUL; }
     |   expr '/' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_DIV; }
     |   expr '%' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_MOD; }
-    |   expr '<' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_IS_SMALLER; }
-    |   expr '>' expr { $$ = node_new(NODE_BIN, $3, $1); $$->op = OP_IS_SMALLER; }
-    |   expr T_EQUAL expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_IS_EQUAL; }
-    |   expr T_NOT_EQUAL expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_IS_NOT_EQUAL; }
-    |   expr T_SMALLER_OR_EQUAL expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_IS_SMALLER_OR_EQUAL; }
-    |   expr T_GREATER_OR_EQUAL expr { $$ = node_new(NODE_BIN, $3, $1); $$->op = OP_IS_SMALLER_OR_EQUAL; }
+    |   expr '<' expr { $$ = node_new(NODE_CMP, $1, $3); $$->oparg = Cmp_LT; }
+    |   expr '>' expr { $$ = node_new(NODE_CMP, $1, $3); $$->oparg = Cmp_GT; }
+    |   expr T_EQUAL expr { $$ = node_new(NODE_CMP, $1, $3); $$->oparg = Cmp_EQ; }
+    |   expr T_NOT_EQUAL expr { $$ = node_new(NODE_CMP, $1, $3); $$->oparg =
+    Cmp_NE; }
+    |   expr T_SMALLER_OR_EQUAL expr { $$ = node_new(NODE_CMP, $1, $3);
+    $$->oparg = Cmp_LE; }
+    |   expr T_GREATER_OR_EQUAL expr { $$ = node_new(NODE_CMP, $1, $3);
+    $$->oparg = Cmp_GE; }
     |   expr T_SL expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_SL; }
     |   expr T_SR expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_SR; }
     |   expr T_POW expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_POW; }

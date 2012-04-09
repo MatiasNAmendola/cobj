@@ -1093,22 +1093,22 @@ int_compare(COIntObject *this, COIntObject *that, int op)
 
     COObject *x;
     switch (op) {
-    case CMP_EQ:
+    case Cmp_EQ:
         x = TEST_COND(result == 0);
         break;
-    case CMP_NE:
+    case Cmp_NE:
         x = TEST_COND(result != 0);
         break;
-    case CMP_LE:
+    case Cmp_LE:
         x = TEST_COND(result <= 0);
         break;
-    case CMP_GE:
+    case Cmp_GE:
         x = TEST_COND(result >= 0);
         break;
-    case CMP_LT:
+    case Cmp_LT:
         x = TEST_COND(result < 0);
         break;
-    case CMP_GT:
+    case Cmp_GT:
         x = TEST_COND(result > 0);
         break;
     default:

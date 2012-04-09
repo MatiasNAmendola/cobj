@@ -171,32 +171,15 @@ start_frame:
             x = COInt_Type.tp_int_interface->int_rshift(o2, o1);
             PUSH(x);
             break;
-        case OP_IS_SMALLER:
+        case OP_CMP:
             o1 = POP();
             o2 = POP();
-            x = COObject_Compare(o2, o1, CMP_LT);
+            oparg = NEXTARG();
+            x = COObject_Compare(o2, o1, oparg);
             if (!x) {
                 status = STATUS_EXCEPTION;
                 goto on_error;
             }
-            PUSH(x);
-            break;
-        case OP_IS_SMALLER_OR_EQUAL:
-            o1 = POP();
-            o2 = POP();
-            x = COBool_FromLong(COInt_AsLong(o2) <= COInt_AsLong(o1));
-            PUSH(x);
-            break;
-        case OP_IS_EQUAL:
-            o1 = POP();
-            o2 = POP();
-            x = COBool_FromLong(COInt_AsLong(o2) == COInt_AsLong(o1));
-            PUSH(x);
-            break;
-        case OP_IS_NOT_EQUAL:
-            o1 = POP();
-            o2 = POP();
-            x = COBool_FromLong(COInt_AsLong(o2) != COInt_AsLong(o1));
             PUSH(x);
             break;
         case OP_UNARY_NEGATE:

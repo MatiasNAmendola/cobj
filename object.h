@@ -117,12 +117,4 @@ void COObject_print(COObject *co);
 COObject *COObject_repr(COObject *o);
 COObject *COObject_Compare(COObject *a, COObject *b, int op);
 
-/* Rich comparison opcodes */
-#define CMP_LT 0
-#define CMP_LE 1
-#define CMP_EQ 2
-#define CMP_NE 3
-#define CMP_GT 4
-#define CMP_GE 5
-
 #endif
