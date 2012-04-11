@@ -3,7 +3,7 @@
 static COObject *
 list_repr(COObject *this)
 {
-    size_t i = ((COListObject *)this)->co_size;
+    ssize_t i = ((COListObject *)this)->co_size;
     if (i == 0) {
         return COStr_FromString("[]");
     }
@@ -47,11 +47,11 @@ COTypeObject COList_Type = {
  * entry.
  */
 static int
-list_resize(COListObject *this, size_t newsize)
+list_resize(COListObject *this, ssize_t newsize)
 {
     COObject **items;
-    size_t new_allocated;
-    size_t allocated = this->allocated;
+    ssize_t new_allocated;
+    ssize_t allocated = this->allocated;
 
     /* Bypass realloc() when a previous overallocation is large enough to
      * accommodate the newsize. If the newsize falls lower than half the
@@ -81,7 +81,7 @@ list_resize(COListObject *this, size_t newsize)
     items = this->co_item;
 
     /* check for overflow */
-    if (new_allocated <= ((~(size_t) 0) / sizeof(COObject *))) {
+    if (new_allocated <= ((~(ssize_t) 0) / sizeof(COObject *))) {
         items = COMem_REALLOC(items, new_allocated * sizeof(COObject *));
     } else {
         // TODO errors: no memory
@@ -124,10 +124,10 @@ list_slice(COListObject *this, int ilow, int ihigh)
 }
 
 COObject *
-COList_New(size_t size)
+COList_New(ssize_t size)
 {
     COListObject *this;
-    size_t nbytes;
+    ssize_t nbytes;
     nbytes = size * sizeof(COObject *);
 
     this = COObject_New(COListObject, &COList_Type);
@@ -146,14 +146,14 @@ COList_New(size_t size)
     return (COObject *)this;
 }
 
-size_t
+ssize_t
 COList_Size(COObject *this)
 {
     return ((COListObject *)this)->co_size;
 }
 
 COObject *
-COList_GetItem(COObject *this, size_t index)
+COList_GetItem(COObject *this, ssize_t index)
 {
     if (index >= ((COListObject *)this)->co_size) {
         // TODO errors
@@ -163,15 +163,15 @@ COList_GetItem(COObject *this, size_t index)
 }
 
 int
-COList_DelItem(COObject *this, size_t index)
+COList_DelItem(COObject *this, ssize_t index)
 {
-    size_t n = ((COListObject *)this)->co_size;
+    ssize_t n = ((COListObject *)this)->co_size;
     if (index < 0 || index >= n) {
         return -1;
     }
 
     COObject **items = ((COListObject *)this)->co_item;
-    size_t i;
+    ssize_t i;
     for (i = 0; i < n; i++) {
         if (i > index) {
             items[i - 1] = items[i];
@@ -183,7 +183,7 @@ COList_DelItem(COObject *this, size_t index)
 }
 
 int
-COList_SetItem(COObject *this, size_t index, COObject *item)
+COList_SetItem(COObject *this, ssize_t index, COObject *item)
 {
     COObject **p;
     COObject *olditem;
@@ -201,7 +201,7 @@ COList_SetItem(COObject *this, size_t index, COObject *item)
 int
 COList_Insert(COObject *this, int index, COObject *item)
 {
-    size_t n = ((COListObject *)this)->co_size;
+    ssize_t n = ((COListObject *)this)->co_size;
 
     if (list_resize((COListObject *)this, n + 1) == -1)
         return -1;
@@ -217,7 +217,7 @@ COList_Insert(COObject *this, int index, COObject *item)
         index = n;
 
     COObject **items = ((COListObject *)this)->co_item;
-    size_t i;
+    ssize_t i;
     for (i = n; i > index; i--)
         items[i + 1] = items[i];
 
@@ -235,7 +235,7 @@ COList_Append(COObject *this, COObject *item)
 COObject *
 COList_AsTuple(COObject *this)
 {
-    size_t n;
+    ssize_t n;
     COObject *co;
     COObject **p;
     COObject **q;

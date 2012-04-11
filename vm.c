@@ -52,13 +52,6 @@ COObject_set(COObject *name, COObject *co)
     return CODict_SetItem(current_frame->f_locals, name, co);
 }
 
-struct vm_stack {
-    struct vm_stack *prev_stack;
-    void **top;
-    void **end;
-    void *elements[1];
-};
-
 /*
  * Evaluate a function object into a object.
  */

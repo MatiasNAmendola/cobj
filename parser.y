@@ -154,11 +154,11 @@ expr: /* express something */
     |   T_NUM
     |   T_FNUM
     |    '(' expr ')' { $$ = $2; }
-    |   expr '+' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_ADD; }
-    |   expr '-' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_SUB; }
-    |   expr '*' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_MUL; }
-    |   expr '/' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_DIV; }
-    |   expr '%' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_MOD; }
+    |   expr '+' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_BINARY_ADD; }
+    |   expr '-' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_BINARY_SUB; }
+    |   expr '*' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_BINARY_MUL; }
+    |   expr '/' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_BINARY_DIV; }
+    |   expr '%' expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_BINARY_MOD; }
     |   expr '<' expr { $$ = node_new(NODE_CMP, $1, $3); $$->oparg = Cmp_LT; }
     |   expr '>' expr { $$ = node_new(NODE_CMP, $1, $3); $$->oparg = Cmp_GT; }
     |   expr T_EQUAL expr { $$ = node_new(NODE_CMP, $1, $3); $$->oparg = Cmp_EQ; }
@@ -168,9 +168,9 @@ expr: /* express something */
     $$->oparg = Cmp_LE; }
     |   expr T_GREATER_OR_EQUAL expr { $$ = node_new(NODE_CMP, $1, $3);
     $$->oparg = Cmp_GE; }
-    |   expr T_SL expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_SL; }
-    |   expr T_SR expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_SR; }
-    |   expr T_POW expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_POW; }
+    |   expr T_SL expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_BINARY_SL; }
+    |   expr T_SR expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_BINARY_SR; }
+    |   expr T_POW expr { $$ = node_new(NODE_BIN, $1, $3); $$->op = OP_BINARY_POW; }
     |   '-' expr %prec UNARY_OP { $$ = node_new(NODE_UNARY, $2, NULL); $$->op =
     OP_UNARY_NEGATE; }
     |   '~' expr %prec UNARY_OP { $$ = node_new(NODE_UNARY, $2, NULL); $$->op =
@@ -250,37 +250,37 @@ simple_stmt:
         T_NAME '=' expr { Node *t = node_new(NODE_ASSIGN, $1, $3); $$ = nodelist(t, NULL); }
     |   T_NAME T_ADD_ASSIGN expr {
             Node *t;
-            t = node_new(NODE_BIN, $1, $3); t->op = OP_ADD;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_ADD;
             $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_SUB_ASSIGN expr  {
             Node *t;
-            t = node_new(NODE_BIN, $1, $3); t->op = OP_SUB;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_SUB;
             $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_MUL_ASSIGN expr  {
             Node *t;
-            t = node_new(NODE_BIN, $1, $3); t->op = OP_MUL;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_MUL;
             $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_DIV_ASSIGN expr  {
             Node *t;
-            t = node_new(NODE_BIN, $1, $3); t->op = OP_DIV;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_DIV;
             $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_MOD_ASSIGN expr {
             Node *t;
-            t = node_new(NODE_BIN, $1, $3); t->op = OP_MOD;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_MOD;
             $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_SR_ASSIGN expr {
             Node *t;
-            t = node_new(NODE_BIN, $1, $3); t->op = OP_SR;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_SR;
             $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_SL_ASSIGN expr {
             Node *t;
-            t = node_new(NODE_BIN, $1, $3); t->op = OP_SL;
+            t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_SL;
             $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_PRINT expr { Node *t = node_new(NODE_PRINT, $2, NULL); $$ = nodelist(t, NULL); }
