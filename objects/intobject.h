@@ -22,7 +22,7 @@ typedef uint64_t twodigits;
 typedef int64_t stwodigits;
 #define COInt_BASE ((digit)1 << COInt_SHIFT)
 #define COInt_MASK ((digit)(COInt_BASE - 1))
-#define COInt_DECIMAL_SHIFT   9         /* max(n such that 10**n fits in a digit) */
+#define COInt_DECIMAL_SHIFT   9 /* max(n such that 10**n fits in a digit) */
 #define COInt_DECIMAL_BASE    ((digit)1000000000)       /* 10 ** DECIMAL_SHIFT */
 
 typedef struct _COIntObject {

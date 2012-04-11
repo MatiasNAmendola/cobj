@@ -6,15 +6,6 @@ enum status_code {
     STATUS_EXCEPTION = 0x0002,  /* Exception occurred */
 };
 
-/* execution frame */
-struct co_exec_data {
-    struct co_exec_data *prev_exec_data;
-    COObject *function_called;
-    COObject *symbol_table;     /* dict object for names */
-    unsigned char *firstcode;
-    unsigned char *bytecode;
-};
-
 /* Forward declarations */
 COObject *COObject_get(COObject *co);
 int COObject_put(COObject *name, COObject *co);
@@ -24,22 +15,21 @@ COObject_get(COObject *name)
 {
     COObject *co;
 
-    struct co_exec_data *current_exec_data = TS(current_exec_data);
-    if (current_exec_data->function_called) {
+    COFrameObject *current_frame = (COFrameObject *)TS(frame);
+    if (current_frame->f_func) {
         co = CODict_GetItem(((COFunctionObject *)
-                             current_exec_data->function_called)->func_upvalues,
-                            name);
+                             current_frame->f_func)->func_upvalues, name);
         if (co) {
             return co;
         }
     }
     do {
-        co = CODict_GetItem(current_exec_data->symbol_table, name);
+        co = CODict_GetItem(current_frame->f_locals, name);
         if (co) {
             return co;
         }
-        current_exec_data = current_exec_data->prev_exec_data;
-        if (!current_exec_data) {
+        current_frame = (COFrameObject *)current_frame->f_prev;
+        if (!current_frame) {
             break;
         }
     } while (true);
@@ -49,28 +39,18 @@ COObject_get(COObject *name)
 int
 COObject_set(COObject *name, COObject *co)
 {
-    struct co_exec_data *current_exec_data = TS(current_exec_data);
-    if (current_exec_data->function_called) {
+    COFrameObject *current_frame = (COFrameObject *)TS(frame);
+    if (current_frame->f_func) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
-                               current_exec_data->function_called)->
-                              func_upvalues, name);
+                               current_frame->f_func)->func_upvalues, name);
         if (myco) {
             CODict_SetItem(((COFunctionObject *)
-                            current_exec_data->function_called)->func_upvalues,
-                           name, co);
+                            current_frame->f_func)->func_upvalues, name, co);
         }
     }
-    return CODict_SetItem(TS(current_exec_data)->symbol_table, name, co);
+    return CODict_SetItem(current_frame->f_locals, name, co);
 }
-
-#define JUMPBY(offset)  exec_data->bytecode += offset
-#define JUMPTO(offset)  exec_data->bytecode = exec_data->firstcode + offset
-#define NEXTOP()    (*exec_data->bytecode++)
-#define NEXTARG()   (exec_data->bytecode += 2, (exec_data->bytecode[-1]<<8) + exec_data->bytecode[-2])
-#define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
-#define PUSH(o)     COFrame_Push(f, (COObject *)o);
-#define POP()       COFrame_Pop(f);
 
 /*
  * Evaluate a function object into a object.
@@ -78,25 +58,33 @@ COObject_set(COObject *name, COObject *co)
 COObject *
 vm_eval(COObject *func)
 {
-    struct co_exec_data *exec_data;
-    COObject *f = TS(frame);
+#define JUMPBY(offset)  frame->bytecode += offset
+#define JUMPTO(offset)  frame->bytecode = frame->firstcode + offset
+#define NEXTOP()        (*frame->bytecode++)
+#define NEXTARG()       (frame->bytecode += 2, (frame->bytecode[-1]<<8) + frame->bytecode[-2])
+#define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
+#define PUSH(o)         (*stack_top++ = (o))
+#define POP()           (*--stack_top)
+
+    COFrameObject *frame;
+    COCodeObject *code;
     COObject *names;
     COObject *consts;
-    COCodeObject *code;
 
+    register COObject **stack_top;      /* Stack top, points to next free slot in stack */
     register unsigned char opcode;      /* Current opcode */
-    register int oparg;                 /* Current opcode argument, if any */
-    register COObject *x;               /* Result object -- NULL if error */
+    register int oparg;         /* Current opcode argument, if any */
+    register COObject *x;       /* Result object -- NULL if error */
     register COObject *o1, *o2, *o3;    /* Temporary objects popped of stack */
-    register int status;                /* VM status */
-    register int err;                   /* C function error code */
+    register int status;        /* VM status */
+    register int err;           /* C function error code */
 
     TS(mainfunc) = func;
 
 new_frame:
     code = (COCodeObject *)((COFunctionObject *)func)->func_code;
-    exec_data =
-        (struct co_exec_data *)COFrame_Alloc(f, sizeof(struct co_exec_data));
+    frame = (COFrameObject *)COFrame_New();
+    stack_top = frame->f_stacktop;
     if (COList_Size(TS(funcargs))) {
         // check arguments count
         if (code->co_argcount != COList_Size(TS(funcargs))) {
@@ -108,23 +96,20 @@ new_frame:
         }
         size_t n = COList_Size(TS(funcargs));
         for (int i = 0; i < n; i++) {
-            COFrame_Push(f, COList_GetItem(TS(funcargs), 0));
+            PUSH(COList_GetItem(TS(funcargs), 0));
             COList_DelItem(TS(funcargs), 0);
         }
     }
-    exec_data->prev_exec_data = NULL;
-    exec_data->symbol_table = CODict_New();
-    exec_data->function_called = func;
-    exec_data->prev_exec_data = TS(current_exec_data);
-    exec_data->bytecode = (unsigned char *)COBytes_AsString(code->co_code);
-    exec_data->firstcode = exec_data->bytecode;
-    TS(current_exec_data) = exec_data;
+    frame->f_prev = TS(frame);
+    frame->f_locals = CODict_New();
+    frame->f_func = func;
+    frame->bytecode = (unsigned char *)COBytes_AsString(code->co_code);
+    frame->firstcode = frame->bytecode;
+    TS(frame) = (COObject *)frame;
 
 start_frame:
     status = STATUS_NONE;
-    code =
-        (COCodeObject *)((COFunctionObject *)exec_data->function_called)->
-        func_code;
+    code = (COCodeObject *)((COFunctionObject *)frame->f_func)->func_code;
     names = code->co_names;
     consts = code->co_consts;
 
@@ -256,7 +241,7 @@ start_frame:
                     err = 0;
                 else if (err == 0)
                     JUMPBY(oparg);
-            }   
+            }
             break;
         case OP_JMP:
             oparg = NEXTARG();
@@ -283,22 +268,24 @@ start_frame:
         case OP_CALL_FUNCTION:
             o1 = POP();
             oparg = NEXTARG();
-            func = o1;
             while (oparg--) {
                 o2 = POP();
                 COList_Append(TS(funcargs), o2);
             }
+            func = o1;
+            frame->f_stacktop = stack_top;
             goto new_frame;
             break;
         case OP_RETURN:
             x = POP();
-            struct co_exec_data *old_exec_data = TS(current_exec_data);
-            TS(current_exec_data) = TS(current_exec_data)->prev_exec_data;
-            COFrame_Free(f, (COObject *)old_exec_data);
-            if (!TS(current_exec_data)) {
+            COFrameObject *old_frame = (COFrameObject *)TS(frame);
+            TS(frame) = old_frame->f_prev;
+            COFrame_Destory((COObject *)old_frame);
+            if (!TS(frame)) {
                 goto vm_exit;
             }
-            exec_data = TS(current_exec_data);
+            frame = (COFrameObject *)TS(frame);
+            stack_top = frame->f_stacktop;
             PUSH(x);
             goto start_frame;
             break;

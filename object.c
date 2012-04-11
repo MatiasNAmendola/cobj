@@ -122,7 +122,6 @@ COObject_Compare(COObject *a, COObject *b, int op)
     return x;
 }
 
-
 /*
  * -1 for error, 0 for falce, 1 for true
  */

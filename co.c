@@ -81,7 +81,6 @@ main(int argc, const char **argv)
     /* Init */
     COInt_Init();
     threadstate_current = COThreadState_New();
-    TS(frame) = COFrame_New();
 
     /* test only */
     if (verbose) {

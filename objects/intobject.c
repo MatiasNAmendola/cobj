@@ -1146,7 +1146,6 @@ COInt_Init(void)
     return 0;
 }
 
-
 /* 
  * Get a C long int from a int object.
  * Returns -1 and sets an error condition if overflow occurs.
@@ -1201,7 +1200,7 @@ COInt_AsLong(COObject *_o)
 
         /* Haven't lost any bits, but casting to long requires extra care */
         if (accum <= (unsigned long)LONG_MAX) {
-            x = (long)accum * sign;
+            x = (long)accum *sign;
         } else if (sign < 0 && accum == CO_ABS_LONG_MIN) {
             x = LONG_MIN;
         } else {
@@ -1212,7 +1211,8 @@ COInt_AsLong(COObject *_o)
 
 exit:
     if (overflow) {
-        COErr_SetString(COException_OverflowError, "COObject int too large to convert to C long int");
+        COErr_SetString(COException_OverflowError,
+                        "COObject int too large to convert to C long int");
         return -1;
     }
     return x;

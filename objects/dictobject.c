@@ -102,7 +102,7 @@ _dict_lookup(CODictObject *this, COObject *key)
             } else if (COInt_Check(key)) {
                 int cmp = COObject_CompareBool(p->pKey, key, Cmp_EQ);
                 if (cmp <= 0)
-                    return NULL; 
+                    return NULL;
                 if (cmp == 1)
                     return p;
             } else {

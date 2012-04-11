@@ -8,4 +8,4 @@
 * add "Derived from" notice at header files
 * % change dividend from divisor
 * finish COObject_hash method
-* fix prime.co malloc bug
+* add stacksize for function
