@@ -192,7 +192,7 @@ r_byte(RFILE *p)
 static long
 r_int32(RFILE *p)
 {
-    register long x;
+    long x;
     unsigned char buffer[4];
     r_string((char *)buffer, 4, p);
     x = buffer[0];

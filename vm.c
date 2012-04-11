@@ -52,6 +52,13 @@ COObject_set(COObject *name, COObject *co)
     return CODict_SetItem(current_frame->f_locals, name, co);
 }
 
+struct vm_stack {
+    struct vm_stack *prev_stack;
+    void **top;
+    void **end;
+    void *elements[1];
+};
+
 /*
  * Evaluate a function object into a object.
  */
@@ -71,17 +78,17 @@ vm_eval(COObject *func)
     COObject *names;
     COObject *consts;
 
-    register COObject **stack_top;      /* Stack top, points to next free slot in stack */
-    register unsigned char opcode;      /* Current opcode */
-    register int oparg;         /* Current opcode argument, if any */
-    register COObject *x;       /* Result object -- NULL if error */
-    register COObject *o1, *o2, *o3;    /* Temporary objects popped of stack */
-    register int status;        /* VM status */
-    register int err;           /* C function error code */
+    COObject **stack_top;      /* Stack top, points to next free slot in stack */
+    unsigned char opcode;      /* Current opcode */
+    int oparg;         /* Current opcode argument, if any */
+    COObject *x;       /* Result object -- NULL if error */
+    COObject *o1, *o2, *o3;    /* Temporary objects popped of stack */
+    int status;        /* VM status */
+    int err;           /* C function error code */
 
     TS(mainfunc) = func;
 
-new_frame:
+new_frame:      /* reentry point when function call */
     code = (COCodeObject *)((COFunctionObject *)func)->func_code;
     frame = (COFrameObject *)COFrame_New();
     stack_top = frame->f_stacktop;
@@ -107,7 +114,7 @@ new_frame:
     frame->firstcode = frame->bytecode;
     TS(frame) = (COObject *)frame;
 
-start_frame:
+start_frame:    /* reentry point when function return */
     status = STATUS_NONE;
     code = (COCodeObject *)((COFunctionObject *)frame->f_func)->func_code;
     names = code->co_names;

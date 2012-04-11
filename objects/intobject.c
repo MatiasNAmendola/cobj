@@ -146,7 +146,7 @@ _COInt_Copy(COIntObject *src)
 ssize_t
 COInt_AsSsize_t(COObject *o)
 {
-    register COIntObject *_o;
+    COIntObject *_o;
     size_t x, prev;
     ssize_t i;
     int sign;

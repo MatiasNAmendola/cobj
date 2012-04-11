@@ -42,7 +42,7 @@ struct co_scanner_globals scanner_globals;
 static void
 co_scan_singlequoted_string(COStrObject *co)
 {
-    register char *s, *t;
+    char *s, *t;
     char *end;
 
     s = t = co->co_sval;
@@ -79,7 +79,7 @@ co_scan_singlequoted_string(COStrObject *co)
 static void
 co_scan_doublequoted_string(COStrObject *co)
 {
-    register char *s, *t;
+    char *s, *t;
     char *end;
 
     s = t = co->co_sval;

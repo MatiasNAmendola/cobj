@@ -111,7 +111,7 @@ str_hash(COStrObject *this)
 
     const char *arKey = COStr_AsString((COObject *)this);
     uint nKeyLen = CO_SIZE(this);
-    register ulong hash = 5381;
+    ulong hash = 5381;
 
     /* variant with the hash unrolled eight times */
     for (; nKeyLen >= 8; nKeyLen -= 8) {
