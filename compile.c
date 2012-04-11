@@ -426,14 +426,14 @@ opcode_name(unsigned char opcode)
 
     switch (opcode) {
         GIVE_NAME(OP_NOP);
-        GIVE_NAME(OP_ADD);
-        GIVE_NAME(OP_SUB);
-        GIVE_NAME(OP_MUL);
-        GIVE_NAME(OP_DIV);
-        GIVE_NAME(OP_MOD);
-        GIVE_NAME(OP_POW);
-        GIVE_NAME(OP_SL);
-        GIVE_NAME(OP_SR);
+        GIVE_NAME(OP_BINARY_ADD);
+        GIVE_NAME(OP_BINARY_SUB);
+        GIVE_NAME(OP_BINARY_MUL);
+        GIVE_NAME(OP_BINARY_DIV);
+        GIVE_NAME(OP_BINARY_MOD);
+        GIVE_NAME(OP_BINARY_POW);
+        GIVE_NAME(OP_BINARY_SL);
+        GIVE_NAME(OP_BINARY_SR);
         GIVE_NAME(OP_UNARY_NEGATE);
         GIVE_NAME(OP_UNARY_INVERT);
         GIVE_NAME(OP_CMP);

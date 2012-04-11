@@ -116,43 +116,43 @@ start_frame:
     for (;;) {
         opcode = NEXTOP();
         switch (opcode) {
-        case OP_ADD:
+        case OP_BINARY_ADD:
             o1 = POP();
             o2 = POP();
             x = COInt_Type.tp_int_interface->int_add(o1, o2);
             PUSH(x);
             break;
-        case OP_SUB:
+        case OP_BINARY_SUB:
             o1 = POP();
             o2 = POP();
             x = COInt_Type.tp_int_interface->int_sub(o2, o1);
             PUSH(x);
             break;
-        case OP_MUL:
+        case OP_BINARY_MUL:
             o1 = POP();
             o2 = POP();
             x = COInt_Type.tp_int_interface->int_mul(o2, o1);
             PUSH(x);
             break;
-        case OP_DIV:
+        case OP_BINARY_DIV:
             o1 = POP();
             o2 = POP();
             x = COInt_Type.tp_int_interface->int_div(o2, o1);
             PUSH(x);
             break;
-        case OP_MOD:
+        case OP_BINARY_MOD:
             o1 = POP();
             o2 = POP();
             x = COInt_Type.tp_int_interface->int_mod(o2, o1);
             PUSH(x);
             break;
-        case OP_SL:
+        case OP_BINARY_SL:
             o1 = POP();
             o2 = POP();
             x = COInt_Type.tp_int_interface->int_lshift(o2, o1);
             PUSH(x);
             break;
-        case OP_SR:
+        case OP_BINARY_SR:
             o1 = POP();
             o2 = POP();
             x = COInt_Type.tp_int_interface->int_rshift(o2, o1);

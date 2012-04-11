@@ -4,14 +4,14 @@
 /* Instruction opcodes */
 
 #define OP_NOP                      0
-#define OP_ADD                      1
-#define OP_SUB                      2
-#define OP_MUL                      3
-#define OP_DIV                      4
-#define OP_MOD                      5
-#define OP_POW                      6
-#define OP_SL                       7
-#define OP_SR                       8
+#define OP_BINARY_ADD               1
+#define OP_BINARY_SUB               2
+#define OP_BINARY_MUL               3
+#define OP_BINARY_DIV               4
+#define OP_BINARY_MOD               5
+#define OP_BINARY_POW               6
+#define OP_BINARY_SL                7
+#define OP_BINARY_SR                8
 #define OP_CMP                      9
 #define OP_UNARY_NEGATE             10
 #define OP_UNARY_INVERT             11
