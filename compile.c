@@ -11,6 +11,19 @@ COObject *compile_ast(struct compiler *c);
 static void compile_visit_node(struct compiler *c, Node *n);
 static COObject *assemble(struct compiler *c);
 
+static struct block *
+compiler_new_block(struct compiler *c)
+{
+    struct block *b;
+    b = (struct block *)COMem_MALLOC(sizeof(struct block));
+    if (!b)
+        return NULL;
+    memset(b, 0, sizeof(struct block));
+    b->b_listnext = c->u->u_block;
+    c->u->u_block = b;
+    return b;
+}
+
 static void
 compiler_unit_free(struct compiler_unit *u)
 {
@@ -41,6 +54,7 @@ compiler_enter_scope(struct compiler *c)
             return;
         }
     }
+
     c->u = u;
     c->nestlevel++;
 }
@@ -52,7 +66,7 @@ compiler_exit_scope(struct compiler *c)
     c->nestlevel--;
     compiler_unit_free(c->u);
 
-    /* Restore c->U to the parent unit. */
+    /* Restore c->u to the parent unit. */
     n = COList_Size(c->stack) - 1;
     if (n >= 0) {
         COCapsuleObject *capsule =
@@ -83,36 +97,33 @@ compile(void)
  * Resizes instruction array as necessary.
  */
 static int
-compile_next_instr(struct compiler *c)
+compile_next_instr(struct compiler *c, struct block *b)
 {
-    if (c->u->instr == NULL) {
-        c->u->instr =
+    if (b->b_instr == NULL) {
+        b->b_instr =
             (struct instr *)COMem_MALLOC(sizeof(struct instr) *
                                          DEFAULT_INSTR_SIZE);
-        if (!c->u->instr) {
-            // TODO errors
+        if (!b->b_instr) {
             return -1;
         }
-        c->u->ialloc = DEFAULT_INSTR_SIZE;
-        c->u->iused = 0;
-        memset(c->u->instr, 0, sizeof(struct instr) * DEFAULT_INSTR_SIZE);
-    } else if (c->u->iused == c->u->ialloc) {
+        b->b_ialloc = DEFAULT_INSTR_SIZE;
+        b->b_iused = 0;
+        memset(b->b_instr, 0, sizeof(struct instr) * DEFAULT_INSTR_SIZE);
+    } else if (b->b_iused == b->b_ialloc) {
         size_t oldsize, newsize;
-        oldsize = c->u->ialloc * sizeof(struct instr);
+        oldsize = b->b_ialloc * sizeof(struct instr);
         newsize = oldsize << 1;
         if (oldsize > (SIZE_MAX >> 1) || newsize == 0) {
-            // TODO errors
             return -1;
         }
-        c->u->ialloc <<= 1;
-        c->u->instr = (struct instr *)COMem_REALLOC(c->u->instr, newsize);
-        if (!c->u->instr) {
-            // TODO errors
+        b->b_ialloc <<= 1;
+        b->b_instr = (struct instr *)COMem_REALLOC(b->b_instr, newsize);
+        if (!b->b_instr) {
             return -1;
         }
-        memset(c->u->instr + oldsize, 0, newsize - oldsize);
+        memset(b->b_instr + oldsize, 0, newsize - oldsize);
     }
-    return c->u->iused++;
+    return b->b_iused++;
 }
 
 /*
@@ -123,10 +134,10 @@ compile_addop(struct compiler *c, int opcode)
 {
     struct instr *i;
     int off;
-    off = compile_next_instr(c);
+    off = compile_next_instr(c, c->u->u_block);
     if (off < 0)
         return -1;
-    i = &c->u->instr[off];
+    i = &c->u->u_block->b_instr[off];
     i->i_opcode = opcode;
     i->i_hasarg = 0;
     return 0;
@@ -140,10 +151,10 @@ compile_addop_i(struct compiler *c, int opcode, int oparg)
 {
     struct instr *i;
     int off;
-    off = compile_next_instr(c);
+    off = compile_next_instr(c, c->u->u_block);
     if (off < 0)
         return -1;
-    i = &c->u->instr[off];
+    i = &c->u->u_block->b_instr[off];
     i->i_opcode = opcode;
     i->i_oparg = oparg;
     i->i_hasarg = 1;
@@ -252,14 +263,18 @@ compile_visit_node(struct compiler *c, Node *n)
         compile_addop_i(c, OP_ASSIGN, oparg);
         break;
     case NODE_IF:
+        {
+        struct block *end, *next;
         compile_visit_node(c, n->ntest);
-        int offset = compile_addop_i(c, OP_JMPZ, -1);
+        next = compiler_new_block(c);
         compile_visit_nodelist(c, n->nbody);
+        int offset = compile_addop_i(c, OP_JMPZ, -1);
         int offset_else = compile_addop_i(c, OP_JMP, -1);
         compile_backpatch(c, offset);
         compile_visit_nodelist(c, n->nelse);
         compile_backpatch(c, offset_else);
         break;
+        }
     case NODE_WHILE:
         {
             int while_start = c->u->iused;

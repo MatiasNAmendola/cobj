@@ -19,8 +19,24 @@ struct instr {
     int i_oparg;
 };
 
+// block
+struct block {
+    /* Each block in compiler unit is linked via b_listnext in the reverse
+     * order. */
+    struct block *b_listnext;
+    struct instr *b_instr;  /* pointer to an array of instructions */
+    int b_iused;    /* number of instructions used */
+    int b_ialloc;   /* length of instruction array */
+    /* If b_next is non-NULL, it's a pointer to the next block reached by normal
+     * control flow. */
+    struct block *b_next;
+    unsigned b_seen : 1;    /* flag to used to perform a DFS of blocks */
+    unsigned b_return : 1;  /* flag that indicates a RETURN opcode is inserted */
+    int b_stackdepth;       /* depth of stack upon entry of block, computed by stackdepth() */
+};
+
 /* 
- * Compliation unit, change on entry of exit of function scope.
+ * Compliation unit, change on entry and exit of function scope.
  */
 struct compiler_unit {
     COObject *bytecode;
@@ -28,9 +44,10 @@ struct compiler_unit {
     COObject *names;
 
     int bytecode_offset;
-    struct instr *instr;        /* pointer to an array of instructions */
-    int iused;                  /* number of instructions used */
-    int ialloc;                 /* length of instructions array */
+
+    /* Pointer to the most recently allocated block. By following b_listnext,
+     * you can reach all early allocated blocks. */
+    struct block *u_block;
 
     int argcount;
 };
