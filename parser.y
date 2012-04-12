@@ -22,7 +22,7 @@ return_none_node()
     NodeList *list;
 }
 
-%parse-param {struct compiler *c}
+%parse-param {NodeList **xtop}
 
 /*
  * The relative precedence of different operators is controlled by the order in
@@ -87,10 +87,9 @@ return_none_node()
 
 start: stmt_list {
         if ($$) {
-            c->xtop = $$;
-            c->xtop = nodelist_concat($$, nodelist(return_none_node(), NULL));
+            *xtop = nodelist_concat($$, nodelist(return_none_node(), NULL));
         } else {
-            c->xtop = nodelist(return_none_node(),
+            *xtop = nodelist(return_none_node(),
             NULL);
         }
     }
