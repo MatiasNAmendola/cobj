@@ -234,18 +234,18 @@ start_frame:    /* reentry point when function return */
             o1 = POP();
             if (o1 == CO_True) {
             } else if (o1 == CO_False) {
-                JUMPBY(oparg);
+                JUMPTO(oparg);
             } else {
                 err = COObject_IsTrue(o1);
                 if (err > 0)
                     err = 0;
                 else if (err == 0)
-                    JUMPBY(oparg);
+                    JUMPTO(oparg);
             }
             break;
         case OP_JMP:
             oparg = NEXTARG();
-            JUMPBY(oparg);
+            JUMPTO(oparg);
             break;
         case OP_JMPX:
             oparg = NEXTARG();

@@ -44,4 +44,5 @@ enum Cmp_OpArg {
     Cmp_GE = 5,
 };
 
+char *opcode_name(unsigned char opcode);
 #endif

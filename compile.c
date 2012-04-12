@@ -24,8 +24,8 @@ struct block {
     struct block *b_next;
 
     unsigned b_seen : 1;    /* flag to used to perform a DFS of blocks */
-    unsigned b_return : 1;  /* flag that indicates a RETURN opcode is inserted */
-    int b_stackdepth;       /* depth of stack upon entry of block, computed by stackdepth() */
+    int b_stackdepth;       /* depth of stack upon entry of block */
+    int b_offset;           /* instruction offset of this block */
 };
 
 /* 
@@ -43,9 +43,11 @@ struct compiler_unit {
     int argcount;
 };
 
-struct assember {
+struct assembler {
     COObject *a_bytecode;
     int a_bytecode_offset;
+    int a_nblocks;              /* number of reachable blocks */
+    struct block **a_postorder; /* list of blocks in dfs postorder */
 };
 
 struct compiler {
@@ -74,6 +76,17 @@ compiler_new_block(struct compiler *c)
     memset(b, 0, sizeof(struct block));
     b->b_listnext = c->u->u_blocklist;
     c->u->u_blocklist = b;
+    return b;
+}
+
+static struct block *
+compiler_next_block(struct compiler *c)
+{
+    struct block *b = compiler_new_block(c);
+    if (!b)
+        return NULL;
+    c->u->u_curblock->b_next = b;
+    c->u->u_curblock = b;
     return b;
 }
 
@@ -214,10 +227,10 @@ compiler_addop(struct compiler *c, int opcode)
 {
     struct instr *i;
     int off;
-    off = compiler_next_instr(c, c->u->u_blocklist);
+    off = compiler_next_instr(c, c->u->u_curblock);
     if (off < 0)
         return -1;
-    i = &c->u->u_blocklist->b_instr[off];
+    i = &c->u->u_curblock->b_instr[off];
     i->i_opcode = opcode;
     i->i_hasarg = 0;
     return 0;
@@ -231,10 +244,10 @@ compiler_addop_i(struct compiler *c, int opcode, int oparg)
 {
     struct instr *i;
     int off;
-    off = compiler_next_instr(c, c->u->u_blocklist);
+    off = compiler_next_instr(c, c->u->u_curblock);
     if (off < 0)
         return -1;
-    i = &c->u->u_blocklist->b_instr[off];
+    i = &c->u->u_curblock->b_instr[off];
     i->i_opcode = opcode;
     i->i_oparg = oparg;
     i->i_hasarg = 1;
@@ -249,10 +262,10 @@ compiler_addop_j(struct compiler *c, int opcode, struct block *b)
 {
     struct instr *i;
     int off;
-    off = compiler_next_instr(c, c->u->u_blocklist);
+    off = compiler_next_instr(c, c->u->u_curblock);
     if (off < 0)
         return -1;
-    i = &c->u->u_blocklist->b_instr[off];
+    i = &c->u->u_curblock->b_instr[off];
     i->i_opcode = opcode;
     i->i_hasarg = 1;
     i->i_target = b;
@@ -371,11 +384,11 @@ compiler_visit_node(struct compiler *c, Node *n)
             }
             compiler_visit_node(c, n->ntest);
             compiler_addop_j(c, OP_JMPZ, ifelse);
-            compiler_use_new_block(c);
+            compiler_next_block(c);
             compiler_visit_nodelist(c, n->nbody);
             compiler_addop_j(c, OP_JMP, ifend);
             if (n->nelse) {
-                compiler_use_new_block(c);
+                compiler_use_next_block(c, ifelse);
                 compiler_visit_nodelist(c, n->nelse);
             }
             compiler_use_next_block(c, ifend);
@@ -443,31 +456,45 @@ instrsize(struct instr *i)
     }
 }
 
-/*
- * Compute jump offset before emit bytecode.
- */
-static void
-assembler_jump_offsets(struct compiler *c)
+static int
+blocksize(struct block *b)
 {
     int i;
-    int j;
-    for (i = 0; i < c->u->u_curblock->b_iused; i++) {
-        struct instr *instr = c->u->u_curblock->b_instr + i;
-        int offset = 0;
-        if (instr->i_opcode == OP_JMPZ || instr->i_opcode == OP_JMP) {
-            // relatively
-            for (j = 1; j < instr->i_oparg; j++) {
-                struct instr *subinstr = instr + j;
-                offset += instrsize(subinstr);
+    int size = 0;
+    for (i = 0; i < b->b_iused; i++)
+        size += instrsize(&b->b_instr[i]);
+    return size;
+}
+
+/*
+ * Compute the size of each block and fixup jump offsets.
+ */
+static void
+assembler_jump_offsets(struct assembler *a, struct compiler *c)
+{
+    int bsize, totalsize;
+    struct block *b;
+    int i;
+    
+    totalsize = 0;
+    for (i = a->a_nblocks - 1; i >= 0; i--) {
+        b = a->a_postorder[i];
+        bsize = blocksize(b);
+        b->b_offset = totalsize;
+        totalsize += bsize;
+    }
+    for (b = c->u->u_blocklist; b != NULL; b = b->b_listnext) {
+        for (i = 0; i < b->b_iused; i++) {
+            struct instr *instr = &b->b_instr[i];
+            if (instr->i_opcode == OP_JMPX 
+                || instr->i_opcode == OP_JMPZ
+                || instr->i_opcode == OP_JMP
+            ) {
+                // absolutely
+                instr->i_oparg = instr->i_target->b_offset;
+            } else {
+                continue;
             }
-            instr->i_oparg = offset;
-        } else if (instr->i_opcode == OP_JMPX) {
-            // absolutely
-            for (j = 0; j < instr->i_oparg; j++) {
-                struct instr *subinstr = c->u->u_curblock->b_instr + j;
-                offset += instrsize(subinstr);
-            }
-            instr->i_oparg = offset;
         }
     }
 }
@@ -476,7 +503,7 @@ assembler_jump_offsets(struct compiler *c)
  * Assemble instruction into bytecode.
  */
 static int
-assembler_emit(struct assember *a, struct instr *i)
+assembler_emit(struct assembler *a, struct instr *i)
 {
     size_t len = COBytes_Size(a->a_bytecode);
     int size;
@@ -504,7 +531,7 @@ assembler_emit(struct assember *a, struct instr *i)
  * Do depth-first search.
  */
 static void
-dfs(struct compiler *c, struct block *b)
+dfs(struct assembler *a, struct block *b)
 {
     int i;
     struct instr *instr = NULL;
@@ -512,23 +539,26 @@ dfs(struct compiler *c, struct block *b)
         return;
     b->b_seen = 1;
     if (b->b_next != NULL)
-        dfs(c, b->b_next);
+        dfs(a, b->b_next);
     for (i = 0; i < b->b_iused; i++) {
         instr = &b->b_instr[i];
         if (instr->i_opcode == OP_JMP ||
             instr->i_opcode == OP_JMPZ ||
             instr->i_opcode == OP_JMPX) {
-            dfs(c, instr->i_target);
+            dfs(a, instr->i_target);
         }
     }
+    a->a_postorder[a->a_nblocks++] = b;
 }
 
 static int
-assembler_init(struct assember *a, int nblocks)
+assembler_init(struct assembler *a, int nblocks)
 {
-    memset(a, 0, sizeof(struct assember));
+    memset(a, 0, sizeof(struct assembler));
     a->a_bytecode = COBytes_FromStringN(NULL, DEFAULT_BYTECODE_SIZE);
     a->a_bytecode_offset = 0;
+    a->a_postorder = (struct block **)COMem_MALLOC(sizeof(struct block *) * nblocks);
+    a->a_nblocks = 0;
     return 0;
 }
 
@@ -540,7 +570,7 @@ assemble(struct compiler *c)
 {
     struct block *b, *entryblock;
     int nblocks;
-    struct assember a;
+    struct assembler a;
 
     nblocks = 0;
     entryblock = NULL;
@@ -548,16 +578,20 @@ assemble(struct compiler *c)
         nblocks++;
         entryblock = b;
     }
-    dfs(c, entryblock);
     if (assembler_init(&a, nblocks)) {
         return NULL;
     }
+    dfs(&a, entryblock);
 
-    assembler_jump_offsets(c);
+    assembler_jump_offsets(&a, c);
 
-    int i;
-    for (i = 0; i < c->u->u_curblock->b_iused; i++) {
-        assembler_emit(&a, c->u->u_curblock->b_instr + i);
+    /* Emit code in reverse postorder. */
+    int i, j;
+    for (i = a.a_nblocks - 1; i >= 0; i--) {
+        b = a.a_postorder[i];
+        for (j = 0; j < b->b_iused; j++) {
+            assembler_emit(&a, b->b_instr + j);
+        }
     }
 
     COBytes_Resize(a.a_bytecode, a.a_bytecode_offset);
@@ -585,49 +619,6 @@ assemble(struct compiler *c)
 }
 
 #ifdef CO_DEBUG
-static char *
-opcode_name(unsigned char opcode)
-{
-#define GIVE_NAME(type) \
-    case (type):        \
-        return #type
-
-    switch (opcode) {
-        GIVE_NAME(OP_NOP);
-        GIVE_NAME(OP_BINARY_ADD);
-        GIVE_NAME(OP_BINARY_SUB);
-        GIVE_NAME(OP_BINARY_MUL);
-        GIVE_NAME(OP_BINARY_DIV);
-        GIVE_NAME(OP_BINARY_MOD);
-        GIVE_NAME(OP_BINARY_POW);
-        GIVE_NAME(OP_BINARY_SL);
-        GIVE_NAME(OP_BINARY_SR);
-        GIVE_NAME(OP_UNARY_NEGATE);
-        GIVE_NAME(OP_UNARY_INVERT);
-        GIVE_NAME(OP_CMP);
-        GIVE_NAME(OP_ASSIGN);
-        GIVE_NAME(OP_PRINT);
-        GIVE_NAME(OP_JMPZ);
-        GIVE_NAME(OP_JMP);
-        GIVE_NAME(OP_JMPX);
-        GIVE_NAME(OP_DECLARE_FUNCTION);
-        GIVE_NAME(OP_RETURN);
-        GIVE_NAME(OP_CALL_FUNCTION);
-        GIVE_NAME(OP_TRY);
-        GIVE_NAME(OP_THROW);
-        GIVE_NAME(OP_CATCH);
-        GIVE_NAME(OP_LOAD_NAME);
-        GIVE_NAME(OP_LOAD_CONST);
-        GIVE_NAME(OP_TUPLE_BUILD);
-        GIVE_NAME(OP_LIST_BUILD);
-        GIVE_NAME(OP_LIST_ADD);
-        GIVE_NAME(OP_DICT_BUILD);
-        GIVE_NAME(OP_DICT_ADD);
-    }
-    error("unknow opcode: %d\n", opcode);
-    return NULL;
-}
-
 static void
 dump_code(COObject *code)
 {
