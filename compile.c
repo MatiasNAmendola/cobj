@@ -293,14 +293,6 @@ compiler_add(COObject *dict, COObject *o)
     return arg;
 }
 
-/*
- * Backpatch instruction.
- */
-static void
-compiler_backpatch(struct compiler *c, int offset)
-{
-    c->u->u_curblock->b_instr[offset].i_oparg = c->u->u_curblock->b_iused - offset;
-}
 
 static void
 compiler_visit_nodelist(struct compiler *c, NodeList *l)
@@ -386,7 +378,7 @@ compiler_visit_node(struct compiler *c, Node *n)
             compiler_addop_j(c, OP_JMPZ, ifelse);
             compiler_next_block(c);
             compiler_visit_nodelist(c, n->nbody);
-            compiler_addop_j(c, OP_JMP, ifend);
+            compiler_addop_j(c, OP_JMPX, ifend);
             if (n->nelse) {
                 compiler_use_next_block(c, ifelse);
                 compiler_visit_nodelist(c, n->nelse);
@@ -396,12 +388,15 @@ compiler_visit_node(struct compiler *c, Node *n)
         }
     case NODE_WHILE:
         {
-            int while_start = c->u->u_curblock->b_iused;
+            struct block *loop_start, *loop_end;
+            loop_start = compiler_new_block(c);
+            loop_end = compiler_new_block(c);
+            compiler_use_next_block(c, loop_start);
             compiler_visit_node(c, n->ntest);
-            int offset = compiler_addop_i(c, OP_JMPZ, -1);
+            compiler_addop_j(c, OP_JMPZ, loop_end);
             compiler_visit_nodelist(c, n->nbody);
-            compiler_addop_i(c, OP_JMPX, while_start);
-            compiler_backpatch(c, offset);
+            compiler_addop_j(c, OP_JMPX, loop_start);
+            compiler_use_next_block(c, loop_end);
         }
         break;
     case NODE_FUNC:
@@ -488,7 +483,6 @@ assembler_jump_offsets(struct assembler *a, struct compiler *c)
             struct instr *instr = &b->b_instr[i];
             if (instr->i_opcode == OP_JMPX 
                 || instr->i_opcode == OP_JMPZ
-                || instr->i_opcode == OP_JMP
             ) {
                 // absolutely
                 instr->i_oparg = instr->i_target->b_offset;
