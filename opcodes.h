@@ -33,6 +33,8 @@
 #define OP_LIST_ADD                 27
 #define OP_DICT_BUILD               28
 #define OP_DICT_ADD                 29
+#define OP_BLOCK_SETUP              30
+#define OP_BLOCK_POP                31
 
 /* OP_CMP's opargs */
 enum Cmp_OpArg {

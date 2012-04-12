@@ -250,37 +250,37 @@ simple_stmt:
     |   T_NAME T_ADD_ASSIGN expr {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_ADD;
-            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_SUB_ASSIGN expr  {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_SUB;
-            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_MUL_ASSIGN expr  {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_MUL;
-            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_DIV_ASSIGN expr  {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_DIV;
-            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_MOD_ASSIGN expr {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_MOD;
-            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_SR_ASSIGN expr {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_SR;
-            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_SL_ASSIGN expr {
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_SL;
-            $$ = nodelist(t, node_new(NODE_ASSIGN, $1, t), NULL);
+            $$ = nodelist(node_new(NODE_ASSIGN, $1, t), NULL);
         }
     |   T_PRINT expr { Node *t = node_new(NODE_PRINT, $2, NULL); $$ = nodelist(t, NULL); }
     |   expr { $$ = nodelist($1, NULL); }

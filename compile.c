@@ -24,7 +24,7 @@ struct block {
     struct block *b_next;
 
     unsigned b_seen : 1;    /* flag to used to perform a DFS of blocks */
-    int b_stackdepth;       /* depth of stack upon entry of block */
+    int b_startdepth;       /* depth of stack upon entry of block */
     int b_offset;           /* instruction offset of this block */
 };
 
@@ -388,14 +388,18 @@ compiler_visit_node(struct compiler *c, Node *n)
         }
     case NODE_WHILE:
         {
-            struct block *loop_start, *loop_end;
+            struct block *loop_start, *loop_end, *loop_exit;
             loop_start = compiler_new_block(c);
             loop_end = compiler_new_block(c);
+            loop_exit = compiler_new_block(c);
+            compiler_addop_j(c, OP_BLOCK_SETUP, loop_end);
             compiler_use_next_block(c, loop_start);
-            compiler_visit_node(c, n->ntest);
-            compiler_addop_j(c, OP_JMPZ, loop_end);
-            compiler_visit_nodelist(c, n->nbody);
-            compiler_addop_j(c, OP_JMPX, loop_start);
+                compiler_visit_node(c, n->ntest);
+                compiler_addop_j(c, OP_JMPZ, loop_exit);
+                compiler_visit_nodelist(c, n->nbody);
+                compiler_addop_j(c, OP_JMPX, loop_start);
+            compiler_use_next_block(c, loop_exit);
+                compiler_addop(c, OP_BLOCK_POP);
             compiler_use_next_block(c, loop_end);
         }
         break;
@@ -484,6 +488,7 @@ assembler_jump_offsets(struct assembler *a, struct compiler *c)
             struct instr *instr = &b->b_instr[i];
             if (instr->i_opcode == OP_JMPX 
                 || instr->i_opcode == OP_JMPZ
+                || instr->i_opcode == OP_BLOCK_SETUP
             ) {
                 // absolutely
                 instr->i_oparg = instr->i_target->b_offset;
@@ -557,6 +562,116 @@ assembler_init(struct assembler *a, int nblocks)
     return 0;
 }
 
+static int
+opcode_stack_effect(int opcode, int oparg)
+{
+    switch (opcode) {
+    case OP_NOP:
+        return 0;
+    case OP_BINARY_ADD:
+    case OP_BINARY_SUB:
+    case OP_BINARY_MUL:
+    case OP_BINARY_DIV:
+    case OP_BINARY_MOD:
+    case OP_BINARY_POW:
+    case OP_BINARY_SL:
+    case OP_BINARY_SR:
+        return -1;
+    case OP_CMP:
+        return -1;
+    case OP_UNARY_NEGATE:
+    case OP_UNARY_INVERT:
+        return 0;
+    case OP_ASSIGN:
+        return -1;
+    case OP_PRINT:
+        return -1;
+    case OP_JMPZ:
+        return -1;
+    case OP_JMP:
+    case OP_JMPX:
+        return 0;
+    case OP_DECLARE_FUNCTION:
+        return 0;
+    case OP_RETURN:
+        return -1;
+    case OP_CALL_FUNCTION:
+        return -1 - oparg;
+    case OP_TRY:
+        // TODO
+        return 0;
+    case OP_THROW:
+        // TODO
+        return 0;
+    case OP_CATCH:
+        // TODO
+        return 0;
+    case OP_LOAD_NAME:
+    case OP_LOAD_CONST:
+        return 1;
+    case OP_TUPLE_BUILD:
+    case OP_LIST_BUILD:
+    case OP_DICT_BUILD:
+        return 1;
+    case OP_LIST_ADD:
+    case OP_DICT_ADD:
+        return -1;
+    case OP_BLOCK_SETUP:
+    case OP_BLOCK_POP:
+        return 0;
+    default:
+        error("opcode_stack_effect error, opcode: %d\n", opcode);
+    }
+    return 0;
+}
+
+static int
+stackdepth_walk(struct compiler *c, struct block *b, int depth, int maxdepth)
+{
+    int i, base_depth;
+    struct instr *instr;
+    if (b->b_seen || b->b_startdepth >= depth)
+        return maxdepth;
+
+    b->b_seen = 1;
+    b->b_startdepth = depth;
+    for (i = 0; i < b->b_iused; i++) {
+        instr = &b->b_instr[i];
+        depth += opcode_stack_effect(instr->i_opcode, instr->i_oparg);
+        if (depth > maxdepth)
+            maxdepth = depth;
+        assert(depth >= 0);
+        if (instr->i_target) {
+            base_depth = depth;
+            maxdepth = stackdepth_walk(c, instr->i_target, base_depth, maxdepth);
+        }
+    }
+    if (b->b_next)
+        maxdepth = stackdepth_walk(c, b->b_next, depth, maxdepth);
+    b->b_seen = 0;
+    return maxdepth;
+}
+
+/*
+ * Find the max stacksize we need.
+ * We assume that cycles in the flow graph have no effect on the stack depth.
+ * (Loop stack is cleaned on exit of loop.)
+ */
+static int
+stackdepth(struct compiler *c)
+{
+    struct block *b, *entryblock;
+    entryblock = NULL;
+    for (b = c->u->u_blocklist; b != NULL; b = b->b_listnext) {
+        b->b_seen = 0;
+        b->b_startdepth = INT_MIN;
+        entryblock = b;
+    }
+    if (!entryblock)
+        return 0;
+    return stackdepth_walk(c, entryblock, 0, 0);
+}
+
 /*
  * Assemble instructions into code object.
  */
@@ -609,8 +724,8 @@ assemble(struct compiler *c)
     }
     c->u->names = names;
 
-    return COCode_New(a.a_bytecode, COList_AsTuple(c->u->consts),
-                      COList_AsTuple(c->u->names), c->u->argcount, NULL);
+    return COCode_New(NULL, a.a_bytecode, COList_AsTuple(c->u->consts),
+                      COList_AsTuple(c->u->names), c->u->argcount, stackdepth(c));
 }
 
 #ifdef CO_DEBUG
@@ -649,6 +764,7 @@ dump_code(COObject *code)
         case OP_JMPZ:
         case OP_CALL_FUNCTION:
         case OP_CMP:
+        case OP_BLOCK_SETUP:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             break;

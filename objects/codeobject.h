@@ -13,12 +13,13 @@ typedef struct _COCodeObject {
     COObject *co_consts;        /* tuple, constants */
     COObject *co_names;         /* tuple, names in code */
     int co_argcount;            /* arguments count */
+    int co_stacksize;          /* stack size needed */
 } COCodeObject;
 
 COTypeObject COCode_Type;
 
 #define COCode_Check(co) (CO_TYPE(co) == &COCode_Type)
 
-COObject *COCode_New(COObject *code, COObject *consts, COObject *names,
-                     int argcount, COObject *name);
+COObject *COCode_New(COObject *name, COObject *code, COObject *consts, COObject *names,
+                     int argcount, int stacksize);
 #endif

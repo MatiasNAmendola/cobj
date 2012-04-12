@@ -22,8 +22,7 @@ COTypeObject COCode_Type = {
 };
 
 COObject *
-COCode_New(COObject *code, COObject *consts, COObject *names, int argcount,
-           COObject *name)
+COCode_New(COObject *name, COObject *code, COObject *consts, COObject *names, int argcount, int stacksize)
 {
     COCodeObject *co = COObject_New(COCodeObject, &COCode_Type);
 
@@ -32,6 +31,7 @@ COCode_New(COObject *code, COObject *consts, COObject *names, int argcount,
     co->co_consts = consts;
     co->co_names = names;
     co->co_argcount = argcount;
+    co->co_stacksize = stacksize;
 
     return (COObject *)co;
 }

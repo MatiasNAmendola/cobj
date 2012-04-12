@@ -65,6 +65,7 @@ vm_eval(COObject *func)
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
 #define PUSH(o)         (*stack_top++ = (o))
 #define POP()           (*--stack_top)
+#define STACK_LEVEL()   ((int)(stack_top - frame->f_stack))
 
     COFrameObject *frame;
     COCodeObject *code;
@@ -83,7 +84,7 @@ vm_eval(COObject *func)
 
 new_frame:      /* reentry point when function call */
     code = (COCodeObject *)((COFunctionObject *)func)->func_code;
-    frame = (COFrameObject *)COFrame_New();
+    frame = (COFrameObject *)COFrame_New((COObject *)code);
     stack_top = frame->f_stacktop;
     if (COList_Size(TS(funcargs))) {
         // check arguments count
@@ -115,6 +116,7 @@ start_frame:    /* reentry point when function return */
 
     for (;;) {
         opcode = NEXTOP();
+        /*printf("stack level: %d\n", STACK_LEVEL());*/
         switch (opcode) {
         case OP_BINARY_ADD:
             o1 = POP();
@@ -245,7 +247,7 @@ start_frame:    /* reentry point when function return */
             break;
         case OP_JMP:
             oparg = NEXTARG();
-            JUMPTO(oparg);
+            JUMPBY(oparg);
             break;
         case OP_JMPX:
             oparg = NEXTARG();
@@ -288,6 +290,18 @@ start_frame:    /* reentry point when function return */
             stack_top = frame->f_stacktop;
             PUSH(x);
             goto start_frame;
+            break;
+        case OP_BLOCK_SETUP:
+            oparg = NEXTARG();
+            COFrameBlock_Setup(frame, opcode, oparg, STACK_LEVEL());
+            break;
+        case OP_BLOCK_POP:
+            {
+                COFrameBlock *fb = COFrameBlock_Pop(frame);
+                while (STACK_LEVEL() > fb->fb_level) { 
+                    o1 = POP();
+                }
+            }
             break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);
