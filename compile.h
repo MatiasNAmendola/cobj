@@ -48,6 +48,7 @@ struct compiler_unit {
     /* Pointer to the most recently allocated block. By following b_listnext,
      * you can reach all early allocated blocks. */
     struct block *u_block;
+    struct block *u_curblock;   /* currently block */
 
     int argcount;
 };

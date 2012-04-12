@@ -24,6 +24,25 @@ compiler_new_block(struct compiler *c)
     return b;
 }
 
+static struct block *
+compiler_use_new_block(struct compiler *c)
+{
+    struct block *block = compiler_new_block(c);
+    if (!block)
+        return NULL;
+    c->u->u_curblock = block;
+    return block;
+}
+
+static struct block *
+compiler_use_next_block(struct compiler *c, struct block *block)
+{
+    assert(block != NULL);
+    c->u->u_curblock->b_next = block;
+    c->u->u_curblock = block;
+    return block;
+}
+
 static void
 compiler_unit_free(struct compiler_unit *u)
 {
@@ -188,7 +207,7 @@ compile_add(COObject *dict, COObject *o)
 static void
 compile_backpatch(struct compiler *c, int offset)
 {
-    c->u->instr[offset].i_oparg = c->u->iused - offset;
+    c->u->u_curblock->b_instr[offset].i_oparg = c->u->u_curblock->b_iused - offset;
 }
 
 static void
@@ -264,11 +283,11 @@ compile_visit_node(struct compiler *c, Node *n)
         break;
     case NODE_IF:
         {
-        struct block *end, *next;
+        struct block *ifelse, *ifnext;
         compile_visit_node(c, n->ntest);
-        next = compiler_new_block(c);
-        compile_visit_nodelist(c, n->nbody);
+        ifnext = compiler_new_block(c);
         int offset = compile_addop_i(c, OP_JMPZ, -1);
+        compile_visit_nodelist(c, n->nbody);
         int offset_else = compile_addop_i(c, OP_JMP, -1);
         compile_backpatch(c, offset);
         compile_visit_nodelist(c, n->nelse);
@@ -277,7 +296,7 @@ compile_visit_node(struct compiler *c, Node *n)
         }
     case NODE_WHILE:
         {
-            int while_start = c->u->iused;
+            int while_start = c->u->u_curblock->b_iused;
             compile_visit_node(c, n->ntest);
             int offset = compile_addop_i(c, OP_JMPZ, -1);
             compile_visit_nodelist(c, n->nbody);
@@ -345,8 +364,8 @@ assemble_jump_offsets(struct compiler *c)
 {
     int i;
     int j;
-    for (i = 0; i < c->u->iused; i++) {
-        struct instr *instr = c->u->instr + i;
+    for (i = 0; i < c->u->u_curblock->b_iused; i++) {
+        struct instr *instr = c->u->u_curblock->b_instr + i;
         int offset = 0;
         if (instr->i_opcode == OP_JMPZ || instr->i_opcode == OP_JMP) {
             // relatively
@@ -358,7 +377,7 @@ assemble_jump_offsets(struct compiler *c)
         } else if (instr->i_opcode == OP_JMPX) {
             // absolutely
             for (j = 0; j < instr->i_oparg; j++) {
-                struct instr *subinstr = c->u->instr + j;
+                struct instr *subinstr = c->u->u_curblock->b_instr + j;
                 offset += instrsize(subinstr);
             }
             instr->i_oparg = offset;
@@ -403,8 +422,8 @@ assemble(struct compiler *c)
     assemble_jump_offsets(c);
 
     int i;
-    for (i = 0; i < c->u->iused; i++) {
-        assemble_emit(c, c->u->instr + i);
+    for (i = 0; i < c->u->u_curblock->b_iused; i++) {
+        assemble_emit(c, c->u->u_curblock->b_instr + i);
     }
 
     COBytes_Resize(c->u->bytecode, c->u->bytecode_offset);
@@ -526,6 +545,7 @@ COObject *
 compile_ast(struct compiler *c)
 {
     compiler_enter_scope(c);
+    compiler_use_new_block(c);
     compile_visit_nodelist(c, c->xtop);
     COObject *co = assemble(c);
     compiler_exit_scope(c);
