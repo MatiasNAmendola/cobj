@@ -401,6 +401,7 @@ compiler_visit_node(struct compiler *c, Node *n)
         break;
     case NODE_FUNC:
         compiler_enter_scope(c);
+        compiler_use_new_block(c);
         c->u->argcount = nodelist_len(n->nfuncargs);
         NodeList *l = n->nfuncargs;
         while (l) {
