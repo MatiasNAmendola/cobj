@@ -32,11 +32,8 @@ struct block {
  * Compliation unit, change on entry and exit of function scope.
  */
 struct compiler_unit {
-    COObject *bytecode;
     COObject *consts;
     COObject *names;
-
-    int bytecode_offset;
 
     /* Pointer to the most recently allocated block. By following b_listnext,
      * you can reach all early allocated blocks. */
@@ -47,7 +44,8 @@ struct compiler_unit {
 };
 
 struct assember {
-
+    COObject *a_bytecode;
+    int a_bytecode_offset;
 };
 
 struct compiler {
@@ -58,13 +56,13 @@ struct compiler {
     int nestlevel;
 };
 
+/* Forward declarations */
+static void compiler_visit_node(struct compiler *c, Node *n);
+static COObject *assemble(struct compiler *c);
+static void compiler_visit_nodelist(struct compiler *c, NodeList *l);
 #ifdef CO_DEBUG
 static void dump_code(COObject *code);
 #endif
-
-COObject *compile_ast(struct compiler *c);
-static void compiler_visit_node(struct compiler *c, Node *n);
-static COObject *assemble(struct compiler *c);
 
 static struct block *
 compiler_new_block(struct compiler *c)
@@ -116,8 +114,6 @@ compiler_enter_scope(struct compiler *c)
 
     u->consts = CODict_New();
     u->names = CODict_New();
-    u->bytecode = COBytes_FromStringN(NULL, DEFAULT_BYTECODE_SIZE);
-    u->bytecode_offset = 0;
     u->argcount = 0;
 
     /* Push the old compiler_unit on the stack. */
@@ -163,7 +159,17 @@ compile(void)
     // do parse
     coparse(&c.xtop);
 
-    return compile_ast(&c);
+    // compile ast
+    compiler_enter_scope(&c);
+    compiler_use_new_block(&c);
+    compiler_visit_nodelist(&c, c.xtop);
+    COObject *co = assemble(&c);
+    compiler_exit_scope(&c);
+
+#ifdef CO_DEBUG
+    dump_code(co);
+#endif
+    return co;
 }
 
 /*
@@ -441,7 +447,7 @@ instrsize(struct instr *i)
  * Compute jump offset before emit bytecode.
  */
 static void
-assemble_jump_offsets(struct compiler *c)
+assembler_jump_offsets(struct compiler *c)
 {
     int i;
     int j;
@@ -470,21 +476,21 @@ assemble_jump_offsets(struct compiler *c)
  * Assemble instruction into bytecode.
  */
 static int
-assemble_emit(struct compiler *c, struct instr *i)
+assembler_emit(struct assember *a, struct instr *i)
 {
-    size_t len = COBytes_Size(c->u->bytecode);
+    size_t len = COBytes_Size(a->a_bytecode);
     int size;
 
     size = instrsize(i);
 
     // resize if necessary 
-    if (c->u->bytecode_offset + size >= len) {
-        if (COBytes_Resize(c->u->bytecode, len * 2) < 0)
+    if (a->a_bytecode_offset + size >= len) {
+        if (COBytes_Resize(a->a_bytecode, len * 2) < 0)
             return -1;
     }
 
-    char *code = COBytes_AsString(c->u->bytecode) + c->u->bytecode_offset;
-    c->u->bytecode_offset += size;
+    char *code = COBytes_AsString(a->a_bytecode) + a->a_bytecode_offset;
+    a->a_bytecode_offset += size;
     *code++ = i->i_opcode;
     if (i->i_hasarg) {
         *code++ = i->i_oparg & 0xff;
@@ -517,6 +523,15 @@ dfs(struct compiler *c, struct block *b)
     }
 }
 
+static int
+assembler_init(struct assember *a, int nblocks)
+{
+    memset(a, 0, sizeof(struct assember));
+    a->a_bytecode = COBytes_FromStringN(NULL, DEFAULT_BYTECODE_SIZE);
+    a->a_bytecode_offset = 0;
+    return 0;
+}
+
 /*
  * Assemble instructions into code object.
  */
@@ -525,6 +540,7 @@ assemble(struct compiler *c)
 {
     struct block *b, *entryblock;
     int nblocks;
+    struct assember a;
 
     nblocks = 0;
     entryblock = NULL;
@@ -533,15 +549,18 @@ assemble(struct compiler *c)
         entryblock = b;
     }
     dfs(c, entryblock);
+    if (assembler_init(&a, nblocks)) {
+        return NULL;
+    }
 
-    assemble_jump_offsets(c);
+    assembler_jump_offsets(c);
 
     int i;
     for (i = 0; i < c->u->u_curblock->b_iused; i++) {
-        assemble_emit(c, c->u->u_curblock->b_instr + i);
+        assembler_emit(&a, c->u->u_curblock->b_instr + i);
     }
 
-    COBytes_Resize(c->u->bytecode, c->u->bytecode_offset);
+    COBytes_Resize(a.a_bytecode, a.a_bytecode_offset);
 
     // Dict to List
     COObject *consts = COList_New(0);
@@ -561,7 +580,7 @@ assemble(struct compiler *c)
     }
     c->u->names = names;
 
-    return COCode_New(c->u->bytecode, COList_AsTuple(c->u->consts),
+    return COCode_New(a.a_bytecode, COList_AsTuple(c->u->consts),
                       COList_AsTuple(c->u->names), c->u->argcount, NULL);
 }
 
@@ -652,24 +671,6 @@ dump_code(COObject *code)
     }
 }
 #endif
-
-/*
- * Compiles an node list (ast) into code object.
- */
-COObject *
-compile_ast(struct compiler *c)
-{
-    compiler_enter_scope(c);
-    compiler_use_new_block(c);
-    compiler_visit_nodelist(c, c->xtop);
-    COObject *co = assemble(c);
-    compiler_exit_scope(c);
-
-#ifdef CO_DEBUG
-    dump_code(co);
-#endif
-    return co;
-}
 
 int
 colex(YYSTYPE *colval)
