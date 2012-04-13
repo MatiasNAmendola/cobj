@@ -1,20 +1,5 @@
 #!./co
 
-#newIncrer = func(n)
-    #return func(i)
-        #n = n + i
-        #return n
-    #end
-#end
-
-#f = newIncrer(10)
-#i = 0
-#while i < 3
-    #print f(i)
-    #i = i + 1
-#end
-
-
 func fibo(n)
     if n == 0 then return 0 end
     if n == 1 then return 1 end

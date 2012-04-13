@@ -7,7 +7,7 @@
  *  Other header files should not include this!
  *
  * Dependencies:
- *         the_compat.h
+ *         compat.h
  *      /      |       \
  *  a.h       b.h      c.h ...
  *    |   \    |       /  |

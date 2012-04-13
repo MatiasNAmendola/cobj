@@ -1,3 +1,4 @@
+* dict/list subscript
 * support tuple literal
 * implement keyword this
 * add gc

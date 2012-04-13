@@ -8,13 +8,6 @@
 
 #include "object.h"
 
-struct vm_stack {
-    struct vm_stack *prev_stack;
-    void **top;
-    void **end;
-    void *elements[1];
-};
-
 COObject *vm_eval(COObject *main);
 
 #endif
