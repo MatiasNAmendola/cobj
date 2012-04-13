@@ -21,7 +21,7 @@ COTypeObject COException_Type = {
 
 COObject *COException = (COObject *)&COException_Type;
 
-#define SimpleExtendsException(EXCBASE, EXCNAME, EXCDOC)    \
+#define SimpleExtendsException(EXCBASE, EXCNAME)            \
     COTypeObject _COException_ ## EXCNAME = {               \
         COObject_HEAD_INIT(&COType_Type),                   \
         # EXCNAME,                                          \
@@ -34,10 +34,10 @@ COObject *COException = (COObject *)&COException_Type;
     };                                                      \
     COObject *COException_ ## EXCNAME = (COObject *)&_COException_ ## EXCNAME
 
-SimpleExtendsException(COException, SystemError, "test doc");
-SimpleExtendsException(COException, NameError, "test doc");
-SimpleExtendsException(COException, TypeError, "test doc");
-SimpleExtendsException(COException, ValueError, "test doc");
-SimpleExtendsException(COException, OverflowError, "test doc");
-SimpleExtendsException(COException, MemoryError, "test doc");
-SimpleExtendsException(COException, UndefinedError, "test doc");
+SimpleExtendsException(COException, SystemError);
+SimpleExtendsException(COException, NameError);
+SimpleExtendsException(COException, TypeError);
+SimpleExtendsException(COException, ValueError);
+SimpleExtendsException(COException, OverflowError);
+SimpleExtendsException(COException, MemoryError);
+SimpleExtendsException(COException, UndefinedError);
