@@ -12,7 +12,6 @@
  */
 #define CODEDUMP_MAGIC  (314 << 16 | 'c' << 8 | 'o')
 
-
 COObject *compile(void);
 
 // parser

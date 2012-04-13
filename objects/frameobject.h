@@ -9,9 +9,9 @@
 #define FRAME_MAXBLOCKS 20
 
 typedef struct {
-    int fb_type;        /* kind of this block */
-    int fb_handler;     /* where to jump to find handler */
-    int fb_level;       /* stack level to pop to */
+    int fb_type;                /* kind of this block */
+    int fb_handler;             /* where to jump to find handler */
+    int fb_level;               /* stack level to pop to */
 } COFrameBlock;
 
 typedef struct _COFrameObject {
@@ -22,7 +22,7 @@ typedef struct _COFrameObject {
     COObject *f_func;           /* function called on this frame */
     COObject *f_locals;         /* dict object for names */
 
-    int f_iblock;   /* index of block */
+    int f_iblock;               /* index of block */
     COFrameBlock f_blockstack[FRAME_MAXBLOCKS];
 
     COObject **f_stacktop;      /* stack top, points to next free slot of stack */

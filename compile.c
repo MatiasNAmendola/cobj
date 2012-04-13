@@ -8,7 +8,7 @@ struct instr {
     unsigned int i_hasarg:1;
     unsigned char i_opcode;
     int i_oparg;
-    struct block *i_target; /* JUMP Target */
+    struct block *i_target;     /* JUMP Target */
 };
 
 // block
@@ -16,16 +16,16 @@ struct block {
     /* Each block in compiler unit is linked via b_listnext in the reverse
      * order. */
     struct block *b_listnext;
-    struct instr *b_instr;  /* pointer to an array of instructions */
-    int b_iused;    /* number of instructions used */
-    int b_ialloc;   /* length of instruction array */
+    struct instr *b_instr;      /* pointer to an array of instructions */
+    int b_iused;                /* number of instructions used */
+    int b_ialloc;               /* length of instruction array */
     /* If b_next is non-NULL, it's a pointer to the next block reached by normal
      * control flow. */
     struct block *b_next;
 
-    unsigned b_seen : 1;    /* flag to used to perform a DFS of blocks */
-    int b_startdepth;       /* depth of stack upon entry of block */
-    int b_offset;           /* instruction offset of this block */
+    unsigned b_seen:1;          /* flag to used to perform a DFS of blocks */
+    int b_startdepth;           /* depth of stack upon entry of block */
+    int b_offset;               /* instruction offset of this block */
 };
 
 /* 
@@ -293,7 +293,6 @@ compiler_add(COObject *dict, COObject *o)
     return arg;
 }
 
-
 static void
 compiler_visit_nodelist(struct compiler *c, NodeList *l)
 {
@@ -394,12 +393,12 @@ compiler_visit_node(struct compiler *c, Node *n)
             loop_exit = compiler_new_block(c);
             compiler_addop_j(c, OP_BLOCK_SETUP, loop_end);
             compiler_use_next_block(c, loop_start);
-                compiler_visit_node(c, n->ntest);
-                compiler_addop_j(c, OP_JMPZ, loop_exit);
-                compiler_visit_nodelist(c, n->nbody);
-                compiler_addop_j(c, OP_JMPX, loop_start);
+            compiler_visit_node(c, n->ntest);
+            compiler_addop_j(c, OP_JMPZ, loop_exit);
+            compiler_visit_nodelist(c, n->nbody);
+            compiler_addop_j(c, OP_JMPX, loop_start);
             compiler_use_next_block(c, loop_exit);
-                compiler_addop(c, OP_BLOCK_POP);
+            compiler_addop(c, OP_BLOCK_POP);
             compiler_use_next_block(c, loop_end);
         }
         break;
@@ -410,7 +409,6 @@ compiler_visit_node(struct compiler *c, Node *n)
         NodeList *l = n->nfuncargs;
         while (l) {
             oparg = compiler_add(c->u->names, l->n->o);
-            compiler_addop_i(c, OP_ASSIGN, oparg);
             l = l->next;
         }
         compiler_visit_nodelist(c, n->nfuncbody);
@@ -475,7 +473,7 @@ assembler_jump_offsets(struct assembler *a, struct compiler *c)
     int bsize, totalsize;
     struct block *b;
     int i;
-    
+
     totalsize = 0;
     for (i = a->a_nblocks - 1; i >= 0; i--) {
         b = a->a_postorder[i];
@@ -486,10 +484,9 @@ assembler_jump_offsets(struct assembler *a, struct compiler *c)
     for (b = c->u->u_blocklist; b != NULL; b = b->b_listnext) {
         for (i = 0; i < b->b_iused; i++) {
             struct instr *instr = &b->b_instr[i];
-            if (instr->i_opcode == OP_JMPX 
+            if (instr->i_opcode == OP_JMPX
                 || instr->i_opcode == OP_JMPZ
-                || instr->i_opcode == OP_BLOCK_SETUP
-            ) {
+                || instr->i_opcode == OP_BLOCK_SETUP) {
                 // absolutely
                 instr->i_oparg = instr->i_target->b_offset;
             } else {
@@ -543,8 +540,7 @@ dfs(struct assembler *a, struct block *b)
     for (i = 0; i < b->b_iused; i++) {
         instr = &b->b_instr[i];
         if (instr->i_opcode == OP_JMP ||
-            instr->i_opcode == OP_JMPZ ||
-            instr->i_opcode == OP_JMPX) {
+            instr->i_opcode == OP_JMPZ || instr->i_opcode == OP_JMPX) {
             dfs(a, instr->i_target);
         }
     }
@@ -557,7 +553,8 @@ assembler_init(struct assembler *a, int nblocks)
     memset(a, 0, sizeof(struct assembler));
     a->a_bytecode = COBytes_FromStringN(NULL, DEFAULT_BYTECODE_SIZE);
     a->a_bytecode_offset = 0;
-    a->a_postorder = (struct block **)COMem_MALLOC(sizeof(struct block *) * nblocks);
+    a->a_postorder =
+        (struct block **)COMem_MALLOC(sizeof(struct block *) * nblocks);
     a->a_nblocks = 0;
     return 0;
 }
@@ -596,7 +593,7 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_RETURN:
         return -1;
     case OP_CALL_FUNCTION:
-        return -1 - oparg;
+        return -oparg;
     case OP_TRY:
         // TODO
         return 0;
@@ -643,7 +640,8 @@ stackdepth_walk(struct compiler *c, struct block *b, int depth, int maxdepth)
         assert(depth >= 0);
         if (instr->i_target) {
             base_depth = depth;
-            maxdepth = stackdepth_walk(c, instr->i_target, base_depth, maxdepth);
+            maxdepth =
+                stackdepth_walk(c, instr->i_target, base_depth, maxdepth);
         }
     }
     if (b->b_next)
@@ -725,7 +723,8 @@ assemble(struct compiler *c)
     c->u->names = names;
 
     return COCode_New(NULL, a.a_bytecode, COList_AsTuple(c->u->consts),
-                      COList_AsTuple(c->u->names), c->u->argcount, stackdepth(c));
+                      COList_AsTuple(c->u->names), c->u->argcount,
+                      stackdepth(c));
 }
 
 #ifdef CO_DEBUG
@@ -741,24 +740,28 @@ dump_code(COObject *code)
     unsigned char opcode;
     int oparg;
     for (;;) {
+        if (bytecode - start == COBytes_Size(_code->co_code)) {
+            /* exit code */
+            return;
+        }
         opcode = NEXTOP();
         printf("%ld.\t%s", bytecode - start - 1, opcode_name(opcode));
         switch (opcode) {
-        case OP_RETURN:
-            /* exit bytecode */
-            printf("\n");
-            return;
-            break;
-            /* op with arg */
         case OP_LOAD_CONST:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
-            printf("(%s)",
+            printf(" (%s)",
                    COStr_AsString(COObject_repr
                                   (GETITEM(_code->co_consts, oparg))));
             break;
-        case OP_ASSIGN:
         case OP_LOAD_NAME:
+            oparg = NEXTARG();
+            printf("\t\t%d", oparg);
+            printf(" (%s)",
+                   COStr_AsString(COObject_repr
+                                  (GETITEM(_code->co_names, oparg))));
+            break;
+        case OP_ASSIGN:
         case OP_JMP:
         case OP_JMPX:
         case OP_JMPZ:

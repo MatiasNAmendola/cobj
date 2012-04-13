@@ -23,7 +23,8 @@ COObject *
 COFrame_New(COObject *code)
 {
     COCodeObject *_code = (COCodeObject *)code;
-    COFrameObject *f = COVarObject_New(COFrameObject, &COFrame_Type, _code->co_stacksize);
+    COFrameObject *f =
+        COVarObject_New(COFrameObject, &COFrame_Type, _code->co_stacksize);
 
     f->f_stacktop = f->f_stack;
     f->f_prev = NULL;

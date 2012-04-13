@@ -45,8 +45,9 @@ COObject_set(COObject *name, COObject *co)
         myco = CODict_GetItem(((COFunctionObject *)
                                current_frame->f_func)->func_upvalues, name);
         if (myco) {
-            CODict_SetItem(((COFunctionObject *)
-                            current_frame->f_func)->func_upvalues, name, co);
+            return CODict_SetItem(((COFunctionObject *)
+                                   current_frame->f_func)->func_upvalues, name,
+                                  co);
         }
     }
     return CODict_SetItem(current_frame->f_locals, name, co);
@@ -72,20 +73,29 @@ vm_eval(COObject *func)
     COObject *names;
     COObject *consts;
 
-    COObject **stack_top;      /* Stack top, points to next free slot in stack */
-    unsigned char opcode;      /* Current opcode */
-    int oparg;         /* Current opcode argument, if any */
-    COObject *x;       /* Result object -- NULL if error */
-    COObject *o1, *o2, *o3;    /* Temporary objects popped of stack */
-    int status;        /* VM status */
-    int err;           /* C function error code */
+    COObject **stack_top;       /* Stack top, points to next free slot in stack */
+    unsigned char opcode;       /* Current opcode */
+    int oparg;                  /* Current opcode argument, if any */
+    COObject *x;                /* Result object -- NULL if error */
+    COObject *o1, *o2, *o3;     /* Temporary objects popped of stack */
+    int status;                 /* VM status */
+    int err;                    /* C function error code */
 
     TS(mainfunc) = func;
 
-new_frame:      /* reentry point when function call */
+new_frame:                     /* reentry point when function call */
+    status = STATUS_NONE;
     code = (COCodeObject *)((COFunctionObject *)func)->func_code;
     frame = (COFrameObject *)COFrame_New((COObject *)code);
+    frame->f_prev = TS(frame);
+    frame->f_locals = CODict_New();
+    frame->f_func = func;
+    frame->bytecode = (unsigned char *)COBytes_AsString(code->co_code);
+    frame->firstcode = frame->bytecode;
+    TS(frame) = (COObject *)frame;
     stack_top = frame->f_stacktop;
+    names = code->co_names;
+    consts = code->co_consts;
     if (COList_Size(TS(funcargs))) {
         // check arguments count
         if (code->co_argcount != COList_Size(TS(funcargs))) {
@@ -97,26 +107,15 @@ new_frame:      /* reentry point when function call */
         }
         size_t n = COList_Size(TS(funcargs));
         for (int i = 0; i < n; i++) {
-            PUSH(COList_GetItem(TS(funcargs), 0));
+            o1 = GETITEM(names, n - i - 1);
+            COObject_set(o1, COList_GetItem(TS(funcargs), 0));
             COList_DelItem(TS(funcargs), 0);
         }
     }
-    frame->f_prev = TS(frame);
-    frame->f_locals = CODict_New();
-    frame->f_func = func;
-    frame->bytecode = (unsigned char *)COBytes_AsString(code->co_code);
-    frame->firstcode = frame->bytecode;
-    TS(frame) = (COObject *)frame;
 
-start_frame:    /* reentry point when function return */
-    status = STATUS_NONE;
-    code = (COCodeObject *)((COFunctionObject *)frame->f_func)->func_code;
-    names = code->co_names;
-    consts = code->co_consts;
-
+start_frame:                   /* reentry point when function return */
     for (;;) {
         opcode = NEXTOP();
-        /*printf("stack level: %d\n", STACK_LEVEL());*/
         switch (opcode) {
         case OP_BINARY_ADD:
             o1 = POP();
@@ -286,9 +285,14 @@ start_frame:    /* reentry point when function return */
             if (!TS(frame)) {
                 goto vm_exit;
             }
+            // init function return
             frame = (COFrameObject *)TS(frame);
+            *frame->f_stacktop++ = x;
             stack_top = frame->f_stacktop;
-            PUSH(x);
+            code =
+                (COCodeObject *)((COFunctionObject *)frame->f_func)->func_code;
+            names = code->co_names;
+            consts = code->co_consts;
             goto start_frame;
             break;
         case OP_BLOCK_SETUP:
@@ -298,7 +302,7 @@ start_frame:    /* reentry point when function return */
         case OP_BLOCK_POP:
             {
                 COFrameBlock *fb = COFrameBlock_Pop(frame);
-                while (STACK_LEVEL() > fb->fb_level) { 
+                while (STACK_LEVEL() > fb->fb_level) {
                     o1 = POP();
                 }
             }
