@@ -9,12 +9,12 @@
 #include "../compat.h"
 #include "../object.h"
 
-typedef ulong (*dict_hash_func_t) (const char *arKey, uint nKeyLen);
+typedef unsigned long (*dict_hash_func_t) (const char *arKey, unsigned int nKeyLen);
 
 typedef struct _DictBucket {
     COObject *pKey;
     COObject *pItem;
-    ulong h;
+    unsigned long h;
 
     // global dllist
     struct _DictBucket *pListNext;
@@ -27,11 +27,11 @@ typedef struct _DictBucket {
 
 typedef struct _CODictObject {
     COObject_HEAD;
-    uint nTableSize;
+    unsigned int nTableSize;
     /* The table contains mask + 1 slots, and that is a power of 2.
      */
-    uint nTableMask;
-    uint nNumOfElements;
+    unsigned int nTableMask;
+    unsigned int nNumOfElements;
     DictBucket *pCursor;        /* for iteration */
     DictBucket *pListHead;
     DictBucket *pListTail;

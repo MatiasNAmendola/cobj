@@ -35,7 +35,7 @@ _dict_rehash(CODictObject *this)
 {
     DictBucket *p;
 
-    uint nIndex;
+    unsigned int nIndex;
 
     memset(this->arBuckets, 0, this->nTableSize * sizeof(DictBucket *));
     p = this->pListHead;
@@ -73,8 +73,8 @@ _dict_do_resize(CODictObject *this)
 static DictBucket *
 _dict_lookup(CODictObject *this, COObject *key)
 {
-    ulong h;
-    uint nIndex;
+    unsigned long h;
+    unsigned int nIndex;
 
     DictBucket *p;
 
@@ -109,7 +109,7 @@ static int
 _dict_insert(CODictObject *this, COObject *key, COObject *item)
 {
     DictBucket *p;
-    ulong h = COObject_Hash(key);
+    unsigned long h = COObject_Hash(key);
     if (h == -1)
         return -1;
     p = (DictBucket *)COMem_MALLOC(sizeof(DictBucket));
@@ -117,7 +117,7 @@ _dict_insert(CODictObject *this, COObject *key, COObject *item)
     p->pItem = item;
     p->h = h;
 
-    uint nIndex = h & this->nTableMask;
+    unsigned int nIndex = h & this->nTableMask;
 
     // connect to bucket dllist
     p->pNext = this->arBuckets[nIndex];

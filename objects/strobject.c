@@ -103,15 +103,15 @@ str_resize(COStrObject **pv, ssize_t newsize)
  *
  *                  -- Ralf S. Engelschall <rse@engelschall.com>
  */
-static ulong
+static unsigned long
 str_hash(COStrObject *this)
 {
     if (this->co_shash != -1)
         return this->co_shash;
 
     const char *arKey = COStr_AsString((COObject *)this);
-    uint nKeyLen = CO_SIZE(this);
-    ulong hash = 5381;
+    unsigned int nKeyLen = CO_SIZE(this);
+    unsigned long hash = 5381;
 
     /* variant with the hash unrolled eight times */
     for (; nKeyLen >= 8; nKeyLen -= 8) {

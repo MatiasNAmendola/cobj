@@ -6,3 +6,4 @@
 * error message with location
 * implement namespace & scope rules
 * % change dividend from divisor
+* fix cli bug
