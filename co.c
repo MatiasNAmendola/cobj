@@ -75,7 +75,7 @@ main(int argc, const char **argv)
         OPT_STRING('e', "eval", &eval, "code passed as string", NULL),
         OPT_END(),
     };
-    argparse_init(&argparse, options, usagestr);
+    argparse_init(&argparse, options, usagestr, 0);
     argc = argparse_parse(&argparse, argc, argv);
 
     /* Init */
