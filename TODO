@@ -5,5 +5,4 @@
 * error handling (exception)
 * error message with location
 * implement namespace & scope rules
-* add "Derived from" notice at header files
 * % change dividend from divisor

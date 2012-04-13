@@ -3,7 +3,7 @@
 /*
  * Object interface (Object, Type, Value)
  *
- * !!! This object system implementation is based on Python's objects code.
+ * !!! Derived from Python 3 Include/object.h, Object/object.c.
  *
  * Objects are structures allocated on the heap. Objects are never allocated
  * statically or on the stack (program initialized objects are exceptions);
