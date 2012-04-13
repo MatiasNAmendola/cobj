@@ -11,7 +11,7 @@
 typedef struct _COBytesObject {
     COObject_HEAD;
     ssize_t co_size;
-    ssize_t co_alloc;            /* bytes allocaed */
+    ssize_t co_alloc;           /* bytes allocaed */
     char *co_bytes;
 } COBytesObject;
 

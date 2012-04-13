@@ -42,7 +42,7 @@ COTypeObject COTuple_Type = {
     (reprfunc)tuple_repr,       /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
-    (hashfunc)tuple_hash,                          /* tp_hash */
+    (hashfunc)tuple_hash,       /* tp_hash */
     0,                          /* tp_compare */
     0,                          /* tp_int_interface */
 };

@@ -722,9 +722,9 @@ assemble(struct compiler *c)
     }
     c->u->names = names;
 
-    return COCode_New(COStr_FromString("<main>"), a.a_bytecode, COList_AsTuple(c->u->consts),
-                      COList_AsTuple(c->u->names), c->u->argcount,
-                      stackdepth(c));
+    return COCode_New(COStr_FromString("<main>"), a.a_bytecode,
+                      COList_AsTuple(c->u->consts), COList_AsTuple(c->u->names),
+                      c->u->argcount, stackdepth(c));
 }
 
 #ifdef CO_DEBUG

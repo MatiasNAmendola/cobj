@@ -175,7 +175,7 @@ str_compare(COStrObject *this, COStrObject *that, int op)
 
     if (op == Cmp_EQ) {
         if (CO_SIZE(this) == CO_SIZE(that)
-            && this->co_sval[0] == that->co_sval[0] 
+            && this->co_sval[0] == that->co_sval[0]
             && memcmp(this->co_sval, that->co_sval, CO_SIZE(this)) == 0) {
             x = CO_True;
         } else {
@@ -199,12 +199,24 @@ str_compare(COStrObject *this, COStrObject *that, int op)
     }
 
     switch (op) {
-    case Cmp_LT: c = c < 0; break;
-    case Cmp_LE: c = c <= 0; break;
-    case Cmp_EQ: assert(0); break; /* unreachable */
-    case Cmp_NE: c = c!= 0; break;
-    case Cmp_GT: c = c > 0; break;
-    case Cmp_GE: c = c >= 0; break;
+    case Cmp_LT:
+        c = c < 0;
+        break;
+    case Cmp_LE:
+        c = c <= 0;
+        break;
+    case Cmp_EQ:
+        assert(0);
+        break;                  /* unreachable */
+    case Cmp_NE:
+        c = c != 0;
+        break;
+    case Cmp_GT:
+        c = c > 0;
+        break;
+    case Cmp_GE:
+        c = c >= 0;
+        break;
     default:
         assert(0);
     }

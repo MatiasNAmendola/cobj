@@ -49,7 +49,8 @@ COObject_Hash(COObject *o)
         return _CO_HashPointer(o);
     }
 
-    COErr_Format(COException_TypeError, "unhashable type: '%.200s'", tp->tp_name);
+    COErr_Format(COException_TypeError, "unhashable type: '%.200s'",
+                 tp->tp_name);
     return -1;
 }
 
