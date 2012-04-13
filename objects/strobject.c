@@ -149,6 +149,71 @@ str_hash(COStrObject *this)
     return hash;
 }
 
+static COObject *
+str_compare(COStrObject *this, COStrObject *that, int op)
+{
+    COObject *x;
+    int c;
+    ssize_t len_this, len_that;
+    ssize_t len_min;
+
+    if (this == that) {
+        switch (op) {
+        case Cmp_EQ:
+        case Cmp_LE:
+        case Cmp_GE:
+            printf("here\n");
+            x = CO_True;
+            goto end;
+        case Cmp_NE:
+        case Cmp_LT:
+        case Cmp_GT:
+            x = CO_False;
+            goto end;
+        }
+    }
+
+    if (op == Cmp_EQ) {
+        if (CO_SIZE(this) == CO_SIZE(that)
+            && this->co_sval[0] == that->co_sval[0] 
+            && memcmp(this->co_sval, that->co_sval, CO_SIZE(this)) == 0) {
+            x = CO_True;
+        } else {
+            x = CO_False;
+        }
+        goto end;
+    }
+
+    len_this = CO_SIZE(this);
+    len_that = CO_SIZE(that);
+    len_min = (len_this < len_that) ? len_this : len_that;
+    if (len_min > 0) {
+        c = CHAR_MASK(*this->co_sval) - CHAR_MASK(*that->co_sval);
+        if (c == 0)
+            c = memcmp(this->co_sval, that->co_sval, len_min);
+    } else {
+        c = 0;
+    }
+    if (c == 0) {
+        c = (len_this < len_that) ? -1 : (len_this > len_that) ? 1 : 0;
+    }
+
+    switch (op) {
+    case Cmp_LT: c = c < 0; break;
+    case Cmp_LE: c = c <= 0; break;
+    case Cmp_EQ: assert(0); break; /* unreachable */
+    case Cmp_NE: c = c!= 0; break;
+    case Cmp_GT: c = c > 0; break;
+    case Cmp_GE: c = c >= 0; break;
+    default:
+        assert(0);
+    }
+    x = c ? CO_True : CO_False;
+end:
+    CO_INCREF(x);
+    return x;
+}
+
 COTypeObject COStr_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "str",
@@ -158,7 +223,7 @@ COTypeObject COStr_Type = {
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     (hashfunc)str_hash,         /* tp_hash */
-    0,                          /* tp_compare */
+    (comparefunc)str_compare,   /* tp_compare */
     0,                          /* tp_int_interface */
 };
 

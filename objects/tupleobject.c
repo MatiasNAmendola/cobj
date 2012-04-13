@@ -3,7 +3,7 @@
 static COObject *
 tuple_repr(COTupleObject *this)
 {
-    size_t i = ((COTupleObject *)this)->co_size;
+    ssize_t i = ((COTupleObject *)this)->co_size;
     if (i == 0) {
         return COStr_FromString("()");
     }
@@ -19,6 +19,21 @@ tuple_repr(COTupleObject *this)
     return s;
 }
 
+static long
+tuple_hash(COTupleObject *this)
+{
+    long x, y;
+    ssize_t len;
+    COObject **p;
+    len = this->co_size;
+    p = this->co_item;
+    while (--len >= 0) {
+        y = COObject_Hash(*p++);
+        x = (x ^ y) * len;
+    }
+    return x;
+}
+
 COTypeObject COTuple_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "tuple",
@@ -27,7 +42,7 @@ COTypeObject COTuple_Type = {
     (reprfunc)tuple_repr,       /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
-    0,                          /* tp_hash */
+    (hashfunc)tuple_hash,                          /* tp_hash */
     0,                          /* tp_compare */
     0,                          /* tp_int_interface */
 };
@@ -61,10 +76,10 @@ tuple_slice(COTupleObject *this, int ilow, int ihigh)
 }
 
 COObject *
-COTuple_New(size_t size)
+COTuple_New(ssize_t size)
 {
     COTupleObject *this;
-    size_t nbytes;
+    ssize_t nbytes;
     nbytes = size * sizeof(COObject *);
 
     this = COObject_New(COTupleObject, &COTuple_Type);
@@ -82,14 +97,14 @@ COTuple_New(size_t size)
     return (COObject *)this;
 }
 
-size_t
+ssize_t
 COTuple_Size(COObject *this)
 {
     return ((COTupleObject *)this)->co_size;
 }
 
 COObject *
-COTuple_GetItem(COObject *this, size_t index)
+COTuple_GetItem(COObject *this, ssize_t index)
 {
     if (index >= ((COTupleObject *)this)->co_size) {
         // TODO errors
@@ -99,7 +114,7 @@ COTuple_GetItem(COObject *this, size_t index)
 }
 
 int
-COTuple_SetItem(COObject *this, size_t index, COObject *item)
+COTuple_SetItem(COObject *this, ssize_t index, COObject *item)
 {
     COObject **p;
     COObject *olditem;

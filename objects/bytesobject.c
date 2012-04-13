@@ -6,20 +6,20 @@ bytes_repr(COBytesObject *this)
     static const char *hexdigits = "0123456789abcdef";
     const char *quote_prefix = "b";
     const char *quote_postfix = "";
-    size_t len = this->co_size;
+    ssize_t len = this->co_size;
     /* LEN_MIN = strlen(quote_prefix) + 2 + strlen(quote_postfix) */
 #define LEN_MIN 3
     if (len > (SIZE_MAX - LEN_MIN) / 4) {
         // TODO "bytes object is too large to make repr"
         return NULL;
     }
-    size_t newsize;
+    ssize_t newsize;
     newsize = LEN_MIN + 4 * len;
     COObject *s = COStr_FromStringN(NULL, newsize);
     if (s == NULL) {
         return NULL;
     } else {
-        size_t i;
+        ssize_t i;
         char *p = COStr_AsString(s);
         char c;
         char quote = '\'';
@@ -45,6 +45,21 @@ bytes_repr(COBytesObject *this)
     }
 }
 
+static long
+bytes_hash(COBytesObject *this)
+{
+    ssize_t len;
+    unsigned char *p;
+    long x;
+    len = this->co_size;
+    p = (unsigned char *)this->co_bytes;
+    x = *p << 7;
+    while (--len >= 0)
+        x = (1000003 * x) ^ *p++;
+    x ^= this->co_size;
+    return x;
+}
+
 COTypeObject COBytes_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "bytes",
@@ -53,7 +68,7 @@ COTypeObject COBytes_Type = {
     (reprfunc)bytes_repr,       /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
-    0,                          /* tp_hash */
+    (hashfunc)bytes_hash,       /* tp_hash */
     0,                          /* tp_compare */
     0,                          /* tp_int_interface */
 };
@@ -71,7 +86,7 @@ COBytes_FromString(const char *bytes)
 }
 
 COObject *
-COBytes_FromStringN(const char *bytes, size_t len)
+COBytes_FromStringN(const char *bytes, ssize_t len)
 {
     COBytesObject *new;
 
@@ -105,9 +120,9 @@ COBytes_Concat(COObject **pv, COObject *bytes)
 }
 
 int
-COBytes_Resize(COObject *this, size_t size)
+COBytes_Resize(COObject *this, ssize_t size)
 {
-    size_t alloc = ((COBytesObject *)this)->co_alloc;
+    ssize_t alloc = ((COBytesObject *)this)->co_alloc;
     char *bytes;
 
     if (size == ((COBytesObject *)this)->co_size) {
@@ -141,7 +156,7 @@ COBytes_Resize(COObject *this, size_t size)
     return 0;
 }
 
-size_t
+ssize_t
 COBytes_Size(COObject *this)
 {
     return ((COBytesObject *)this)->co_size;

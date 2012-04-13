@@ -112,7 +112,7 @@ COObject *_COVarObject_New(COTypeObject *tp, ssize_t n);
     ((type *)_COVarObject_New((typeobj), (n)))
 
 void COObject_dump(COObject *co);
-long COObject_hash(COObject *co);
+long COObject_Hash(COObject *co);
 void COObject_print(COObject *co);
 COObject *COObject_repr(COObject *o);
 COObject *COObject_Compare(COObject *a, COObject *b, int op);

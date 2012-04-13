@@ -1129,7 +1129,7 @@ COTypeObject COInt_Type = {
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     (hashfunc)int_hash,         /* tp_hash */
-    (richcmpfunc)int_compare,   /* tp_compare */
+    (comparefunc)int_compare,   /* tp_compare */
     &int_interface,             /* tp_int_interface */
 };
 

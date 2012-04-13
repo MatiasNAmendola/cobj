@@ -11,7 +11,7 @@
 
 typedef struct _COTupleObject {
     COObject_HEAD;
-    size_t co_size;
+    ssize_t co_size;
     COObject **co_item;
 } COTupleObject;
 
@@ -19,10 +19,10 @@ COTypeObject COTuple_Type;
 
 #define COTuple_Check(co) (CO_TYPE(co) == &COTuple_Type)
 
-COObject *COTuple_New(size_t size);
-size_t COTuple_Size(COObject *this);
-COObject *COTuple_GetItem(COObject *this, size_t index);
-int COTuple_SetItem(COObject *this, size_t index, COObject *item);
+COObject *COTuple_New(ssize_t size);
+ssize_t COTuple_Size(COObject *this);
+COObject *COTuple_GetItem(COObject *this, ssize_t index);
+int COTuple_SetItem(COObject *this, ssize_t index, COObject *item);
 COObject *COTuple_GetSlice(COObject *this, int ilow, int ihigh);
 
 /* Macros, trading safety for speed */

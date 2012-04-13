@@ -8,7 +8,7 @@ typedef COObject *(*reprfunc)(COObject *);
 typedef COObject *(*getattrfunc)(COObject *, char *);
 typedef int (*setattrfunc) (COObject *, char *, COObject *);
 typedef long (*hashfunc) (COObject *);
-typedef COObject *(*richcmpfunc)(COObject *, COObject *, int);
+typedef COObject *(*comparefunc)(COObject *, COObject *, int);
 typedef COObject *(*unaryfunc)(COObject *);
 typedef COObject *(*binaryfunc)(COObject *, COObject *);
 /* ! Object Methods */
@@ -38,7 +38,7 @@ struct _COTypeObject {
     getattrfunc tp_getattr;
     setattrfunc tp_setattr;
     hashfunc tp_hash;
-    richcmpfunc tp_compare;
+    comparefunc tp_compare;
 
     /* Interfaces for standard types */
     COIntInterface *tp_int_interface;

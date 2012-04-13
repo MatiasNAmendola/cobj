@@ -36,14 +36,21 @@ _CO_HashPointer(void *p)
 }
 
 long
-COObject_hash(COObject *o)
+COObject_Hash(COObject *o)
 {
     COTypeObject *tp = o->co_type;
+
     if (tp->tp_hash != NULL) {
         return tp->tp_hash(o);
     }
-    // TODO this is only tmp fix
-    return _CO_HashPointer(o);
+
+    if (tp->tp_compare == NULL) {
+        /* imply it's unique in world, so use this address as hash value */
+        return _CO_HashPointer(o);
+    }
+
+    COErr_Format(COException_TypeError, "unhashable type: '%.200s'", tp->tp_name);
+    return -1;
 }
 
 COObject *
@@ -93,7 +100,7 @@ do_compare(COObject *a, COObject *b, int op)
 {
     static char *opstrings[] = { "<", "<=", "==", "!=", ">", ">=" };
 
-    richcmpfunc f;
+    comparefunc f;
     COObject *x;
 
     if (a->co_type == b->co_type && (f = a->co_type->tp_compare) != NULL) {

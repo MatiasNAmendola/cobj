@@ -7,4 +7,3 @@
 * implement namespace & scope rules
 * add "Derived from" notice at header files
 * % change dividend from divisor
-* finish COObject_hash method

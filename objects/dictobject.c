@@ -78,7 +78,7 @@ _dict_lookup(CODictObject *this, COObject *key)
 
     DictBucket *p;
 
-    h = COObject_hash(key);
+    h = COObject_Hash(key);
     if (h == -1)
         return NULL;
 
@@ -91,24 +91,11 @@ _dict_lookup(CODictObject *this, COObject *key)
                 // TODO free slots
                 continue;
             }
-            if (COStr_Check(key)) {
-                if (!memcmp
-                    (((COStrObject *)p->pKey)->co_sval,
-                     ((COStrObject *)key)->co_sval, CO_SIZE(key))) {
-                    return p;
-                }
-            } else if (key == CO_None) {
+            int cmp = COObject_CompareBool(p->pKey, key, Cmp_EQ);
+            if (cmp <= 0)
+                return NULL;
+            if (cmp == 1)
                 return p;
-            } else if (COInt_Check(key)) {
-                int cmp = COObject_CompareBool(p->pKey, key, Cmp_EQ);
-                if (cmp <= 0)
-                    return NULL;
-                if (cmp == 1)
-                    return p;
-            } else {
-                // TODO
-                assert(0);
-            }
         }
 
         /* key not equal */
@@ -122,7 +109,7 @@ static int
 _dict_insert(CODictObject *this, COObject *key, COObject *item)
 {
     DictBucket *p;
-    ulong h = COObject_hash(key);
+    ulong h = COObject_Hash(key);
     if (h == -1)
         return -1;
     p = (DictBucket *)COMem_MALLOC(sizeof(DictBucket));
