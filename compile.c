@@ -796,13 +796,20 @@ again:
     return retval;
 }
 
-void
+int
 coerror(NodeList **xtop, const char *err, ...)
 {
+
     va_list params;
 
     va_start(params, err);
-    error(err, params);
+
+    char msg[1024];
+    vsnprintf(msg, sizeof(msg), err, params);
+    /*COErr_SetString(COException_SystemError, msg);*/
+    /*return -1;*/
+    fprintf(stderr, "%s\n", msg);
+
     va_end(params);
     exit(128);
 }

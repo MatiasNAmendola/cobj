@@ -16,7 +16,7 @@ COObject *compile(void);
 
 // parser
 int coparse();
-void coerror(NodeList **xtop, const char *err, ...);
+int coerror(NodeList **xtop, const char *err, ...);
 
 // scanner
 int colex(YYSTYPE *colval);

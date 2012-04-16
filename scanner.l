@@ -420,7 +420,7 @@ ANY_CHAR    = [^];
 }
 
 <SC_INIT>ANY_CHAR   {
-    coerror(NULL, "invalid token: %s", yytext);
+    return coerror(NULL, "invalid token: %s", yytext);
 }
 */
 }
