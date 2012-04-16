@@ -863,15 +863,12 @@ again:
 int
 coerror(NodeList **xtop, const char *err, ...)
 {
-
     va_list params;
 
     va_start(params, err);
 
     char msg[1024];
     vsnprintf(msg, sizeof(msg), err, params);
-    /*COErr_SetString(COException_SystemError, msg);*/
-    /*return -1;*/
     fprintf(stderr, "%s\n", msg);
 
     va_end(params);

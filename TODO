@@ -1,9 +1,9 @@
+* implement try/catch/finally statement
 * dict/list subscript
 * support tuple literal
 * implement keyword this
 * add gc
 * built-in functions (print, etc)
-* error handling (exception)
 * error message with location
 * implement namespace & scope rules
 * % change dividend from divisor
