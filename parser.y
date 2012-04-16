@@ -89,8 +89,7 @@ start: stmt_list {
         if ($$) {
             *xtop = nodelist_concat($$, nodelist(return_none_node(), NULL));
         } else {
-            *xtop = nodelist(return_none_node(),
-            NULL);
+            *xtop = nodelist(return_none_node(), NULL);
         }
     }
 ;
@@ -189,9 +188,12 @@ expr: /* express something */
             $$ = node_new(NODE_DICT_BUILD, NULL, NULL);
             $$->list = $2;
         }
-    |   T_NAME '(' expr_list ')' {
+    |   expr '(' expr_list ')' {
             $$ = node_new(NODE_FUNC_CALL, $1, NULL);
             $$->list = $3;
+        }
+    |   expr '[' expr ']' {
+            $$ = 0;
         }
     |   funcliteral opt_param_list stmt_list T_END {
             Node *t = node_new(NODE_FUNC, NULL, NULL);
@@ -326,7 +328,7 @@ opt_finally_block:
 ;
 
 catch_block:
-        T_CATCH opt_param_list stmt_list 
+        T_CATCH opt_param_list stmt_list
 ;
 
 catch_list:

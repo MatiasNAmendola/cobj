@@ -1,9 +1,3 @@
 # Grammar for CObject
 #
 # Doc for parser.y
-# TODO
-# Adjunct can be plase before or after
-
-program: [statement]*
-statement: [clause]+
-clause:
