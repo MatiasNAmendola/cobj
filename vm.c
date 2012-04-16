@@ -318,6 +318,7 @@ start_frame:                   /* reentry point when function return */
             status = STATUS_BREAK;
             break;
         case OP_CONTINUE_LOOP:
+            oparg = NEXTOP();
             status = STATUS_CONTINUE;
             break;
         default:
@@ -329,7 +330,8 @@ fast_end:
             COFrameBlock *fb = &frame->f_blockstack[frame->f_iblock - 1];
             if (fb->fb_type == OP_SETUP_LOOP && status == STATUS_CONTINUE) {
                 status = STATUS_NONE;
-                // TODO
+                JUMPTO(oparg);
+                break;
             }
             frame->f_iblock--;
             UNWIND_BLOCK(fb);

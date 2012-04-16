@@ -28,6 +28,15 @@ struct block {
     int b_offset;               /* instruction offset of this block */
 };
 
+/*
+ * A frame block is used to handle loops, try/catch/finally, etc.
+ */
+enum fblocktype { FB_LOOP };
+struct fblock {
+    enum fblocktype fb_type;
+    struct block *fb_block;
+};
+
 /* 
  * Compliation unit, change on entry and exit of function scope.
  */
@@ -39,6 +48,9 @@ struct compiler_unit {
      * you can reach all early allocated blocks. */
     struct block *u_blocklist;
     struct block *u_curblock;   /* currently block */
+
+    int u_nfblocks;
+    struct fblock u_fblock[FRAME_MAXBLOCKS];
 
     int argcount;
 };
@@ -59,7 +71,7 @@ struct compiler {
 };
 
 /* Forward declarations */
-static void compiler_visit_node(struct compiler *c, Node *n);
+static int compiler_visit_node(struct compiler *c, Node *n);
 static COObject *assemble(struct compiler *c);
 static void compiler_visit_nodelist(struct compiler *c, NodeList *l);
 #ifdef CO_DEBUG
@@ -107,6 +119,29 @@ compiler_use_next_block(struct compiler *c, struct block *block)
     c->u->u_curblock->b_next = block;
     c->u->u_curblock = block;
     return block;
+}
+
+static int
+compiler_push_fblock(struct compiler *c, enum fblocktype type, struct block *b)
+{
+    struct fblock *fb;
+    if (c->u->u_nfblocks >= FRAME_MAXBLOCKS) {
+        COErr_SetString(COException_SystemError, "too many nested blocks");
+        return 0;
+    }
+    fb = &c->u->u_fblock[c->u->u_nfblocks++];
+    fb->fb_type = type;
+    fb->fb_block = b;
+    return 1;
+}
+
+static void
+compile_pop_fblock(struct compiler *c, enum fblocktype type, struct block *b)
+{
+    assert(c->u->u_nfblocks > 0);
+    c->u->u_nfblocks--;
+    assert(c->u->u_fblock[c->u->u_nfblocks].fb_type == type);
+    assert(c->u->u_fblock[c->u->u_nfblocks].fb_block == b);
 }
 
 static void
@@ -304,12 +339,12 @@ compiler_visit_nodelist(struct compiler *c, NodeList *l)
     }
 }
 
-static void
+static int
 compiler_visit_node(struct compiler *c, Node *n)
 {
     int oparg;
     if (!n)
-        return;
+        return 0;
 
     switch (n->type) {
     case NODE_PRINT:
@@ -393,12 +428,19 @@ compiler_visit_node(struct compiler *c, Node *n)
             loop_exit = compiler_new_block(c);
             compiler_addop_j(c, OP_SETUP_LOOP, loop_end);
             compiler_use_next_block(c, loop_start);
+
+            if (!compiler_push_fblock(c, FB_LOOP, loop_start))
+                return 0;
+
             compiler_visit_node(c, n->ntest);
             compiler_addop_j(c, OP_JMPZ, loop_exit);
             compiler_visit_nodelist(c, n->nbody);
             compiler_addop_j(c, OP_JMPX, loop_start);
             compiler_use_next_block(c, loop_exit);
             compiler_addop(c, OP_BLOCK_POP);
+
+            compile_pop_fblock(c, FB_LOOP, loop_start);
+
             compiler_use_next_block(c, loop_end);
         }
         break;
@@ -443,11 +485,24 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop(c, OP_BREAK_LOOP);
         break;
     case NODE_CONTINUE:
-        compiler_addop(c, OP_CONTINUE_LOOP);
+        if (!c->u->u_nfblocks) {
+            // TODO errors
+            //
+        }
+        int i = c->u->u_nfblocks -1;
+        switch (c->u->u_fblock[i].fb_type) {
+        case FB_LOOP:
+            compiler_addop_j(c, OP_CONTINUE_LOOP, c->u->u_fblock[i].fb_block);
+            break;
+        default:
+            // TODO errors
+            break;
+        }
         break;
     default:
         error("unknown node type: %d, %s", n->type, node_type(n->type));
     }
+    return 0; /* unreachable */
 }
 
 static int
@@ -492,7 +547,8 @@ assembler_jump_offsets(struct assembler *a, struct compiler *c)
             struct instr *instr = &b->b_instr[i];
             if (instr->i_opcode == OP_JMPX
                 || instr->i_opcode == OP_JMPZ
-                || instr->i_opcode == OP_SETUP_LOOP) {
+                || instr->i_opcode == OP_SETUP_LOOP
+                || instr->i_opcode == OP_CONTINUE_LOOP) {
                 // absolutely
                 instr->i_oparg = instr->i_target->b_offset;
             } else {
