@@ -295,6 +295,14 @@ ANY_CHAR    = [^];
     return T_BOOL;
 }
 
+<SC_INIT>"break" {
+    return T_BREAK;
+}
+
+<SC_INIT>"continue" {
+    return T_CONTINUE;
+}
+
 <SC_INIT>'"' {
     while (1) {
         if (YYCURSOR > YYLIMIT) {

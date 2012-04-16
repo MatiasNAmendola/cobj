@@ -43,6 +43,8 @@ return_none_node()
 %token  T_FINALLY
 %token  T_END
 %token  T_THEN
+%token  T_BREAK
+%token  T_CONTINUE
 %token  <node> T_NONE
 %token  <node> T_BOOL
 %token  <node> T_NUM
@@ -283,6 +285,12 @@ simple_stmt:
             Node *t;
             t = node_new(NODE_BIN, $1, $3); t->op = OP_BINARY_SL;
             $$ = nodelist(node_new(NODE_ASSIGN, $1, t), NULL);
+        }
+    |   T_BREAK {
+            $$ = nodelist(node_new(NODE_BREAK, 0, 0), NULL);
+        }
+    |   T_CONTINUE {
+            $$ = nodelist(node_new(NODE_CONTINUE, 0, 0), NULL);
         }
     |   T_PRINT expr { Node *t = node_new(NODE_PRINT, $2, NULL); $$ = nodelist(t, NULL); }
     |   expr { $$ = nodelist($1, NULL); }

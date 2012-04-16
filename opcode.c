@@ -38,8 +38,10 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_LIST_ADD);
         GIVE_NAME(OP_DICT_BUILD);
         GIVE_NAME(OP_DICT_ADD);
-        GIVE_NAME(OP_BLOCK_SETUP);
+        GIVE_NAME(OP_SETUP_LOOP);
         GIVE_NAME(OP_BLOCK_POP);
+        GIVE_NAME(OP_BREAK_LOOP);
+        GIVE_NAME(OP_CONTINUE_LOOP);
     }
     error("unknow opcode: %d\n", opcode);
     return NULL;

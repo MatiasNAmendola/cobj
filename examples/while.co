@@ -1,11 +1,14 @@
 #!./co
-i = 1;
+i = 1
 
-while False
-    print 1
-end
+#while False
+#    print 1
+#end
 
 while i < 10
     i = i + 1
+    if i == 4
+        continue
+    end
+    print i
 end
-print i

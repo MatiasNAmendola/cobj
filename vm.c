@@ -4,6 +4,8 @@
 enum status_code {
     STATUS_NONE = 0x0001,       /* None */
     STATUS_EXCEPTION = 0x0002,  /* Exception occurred */
+    STATUS_BREAK = 0x0003,
+    STATUS_CONTINUE = 0x0004,
 };
 
 /* Forward declarations */
@@ -67,6 +69,13 @@ vm_eval(COObject *func)
 #define PUSH(o)         (*stack_top++ = (o))
 #define POP()           (*--stack_top)
 #define STACK_LEVEL()   ((int)(stack_top - frame->f_stack))
+#define UNWIND_BLOCK(b) \
+    do { \
+        while (STACK_LEVEL() > (b)->fb_level) { \
+            COObject *o = POP(); \
+            CO_XDECREF(o); \
+        } \
+    } while (0)
 
     COFrameObject *frame;
     COCodeObject *code;
@@ -103,7 +112,7 @@ new_frame:                     /* reentry point when function call */
                          "takes exactly %d arguments (%d given)",
                          code->co_argcount, COList_Size(TS(funcargs)));
             status = STATUS_EXCEPTION;
-            goto on_error;
+            goto fast_end;
         }
         size_t n = COList_Size(TS(funcargs));
         for (int i = 0; i < n; i++) {
@@ -166,7 +175,7 @@ start_frame:                   /* reentry point when function return */
             x = COObject_Compare(o2, o1, oparg);
             if (!x) {
                 status = STATUS_EXCEPTION;
-                goto on_error;
+                goto fast_end;
             }
             PUSH(x);
             break;
@@ -188,7 +197,7 @@ start_frame:                   /* reentry point when function return */
                 COErr_Format(COException_NameError, "name '%s' is not defined",
                              COStr_AsString(o1));
                 status = STATUS_EXCEPTION;
-                goto on_error;
+                goto fast_end;
             }
             PUSH(x);
             break;
@@ -295,23 +304,43 @@ start_frame:                   /* reentry point when function return */
             consts = code->co_consts;
             goto start_frame;
             break;
-        case OP_BLOCK_SETUP:
+        case OP_SETUP_LOOP:
             oparg = NEXTARG();
             COFrameBlock_Setup(frame, opcode, oparg, STACK_LEVEL());
             break;
         case OP_BLOCK_POP:
             {
                 COFrameBlock *fb = COFrameBlock_Pop(frame);
-                while (STACK_LEVEL() > fb->fb_level) {
-                    o1 = POP();
-                }
+                UNWIND_BLOCK(fb);
             }
+            break;
+        case OP_BREAK_LOOP:
+            status = STATUS_BREAK;
+            break;
+        case OP_CONTINUE_LOOP:
+            status = STATUS_CONTINUE;
             break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);
         }
 
-on_error:
+fast_end:
+        while (status != STATUS_NONE && frame->f_iblock > 0) {
+            COFrameBlock *fb = &frame->f_blockstack[frame->f_iblock - 1];
+            if (fb->fb_type == OP_SETUP_LOOP && status == STATUS_CONTINUE) {
+                status = STATUS_NONE;
+                // TODO
+            }
+            frame->f_iblock--;
+            UNWIND_BLOCK(fb);
+            if (fb->fb_type == OP_SETUP_LOOP && status == STATUS_BREAK) {
+                status = STATUS_NONE;
+                JUMPTO(fb->fb_handler);
+                break;
+            }
+        }
+
+        /*}*/
         /* End the loop if we still have an error (or return) */
         x = NULL;
         if (status != STATUS_NONE)

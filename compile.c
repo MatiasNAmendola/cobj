@@ -391,7 +391,7 @@ compiler_visit_node(struct compiler *c, Node *n)
             loop_start = compiler_new_block(c);
             loop_end = compiler_new_block(c);
             loop_exit = compiler_new_block(c);
-            compiler_addop_j(c, OP_BLOCK_SETUP, loop_end);
+            compiler_addop_j(c, OP_SETUP_LOOP, loop_end);
             compiler_use_next_block(c, loop_start);
             compiler_visit_node(c, n->ntest);
             compiler_addop_j(c, OP_JMPZ, loop_exit);
@@ -438,6 +438,12 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop_i(c, OP_CALL_FUNCTION, oparg);
         break;
     case NODE_TRY:
+        break;
+    case NODE_BREAK:
+        compiler_addop(c, OP_BREAK_LOOP);
+        break;
+    case NODE_CONTINUE:
+        compiler_addop(c, OP_CONTINUE_LOOP);
         break;
     default:
         error("unknown node type: %d, %s", n->type, node_type(n->type));
@@ -486,7 +492,7 @@ assembler_jump_offsets(struct assembler *a, struct compiler *c)
             struct instr *instr = &b->b_instr[i];
             if (instr->i_opcode == OP_JMPX
                 || instr->i_opcode == OP_JMPZ
-                || instr->i_opcode == OP_BLOCK_SETUP) {
+                || instr->i_opcode == OP_SETUP_LOOP) {
                 // absolutely
                 instr->i_oparg = instr->i_target->b_offset;
             } else {
@@ -613,8 +619,10 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_LIST_ADD:
     case OP_DICT_ADD:
         return -1;
-    case OP_BLOCK_SETUP:
+    case OP_SETUP_LOOP:
     case OP_BLOCK_POP:
+    case OP_BREAK_LOOP:
+    case OP_CONTINUE_LOOP:
         return 0;
     default:
         error("opcode_stack_effect error, opcode: %d\n", opcode);
@@ -767,7 +775,7 @@ dump_code(COObject *code)
         case OP_JMPZ:
         case OP_CALL_FUNCTION:
         case OP_CMP:
-        case OP_BLOCK_SETUP:
+        case OP_SETUP_LOOP:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             break;
