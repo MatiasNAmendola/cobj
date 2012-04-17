@@ -40,6 +40,8 @@
 #define OP_DUP_TOP                  34
 #define OP_POP_TOP                  35
 #define OP_END_TRY                  36
+#define OP_SETUP_FINALLY            37
+#define OP_END_FINALLY              38
 
 /* OP_CMP's opargs */
 enum Cmp_OpArg {

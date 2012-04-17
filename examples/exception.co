@@ -40,8 +40,11 @@
 
 try
     print "try-catch-finally: try"
-catch "a", "b", "c"
-    print "try-catch-finally: catch 1"
+    throw "a"
+catch "a"
+    print "try-catch-finally: a"
+else
+    print "no error"
 finally
     print "try-catch-finally: finally"
 end

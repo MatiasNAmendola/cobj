@@ -350,7 +350,8 @@ compound_stmt:
             Node *t = node_new(NODE_TRY, NULL, NULL);
             t->ntrybody = $2;
             t->ncatches = $3;
-            t->nfinally = $4;
+            t->norelse = $4;
+            t->nfinally = $5;
             $$ = nodelist(t, NULL);
         }
 ;

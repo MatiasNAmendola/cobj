@@ -389,6 +389,17 @@ start_frame:                   /* reentry point when function return */
             COErr_SetString(COException_SystemError, COStr_AsString(o1));
             status = STATUS_EXCEPTION;
             break;
+        case OP_SETUP_FINALLY:
+            oparg = NEXTARG();
+            COFrameBlock_Setup(frame, opcode, oparg, STACK_LEVEL());
+            break;
+        case OP_END_FINALLY:
+            o1 = POP();
+            if (o1 != CO_None) {
+                COErr_SetString(COException_SystemError, COStr_AsString(o1));
+                status = STATUS_EXCEPTION;
+            }
+            break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);
         }

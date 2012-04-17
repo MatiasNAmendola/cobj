@@ -31,7 +31,7 @@ struct block {
 /*
  * A frame block is used to handle loops, try/catch/finally, etc.
  */
-enum fblocktype { FB_LOOP, FB_EXCEPT, FB_FINALLY };
+enum fblocktype { FB_LOOP, FB_EXCEPT, FB_FINALLY, FB_FINALLY_TRY };
 struct fblock {
     enum fblocktype fb_type;
     struct block *fb_block;
@@ -255,6 +255,26 @@ compiler_next_instr(struct compiler *c, struct block *b)
 }
 
 /*
+ * Add const/name and return index.
+ */
+static int
+compiler_add(COObject *dict, COObject *o)
+{
+    int arg;
+    COObject *v;
+    v = CODict_GetItem(dict, o);
+    if (!v) {
+        arg = CODict_Size(dict);
+        v = COInt_FromLong(arg);
+        if (CODict_SetItem(dict, o, v) < 0) {
+            return -1;
+        }
+    } else {
+        arg = COInt_AsLong(v);
+    }
+    return arg;
+}
+/*
  * Add an opcode with no argument.
  */
 static int
@@ -308,24 +328,15 @@ compiler_addop_j(struct compiler *c, int opcode, struct block *b)
 }
 
 /*
- * Add const/name and return index.
+ * Add object load opcode.
  */
 static int
-compiler_add(COObject *dict, COObject *o)
+compiler_addop_o(struct compiler *c, int opcode, COObject *dict, COObject *o)
 {
-    int arg;
-    COObject *v;
-    v = CODict_GetItem(dict, o);
-    if (!v) {
-        arg = CODict_Size(dict);
-        v = COInt_FromLong(arg);
-        if (CODict_SetItem(dict, o, v) < 0) {
-            return -1;
-        }
-    } else {
-        arg = COInt_AsLong(v);
-    }
-    return arg;
+    int oparg = compiler_add(dict, o);
+    if (oparg < 0)
+        return 0;
+    return compiler_addop_i(c, opcode, oparg);
 }
 
 static void
@@ -481,11 +492,17 @@ compiler_visit_node(struct compiler *c, Node *n)
         break;
     case NODE_TRY:
         {
-            struct block *body, *end, *handler;
+            struct block *body, *end, *handler, *orelse, *finally_end;
             body = compiler_new_block(c);
-            handler = compiler_new_block(c);
             end = compiler_new_block(c);
-
+            if (n->norelse) {
+                orelse = compiler_new_block(c);
+            }
+            if (n->nfinally) {
+                finally_end = compiler_new_block(c);
+                compiler_addop_j(c, OP_SETUP_FINALLY, finally_end);
+            }
+            handler = compiler_new_block(c);
             compiler_addop_j(c, OP_SETUP_TRY, handler);
             compiler_use_next_block(c, body);
             if (!compiler_push_fblock(c, FB_EXCEPT, body))
@@ -493,16 +510,20 @@ compiler_visit_node(struct compiler *c, Node *n)
             compiler_visit_nodelist(c, n->ntrybody);
             compiler_addop(c, OP_POP_BLOCK);
             compiler_pop_fblock(c, FB_EXCEPT, body);
-            compiler_addop_j(c, OP_JMPX, end);
+            if (n->norelse) {
+                compiler_addop_j(c, OP_JMPX, orelse);
+            } else {
+                compiler_addop_j(c, OP_JMPX, end);
+            }
 
             NodeList *l = n->ncatches;
-            Node *n;
+            Node *catch;
             int len = nodelist_len(l);
             int i = 0;
             compiler_use_next_block(c, handler);
             for (; l; l = l->next, i++) {
-                n = l->n;
-                if (!n->ncatchname && i < len - 1) {
+                catch = l->n;
+                if (!catch->ncatchname && i < len - 1) {
                     printf("len - 1: %d, i: %d\n", len - 1, i);
                     // default catch must be last
                     assert(0);
@@ -510,29 +531,39 @@ compiler_visit_node(struct compiler *c, Node *n)
                 handler = compiler_new_block(c);
                 if (!handler)
                     return 0;
-                if (n->ncatchname) {
-                    NodeList *namelist = n->ncatchname;
+                if (catch->ncatchname) {
+                    NodeList *namelist = catch->ncatchname;
                     compiler_addop(c, OP_DUP_TOP);
                     for (; namelist; namelist = namelist->next) {
                         compiler_visit_node(c, namelist->n);
                     }
-                    compiler_addop_i(c, OP_TUPLE_BUILD, nodelist_len(n->ncatchname));
+                    compiler_addop_i(c, OP_TUPLE_BUILD, nodelist_len(catch->ncatchname));
                     compiler_addop_i(c, OP_CMP, Cmp_EXC_MATCH);
                     compiler_addop_j(c, OP_JMPZ, handler);
                     compiler_addop(c, OP_POP_TOP);
-                    compiler_visit_nodelist(c, n->ncatchbody);
+                    compiler_visit_nodelist(c, catch->ncatchbody);
                 } else {
-                    struct block *cleanup_body;
-                    cleanup_body = compiler_new_block(c);
-                    compiler_push_fblock(c, FB_FINALLY, cleanup_body);
-                    compiler_visit_nodelist(c, n->ncatchbody);
-                    compiler_pop_fblock(c, FB_FINALLY, cleanup_body);
+                    struct block *default_body;
+                    default_body = compiler_new_block(c);
+                    compiler_push_fblock(c, FB_FINALLY, default_body);
+                    compiler_visit_nodelist(c, catch->ncatchbody);
+                    compiler_pop_fblock(c, FB_FINALLY, default_body);
                 }
                 compiler_addop_j(c, OP_JMPX, end);
                 compiler_use_next_block(c, handler);
             }
             compiler_addop(c, OP_END_TRY);
+            if (n->norelse) {
+                compiler_use_next_block(c, orelse);
+                compiler_visit_nodelist(c, n->norelse);
+            }
             compiler_use_next_block(c, end);
+            if (n->nfinally) {
+                compiler_addop_o(c, OP_LOAD_CONST, c->u->consts, CO_None);
+                compiler_use_next_block(c, finally_end);
+                compiler_visit_nodelist(c, n->nfinally);
+                compiler_addop(c, OP_END_FINALLY);
+            }
         }
         break;
     case NODE_THROW:
@@ -732,6 +763,7 @@ opcode_stack_effect(int opcode, int oparg)
         return -1;
     case OP_SETUP_LOOP:
     case OP_SETUP_TRY:
+    case OP_SETUP_FINALLY:
     case OP_POP_BLOCK:
     case OP_BREAK_LOOP:
     case OP_CONTINUE_LOOP:
@@ -741,6 +773,7 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_POP_TOP:
         return -1;
     case OP_END_TRY:
+    case OP_END_FINALLY:
         return -1;
     default:
         error("opcode_stack_effect error, opcode: %d\n", opcode);
@@ -901,6 +934,7 @@ dump_code(COObject *code)
         case OP_CMP:
         case OP_SETUP_LOOP:
         case OP_SETUP_TRY:
+        case OP_SETUP_FINALLY:
         case OP_THROW:
         case OP_TUPLE_BUILD:
             oparg = NEXTARG();

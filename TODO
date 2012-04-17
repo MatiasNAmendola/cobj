@@ -1,4 +1,3 @@
-* implement try/catch/finally statement
 * OP_LIST_BUILD, OP_DICT_BUILD, accept oparg (size of object, like python)
 * implement vm_stack
 * dict/list subscript

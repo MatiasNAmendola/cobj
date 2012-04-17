@@ -55,14 +55,15 @@ struct _Node {
     NodeList *nbody;
     NodeList *nelse;
 
-    /* For func */
+    /* For Func */
     Node *nfuncname;
     NodeList *nfuncargs;
     NodeList *nfuncbody;
 
-    /* For Try/Catch/Fianlly */
+    /* For Try/Catch/ELse/Fianlly */
     NodeList *ntrybody;
     NodeList *ncatches;
+    NodeList *norelse;
     NodeList *nfinally;
 
     /* For Catch */

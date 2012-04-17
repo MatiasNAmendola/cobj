@@ -94,6 +94,48 @@ catch
 end
 """)
 
+test_expect_result(r"""try-catch: try
+try-catch: catch
+finally
+""", r"""
+try
+    print "try-catch: try"
+    throw
+    print "try-catch: after throw"
+catch
+    print "try-catch: catch"
+finally
+    print "finally"
+end
+""", "finally with throw")
+
+test_expect_result(r"""try-catch: try
+finally
+""", r"""
+try
+    print "try-catch: try"
+catch
+    print "try-catch: catch"
+finally
+    print "finally"
+end
+""", "finally no throw")
+
+test_expect_result(r"""try-catch: try
+no error
+finally
+""", r"""
+try
+    print "try-catch: try"
+catch
+    print "try-catch: catch"
+else
+    print "no error"
+finally
+    print "finally"
+end
+""", "finally no throw")
+
 test_expect_result(r"""inner
 outer
 """, r"""
@@ -106,4 +148,4 @@ try
     end
 catch
     print "outer"
-end""")
+end""", "nested try")
