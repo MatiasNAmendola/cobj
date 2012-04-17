@@ -68,6 +68,8 @@ return_none_node()
 %type <list> expr_list non_empty_expr_list
 %type <list> assoc_list non_empty_assoc_list
 %type <list> opt_param_list name_list non_empty_name_list
+%type <node> catch_block
+%type <list> catch_list opt_catch_list opt_finally_block
 
 /*
  * Manual override of shift/reduce conflicts.
@@ -292,6 +294,12 @@ simple_stmt:
     |   T_CONTINUE {
             $$ = nodelist(node_new(NODE_CONTINUE, 0, 0), NULL);
         }
+    |   T_THROW {
+            $$ = nodelist(node_new(NODE_THROW, 0, 0), NULL);
+        }
+    |   T_THROW expr {
+            $$ = nodelist(node_new(NODE_THROW, $2, 0), NULL);
+        }
     |   T_PRINT expr { Node *t = node_new(NODE_PRINT, $2, NULL); $$ = nodelist(t, NULL); }
     |   expr { $$ = nodelist($1, NULL); }
     |   T_RETURN { $$ = nodelist(return_none_node(), NULL); }
@@ -326,27 +334,33 @@ compound_stmt:
         }
     |   T_TRY stmt_list opt_catch_list opt_finally_block T_END {
             Node *t = node_new(NODE_TRY, NULL, NULL);
+            t->ntrybody = $2;
+            t->ncatches = $3;
+            t->nfinally = $4;
             $$ = nodelist(t, NULL);
         }
 ;
 
 opt_finally_block:
-        T_FINALLY stmt_list
-    |   /* empty */
+        T_FINALLY stmt_list { $$ = $2; }
+    |   /* empty */ { $$ = 0; }
 ;
 
 catch_block:
-        T_CATCH opt_param_list stmt_list
+        T_CATCH opt_param_list stmt_list {
+            $$ = node_new(NODE_CATCH, NULL, NULL);
+            $$->ncatchbody = $3;
+        }
 ;
 
 catch_list:
-        catch_block
-    |   catch_list catch_block
+        catch_block { $$ = nodelist($1, NULL); }
+    |   catch_list catch_block { $$ = nodelist_append($1, $2); }
 ;
 
 opt_catch_list:
         catch_list
-    |   /* empty */
+    |   /* empty */ { $$ = 0; }
 ;
 
 opt_param_list:

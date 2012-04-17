@@ -29,8 +29,10 @@ typedef enum {
     NODE_DICT_BUILD,
     NODE_DICT_ADD,
     NODE_TRY,
+    NODE_CATCH,
     NODE_BREAK,
     NODE_CONTINUE,
+    NODE_THROW,
 } Node_Type;
 
 struct _Node {
@@ -57,6 +59,15 @@ struct _Node {
     Node *nfuncname;
     NodeList *nfuncargs;
     NodeList *nfuncbody;
+
+    /* For Try/Catch/Fianlly */
+    NodeList *ntrybody;
+    NodeList *ncatches;
+    NodeList *nfinally;
+
+    /* For Catch */
+    NodeList *ncatchname;
+    NodeList *ncatchbody;
 };
 
 struct _NodeList {
@@ -73,5 +84,6 @@ int nodelist_len(NodeList *l);
 NodeList *nodelist_changetype(NodeList *l, Node_Type t);
 void nodelisttree(NodeList *n);
 const char *node_type(Node_Type type);
+void node_print(Node *n);
 
 #endif

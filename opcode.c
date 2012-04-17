@@ -28,7 +28,7 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_DECLARE_FUNCTION);
         GIVE_NAME(OP_RETURN);
         GIVE_NAME(OP_CALL_FUNCTION);
-        GIVE_NAME(OP_TRY);
+        GIVE_NAME(OP_SETUP_TRY);
         GIVE_NAME(OP_THROW);
         GIVE_NAME(OP_CATCH);
         GIVE_NAME(OP_LOAD_NAME);

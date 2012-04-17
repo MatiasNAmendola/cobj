@@ -23,7 +23,7 @@
 #define OP_DECLARE_FUNCTION         17
 #define OP_RETURN                   18
 #define OP_CALL_FUNCTION            19
-#define OP_TRY                      20
+#define OP_SETUP_TRY                20
 #define OP_THROW                    21
 #define OP_CATCH                    22
 #define OP_LOAD_NAME                23

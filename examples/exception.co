@@ -1,25 +1,39 @@
 #!./co
 
-try
-    print "no catch and no finally"
-end
+#try
+    #print "no catch and no finally"
+#end
 
+#try
+    #print "try-catch: try"
+    #throw 
+    #print "try-catch: after throw"
+#catch
+    #print "try-catch: catch"
+#end
+
+# nested 
 try
-    print "try-catch: try"
+    try
+        throw
+    catch
+        print "inner"
+        throw
+    end
 catch
-    print "try-catch: catch"
+    print "outer"
 end
 
-try
-    print "try-finally: try"
-finally
-    print "try-finally: finally"
-end
+#try
+    #print "try-finally: try"
+#finally
+    #print "try-finally: finally"
+#end
 
-try
-    print "try-catch-finally: try"
-catch (a, b, c)
-    print "try-catch-finally: catch 1"
-finally
-    print "try-catch-finally: finally"
-end
+#try
+    #print "try-catch-finally: try"
+#catch (a, b, c)
+    #print "try-catch-finally: catch 1"
+#finally
+    #print "try-catch-finally: finally"
+#end

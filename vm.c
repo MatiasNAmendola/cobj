@@ -308,6 +308,10 @@ start_frame:                   /* reentry point when function return */
             oparg = NEXTARG();
             COFrameBlock_Setup(frame, opcode, oparg, STACK_LEVEL());
             break;
+        case OP_SETUP_TRY:
+            oparg = NEXTARG();
+            COFrameBlock_Setup(frame, opcode, oparg, STACK_LEVEL());
+            break;
         case OP_BLOCK_POP:
             {
                 COFrameBlock *fb = COFrameBlock_Pop(frame);
@@ -320,6 +324,10 @@ start_frame:                   /* reentry point when function return */
         case OP_CONTINUE_LOOP:
             oparg = NEXTOP();
             status = STATUS_CONTINUE;
+            break;
+        case OP_THROW:
+            status = STATUS_EXCEPTION;
+            COErr_SetString(COException_SystemError, "test exception");
             break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);
@@ -340,9 +348,15 @@ fast_end:
                 JUMPTO(fb->fb_handler);
                 break;
             }
+            if (fb->fb_type == OP_SETUP_TRY && status == STATUS_EXCEPTION) {
+                status = STATUS_NONE;
+                COObject *exc, *val, *tb;
+                COErr_Fetch(&exc, &val, &tb);
+                JUMPTO(fb->fb_handler);
+                break;
+            }
         }
 
-        /*}*/
         /* End the loop if we still have an error (or return) */
         x = NULL;
         if (status != STATUS_NONE)

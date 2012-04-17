@@ -1,4 +1,5 @@
 * implement try/catch/finally statement
+* implement vm_stack
 * dict/list subscript
 * support tuple literal
 * implement keyword this

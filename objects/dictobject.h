@@ -9,7 +9,8 @@
 #include "../compat.h"
 #include "../object.h"
 
-typedef unsigned long (*dict_hash_func_t) (const char *arKey, unsigned int nKeyLen);
+typedef unsigned long (*dict_hash_func_t) (const char *arKey,
+                                           unsigned int nKeyLen);
 
 typedef struct _DictBucket {
     COObject *pKey;

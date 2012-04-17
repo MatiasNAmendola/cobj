@@ -5,9 +5,9 @@
 
 // instruction
 struct instr {
-    unsigned int i_hasarg:1;
     unsigned char i_opcode;
-    int i_oparg;
+    unsigned int i_hasarg:1;
+    unsigned int i_oparg;
     struct block *i_target;     /* JUMP Target */
 };
 
@@ -31,7 +31,7 @@ struct block {
 /*
  * A frame block is used to handle loops, try/catch/finally, etc.
  */
-enum fblocktype { FB_LOOP };
+enum fblocktype { FB_LOOP, FB_EXCEPT, FB_FINALLY };
 struct fblock {
     enum fblocktype fb_type;
     struct block *fb_block;
@@ -136,7 +136,7 @@ compiler_push_fblock(struct compiler *c, enum fblocktype type, struct block *b)
 }
 
 static void
-compile_pop_fblock(struct compiler *c, enum fblocktype type, struct block *b)
+compiler_pop_fblock(struct compiler *c, enum fblocktype type, struct block *b)
 {
     assert(c->u->u_nfblocks > 0);
     c->u->u_nfblocks--;
@@ -439,7 +439,7 @@ compiler_visit_node(struct compiler *c, Node *n)
             compiler_use_next_block(c, loop_exit);
             compiler_addop(c, OP_BLOCK_POP);
 
-            compile_pop_fblock(c, FB_LOOP, loop_start);
+            compiler_pop_fblock(c, FB_LOOP, loop_start);
 
             compiler_use_next_block(c, loop_end);
         }
@@ -480,6 +480,51 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop_i(c, OP_CALL_FUNCTION, oparg);
         break;
     case NODE_TRY:
+        {
+            struct block *body, *end, *handler;
+            body = compiler_new_block(c);
+            handler = compiler_new_block(c);
+            end = compiler_new_block(c);
+
+            compiler_addop_j(c, OP_SETUP_TRY, handler);
+            compiler_use_next_block(c, body);
+            if (!compiler_push_fblock(c, FB_EXCEPT, body))
+                return 0;
+            compiler_visit_nodelist(c, n->ntrybody);
+            compiler_pop_fblock(c, FB_EXCEPT, body);
+            compiler_addop_j(c, OP_JMPX, end);
+
+            NodeList *l = n->ncatches;
+            Node *n;
+            int len = nodelist_len(l);
+            int i = 0;
+            compiler_use_next_block(c, handler);
+            for (; l; l = l->next) {
+                n = l->n;
+                if (!n->ncatchname && i < len - 1) {
+                    // default catch must be last
+                    assert(0);
+                }
+                i++;
+                handler = compiler_new_block(c);
+                if (!handler)
+                    return 0;
+                if (n->ncatchname) {
+                    // TODO
+                } else {
+                    struct block *cleanup_body;
+                    cleanup_body = compiler_new_block(c);
+                    compiler_push_fblock(c, FB_FINALLY, cleanup_body);
+                    compiler_visit_nodelist(c, n->ncatchbody);
+                    compiler_pop_fblock(c, FB_FINALLY, cleanup_body);
+                }
+                compiler_use_next_block(c, handler);
+            }
+            compiler_use_next_block(c, end);
+        }
+        break;
+    case NODE_THROW:
+        compiler_addop(c, OP_THROW);
         break;
     case NODE_BREAK:
         compiler_addop(c, OP_BREAK_LOOP);
@@ -487,9 +532,8 @@ compiler_visit_node(struct compiler *c, Node *n)
     case NODE_CONTINUE:
         if (!c->u->u_nfblocks) {
             // TODO errors
-            //
         }
-        int i = c->u->u_nfblocks -1;
+        int i = c->u->u_nfblocks - 1;
         switch (c->u->u_fblock[i].fb_type) {
         case FB_LOOP:
             compiler_addop_j(c, OP_CONTINUE_LOOP, c->u->u_fblock[i].fb_block);
@@ -502,7 +546,7 @@ compiler_visit_node(struct compiler *c, Node *n)
     default:
         error("unknown node type: %d, %s", n->type, node_type(n->type));
     }
-    return 0; /* unreachable */
+    return 0;                   /* unreachable */
 }
 
 static int
@@ -548,6 +592,7 @@ assembler_jump_offsets(struct assembler *a, struct compiler *c)
             if (instr->i_opcode == OP_JMPX
                 || instr->i_opcode == OP_JMPZ
                 || instr->i_opcode == OP_SETUP_LOOP
+                || instr->i_opcode == OP_SETUP_TRY
                 || instr->i_opcode == OP_CONTINUE_LOOP) {
                 // absolutely
                 instr->i_oparg = instr->i_target->b_offset;
@@ -656,9 +701,6 @@ opcode_stack_effect(int opcode, int oparg)
         return -1;
     case OP_CALL_FUNCTION:
         return -oparg;
-    case OP_TRY:
-        // TODO
-        return 0;
     case OP_THROW:
         // TODO
         return 0;
@@ -676,6 +718,7 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_DICT_ADD:
         return -1;
     case OP_SETUP_LOOP:
+    case OP_SETUP_TRY:
     case OP_BLOCK_POP:
     case OP_BREAK_LOOP:
     case OP_CONTINUE_LOOP:
@@ -832,6 +875,7 @@ dump_code(COObject *code)
         case OP_CALL_FUNCTION:
         case OP_CMP:
         case OP_SETUP_LOOP:
+        case OP_SETUP_TRY:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             break;

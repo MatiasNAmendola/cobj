@@ -91,8 +91,10 @@ node_type(Node_Type type)
         GIVE_NAME(NODE_DICT_BUILD);
         GIVE_NAME(NODE_DICT_ADD);
         GIVE_NAME(NODE_TRY);
+        GIVE_NAME(NODE_CATCH);
         GIVE_NAME(NODE_BREAK);
         GIVE_NAME(NODE_CONTINUE);
+        GIVE_NAME(NODE_THROW);
     }
     error("unknown type: %d\n", type);
     return NULL;
@@ -117,18 +119,18 @@ node_print(Node *n)
     static int level = 1;
     indent_printf(level, "Node(%p, %s)\n", n, node_type(n->type));
     level++;
-    if (n->left) {
-        indent_printf(level, "->left\n", n, node_type(n->type));
-        node_print(n->left);
-    }
-    if (n->right) {
-        indent_printf(level, "->right\n", n, node_type(n->type));
-        node_print(n->right);
-    }
-    if (n->list) {
-        indent_printf(level, "->list\n", n, node_type(n->type));
-        nodelisttree(n->list);
-    }
+    /*if (n->left) { */
+    /*indent_printf(level, "->left\n", n, node_type(n->type)); */
+    /*node_print(n->left); */
+    /*} */
+    /*if (n->right) { */
+    /*indent_printf(level, "->right\n", n, node_type(n->type)); */
+    /*node_print(n->right); */
+    /*} */
+    /*if (n->list) { */
+    /*indent_printf(level, "->list\n", n, node_type(n->type)); */
+    /*nodelisttree(n->list); */
+    /*} */
     level--;
 }
 
