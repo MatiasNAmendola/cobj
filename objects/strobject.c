@@ -162,7 +162,6 @@ str_compare(COStrObject *this, COStrObject *that, int op)
         case Cmp_EQ:
         case Cmp_LE:
         case Cmp_GE:
-            printf("here\n");
             x = CO_True;
             goto end;
         case Cmp_NE:

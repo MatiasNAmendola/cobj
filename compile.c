@@ -437,7 +437,7 @@ compiler_visit_node(struct compiler *c, Node *n)
             compiler_visit_nodelist(c, n->nbody);
             compiler_addop_j(c, OP_JMPX, loop_start);
             compiler_use_next_block(c, loop_exit);
-            compiler_addop(c, OP_BLOCK_POP);
+            compiler_addop(c, OP_POP_BLOCK);
 
             compiler_pop_fblock(c, FB_LOOP, loop_start);
 
@@ -491,6 +491,7 @@ compiler_visit_node(struct compiler *c, Node *n)
             if (!compiler_push_fblock(c, FB_EXCEPT, body))
                 return 0;
             compiler_visit_nodelist(c, n->ntrybody);
+            compiler_addop(c, OP_POP_BLOCK);
             compiler_pop_fblock(c, FB_EXCEPT, body);
             compiler_addop_j(c, OP_JMPX, end);
 
@@ -499,18 +500,27 @@ compiler_visit_node(struct compiler *c, Node *n)
             int len = nodelist_len(l);
             int i = 0;
             compiler_use_next_block(c, handler);
-            for (; l; l = l->next) {
+            for (; l; l = l->next, i++) {
                 n = l->n;
                 if (!n->ncatchname && i < len - 1) {
+                    printf("len - 1: %d, i: %d\n", len - 1, i);
                     // default catch must be last
                     assert(0);
                 }
-                i++;
                 handler = compiler_new_block(c);
                 if (!handler)
                     return 0;
                 if (n->ncatchname) {
-                    // TODO
+                    NodeList *namelist = n->ncatchname;
+                    compiler_addop(c, OP_DUP_TOP);
+                    for (; namelist; namelist = namelist->next) {
+                        compiler_visit_node(c, namelist->n);
+                    }
+                    compiler_addop_i(c, OP_TUPLE_BUILD, nodelist_len(n->ncatchname));
+                    compiler_addop_i(c, OP_CMP, Cmp_EXC_MATCH);
+                    compiler_addop_j(c, OP_JMPZ, handler);
+                    compiler_addop(c, OP_POP_TOP);
+                    compiler_visit_nodelist(c, n->ncatchbody);
                 } else {
                     struct block *cleanup_body;
                     cleanup_body = compiler_new_block(c);
@@ -518,13 +528,20 @@ compiler_visit_node(struct compiler *c, Node *n)
                     compiler_visit_nodelist(c, n->ncatchbody);
                     compiler_pop_fblock(c, FB_FINALLY, cleanup_body);
                 }
+                compiler_addop_j(c, OP_JMPX, end);
                 compiler_use_next_block(c, handler);
             }
+            compiler_addop(c, OP_END_TRY);
             compiler_use_next_block(c, end);
         }
         break;
     case NODE_THROW:
-        compiler_addop(c, OP_THROW);
+        if (n->left) {
+            compiler_visit_node(c, n->left);
+            compiler_addop_i(c, OP_THROW, 1);
+        } else {
+            compiler_addop_i(c, OP_THROW, 0);
+        }
         break;
     case NODE_BREAK:
         compiler_addop(c, OP_BREAK_LOOP);
@@ -702,11 +719,7 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_CALL_FUNCTION:
         return -oparg;
     case OP_THROW:
-        // TODO
-        return 0;
-    case OP_CATCH:
-        // TODO
-        return 0;
+        return -oparg;
     case OP_LOAD_NAME:
     case OP_LOAD_CONST:
         return 1;
@@ -719,10 +732,16 @@ opcode_stack_effect(int opcode, int oparg)
         return -1;
     case OP_SETUP_LOOP:
     case OP_SETUP_TRY:
-    case OP_BLOCK_POP:
+    case OP_POP_BLOCK:
     case OP_BREAK_LOOP:
     case OP_CONTINUE_LOOP:
         return 0;
+    case OP_DUP_TOP:
+        return 1;
+    case OP_POP_TOP:
+        return -1;
+    case OP_END_TRY:
+        return -1;
     default:
         error("opcode_stack_effect error, opcode: %d\n", opcode);
     }
@@ -744,7 +763,7 @@ stackdepth_walk(struct compiler *c, struct block *b, int depth, int maxdepth)
         depth += opcode_stack_effect(instr->i_opcode, instr->i_oparg);
         if (depth > maxdepth)
             maxdepth = depth;
-        assert(depth >= 0);
+        /*assert(depth >= 0);*/
         if (instr->i_target) {
             base_depth = depth;
             maxdepth =
@@ -869,6 +888,12 @@ dump_code(COObject *code)
                                   (GETITEM(_code->co_names, oparg))));
             break;
         case OP_ASSIGN:
+            oparg = NEXTARG();
+            printf("\t\t%d", oparg);
+            printf(" (%s)",
+                   COStr_AsString(COObject_repr
+                                  (GETITEM(_code->co_names, oparg))));
+            break;
         case OP_JMP:
         case OP_JMPX:
         case OP_JMPZ:
@@ -876,6 +901,8 @@ dump_code(COObject *code)
         case OP_CMP:
         case OP_SETUP_LOOP:
         case OP_SETUP_TRY:
+        case OP_THROW:
+        case OP_TUPLE_BUILD:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             break;

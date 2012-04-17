@@ -30,7 +30,6 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_CALL_FUNCTION);
         GIVE_NAME(OP_SETUP_TRY);
         GIVE_NAME(OP_THROW);
-        GIVE_NAME(OP_CATCH);
         GIVE_NAME(OP_LOAD_NAME);
         GIVE_NAME(OP_LOAD_CONST);
         GIVE_NAME(OP_TUPLE_BUILD);
@@ -39,9 +38,13 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_DICT_BUILD);
         GIVE_NAME(OP_DICT_ADD);
         GIVE_NAME(OP_SETUP_LOOP);
-        GIVE_NAME(OP_BLOCK_POP);
+        GIVE_NAME(OP_POP_BLOCK);
         GIVE_NAME(OP_BREAK_LOOP);
         GIVE_NAME(OP_CONTINUE_LOOP);
+        GIVE_NAME(OP_POP_TRY);
+        GIVE_NAME(OP_DUP_TOP);
+        GIVE_NAME(OP_POP_TOP);
+        GIVE_NAME(OP_END_TRY);
     }
     error("unknow opcode: %d\n", opcode);
     return NULL;

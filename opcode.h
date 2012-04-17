@@ -25,18 +25,21 @@
 #define OP_CALL_FUNCTION            19
 #define OP_SETUP_TRY                20
 #define OP_THROW                    21
-#define OP_CATCH                    22
-#define OP_LOAD_NAME                23
-#define OP_LOAD_CONST               24
-#define OP_TUPLE_BUILD              25
-#define OP_LIST_BUILD               26
-#define OP_LIST_ADD                 27
-#define OP_DICT_BUILD               28
-#define OP_DICT_ADD                 29
-#define OP_SETUP_LOOP               30
-#define OP_BLOCK_POP                31
-#define OP_BREAK_LOOP               32
-#define OP_CONTINUE_LOOP            33
+#define OP_LOAD_NAME                22
+#define OP_LOAD_CONST               23
+#define OP_TUPLE_BUILD              24
+#define OP_LIST_BUILD               25
+#define OP_LIST_ADD                 26
+#define OP_DICT_BUILD               27
+#define OP_DICT_ADD                 28
+#define OP_SETUP_LOOP               29
+#define OP_POP_BLOCK                30
+#define OP_BREAK_LOOP               31
+#define OP_CONTINUE_LOOP            32
+#define OP_POP_TRY                  33
+#define OP_DUP_TOP                  34
+#define OP_POP_TOP                  35
+#define OP_END_TRY                  36
 
 /* OP_CMP's opargs */
 enum Cmp_OpArg {
@@ -46,6 +49,7 @@ enum Cmp_OpArg {
     Cmp_NE = 3,
     Cmp_GT = 4,
     Cmp_GE = 5,
+    Cmp_EXC_MATCH = 6,
 };
 
 char *opcode_name(unsigned char opcode);

@@ -65,7 +65,7 @@ return_none_node()
 %type <node> expr
 %type <list> stmt stmt_list start open_stmt_list
 %type <list> simple_stmt compound_stmt opt_else if_tail
-%type <list> expr_list non_empty_expr_list
+%type <list> expr_list non_empty_expr_list expr_list_inline non_empty_expr_list_inline
 %type <list> assoc_list non_empty_assoc_list
 %type <list> opt_param_list name_list non_empty_name_list
 %type <node> catch_block
@@ -223,6 +223,20 @@ opt_newlines:
     |   /* empty */
 ;
 
+expr_list_inline:
+        non_empty_expr_list_inline
+    |   /* empty */ { $$ = 0; }
+;
+
+non_empty_expr_list_inline:
+        expr {
+            $$ = nodelist($1, NULL);
+        }
+    |   non_empty_expr_list_inline ',' expr {
+            $$ = nodelist_append($1, $3);
+        }
+;
+
 expr_list:
         non_empty_expr_list opt_comma { $$ = $1; }
     |   /* empty */ { $$ = 0; }
@@ -332,7 +346,7 @@ compound_stmt:
             }
             $$ = nodelist(t, NULL);
         }
-    |   T_TRY stmt_list opt_catch_list opt_finally_block T_END {
+    |   T_TRY stmt_list opt_catch_list opt_else opt_finally_block T_END {
             Node *t = node_new(NODE_TRY, NULL, NULL);
             t->ntrybody = $2;
             t->ncatches = $3;
@@ -347,9 +361,10 @@ opt_finally_block:
 ;
 
 catch_block:
-        T_CATCH opt_param_list stmt_list {
+        T_CATCH expr_list_inline then stmt_list {
             $$ = node_new(NODE_CATCH, NULL, NULL);
-            $$->ncatchbody = $3;
+            $$->ncatchname = $2;
+            $$->ncatchbody = $4;
         }
 ;
 

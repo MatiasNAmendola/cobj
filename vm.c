@@ -55,6 +55,30 @@ COObject_set(COObject *name, COObject *co)
     return CODict_SetItem(current_frame->f_locals, name, co);
 }
 
+static inline COObject *
+_vm_cmp(int op, COObject *o1, COObject *o2)
+{
+    COObject *x;
+    switch (op) {
+    case Cmp_EXC_MATCH:
+        if (!COTuple_Check(o1)) {
+            assert(0);
+        }
+        int i = COTuple_Size(o1);
+        for (; --i >= 0;) {
+            if (COObject_CompareBool(COTuple_GET_ITEM(o1, i), o2, Cmp_EQ)) {
+                return CO_True;
+            }
+        }
+        return CO_False;
+        break;
+    default:
+        x = COObject_Compare(o2, o1, op);
+        break;
+    }
+    return x;
+}
+
 /*
  * Evaluate a function object into a object.
  */
@@ -68,6 +92,11 @@ vm_eval(COObject *func)
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
 #define PUSH(o)         (*stack_top++ = (o))
 #define POP()           (*--stack_top)
+#define TOP()           (stack_top[-1])
+#define SECOND()        (stack_top[-2])
+#define THIRD()         (stack_top[-3])
+#define FOURTH()        (stack_top[-4])
+#define PEEK(n)         (stack_top[-(n)])
 #define STACK_LEVEL()   ((int)(stack_top - frame->f_stack))
 #define UNWIND_BLOCK(b) \
     do { \
@@ -172,7 +201,7 @@ start_frame:                   /* reentry point when function return */
             o1 = POP();
             o2 = POP();
             oparg = NEXTARG();
-            x = COObject_Compare(o2, o1, oparg);
+            x = _vm_cmp(oparg, o1, o2);
             if (!x) {
                 status = STATUS_EXCEPTION;
                 goto fast_end;
@@ -209,6 +238,17 @@ start_frame:                   /* reentry point when function return */
         case OP_PRINT:
             x = POP();
             COObject_print(x);
+            break;
+        case OP_TUPLE_BUILD:
+            oparg = NEXTARG();
+            x = COTuple_New(oparg);
+            if (x != NULL) {
+                for (; --oparg >= 0;) {
+                    o1 = POP();
+                    COTuple_SET_ITEM(x, oparg, o1);
+                }
+                PUSH(x);
+            }
             break;
         case OP_LIST_BUILD:
             x = COList_New(0);
@@ -312,7 +352,13 @@ start_frame:                   /* reentry point when function return */
             oparg = NEXTARG();
             COFrameBlock_Setup(frame, opcode, oparg, STACK_LEVEL());
             break;
-        case OP_BLOCK_POP:
+        case OP_POP_BLOCK:
+            {
+                COFrameBlock *fb = COFrameBlock_Pop(frame);
+                UNWIND_BLOCK(fb);
+            }
+            break;
+        case OP_POP_TRY:
             {
                 COFrameBlock *fb = COFrameBlock_Pop(frame);
                 UNWIND_BLOCK(fb);
@@ -327,13 +373,28 @@ start_frame:                   /* reentry point when function return */
             break;
         case OP_THROW:
             status = STATUS_EXCEPTION;
-            COErr_SetString(COException_SystemError, "test exception");
+            o1 = POP();
+            COErr_SetObject(COException_SystemError, o1);
+            PUSH(o1);
+            break;
+        case OP_DUP_TOP:
+            o1 = TOP();
+            PUSH(o1);
+            break;
+        case OP_POP_TOP:
+            o1 = POP();
+            break;
+        case OP_END_TRY:
+            o1 = POP();
+            COErr_SetString(COException_SystemError, COStr_AsString(o1));
+            status = STATUS_EXCEPTION;
             break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);
         }
 
 fast_end:
+
         while (status != STATUS_NONE && frame->f_iblock > 0) {
             COFrameBlock *fb = &frame->f_blockstack[frame->f_iblock - 1];
             if (fb->fb_type == OP_SETUP_LOOP && status == STATUS_CONTINUE) {
@@ -352,6 +413,7 @@ fast_end:
                 status = STATUS_NONE;
                 COObject *exc, *val, *tb;
                 COErr_Fetch(&exc, &val, &tb);
+                PUSH(val);
                 JUMPTO(fb->fb_handler);
                 break;
             }

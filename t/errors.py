@@ -12,12 +12,73 @@ try
 end
 """, "no catch, no finally")
 
+test_expect_result(r"""SystemError: a
+""", r"""
+try
+    throw "a"
+end""", "no catch, no finally, throw")
+
 test_expect_result(r"""try-catch: try
+try-catch: catch a
 """, r"""
 try
     print "try-catch: try"
+    throw "a"
+    print "try-catch: after throw"
+catch "a"
+    print "try-catch: catch a"
+catch "b", "c"
+    print "try-catch: catch b or c"
 catch
-    print "try-catch: catch"
+    print "try-catch: default catch"
+end
+""")
+
+test_expect_result(r"""try-catch: try
+try-catch: catch b or c
+""", r"""
+try
+    print "try-catch: try"
+    throw "b"
+    print "try-catch: after throw"
+catch "a"
+    print "try-catch: catch a"
+catch "b", "c"
+    print "try-catch: catch b or c"
+catch
+    print "try-catch: default catch"
+end
+""")
+
+test_expect_result(r"""try-catch: try
+try-catch: catch b or c
+""", r"""
+try
+    print "try-catch: try"
+    throw "c"
+    print "try-catch: after throw"
+catch "a"
+    print "try-catch: catch a"
+catch "b", "c"
+    print "try-catch: catch b or c"
+catch
+    print "try-catch: default catch"
+end
+""")
+
+test_expect_result(r"""try-catch: try
+try-catch: default catch
+""", r"""
+try
+    print "try-catch: try"
+    throw "d"
+    print "try-catch: after throw"
+catch "a"
+    print "try-catch: catch a"
+catch "b", "c"
+    print "try-catch: catch b or c"
+catch
+    print "try-catch: default catch"
 end
 """)
 

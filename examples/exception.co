@@ -5,35 +5,43 @@
 #end
 
 #try
+    #throw 1
+#end
+
+#try
     #print "try-catch: try"
-    #throw 
+    #throw "a"
     #print "try-catch: after throw"
+#catch "a"
+    #print "try-catch: catch a"
+#catch "b", "c"
+    #print "try-catch: catch b or c"
 #catch
-    #print "try-catch: catch"
+    #print "try-catch: default catch"
 #end
 
 # nested 
-try
-    try
-        throw
-    catch
-        print "inner"
-        throw
-    end
-catch
-    print "outer"
-end
+#try
+    #try
+        #throw
+    #catch
+        #print "inner"
+        #throw
+    #end
+#catch
+    #print "outer"
+#end
 
 #try
     #print "try-finally: try"
-#finally
-    #print "try-finally: finally"
+#else
+    #print "no errors"
 #end
 
-#try
-    #print "try-catch-finally: try"
-#catch (a, b, c)
-    #print "try-catch-finally: catch 1"
-#finally
-    #print "try-catch-finally: finally"
-#end
+try
+    print "try-catch-finally: try"
+catch "a", "b", "c"
+    print "try-catch-finally: catch 1"
+finally
+    print "try-catch-finally: finally"
+end
