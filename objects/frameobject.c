@@ -26,6 +26,8 @@ COFrame_New(COObject *code)
     COFrameObject *f =
         COVarObject_New(COFrameObject, &COFrame_Type, _code->co_stacksize);
 
+    f->f_locals = CODict_New();
+
     f->f_stacktop = f->f_stack;
     f->f_prev = NULL;
     f->f_iblock = 0;

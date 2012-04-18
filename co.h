@@ -51,6 +51,7 @@
 #include "objects/fileobject.h"
 #include "objects/exceptionobject.h"
 #include "objects/capsuleobject.h"
+#include "objects/cfunctionobject.h"
 
 #include "argparse/argparse.h"
 #include "linenoise/linenoise.h"

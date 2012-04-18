@@ -16,10 +16,13 @@ typedef struct {
 
 typedef struct _COFrameObject {
     COVarObject_HEAD;
-    unsigned char *firstcode;
-    unsigned char *bytecode;
+
+    unsigned char *f_firstcode;
+    unsigned char *f_bytecode;
     COObject *f_prev;           /* previous frame, NULL indicates first frame */
     COObject *f_func;           /* function called on this frame */
+
+    COObject *f_builtins;       /* dict object for builtins names */
     COObject *f_locals;         /* dict object for names */
 
     int f_iblock;               /* index of block */

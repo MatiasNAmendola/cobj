@@ -85,10 +85,10 @@ _vm_cmp(int op, COObject *o1, COObject *o2)
 COObject *
 vm_eval(COObject *func)
 {
-#define JUMPBY(offset)  frame->bytecode += offset
-#define JUMPTO(offset)  frame->bytecode = frame->firstcode + offset
-#define NEXTOP()        (*frame->bytecode++)
-#define NEXTARG()       (frame->bytecode += 2, (frame->bytecode[-1]<<8) + frame->bytecode[-2])
+#define JUMPBY(offset)  frame->f_bytecode += offset
+#define JUMPTO(offset)  frame->f_bytecode = frame->f_firstcode + offset
+#define NEXTOP()        (*frame->f_bytecode++)
+#define NEXTARG()       (frame->f_bytecode += 2, (frame->f_bytecode[-1]<<8) + frame->f_bytecode[-2])
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
 #define PUSH(o)         (*stack_top++ = (o))
 #define POP()           (*--stack_top)
@@ -126,10 +126,9 @@ new_frame:                     /* reentry point when function call */
     code = (COCodeObject *)((COFunctionObject *)func)->func_code;
     frame = (COFrameObject *)COFrame_New((COObject *)code);
     frame->f_prev = TS(frame);
-    frame->f_locals = CODict_New();
     frame->f_func = func;
-    frame->bytecode = (unsigned char *)COBytes_AsString(code->co_code);
-    frame->firstcode = frame->bytecode;
+    frame->f_bytecode = (unsigned char *)COBytes_AsString(code->co_code);
+    frame->f_firstcode = frame->f_bytecode;
     TS(frame) = (COObject *)frame;
     stack_top = frame->f_stacktop;
     names = code->co_names;
