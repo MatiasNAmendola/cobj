@@ -1,10 +1,8 @@
-* implement vm_stack
+* built-in functions (print, etc)
+* reimplement vm_stack
 * dict/list subscript
 * support tuple literal
 * implement keyword this
 * add gc
-* built-in functions (print, etc)
 * error message with location
-* implement namespace & scope rules
-* % change dividend from divisor
 * fix cli bug

@@ -274,6 +274,7 @@ compiler_add(COObject *dict, COObject *o)
     }
     return arg;
 }
+
 /*
  * Add an opcode with no argument.
  */
@@ -533,7 +534,8 @@ compiler_visit_node(struct compiler *c, Node *n)
                     for (; namelist; namelist = namelist->next) {
                         compiler_visit_node(c, namelist->n);
                     }
-                    compiler_addop_i(c, OP_BUILD_TUPLE, nodelist_len(catch->ncatchname));
+                    compiler_addop_i(c, OP_BUILD_TUPLE,
+                                     nodelist_len(catch->ncatchname));
                     compiler_addop_i(c, OP_CMP, Cmp_EXC_MATCH);
                     compiler_addop_j(c, OP_JMPZ, handler);
                     compiler_addop(c, OP_POP_TOP);
@@ -792,7 +794,7 @@ stackdepth_walk(struct compiler *c, struct block *b, int depth, int maxdepth)
         depth += opcode_stack_effect(instr->i_opcode, instr->i_oparg);
         if (depth > maxdepth)
             maxdepth = depth;
-        /*assert(depth >= 0);*/
+        /*assert(depth >= 0); */
         if (instr->i_target) {
             base_depth = depth;
             maxdepth =

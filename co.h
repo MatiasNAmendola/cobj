@@ -32,6 +32,7 @@
 #include "gc.h"
 #include "ast.h"
 #include "state.h"
+#include "peephole.h"
 #include "object.h"
 #include "objects/typeobject.h"
 #include "objects/intobject.h"
