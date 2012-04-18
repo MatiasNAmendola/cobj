@@ -239,7 +239,7 @@ start_frame:                   /* reentry point when function return */
             x = POP();
             COObject_print(x);
             break;
-        case OP_TUPLE_BUILD:
+        case OP_BUILD_TUPLE:
             oparg = NEXTARG();
             x = COTuple_New(oparg);
             if (x != NULL) {
@@ -250,18 +250,20 @@ start_frame:                   /* reentry point when function return */
                 PUSH(x);
             }
             break;
-        case OP_LIST_BUILD:
-            x = COList_New(0);
-            PUSH(x);
-            break;
-        case OP_LIST_ADD:
-            o1 = POP();
-            o2 = POP();
-            COList_Append(o2, o1);
-            x = o2;
-            PUSH(x);
+        case OP_BUILD_LIST:
+            oparg = NEXTARG();
+            x = COList_New(oparg);
+            if (x != NULL) {
+                for (; --oparg >= 0;) {
+                    o1 = POP();
+                    COList_SetItem(x, oparg, o1);
+                }
+                PUSH(x);
+                continue;
+            }
             break;
         case OP_DICT_BUILD:
+            oparg = NEXTARG();
             x = CODict_New();
             PUSH(x);
             break;

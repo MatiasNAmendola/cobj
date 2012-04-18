@@ -178,14 +178,7 @@ expr: /* express something */
     |   '~' expr %prec UNARY_OP { $$ = node_new(NODE_UNARY, $2, NULL); $$->op =
     OP_UNARY_INVERT; }
     |   '[' expr_list ']' {
-            $$ = node_new(NODE_LIST_BUILD, NULL, NULL);
-            if ($2) {
-                NodeList *t = $2;
-                while (t) {
-                    t->n = node_new(NODE_LIST_ADD, t->n, NULL);
-                    t = t->next;
-                }
-            }
+            $$ = node_new(NODE_LIST, NULL, NULL);
             $$->list = $2;
         }
     |   '{' assoc_list '}' {

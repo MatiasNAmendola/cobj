@@ -27,21 +27,20 @@
 #define OP_THROW                    21
 #define OP_LOAD_NAME                22
 #define OP_LOAD_CONST               23
-#define OP_TUPLE_BUILD              24
-#define OP_LIST_BUILD               25
-#define OP_LIST_ADD                 26
-#define OP_DICT_BUILD               27
-#define OP_DICT_ADD                 28
-#define OP_SETUP_LOOP               29
-#define OP_POP_BLOCK                30
-#define OP_BREAK_LOOP               31
-#define OP_CONTINUE_LOOP            32
-#define OP_POP_TRY                  33
-#define OP_DUP_TOP                  34
-#define OP_POP_TOP                  35
-#define OP_END_TRY                  36
-#define OP_SETUP_FINALLY            37
-#define OP_END_FINALLY              38
+#define OP_BUILD_TUPLE              24
+#define OP_BUILD_LIST               25
+#define OP_DICT_BUILD               26
+#define OP_DICT_ADD                 27
+#define OP_SETUP_LOOP               28
+#define OP_POP_BLOCK                29
+#define OP_BREAK_LOOP               30
+#define OP_CONTINUE_LOOP            31
+#define OP_POP_TRY                  32
+#define OP_DUP_TOP                  33
+#define OP_POP_TOP                  34
+#define OP_END_TRY                  35
+#define OP_SETUP_FINALLY            36
+#define OP_END_FINALLY              37
 
 /* OP_CMP's opargs */
 enum Cmp_OpArg {

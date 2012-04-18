@@ -32,9 +32,8 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_THROW);
         GIVE_NAME(OP_LOAD_NAME);
         GIVE_NAME(OP_LOAD_CONST);
-        GIVE_NAME(OP_TUPLE_BUILD);
-        GIVE_NAME(OP_LIST_BUILD);
-        GIVE_NAME(OP_LIST_ADD);
+        GIVE_NAME(OP_BUILD_TUPLE);
+        GIVE_NAME(OP_BUILD_LIST);
         GIVE_NAME(OP_DICT_BUILD);
         GIVE_NAME(OP_DICT_ADD);
         GIVE_NAME(OP_SETUP_LOOP);

@@ -384,16 +384,12 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_visit_node(c, n->left);
         compiler_addop(c, n->op);
         break;
-    case NODE_LIST_BUILD:
-        compiler_addop(c, OP_LIST_BUILD);
+    case NODE_LIST:
         compiler_visit_nodelist(c, n->list);
-        break;
-    case NODE_LIST_ADD:
-        compiler_visit_node(c, n->left);
-        compiler_addop(c, OP_LIST_ADD);
+        compiler_addop_i(c, OP_BUILD_LIST, nodelist_len(n->list));
         break;
     case NODE_DICT_BUILD:
-        compiler_addop(c, OP_DICT_BUILD);
+        compiler_addop_i(c, OP_DICT_BUILD, nodelist_len(n->list));
         compiler_visit_nodelist(c, n->list);
         break;
     case NODE_DICT_ADD:
@@ -537,7 +533,7 @@ compiler_visit_node(struct compiler *c, Node *n)
                     for (; namelist; namelist = namelist->next) {
                         compiler_visit_node(c, namelist->n);
                     }
-                    compiler_addop_i(c, OP_TUPLE_BUILD, nodelist_len(catch->ncatchname));
+                    compiler_addop_i(c, OP_BUILD_TUPLE, nodelist_len(catch->ncatchname));
                     compiler_addop_i(c, OP_CMP, Cmp_EXC_MATCH);
                     compiler_addop_j(c, OP_JMPZ, handler);
                     compiler_addop(c, OP_POP_TOP);
@@ -754,11 +750,11 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_LOAD_NAME:
     case OP_LOAD_CONST:
         return 1;
-    case OP_TUPLE_BUILD:
-    case OP_LIST_BUILD:
+    case OP_BUILD_TUPLE:
+    case OP_BUILD_LIST:
+        return -oparg;
     case OP_DICT_BUILD:
         return 1;
-    case OP_LIST_ADD:
     case OP_DICT_ADD:
         return -1;
     case OP_SETUP_LOOP:
@@ -936,7 +932,9 @@ dump_code(COObject *code)
         case OP_SETUP_TRY:
         case OP_SETUP_FINALLY:
         case OP_THROW:
-        case OP_TUPLE_BUILD:
+        case OP_BUILD_TUPLE:
+        case OP_BUILD_LIST:
+        case OP_DICT_BUILD:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             break;
