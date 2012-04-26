@@ -838,6 +838,57 @@ stackdepth(struct compiler *c)
     return stackdepth_walk(c, entryblock, 0, 0);
 }
 
+static COObject *
+makecode(struct compiler *c, struct assembler *a)
+{
+    COBytes_Resize(a->a_bytecode, a->a_bytecode_offset);
+
+    COObject *tmp;
+
+    // Dict to List
+    COObject *consts = COList_New(0);
+    COObject *names = COList_New(0);
+    COObject *key;
+    COObject *val;
+
+    // consts
+    CODict_Rewind(c->u->consts);
+    while (CODict_Next(c->u->consts, &key, &val) == 0) {
+        COList_Insert(consts, COInt_AsLong(val), key);
+    }
+    tmp = consts;
+    consts = COList_AsTuple(tmp);
+    if (!consts) {
+        goto error;
+    }
+    CO_DECREF(tmp);
+
+    // names
+    CODict_Rewind(c->u->names);
+    while (CODict_Next(c->u->names, &key, &val) == 0) {
+        COList_Insert(names, COInt_AsLong(val), key);
+    }
+    tmp = names;
+    names = COList_AsTuple(tmp);
+    if (!names) {
+        goto error;
+    }
+    CO_DECREF(tmp);
+
+    // name
+    COObject *name = COStr_FromString("<main>");
+
+    COObject *co = COCode_New(name, a->a_bytecode,
+                      consts, names,
+                      c->u->argcount, stackdepth(c));
+
+error:
+    CO_XDECREF(name);
+    /*CO_XDECREF(consts);*/
+    CO_XDECREF(names);
+    return co;
+}
+
 /*
  * Assemble instructions into code object.
  */
@@ -870,30 +921,10 @@ assemble(struct compiler *c)
         }
     }
 
-    COBytes_Resize(a.a_bytecode, a.a_bytecode_offset);
+    COObject *co = makecode(c, &a);
 
-    // Dict to List
-    COObject *consts = COList_New(0);
-    COObject *names = COList_New(0);
-    COObject *key;
-    COObject *val;
-    // consts
-    CODict_Rewind(c->u->consts);
-    while (CODict_Next(c->u->consts, &key, &val) == 0) {
-        COList_Insert(consts, COInt_AsLong(val), key);
-    }
-    c->u->consts = consts;
-    // names
-    CODict_Rewind(c->u->names);
-    while (CODict_Next(c->u->names, &key, &val) == 0) {
-        COList_Insert(names, COInt_AsLong(val), key);
-    }
-    c->u->names = names;
-
-    COObject *co = COCode_New(COStr_FromString("<main>"), a.a_bytecode,
-                      COList_AsTuple(c->u->consts), COList_AsTuple(c->u->names),
-                      c->u->argcount, stackdepth(c));
     assembler_free(&a);
+
     return co;
 }
 

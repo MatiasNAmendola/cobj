@@ -63,6 +63,9 @@ bytes_hash(COBytesObject *this)
 static void
 bytes_dealloc(COBytesObject *this)
 {
+    if (this->co_bytes) {
+        COMem_FREE(this->co_bytes);
+    }
     COMem_FREE(this);
 }
 

@@ -29,6 +29,7 @@ list_dealloc(COListObject *this)
         while (--i >= 0)
             CO_XDECREF(this->co_item[i]);
     }
+    COMem_FREE(this->co_item);
     COMem_FREE(this);
 }
 
@@ -260,6 +261,7 @@ COList_AsTuple(COObject *this)
     q = ((COListObject *)this)->co_item;
 
     while (n-- > 0) {
+        CO_INCREF(*q);
         *p = *q;
         p++;
         q++;

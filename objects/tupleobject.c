@@ -44,6 +44,9 @@ tuple_dealloc(COTupleObject *this)
         while (--i >= 0)
             CO_XDECREF(this->co_item[i]);
     }
+    if (this->co_item) {
+        COMem_FREE(this->co_item);
+    }
     COMem_FREE(this);
 }
 

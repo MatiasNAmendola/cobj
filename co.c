@@ -57,6 +57,7 @@ eval_wrapper(COObject *co)
             return NULL;
         }
     }
+    CO_DECREF(co);
     return ret;
 }
 
@@ -146,6 +147,7 @@ main(int argc, const char **argv)
         f = fopen("a.out", "wb");
         marshal_tofile(COInt_FromLong(CODEDUMP_MAGIC), f);
         marshal_tofile(code, f);
+        CO_DECREF(code);
         return 0;
     }
 

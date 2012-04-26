@@ -1,5 +1,12 @@
 #include "../co.h"
 
+/*
+ * free_list is a singly-linked list of available COIntObjects, linked via abuse
+ * of there co_type slots.
+ */
+static COIntObject *free_list = NULL;
+
+
 #define MAX_LONG_DIGITS \
     ((SIZE_MAX - offsetof(COIntObject, co_digit))/sizeof(digit))
 #define ABS(x) ((x) < 0 ? -(x) : (x))
@@ -1123,7 +1130,9 @@ int_compare(COIntObject *this, COIntObject *that, int op)
 static void
 int_dealloc(COIntObject *this)
 {
-    COMem_FREE(this);
+    // abuse co_type slot
+    CO_TYPE(this) = (COTypeObject *)free_list;
+    free_list = this;
 }
 
 COTypeObject COInt_Type = {

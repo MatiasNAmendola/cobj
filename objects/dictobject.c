@@ -22,10 +22,11 @@ dict_dealloc(CODictObject *this)
 {
     DictBucket *pCursor;
 
-    while ((pCursor = this->pListHead)) {
+    pCursor = this->pListHead;
+    while (pCursor) {
         CO_XDECREF(pCursor->pKey);
         CO_XDECREF(pCursor->pItem);
-        pCursor = this->pListHead->pListNext;
+        pCursor = pCursor->pListNext;
     }
 
     COMem_FREE(this);
@@ -160,6 +161,8 @@ _dict_insert(CODictObject *this, COObject *key, COObject *item)
         _dict_do_resize(this);
     }
 
+    CO_INCREF(key);
+    CO_INCREF(item);
     return 0;
 }
 
