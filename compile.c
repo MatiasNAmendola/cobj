@@ -147,8 +147,18 @@ compiler_pop_fblock(struct compiler *c, enum fblocktype type, struct block *b)
 static void
 compiler_unit_free(struct compiler_unit *u)
 {
+    struct block *b, *next;
+    b = u->u_blocklist;
+    while (b) {
+        if (b->b_instr)
+            COMem_FREE(b->b_instr);
+        next = b->b_listnext;
+        COMem_FREE(b);
+        b = next;
+    }
     CO_DECREF(u->names);
     CO_DECREF(u->consts);
+    COMem_FREE(u);
 }
 
 static void

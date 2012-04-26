@@ -434,6 +434,5 @@ fast_end:
     }
 
 vm_exit:
-    /*CO_XDECREF(frame);*/
     return x;
 }

@@ -19,6 +19,8 @@ frame_dealloc(COFrameObject *this)
             CO_XDECREF(*p);
         }
     }
+
+    COMem_FREE(this);
 }
 
 COTypeObject COFrame_Type = {
