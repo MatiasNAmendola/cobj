@@ -7,6 +7,7 @@ return_none_node()
     Node *n;
     n = COMem_MALLOC(sizeof(Node));
     n->o = CO_None;
+    CO_INCREF(CO_None);
     n->type = NODE_CONST;
     return node_new(NODE_RETURN, n, NULL);
 }
