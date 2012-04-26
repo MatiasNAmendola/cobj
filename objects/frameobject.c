@@ -9,9 +9,7 @@ frame_repr(COFrameObject *this)
 static void
 frame_dealloc(COFrameObject *this)
 {
-    CO_XDECREF(this->f_prev);
     CO_XDECREF(this->f_func);
-    CO_XDECREF(this->f_builtins);
     CO_XDECREF(this->f_locals);
 
     /* free stack */
