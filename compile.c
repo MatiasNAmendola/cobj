@@ -147,7 +147,8 @@ compiler_pop_fblock(struct compiler *c, enum fblocktype type, struct block *b)
 static void
 compiler_unit_free(struct compiler_unit *u)
 {
-    // TODO
+    CO_DECREF(u->names);
+    CO_DECREF(u->consts);
 }
 
 static void
@@ -217,6 +218,9 @@ compile(void)
 #ifdef CO_DEBUG
     dump_code(co);
 #endif
+
+    // free compiler
+    CO_DECREF(c.stack);
     return co;
 }
 
