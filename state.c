@@ -10,6 +10,7 @@ COThreadState_New()
         // TODO
     }
     state->funcargs = COList_New(0);
+    state->frame = NULL;
 
     return state;
 }

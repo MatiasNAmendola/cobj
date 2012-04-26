@@ -37,7 +37,7 @@ _dict_rehash(CODictObject *this)
 
     unsigned int nIndex;
 
-    memset(this->arBuckets, 0, this->nTableSize * sizeof(DictBucket *));
+    memset(this->arBuckets, 0, (this->nTableMask + 1) * sizeof(DictBucket *));
     p = this->pListHead;
     while (p != NULL) {
         nIndex = p->h & this->nTableMask;
@@ -52,13 +52,12 @@ _dict_do_resize(CODictObject *this)
 {
     DictBucket **t;
 
-    if ((this->nTableSize << 1) > 0) {  // double the table size
+    if (((this->nTableMask + 1) << 1) > 0) {  // double the table size
         t = (DictBucket **)COMem_REALLOC(this->arBuckets,
-                                         (this->nTableSize << 1) *
+                                         ((this->nTableMask + 1) << 1) *
                                          sizeof(DictBucket *));
         this->arBuckets = t;
-        this->nTableSize = this->nTableSize << 1;
-        this->nTableMask = this->nTableSize - 1;
+        this->nTableMask = this->nTableMask << 1;
         _dict_rehash(this);
         return 0;
     }
@@ -142,7 +141,7 @@ _dict_insert(CODictObject *this, COObject *key, COObject *item)
     this->arBuckets[nIndex] = p;
     this->nNumOfElements++;
 
-    if (this->nNumOfElements > this->nTableSize) {
+    if (this->nNumOfElements > (this->nTableMask + 1)) {
         _dict_do_resize(this);
     }
 
@@ -270,7 +269,7 @@ CODict_Clear(COObject *this)
         p = p->pListNext;
     }
     memset(((CODictObject *)this)->arBuckets, 0,
-           ((CODictObject *)this)->nTableSize * sizeof(DictBucket *));
+           (((CODictObject *)this)->nTableMask + 1) * sizeof(DictBucket *));
     ((CODictObject *)this)->pListHead = NULL;
     ((CODictObject *)this)->pListTail = NULL;
     ((CODictObject *)this)->nNumOfElements = 0;

@@ -28,8 +28,9 @@ typedef struct _DictBucket {
 
 typedef struct _CODictObject {
     COObject_HEAD;
-    unsigned int nTableSize;
-    /* The table contains mask + 1 slots, and that is a power of 2.
+    /* 
+     * The table contains mask + 1 slots, and that is a power of 2.
+     * nTableSize = nTableMask + 1
      */
     unsigned int nTableMask;
     unsigned int nNumOfElements;

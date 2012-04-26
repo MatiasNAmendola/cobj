@@ -50,9 +50,13 @@ COCode_New(COObject *name, COObject *code, COObject *consts, COObject *names,
     COCodeObject *co = COObject_New(COCodeObject, &COCode_Type);
 
     co->co_name = name;
+    CO_INCREF(name);
     co->co_code = code;
+    CO_INCREF(code);
     co->co_consts = consts;
+    CO_INCREF(consts);
     co->co_names = names;
+    CO_INCREF(names);
     co->co_argcount = argcount;
     co->co_stacksize = stacksize;
 

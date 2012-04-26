@@ -712,6 +712,13 @@ assembler_init(struct assembler *a, int nblocks)
     return 0;
 }
 
+static void
+assembler_free(struct assembler *a)
+{
+    CO_XDECREF(a->a_bytecode);
+    COMem_FREE(a->a_postorder);
+}
+
 static int
 opcode_stack_effect(int opcode, int oparg)
 {
@@ -879,9 +886,11 @@ assemble(struct compiler *c)
     }
     c->u->names = names;
 
-    return COCode_New(COStr_FromString("<main>"), a.a_bytecode,
+    COObject *co = COCode_New(COStr_FromString("<main>"), a.a_bytecode,
                       COList_AsTuple(c->u->consts), COList_AsTuple(c->u->names),
                       c->u->argcount, stackdepth(c));
+    assembler_free(&a);
+    return co;
 }
 
 #ifdef CO_DEBUG

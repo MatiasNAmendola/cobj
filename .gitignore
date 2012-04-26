@@ -6,3 +6,4 @@ co
 parser.[ch]
 scanner.[ch]
 *.output
+co.dSYM/

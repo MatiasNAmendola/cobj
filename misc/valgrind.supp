@@ -1,0 +1,8 @@
+#
+# This is a valgrind suppression file that should be used when using valgrind.
+#
+# Example:
+#
+#   valgrind --tool=memcheck --suppressions=misc/valgrind.supp ./co -e ''
+#   valgrind --dsymutil=yes --tool=memcheck --suppressions=misc/valgrind.supp ./co -e ''
+#
