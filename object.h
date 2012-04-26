@@ -68,6 +68,8 @@ typedef struct _COVarObject {
     ssize_t co_size;
 } COVarObject;
 
+void _CO_NegativeRefCnt(const char *fname, int lineno, COObject *co);
+
 #define CO_TYPE(co)     (((COObject *)(co))->co_type)
 #define CO_REFCNT(co)     (((COObject *)(co))->co_refcnt)
 #define CO_SIZE(co)     (((COVarObject *)(co))->co_size)
@@ -80,9 +82,13 @@ typedef struct _COVarObject {
 #define CO_INCREF(co)   (((COObject *)co)->co_refcnt++)
 #define CO_DECREF(co)   \
     do {                \
-        if (--((COObject *)co)->co_refcnt == 0) { \
+        if (--((COObject *)co)->co_refcnt != 0) { \
+            if (((COObject *)co)->co_refcnt < 0) { \
+                _CO_NegativeRefCnt(__FILE__, __LINE__, (COObject *)(co));  \
+            } \
+        } else { \
             (CO_TYPE(co)->tp_dealloc)((COObject *)(co)); \
-        }   \
+        } \
     } while (0)
 
 /* Macros to used in case the object pointer may be NULL: */

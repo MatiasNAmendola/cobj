@@ -178,3 +178,11 @@ COObject_IsTrue(COObject *o)
     }
     return (size == 0) ? 0 : 1;
 }
+
+void 
+_CO_NegativeRefCnt(const char *fname, int lineno, COObject *co)
+{
+    char buf[256];
+    snprintf(buf, sizeof(buf), "%s:%i object at %p has negative ref count: %d", fname, lineno, co, co->co_refcnt);
+    exit(-1);
+}
