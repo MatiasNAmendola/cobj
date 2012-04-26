@@ -30,11 +30,22 @@ code_hash(COCodeObject *co)
     return h;
 }
 
+static void
+code_dealloc(COCodeObject *this)
+{
+    CO_XDECREF(this->co_name);
+    CO_XDECREF(this->co_code);
+    CO_XDECREF(this->co_consts);
+    CO_XDECREF(this->co_names);
+    COMem_FREE(this);
+}
+
 COTypeObject COCode_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "code",
     sizeof(COCodeObject),
     0,
+    (deallocfunc)code_dealloc,  /* tp_dealloc */
     (reprfunc)code_repr,        /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */

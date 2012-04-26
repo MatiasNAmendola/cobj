@@ -8,11 +8,18 @@ type_repr(COTypeObject *this)
     return s;
 }
 
+static void
+type_dealloc(COTypeObject *this)
+{
+    COMem_FREE(this);
+}
+
 COTypeObject COType_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "type",
     sizeof(COTypeObject),
     0,
+    (deallocfunc)type_dealloc,  /* tp_dealloc */
     (reprfunc)type_repr,        /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
@@ -20,3 +27,13 @@ COTypeObject COType_Type = {
     0,                          /* tp_compare */
     0,                          /* tp_int_interface */
 };
+
+
+/*
+ * If object should never be deallocated, use this.
+ */
+void 
+default_dealloc(COObject *this)
+{
+    COErr_BadInternalCall();
+}

@@ -8,11 +8,18 @@ float_repr(COFloatObject *this)
     return COStr_FromStringN(buffer, n);
 }
 
+static void
+float_dealloc(COFloatObject *this)
+{
+    COMem_FREE(this);
+}
+
 COTypeObject COFloat_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "float",
     sizeof(COFloatObject),
     0,
+    (deallocfunc)float_dealloc, /* tp_dealloc */
     (reprfunc)float_repr,       /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */

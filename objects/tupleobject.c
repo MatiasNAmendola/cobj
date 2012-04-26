@@ -34,11 +34,25 @@ tuple_hash(COTupleObject *this)
     return x;
 }
 
+static void
+tuple_dealloc(COTupleObject *this)
+{
+    ssize_t len = this->co_size;
+    size_t i;
+    if (len > 0) {
+        i = len;
+        while (--i >= 0)
+            CO_XDECREF(this->co_item[i]);
+    }
+    COMem_FREE(this);
+}
+
 COTypeObject COTuple_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "tuple",
     sizeof(COTupleObject),
     0,
+    (deallocfunc)tuple_dealloc, /* tp_dealloc */
     (reprfunc)tuple_repr,       /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */

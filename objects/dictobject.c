@@ -17,11 +17,26 @@ dict_repr(CODictObject *this)
     return COStr_FromFormat("<dict 'size: %d'>", this->nNumOfElements);
 }
 
+static void
+dict_dealloc(CODictObject *this)
+{
+    DictBucket *pCursor;
+
+    while ((pCursor = this->pListHead)) {
+        CO_XDECREF(pCursor->pKey);
+        CO_XDECREF(pCursor->pItem);
+        pCursor = this->pListHead->pListNext;
+    }
+
+    COMem_FREE(this);
+}
+
 COTypeObject CODict_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "dict",
     sizeof(CODictObject),
     0,
+    (deallocfunc)dict_dealloc,  /* tp_dealloc */
     (reprfunc)dict_repr,        /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */

@@ -167,7 +167,7 @@ compiler_enter_scope(struct compiler *c)
 
     /* Push the old compiler_unit on the stack. */
     if (c->u) {
-        COObject *capsule = COCapsule_New(c->u);
+        COObject *capsule = COCapsule_New(c->u, NULL);
         if (COList_Append(c->stack, capsule) < 0) {
             compiler_unit_free(u);
             return;

@@ -10,17 +10,27 @@ function_repr(COFunctionObject *this)
     return s;
 }
 
+static void
+function_dealloc(COFunctionObject *this)
+{
+    CO_XDECREF(this->func_name);
+    CO_XDECREF(this->func_upvalues);
+    CO_XDECREF(this->func_code);
+    COMem_FREE(this);
+}
+
 COTypeObject COFunction_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "function",
     sizeof(COFunctionObject),
     0,
-    (reprfunc)function_repr,    /* tp_repr */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
-    0,                          /* tp_hash */
-    0,                          /* tp_compare */
-    0,                          /* tp_int_interface */
+    (deallocfunc)function_dealloc,  /* tp_dealloc */
+    (reprfunc)function_repr,        /* tp_repr */
+    0,                              /* tp_getattr */
+    0,                              /* tp_setattr */
+    0,                              /* tp_hash */
+    0,                              /* tp_compare */
+    0,                              /* tp_int_interface */
 };
 
 COObject *

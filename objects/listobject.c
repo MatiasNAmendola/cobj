@@ -19,11 +19,25 @@ list_repr(COObject *this)
     return s;
 }
 
+static void
+list_dealloc(COListObject *this)
+{
+    ssize_t len = this->co_size;
+    size_t i;
+    if (len > 0) {
+        i = len;
+        while (--i >= 0)
+            CO_XDECREF(this->co_item[i]);
+    }
+    COMem_FREE(this);
+}
+
 COTypeObject COList_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "list",
     sizeof(COListObject),
     0,
+    (deallocfunc)list_dealloc,  /* tp_dealloc */
     (reprfunc)list_repr,        /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */

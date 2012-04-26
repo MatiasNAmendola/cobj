@@ -22,6 +22,7 @@ COTypeObject COBool_Type = {
     "bool",
     sizeof(long),
     0,
+    default_dealloc,            /* tp_dealloc */
     bool_repr,                  /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */

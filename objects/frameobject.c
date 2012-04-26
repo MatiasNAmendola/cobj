@@ -1,9 +1,26 @@
 #include "../co.h"
 
 static COObject *
-stack_repr(COFrameObject *this)
+frame_repr(COFrameObject *this)
 {
     return COStr_FromString("<stack>");
+}
+
+static void
+frame_dealloc(COFrameObject *this)
+{
+    CO_XDECREF(this->f_prev);
+    CO_XDECREF(this->f_func);
+    CO_XDECREF(this->f_builtins);
+    CO_XDECREF(this->f_locals);
+
+    /* free stack */
+    COObject **p;
+    if (this->f_stacktop != NULL) {
+        for (p = this->f_stack; p < this->f_stacktop; p++) {
+            CO_XDECREF(*p);
+        }
+    }
 }
 
 COTypeObject COFrame_Type = {
@@ -11,7 +28,8 @@ COTypeObject COFrame_Type = {
     "stack",
     sizeof(COFrameObject),
     sizeof(COObject *),
-    (reprfunc)stack_repr,       /* tp_repr */
+    (deallocfunc)frame_dealloc, /* tp_dealloc */
+    (reprfunc)frame_repr,       /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_hash */

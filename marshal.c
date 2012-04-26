@@ -28,7 +28,7 @@ typedef WFILE RFILE;
 #define TYPE_REFER      'r'
 
 #define SET_OBJECT(co) \
-    CODict_SetItem(p->objects, COInt_FromLong(offset), COCapsule_New(co))
+    CODict_SetItem(p->objects, COInt_FromLong(offset), COCapsule_New(co, NULL))
 
 #define w_byte(c, p)                        \
     if (((p)->fp)) {                        \

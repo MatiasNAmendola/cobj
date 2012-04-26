@@ -12,11 +12,20 @@ file_repr(COExceptionObject *this)
     return COStr_FromString("<Exception>");
 }
 
+static void
+file_dealloc(COFileObject *this)
+{
+    CO_XDECREF(this->f_name);
+    CO_XDECREF(this->f_mode);
+    COMem_FREE(this);
+}
+
 COTypeObject COFile_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "file",
     sizeof(COFileObject),
     0,
+    (deallocfunc)file_dealloc,  /* tp_dealloc */
     (reprfunc)file_repr,        /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */

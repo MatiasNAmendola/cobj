@@ -80,7 +80,9 @@ typedef struct _COVarObject {
 #define CO_INCREF(co)   (((COObject *)co)->co_refcnt++)
 #define CO_DECREF(co)   \
     do {                \
-        if (--((COObject *)co)->co_refcnt == 0) COMem_FREE(co);    \
+        if (--((COObject *)co)->co_refcnt == 0) { \
+            (CO_TYPE(co)->tp_dealloc)((COObject *)(co)); \
+        }   \
     } while (0)
 
 /* Macros to used in case the object pointer may be NULL: */

@@ -60,11 +60,18 @@ bytes_hash(COBytesObject *this)
     return x;
 }
 
+static void
+bytes_dealloc(COBytesObject *this)
+{
+    COMem_FREE(this);
+}
+
 COTypeObject COBytes_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "bytes",
     sizeof(COBytesObject),
     0,
+    (deallocfunc)bytes_dealloc, /* tp_dealloc */
     (reprfunc)bytes_repr,       /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */

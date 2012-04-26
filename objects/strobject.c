@@ -225,11 +225,18 @@ end:
     return x;
 }
 
+static void
+str_dealloc(COStrObject *this)
+{
+    COMem_FREE(this);
+}
+
 COTypeObject COStr_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "str",
     COStr_BASESIZE,
     sizeof(char),
+    (deallocfunc)str_dealloc,   /* tp_dealloc */
     (reprfunc)str_repr,         /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */

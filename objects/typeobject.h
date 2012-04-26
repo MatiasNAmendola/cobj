@@ -4,6 +4,7 @@
 #include "../object.h"
 
 /* Object Methods */
+typedef void (*deallocfunc)(COObject *);
 typedef COObject *(*reprfunc)(COObject *);
 typedef COObject *(*getattrfunc)(COObject *, char *);
 typedef int (*setattrfunc) (COObject *, char *, COObject *);
@@ -34,6 +35,7 @@ struct _COTypeObject {
     int tp_itemsize;
 
     /* Basic Methods  */
+    deallocfunc tp_dealloc;
     reprfunc tp_repr;
     getattrfunc tp_getattr;
     setattrfunc tp_setattr;
@@ -47,5 +49,7 @@ struct _COTypeObject {
 COTypeObject COType_Type;
 
 #define COType_Check(co) (CO_TYPE(co) == &COType_Type)
+
+void default_dealloc(COObject *this);
 
 #endif

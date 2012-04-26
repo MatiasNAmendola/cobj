@@ -1120,11 +1120,18 @@ int_compare(COIntObject *this, COIntObject *that, int op)
     return x;
 }
 
+static void
+int_dealloc(COIntObject *this)
+{
+    COMem_FREE(this);
+}
+
 COTypeObject COInt_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "int",
     offsetof(COIntObject, co_digit),
     sizeof(digit),
+    (deallocfunc)int_dealloc,   /* tp_dealloc */
     (reprfunc)int_repr,         /* tp_repr */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
