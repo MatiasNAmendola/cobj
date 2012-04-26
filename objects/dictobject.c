@@ -20,13 +20,15 @@ dict_repr(CODictObject *this)
 static void
 dict_dealloc(CODictObject *this)
 {
-    DictBucket *pCursor;
+    DictBucket *pCursor, *tmp;
 
     pCursor = this->pListHead;
     while (pCursor) {
         CO_XDECREF(pCursor->pKey);
         CO_XDECREF(pCursor->pItem);
+        tmp = pCursor;
         pCursor = pCursor->pListNext;
+        COMem_FREE(tmp);
     }
 
     COMem_FREE(this->arBuckets);

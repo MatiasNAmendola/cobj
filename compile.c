@@ -221,6 +221,8 @@ compile(void)
 
     // free compiler
     CO_DECREF(c.stack);
+    nodelist_free(c.xtop);
+
     return co;
 }
 

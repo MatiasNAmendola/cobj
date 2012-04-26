@@ -85,5 +85,6 @@ NodeList *nodelist_changetype(NodeList *l, Node_Type t);
 void nodelisttree(NodeList *n);
 const char *node_type(Node_Type type);
 void node_print(Node *n);
+void nodelist_free(NodeList *l);
 
 #endif

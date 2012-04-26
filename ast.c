@@ -8,6 +8,7 @@ node_new(Node_Type type, Node *nleft, Node *nright)
 {
     Node *n;
     n = COMem_MALLOC(sizeof(*n));
+    memset(n, 0, sizeof(*n));
     n->type = type;
     n->left = nleft;
     n->right = nright;
@@ -50,6 +51,7 @@ nodelist(Node *n, ...)
 
     if (n) {
         l = COMem_MALLOC(sizeof(*l));
+        memset(l, 0, sizeof(*l));
         l->n = n;
         l->next = NULL;
         l->end = l;
@@ -166,4 +168,56 @@ nodelist_changetype(NodeList *l, Node_Type t)
         l = l->next;
     }
     return l;
+}
+
+void
+node_free(Node *n)
+{
+#define TRY_NODE_FREE(a) \
+    if (n->a) { \
+        node_free(n->a); \
+    }
+
+#define TRY_NODELIST_FREE(l) \
+    if (n->l) { \
+        nodelist_free(n->l); \
+    }
+    if (!n) {
+        return;
+    }
+
+    TRY_NODE_FREE(left);
+    TRY_NODE_FREE(right);
+
+    TRY_NODELIST_FREE(list);
+
+    TRY_NODE_FREE(ntest);
+    TRY_NODELIST_FREE(nbody);
+    TRY_NODELIST_FREE(nelse);
+
+    TRY_NODE_FREE(nfuncname);
+    TRY_NODELIST_FREE(nfuncargs);
+    TRY_NODELIST_FREE(nfuncbody);
+
+    TRY_NODELIST_FREE(ntrybody);
+    TRY_NODELIST_FREE(ncatches);
+    TRY_NODELIST_FREE(norelse);
+    TRY_NODELIST_FREE(nfinally);
+
+    TRY_NODELIST_FREE(ncatchname);
+    TRY_NODELIST_FREE(ncatchbody);
+
+    COMem_FREE(n);
+}
+
+void
+nodelist_free(NodeList *l)
+{
+    NodeList *tmp;
+    while (l) {
+        tmp = l;
+        /*node_free(l->n);*/
+        l = l->next;
+        COMem_FREE(tmp);
+    }
 }
