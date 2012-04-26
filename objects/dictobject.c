@@ -29,6 +29,7 @@ dict_dealloc(CODictObject *this)
         pCursor = pCursor->pListNext;
     }
 
+    COMem_FREE(this->arBuckets);
     COMem_FREE(this);
 }
 

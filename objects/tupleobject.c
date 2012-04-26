@@ -38,11 +38,12 @@ static void
 tuple_dealloc(COTupleObject *this)
 {
     ssize_t len = this->co_size;
-    size_t i;
+    ssize_t i;
     if (len > 0) {
         i = len;
-        while (--i >= 0)
+        while (--i >= 0) {
             CO_XDECREF(this->co_item[i]);
+        }
     }
     if (this->co_item) {
         COMem_FREE(this->co_item);

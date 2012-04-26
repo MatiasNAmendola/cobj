@@ -57,7 +57,6 @@ eval_wrapper(COObject *co)
             return NULL;
         }
     }
-    CO_DECREF(co);
     return ret;
 }
 
@@ -129,7 +128,9 @@ main(int argc, const char **argv)
             /* Read-Eval-Print Loop */
             while ((code = linenoise(">>> ")) != NULL) {
                 co_scanner_setcode(code);
-                eval_wrapper(compile());
+                COObject *co = compile();
+                eval_wrapper(co);
+                CO_DECREF(co);
                 linenoiseHistoryAdd(code);
                 if (history_path) {
                     linenoiseHistorySave(history_path);
@@ -151,5 +152,7 @@ main(int argc, const char **argv)
         return 0;
     }
 
-    return eval_wrapper(code) ? 0 : -1;
+    int ret = eval_wrapper(code) ? 0 : -1;
+    CO_DECREF(code);
+    return ret;
 }

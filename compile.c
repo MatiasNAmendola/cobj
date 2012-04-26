@@ -884,7 +884,7 @@ makecode(struct compiler *c, struct assembler *a)
 
 error:
     CO_XDECREF(name);
-    /*CO_XDECREF(consts);*/
+    CO_XDECREF(consts);
     CO_XDECREF(names);
     return co;
 }
