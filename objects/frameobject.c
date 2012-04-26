@@ -38,24 +38,24 @@ COTypeObject COFrame_Type = {
 };
 
 COObject *
-COFrame_New(COObject *code)
+COFrame_New(COObject *code, COObject *prev, COObject *func)
 {
     COCodeObject *_code = (COCodeObject *)code;
     COFrameObject *f =
         COVarObject_New(COFrameObject, &COFrame_Type, _code->co_stacksize);
 
+    f->f_prev = prev;
+    CO_XINCREF(prev);
+    f->f_func = func;
+    CO_XINCREF(func);
+    f->f_bytecode = (unsigned char *)COBytes_AsString(_code->co_code);
+    f->f_firstcode = f->f_bytecode;
+
     f->f_locals = CODict_New();
 
     f->f_stacktop = f->f_stack;
-    f->f_prev = NULL;
     f->f_iblock = 0;
     return (COObject *)f;
-}
-
-void
-COFrame_Destory(COObject *this)
-{
-    COMem_FREE(this);
 }
 
 void
