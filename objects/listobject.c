@@ -186,6 +186,8 @@ COList_DelItem(COObject *this, ssize_t index)
     }
 
     COObject **items = ((COListObject *)this)->co_item;
+    CO_DECREF(items[index]);
+
     ssize_t i;
     for (i = 0; i < n; i++) {
         if (i > index) {

@@ -172,9 +172,11 @@ compiler_enter_scope(struct compiler *c)
     if (c->u) {
         COObject *capsule = COCapsule_New(c->u, NULL);
         if (COList_Append(c->stack, capsule) < 0) {
+            CO_DECREF(capsule);
             compiler_unit_free(u);
             return;
         }
+        CO_DECREF(capsule);
     }
 
     c->u = u;
@@ -853,6 +855,7 @@ makecode(struct compiler *c, struct assembler *a)
     // Dict to List
     COObject *consts = COList_New(0);
     COObject *names = COList_New(0);
+    COObject *name = NULL;
     COObject *key;
     COObject *val;
 
@@ -881,7 +884,7 @@ makecode(struct compiler *c, struct assembler *a)
     CO_DECREF(tmp);
 
     // name
-    COObject *name = COStr_FromString("<main>");
+    name = COStr_FromString("<main>");
 
     COObject *co = COCode_New(name, a->a_bytecode,
                               consts, names,
