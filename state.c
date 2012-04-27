@@ -12,6 +12,10 @@ COThreadState_New()
     state->funcargs = COList_New(0);
     state->frame = NULL;
 
+    state->curexc_type = NULL;
+    state->curexc_value = NULL;
+    state->curexc_traceback = NULL;
+
     return state;
 }
 

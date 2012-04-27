@@ -51,7 +51,6 @@ eval_wrapper(COObject *co)
 
     COObject *func = COFunction_New(co);
     ret = vm_eval(func);
-    CO_DECREF(func);
     if (!ret) {
         if (COErr_Occurred()) {
             COErr_Print();
@@ -133,5 +132,6 @@ main(int argc, const char **argv)
     COObject *code = compile();
     int ret = eval_wrapper(code) ? 0 : -1;
     CO_DECREF(code);
+    COThreadState_DeleteCurrent();
     return ret;
 }
