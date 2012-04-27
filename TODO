@@ -1,4 +1,3 @@
-* fix bench/prime.co
 * fix memleak by varlgrind
 * built-in functions (print, etc)
 * reimplement vm_stack

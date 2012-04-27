@@ -228,11 +228,13 @@ start_frame:                   /* reentry point when function return */
                 status = STATUS_EXCEPTION;
                 goto fast_end;
             }
+            CO_INCREF(x);
             PUSH(x);
             break;
         case OP_LOAD_CONST:
             oparg = NEXTARG();
             x = GETITEM(consts, oparg);
+            CO_INCREF(x);
             PUSH(x);
             break;
         case OP_PRINT:
@@ -333,7 +335,7 @@ start_frame:                   /* reentry point when function return */
             x = POP();
             COFrameObject *old_frame = (COFrameObject *)TS(frame);
             TS(frame) = old_frame->f_prev;
-            /*CO_XDECREF(old_frame);*/
+            CO_XDECREF(old_frame);
             if (!TS(frame)) {
                 goto vm_exit;
             }
