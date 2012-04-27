@@ -71,7 +71,7 @@ _dict_do_resize(CODictObject *this)
 {
     DictBucket **t;
 
-    if (((this->nTableMask + 1) << 1) > 0) {  // double the table size
+    if (((this->nTableMask + 1) << 1) > 0) {    // double the table size
         t = (DictBucket **)COMem_REALLOC(this->arBuckets,
                                          ((this->nTableMask + 1) << 1) *
                                          sizeof(DictBucket *));

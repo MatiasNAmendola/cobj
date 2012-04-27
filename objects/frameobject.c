@@ -41,8 +41,8 @@ COTypeObject COFrame_Type = {
 COObject *
 COFrame_New(COObject *code, COObject *prev, COObject *func)
 {
-    COFrameObject *f =
-        COVarObject_New(COFrameObject, &COFrame_Type, ((COCodeObject *)code)->co_stacksize);
+    COFrameObject *f = COVarObject_New(COFrameObject, &COFrame_Type,
+                                       ((COCodeObject *)code)->co_stacksize);
 
     f->f_lasti = 0;
     f->f_code = code;

@@ -22,13 +22,13 @@ COTypeObject COCapsule_Type = {
     "capsule",
     sizeof(COCapsuleObject),
     0,
-    (deallocfunc)capsule_dealloc,   /* tp_dealloc */
-    (reprfunc)capsule_repr,         /* tp_repr */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
-    0,                              /* tp_hash */
-    0,                              /* tp_compare */
-    0,                              /* tp_int_interface */
+    (deallocfunc)capsule_dealloc,       /* tp_dealloc */
+    (reprfunc)capsule_repr,     /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
+    0,                          /* tp_hash */
+    0,                          /* tp_compare */
+    0,                          /* tp_int_interface */
 };
 
 COObject *

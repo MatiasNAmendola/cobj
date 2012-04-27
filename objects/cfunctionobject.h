@@ -19,4 +19,3 @@ COTypeObject COCFunction_Type;
 #define COCFunction_Check(co) (CO_TYPE(co) == &COCFunction_Type)
 
 #endif
-

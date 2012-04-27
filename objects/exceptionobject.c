@@ -18,13 +18,13 @@ COTypeObject COException_Type = {
     "Exception",
     sizeof(COExceptionObject),
     0,
-    (deallocfunc)exception_dealloc, /* tp_dealloc */
-    (reprfunc)exception_repr,       /* tp_repr */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
-    0,                              /* tp_hash */
-    0,                              /* tp_compare */
-    0,                              /* tp_int_interface */
+    (deallocfunc)exception_dealloc,     /* tp_dealloc */
+    (reprfunc)exception_repr,   /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
+    0,                          /* tp_hash */
+    0,                          /* tp_compare */
+    0,                          /* tp_int_interface */
 };
 
 COObject *COException = (COObject *)&COException_Type;

@@ -28,11 +28,10 @@ COTypeObject COType_Type = {
     0,                          /* tp_int_interface */
 };
 
-
 /*
  * If object should never be deallocated, use this.
  */
-void 
+void
 default_dealloc(COObject *this)
 {
     error("deallocated");

@@ -6,7 +6,6 @@
  */
 static COIntObject *free_list = NULL;
 
-
 #define MAX_LONG_DIGITS \
     ((SIZE_MAX - offsetof(COIntObject, co_digit))/sizeof(digit))
 #define ABS(x) ((x) < 0 ? -(x) : (x))

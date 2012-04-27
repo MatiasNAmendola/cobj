@@ -187,30 +187,30 @@ node_free(Node *n)
         return;
     }
 
-    /*if (n->left) {*/
-    /*node_free(n->left);*/
-    /*}*/
-    /*if (n->right) {*/
-    /*node_free(n->right);*/
-    /*}*/
+    /*if (n->left) { */
+    /*node_free(n->left); */
+    /*} */
+    /*if (n->right) { */
+    /*node_free(n->right); */
+    /*} */
 
-    /*TRY_NODELIST_FREE(list);*/
+    /*TRY_NODELIST_FREE(list); */
 
-    /*TRY_NODE_FREE(ntest);*/
-    /*TRY_NODELIST_FREE(nbody);*/
-    /*TRY_NODELIST_FREE(nelse);*/
+    /*TRY_NODE_FREE(ntest); */
+    /*TRY_NODELIST_FREE(nbody); */
+    /*TRY_NODELIST_FREE(nelse); */
 
-    /*TRY_NODE_FREE(nfuncname);*/
-    /*TRY_NODELIST_FREE(nfuncargs);*/
-    /*TRY_NODELIST_FREE(nfuncbody);*/
+    /*TRY_NODE_FREE(nfuncname); */
+    /*TRY_NODELIST_FREE(nfuncargs); */
+    /*TRY_NODELIST_FREE(nfuncbody); */
 
-    /*TRY_NODELIST_FREE(ntrybody);*/
-    /*TRY_NODELIST_FREE(ncatches);*/
-    /*TRY_NODELIST_FREE(norelse);*/
-    /*TRY_NODELIST_FREE(nfinally);*/
+    /*TRY_NODELIST_FREE(ntrybody); */
+    /*TRY_NODELIST_FREE(ncatches); */
+    /*TRY_NODELIST_FREE(norelse); */
+    /*TRY_NODELIST_FREE(nfinally); */
 
-    /*TRY_NODELIST_FREE(ncatchname);*/
-    /*TRY_NODELIST_FREE(ncatchbody);*/
+    /*TRY_NODELIST_FREE(ncatchname); */
+    /*TRY_NODELIST_FREE(ncatchbody); */
 
     COMem_FREE(n);
 }

@@ -891,8 +891,8 @@ makecode(struct compiler *c, struct assembler *a)
     COObject *name = COStr_FromString("<main>");
 
     COObject *co = COCode_New(name, a->a_bytecode,
-                      consts, names,
-                      c->u->argcount, stackdepth(c));
+                              consts, names,
+                              c->u->argcount, stackdepth(c));
 
 error:
     CO_XDECREF(name);

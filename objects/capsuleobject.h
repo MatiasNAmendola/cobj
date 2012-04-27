@@ -6,7 +6,7 @@
 
 #include "../object.h"
 
-typedef void (*COCapsule_Destructor)(COObject *);
+typedef void (*COCapsule_Destructor) (COObject *);
 
 typedef struct _COCapsuleObject {
     COObject_HEAD;
