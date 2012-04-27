@@ -8,10 +8,10 @@
 
 #include "object.h"
 
-typedef struct _NodeList NodeList;
 typedef struct _Node Node;
 
 typedef enum {
+    NODE_BLOCK,
     NODE_BIN,                   /* binary op node */
     NODE_CMP,
     NODE_UNARY,
@@ -47,44 +47,43 @@ struct _Node {
     Node *right;
 
     /* For Dict/List, etc */
-    NodeList *list;
+    Node *list;
 
     /* For If/While, etc */
     Node *ntest;
-    NodeList *nbody;
-    NodeList *nelse;
+    Node *nbody;
+    Node *nelse;
 
     /* For Func */
     Node *nfuncname;
-    NodeList *nfuncargs;
-    NodeList *nfuncbody;
+    Node *nfuncargs;
+    Node *nfuncbody;
 
     /* For Try/Catch/ELse/Fianlly */
-    NodeList *ntrybody;
-    NodeList *ncatches;
-    NodeList *norelse;
-    NodeList *nfinally;
+    Node *ntrybody;
+    Node *ncatches;
+    Node *norelse;
+    Node *nfinally;
 
     /* For Catch */
-    NodeList *ncatchname;
-    NodeList *ncatchbody;
-};
+    Node *ncatchname;
+    Node *ncatchbody;
 
-struct _NodeList {
+    /* For List */
     Node *n;
-    NodeList *next;
-    NodeList *end;
+    Node *next;
+    Node *end;
 };
 
 Node *node_new(Node_Type type, Node *nleft, Node *nright);
-NodeList *nodelist(Node *n, ...);
-NodeList *nodelist_concat(NodeList *a, NodeList *b);
-NodeList *nodelist_append(NodeList *l, Node *n);
-int nodelist_len(NodeList *l);
-NodeList *nodelist_changetype(NodeList *l, Node_Type t);
-void nodelisttree(NodeList *n);
+Node *nodelist(Node *n, ...);
+Node *nodelist_concat(Node *a, Node *b);
+Node *nodelist_append(Node *l, Node *n);
+int nodelist_len(Node *l);
+Node *nodelist_changetype(Node *l, Node_Type t);
+void nodelisttree(Node *n);
 const char *node_type(Node_Type type);
 void node_print(Node *n);
-void nodelist_free(NodeList *l);
+void nodelist_free(Node *l);
 
 #endif

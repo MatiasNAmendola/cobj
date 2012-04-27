@@ -63,7 +63,7 @@ struct assembler {
 };
 
 struct compiler {
-    NodeList *xtop;
+    Node *xtop;
 
     struct compiler_unit *u;    /* Current compiler unit. */
     COObject *stack;            /* List object to hold compiler unit pointers. */
@@ -73,7 +73,7 @@ struct compiler {
 /* Forward declarations */
 static int compiler_visit_node(struct compiler *c, Node *n);
 static COObject *assemble(struct compiler *c);
-static void compiler_visit_nodelist(struct compiler *c, NodeList *l);
+static void compiler_visit_nodelist(struct compiler *c, Node *l);
 #ifdef CO_DEBUG
 static void dump_code(COObject *code);
 #endif
@@ -357,7 +357,7 @@ compiler_addop_o(struct compiler *c, int opcode, COObject *dict, COObject *o)
 }
 
 static void
-compiler_visit_nodelist(struct compiler *c, NodeList *l)
+compiler_visit_nodelist(struct compiler *c, Node *l)
 {
     if (!l)
         return;
@@ -472,7 +472,7 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_enter_scope(c);
         compiler_use_new_block(c);
         c->u->argcount = nodelist_len(n->nfuncargs);
-        NodeList *l = n->nfuncargs;
+        Node *l = n->nfuncargs;
         while (l) {
             oparg = compiler_add(c->u->names, l->n->o);
             l = l->next;
@@ -529,7 +529,7 @@ compiler_visit_node(struct compiler *c, Node *n)
                 compiler_addop_j(c, OP_JMPX, end);
             }
 
-            NodeList *l = n->ncatches;
+            Node *l = n->ncatches;
             Node *catch;
             int len = nodelist_len(l);
             int i = 0;
@@ -545,7 +545,7 @@ compiler_visit_node(struct compiler *c, Node *n)
                 if (!handler)
                     return 0;
                 if (catch->ncatchname) {
-                    NodeList *namelist = catch->ncatchname;
+                    Node *namelist = catch->ncatchname;
                     compiler_addop(c, OP_DUP_TOP);
                     for (; namelist; namelist = namelist->next) {
                         compiler_visit_node(c, namelist->n);
@@ -1022,7 +1022,7 @@ again:
 }
 
 int
-coerror(NodeList **xtop, const char *err, ...)
+coerror(Node **xtop, const char *err, ...)
 {
     va_list params;
 

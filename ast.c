@@ -18,8 +18,8 @@ node_new(Node_Type type, Node *nleft, Node *nright)
 /*
  * Append a node into list.
  */
-NodeList *
-nodelist_append(NodeList *l, Node *n)
+Node *
+nodelist_append(Node *l, Node *n)
 {
     return nodelist_concat(l, nodelist(n, NULL));
 }
@@ -27,8 +27,8 @@ nodelist_append(NodeList *l, Node *n)
 /*
  * Concatenate two list.
  */
-NodeList *
-nodelist_concat(NodeList *a, NodeList *b)
+Node *
+nodelist_concat(Node *a, Node *b)
 {
     a->end->next = b;
     a->end = b->end;
@@ -40,18 +40,17 @@ nodelist_concat(NodeList *a, NodeList *b)
  * Construct a node list from list of nodes, last arg should be NULL to end
  * argument list.
  */
-NodeList *
+Node *
 nodelist(Node *n, ...)
 {
     va_list params;
 
     va_start(params, n);
 
-    NodeList *l;
+    Node *l;
 
     if (n) {
-        l = COMem_MALLOC(sizeof(*l));
-        memset(l, 0, sizeof(*l));
+        l = node_new(NODE_BLOCK, NULL, NULL);
         l->n = n;
         l->next = NULL;
         l->end = l;
@@ -76,6 +75,7 @@ node_type(Node_Type type)
         return #type
 
     switch (type) {
+        GIVE_NAME(NODE_BLOCK);
         GIVE_NAME(NODE_BIN);    /* binary op node */
         GIVE_NAME(NODE_CMP);
         GIVE_NAME(NODE_UNARY);
@@ -139,9 +139,9 @@ node_print(Node *n)
  * List node tree.
  */
 void
-nodelisttree(NodeList *l)
+nodelisttree(Node *l)
 {
-    indent_printf(0, "NodeList(%)\n", l);
+    indent_printf(0, "Node(%)\n", l);
     Node *n;
     for (; l; l = l->next) {
         n = l->n;
@@ -150,7 +150,7 @@ nodelisttree(NodeList *l)
 }
 
 int
-nodelist_len(NodeList *l)
+nodelist_len(Node *l)
 {
     int i = 0;
     while (l) {
@@ -160,8 +160,8 @@ nodelist_len(NodeList *l)
     return i;
 }
 
-NodeList *
-nodelist_changetype(NodeList *l, Node_Type t)
+Node *
+nodelist_changetype(Node *l, Node_Type t)
 {
     while (l) {
         l->n->type = t;
@@ -216,9 +216,9 @@ node_free(Node *n)
 }
 
 void
-nodelist_free(NodeList *l)
+nodelist_free(Node *l)
 {
-    NodeList *tmp;
+    Node *tmp;
     while (l) {
         tmp = l;
         node_free(l->n);

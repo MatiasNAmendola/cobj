@@ -20,10 +20,10 @@ return_none_node()
 
 %union {
     Node *node;
-    NodeList *list;
+    Node *list;
 }
 
-%parse-param {NodeList **xtop}
+%parse-param {Node **xtop}
 
 /*
  * The relative precedence of different operators is controlled by the order in
