@@ -84,12 +84,13 @@ COFile_Read(COObject *this, int n)
     }
 
     o = COBytes_FromStringN(NULL, buffersize);
+    char *o_start = COBytes_AsString(o);
     if (o == NULL)
         return NULL;
 
     for (;;) {
         size_t read =
-            fread(COBytes_AsString(o) + bytesread, 1, buffersize - bytesread,
+            fread(o_start + bytesread, 1, buffersize - bytesread,
                   f->f_fp);
         if (read == 0) {
             if (!ferror(f->f_fp))
@@ -111,6 +112,7 @@ COFile_Read(COObject *this, int n)
             break;
         }
     }
+    o_start[bytesread] = '\0';
 
     return o;
 }

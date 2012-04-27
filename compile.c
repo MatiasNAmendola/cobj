@@ -956,24 +956,25 @@ dump_code(COObject *code)
         case OP_LOAD_CONST:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
-            printf(" (%s)",
-                   COStr_AsString(COObject_repr
-                                  (GETITEM(_code->co_consts, oparg))));
+            /*printf(" (%s)",*/
+            /*COStr_AsString(COObject_repr*/
+            /*(GETITEM(_code->co_consts, oparg))));*/
             break;
         case OP_LOAD_NAME:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
-            printf(" (%s)",
-                   COStr_AsString(COObject_repr
-                                  (GETITEM(_code->co_names, oparg))));
+            /*printf(" (%s)",*/
+            /*COStr_AsString(COObject_repr*/
+            /*(GETITEM(_code->co_names, oparg))));*/
             break;
         case OP_ASSIGN:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
-            printf(" (%s)",
-                   COStr_AsString(COObject_repr
-                                  (GETITEM(_code->co_names, oparg))));
+            /*printf(" (%s)",*/
+            /*COStr_AsString(COObject_repr*/
+            /*(GETITEM(_code->co_names, oparg))));*/
             break;
+        case OP_CONTINUE_LOOP:
         case OP_JMP:
         case OP_JMPX:
         case OP_JMPZ:

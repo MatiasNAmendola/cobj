@@ -138,5 +138,10 @@ arena_free(struct arena *arena)
 int
 arena_addobject(struct arena *arena, COObject *o)
 {
+    // Don't increment ref count.
+    int r = COList_Append(arena->a_objects, o);
+    if (r >= 0) {
+        CO_DECREF(o);
+    }
     return 0;
 }

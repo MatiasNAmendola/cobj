@@ -1,19 +1,19 @@
 #!./co
 # Class examples. (draft only)
 
-myclass = func() {
-    name = "no name yet!"; # private
-    return func() {
-        # public methods
-        this.get_name = func() {
-            return name;
-        }
-        this.set_name = func(n) {
-            name = n;
-        }
-        # public attributes
-        this.version = 0.1;
-    };
-};
+#myclass = func() {
+    #name = "no name yet!"; # private
+    #return func() {
+        ## public methods
+        #this.get_name = func() {
+            #return name;
+        #}
+        #this.set_name = func(n) {
+            #name = n;
+        #}
+        ## public attributes
+        #this.version = 0.1;
+    #};
+#};
 
-instance_a = myclass();
+#instance_a = myclass();

@@ -85,6 +85,7 @@ COObject_print(COObject *o)
 {
     COStrObject *s = (COStrObject *)CO_TYPE(o)->tp_repr(o);
     printf("%s\n", s->co_sval);
+    CO_DECREF(s);
 }
 
 /*

@@ -65,7 +65,9 @@ run_file(FILE *fp, const char *filename)
 {
     struct arena *arena = arena_new();
     scanner_init(arena);
-    scanner_setfile(COFile_FromFile(fp, (char *)filename, "r", fclose));
+    COObject *f = COFile_FromFile(fp, (char *)filename, "r", fclose);
+    scanner_setfile(f);
+    CO_DECREF(f);
     COObject *code = compile(arena);
     int exit_code = eval_wrapper(code) ? 0 : -1;
     CO_DECREF(code);

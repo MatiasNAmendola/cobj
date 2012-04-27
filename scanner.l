@@ -182,7 +182,9 @@ scanner_init(struct arena *arena)
 int
 scanner_setfile(COObject *f)
 {
-    return scanner_setcode(COBytes_AsString(COFile_Read(f, -1)));
+    COObject *code = COFile_Read(f, -1);
+    arena_addobject(scanner_globals.arena, code);
+    return scanner_setcode(COBytes_AsString(code));
 }
 
 int
