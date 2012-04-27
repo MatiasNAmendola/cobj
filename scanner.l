@@ -1,15 +1,16 @@
 #include "co.h"
 
-struct co_scanner_globals {
+struct scanner_globals {
     unsigned int yy_leng;
     char *yy_text;
     char *yy_cursor;
     char *yy_marker;
     char *yy_limit;
     int yy_state;
+    struct arena *arena;
 };
 
-struct co_scanner_globals scanner_globals;
+struct scanner_globals scanner_globals;
 
 /*!max:re2c*/
 
@@ -172,14 +173,20 @@ co_scan_doublequoted_string(COStrObject *co)
     *t = 0;
 }
 
-int
-co_scanner_setfile(COObject *f)
+void
+scanner_init(struct arena *arena)
 {
-    return co_scanner_setcode(COBytes_AsString(COFile_Read(f, -1)));
+    scanner_globals.arena = arena;
 }
 
 int
-co_scanner_setcode(char *code)
+scanner_setfile(COObject *f)
+{
+    return scanner_setcode(COBytes_AsString(COFile_Read(f, -1)));
+}
+
+int
+scanner_setcode(char *code)
 {
     scanner_globals.yy_cursor = code;
     scanner_globals.yy_limit = code + strlen(code);
@@ -187,7 +194,7 @@ co_scanner_setcode(char *code)
 }
 
 int
-co_scanner_lex(YYSTYPE *yylval)
+scanner_lex(YYSTYPE *yylval)
 {
     scanner_globals.yy_text = YYCURSOR;
 
@@ -208,14 +215,14 @@ ANY_CHAR    = [^];
 <SC_INIT>NUM {
     char c = yytext[yyleng];
     yytext[yyleng] = '\0';
-    yylval->node = node_new(NODE_CONST, NULL, NULL);
+    yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
     yylval->node->o = COInt_FromString(yytext, NULL, 0);
     yytext[yyleng] = c;
     return T_NUM;
 }
 
 <SC_INIT>FNUM {
-    yylval->node = node_new(NODE_CONST, NULL, NULL);
+    yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
     yylval->node->o = COFloat_FromString(yytext);
     return T_FNUM;
 }
@@ -273,19 +280,19 @@ ANY_CHAR    = [^];
 }
 
 <SC_INIT>"None" {
-    yylval->node = node_new(NODE_CONST, NULL, NULL);
+    yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
     yylval->node->o = CO_None;
     return T_NONE;
 }
 
 <SC_INIT>"True" {
-    yylval->node = node_new(NODE_CONST, NULL, NULL);
+    yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
     yylval->node->o = CO_True;
     return T_BOOL;
 }
 
 <SC_INIT>"False" {
-    yylval->node = node_new(NODE_CONST, NULL, NULL);
+    yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
     yylval->node->o = CO_False;
     return T_BOOL;
 }
@@ -312,7 +319,7 @@ ANY_CHAR    = [^];
             YYCURSOR++;
         }
     }
-    yylval->node = node_new(NODE_CONST, NULL, NULL);
+    yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
     yylval->node->o = COStr_FromStringN(yytext + 1, yyleng - 2);
     co_scan_doublequoted_string((COStrObject *)yylval->node->o);
     return T_STRING;
@@ -331,14 +338,14 @@ ANY_CHAR    = [^];
             YYCURSOR++;
         }
     } 
-    yylval->node = node_new(NODE_CONST, NULL, NULL);
+    yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
     yylval->node->o = COStr_FromStringN(yytext + 1, yyleng -2);
     co_scan_singlequoted_string((COStrObject *)yylval->node->o);
     return T_STRING;
 }
 
 <SC_INIT>NAME {
-    yylval->node = node_new(NODE_NAME, NULL, NULL);
+    yylval->node = node_new(scanner_globals.arena, NODE_NAME, NULL, NULL);
     yylval->node->o = COStr_FromStringN(yytext, yyleng);
     return T_NAME;
 }

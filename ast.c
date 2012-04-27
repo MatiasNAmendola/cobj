@@ -4,10 +4,10 @@
  * Create a node.
  */
 Node *
-node_new(Node_Type type, Node *nleft, Node *nright)
+node_new(struct arena *arena, Node_Type type, Node *nleft, Node *nright)
 {
     Node *n;
-    n = COMem_MALLOC(sizeof(*n));
+    n = arena_malloc(arena, sizeof(*n));
     memset(n, 0, sizeof(*n));
     n->type = type;
     n->left = nleft;
@@ -19,9 +19,9 @@ node_new(Node_Type type, Node *nleft, Node *nright)
  * Append a node into list.
  */
 Node *
-nodelist_append(Node *l, Node *n)
+nodelist_append(struct arena *arena, Node *l, Node *n)
 {
-    return nodelist_concat(l, nodelist(n, NULL));
+    return nodelist_concat(l, nodelist(arena, n, NULL));
 }
 
 /*
@@ -41,7 +41,7 @@ nodelist_concat(Node *a, Node *b)
  * argument list.
  */
 Node *
-nodelist(Node *n, ...)
+nodelist(struct arena *arena, Node *n, ...)
 {
     va_list params;
 
@@ -50,7 +50,7 @@ nodelist(Node *n, ...)
     Node *l;
 
     if (n) {
-        l = node_new(NODE_BLOCK, NULL, NULL);
+        l = node_new(arena, NODE_BLOCK, NULL, NULL);
         l->n = n;
         l->next = NULL;
         l->end = l;
@@ -60,7 +60,7 @@ nodelist(Node *n, ...)
         n = va_arg(params, Node *);
         if (!n)
             break;
-        l = nodelist_concat(l, nodelist(n, NULL));
+        l = nodelist_concat(l, nodelist(arena, n, NULL));
     }
 
     va_end(params);

@@ -17,8 +17,8 @@ struct block {
     size_t b_offset;
 
     /*
-     * An arean maintains a singly-linked, NULL-terminated list of all blocks
-     * owned by the arean. There are linked via the b_next member.
+     * An arena maintains a singly-linked, NULL-terminated list of all blocks
+     * owned by the arena. There are linked via the b_next member.
      */
     struct block *b_next;
 
@@ -40,7 +40,7 @@ struct arena {
     struct block *a_cur;
 
     /* A list object containing references to all the COObject pointers. They
-     * will be DECREFed when the arean is freed.
+     * will be DECREFed when the arena is freed.
      */
     COObject *a_objects;
 };

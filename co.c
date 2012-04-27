@@ -61,6 +61,34 @@ eval_wrapper(COObject *co)
 }
 
 int
+run_file(FILE *fp, const char *filename)
+{
+    struct arena *arena = arena_new();
+    scanner_init(arena);
+    scanner_setfile(COFile_FromFile(fp, (char *)filename, "r", fclose));
+    COObject *code = compile(arena);
+    int exit_code = eval_wrapper(code) ? 0 : -1;
+    CO_DECREF(code);
+    COThreadState_DeleteCurrent();
+    arena_free(arena);
+    return exit_code;
+}
+
+int
+run_string(const char *str)
+{
+    struct arena *arena = arena_new();
+    scanner_init(arena);
+    scanner_setcode((char*)str);
+    COObject *code = compile(arena);
+    int exit_code = eval_wrapper(code) ? 0 : -1;
+    CO_DECREF(code);
+    COThreadState_DeleteCurrent();
+    arena_free(arena);
+    return exit_code;
+}
+
+int
 main(int argc, const char **argv)
 {
     struct argparse argparse;
@@ -88,7 +116,7 @@ main(int argc, const char **argv)
 
     /* compilation */
     if (eval) {
-        co_scanner_setcode(eval);
+        return run_string(eval);
     } else {
         FILE *f = stdin;
         const char *f_name = "<stdin>";
@@ -113,9 +141,11 @@ main(int argc, const char **argv)
             }
             printf("COObject 0.1\n");
             /* Read-Eval-Print Loop */
+            struct arena *arena;
+            arena = arena_new();
             while ((code = linenoise(">>> ")) != NULL) {
-                co_scanner_setcode(code);
-                COObject *co = compile();
+                scanner_setcode(code);
+                COObject *co = compile(arena);
                 eval_wrapper(co);
                 CO_DECREF(co);
                 linenoiseHistoryAdd(code);
@@ -124,14 +154,10 @@ main(int argc, const char **argv)
                 }
                 free(code);
             }
+            arena_free(arena);
+            return 0;
         } else {
-            co_scanner_setfile(COFile_FromFile(f, (char *)f_name, "r", fclose));
+            return run_file(f, f_name);
         }
     }
-
-    COObject *code = compile();
-    int ret = eval_wrapper(code) ? 0 : -1;
-    CO_DECREF(code);
-    COThreadState_DeleteCurrent();
-    return ret;
 }

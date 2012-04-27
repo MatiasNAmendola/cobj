@@ -6,22 +6,35 @@
 #include "objects/listobject.h"
 #include "ast.h"
 #include "parser.h"
+#include "arena.h"
 
 /* Change whenever the bytecode emmited by the compiler may no longer be
  * understood by old code evaluator.
  */
 #define CODEDUMP_MAGIC  (314 << 16 | 'c' << 8 | 'o')
 
-COObject *compile(void);
+COObject *compile(struct arena *arena);
+
+struct compiler_unit;
+
+struct compiler {
+    Node *xtop;
+
+    struct compiler_unit *u;    /* Current compiler unit. */
+    COObject *stack;            /* List object to hold compiler unit pointers. */
+    int nestlevel;
+    struct arena *arena;
+};
 
 // parser
 int coparse();
-int coerror(Node **xtop, const char *err, ...);
+int coerror(struct compiler *c, const char *err, ...);
 
 // scanner
 int colex(YYSTYPE *colval);
-int co_scanner_lex(YYSTYPE *yylval);
-int co_scanner_setfile(COObject *f);
-int co_scanner_setcode(char *code);
+int scanner_lex(YYSTYPE *yylval);
+void scanner_init(struct arena *arena);
+int scanner_setfile(COObject *f);
+int scanner_setcode(char *code);
 
 #endif

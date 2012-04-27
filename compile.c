@@ -62,13 +62,6 @@ struct assembler {
     struct block **a_postorder; /* list of blocks in dfs postorder */
 };
 
-struct compiler {
-    Node *xtop;
-
-    struct compiler_unit *u;    /* Current compiler unit. */
-    COObject *stack;            /* List object to hold compiler unit pointers. */
-    int nestlevel;
-};
 
 /* Forward declarations */
 static int compiler_visit_node(struct compiler *c, Node *n);
@@ -208,15 +201,16 @@ compiler_exit_scope(struct compiler *c)
 }
 
 COObject *
-compile(void)
+compile(struct arena *arena)
 {
     // init
     struct compiler c;
     memset(&c, 0, sizeof(struct compiler));
     c.stack = COList_New(0);
+    c.arena = arena;
 
     // do parse
-    coparse(&c.xtop);
+    coparse(&c);
 
     // compile ast
     compiler_enter_scope(&c);
@@ -1007,7 +1001,7 @@ colex(YYSTYPE *colval)
     int retval;
 
 again:
-    retval = co_scanner_lex(colval);
+    retval = scanner_lex(colval);
     switch (retval) {
     case T_WHITESPACE:
     case T_COMMENT:
@@ -1021,7 +1015,7 @@ again:
 }
 
 int
-coerror(Node **xtop, const char *err, ...)
+coerror(struct compiler *c, const char *err, ...)
 {
     va_list params;
 

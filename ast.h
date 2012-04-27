@@ -7,6 +7,7 @@
  */
 
 #include "object.h"
+#include "arena.h"
 
 typedef struct _Node Node;
 
@@ -75,10 +76,10 @@ struct _Node {
     Node *end;
 };
 
-Node *node_new(Node_Type type, Node *nleft, Node *nright);
-Node *nodelist(Node *n, ...);
+Node *node_new(struct arena *arena, Node_Type type, Node *nleft, Node *nright);
+Node *nodelist(struct arena *arena, Node *n, ...);
 Node *nodelist_concat(Node *a, Node *b);
-Node *nodelist_append(Node *l, Node *n);
+Node *nodelist_append(struct arena *arena, Node *l, Node *n);
 int nodelist_len(Node *l);
 Node *nodelist_changetype(Node *l, Node_Type t);
 void nodelisttree(Node *n);
