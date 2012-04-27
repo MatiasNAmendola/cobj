@@ -85,10 +85,10 @@ _vm_cmp(int op, COObject *o1, COObject *o2)
 COObject *
 vm_eval(COObject *func)
 {
-#define JUMPBY(offset)  frame->f_bytecode += offset
-#define JUMPTO(offset)  frame->f_bytecode = frame->f_firstcode + offset
-#define NEXTOP()        (*frame->f_bytecode++)
-#define NEXTARG()       (frame->f_bytecode += 2, (frame->f_bytecode[-1]<<8) + frame->f_bytecode[-2])
+#define JUMPBY(offset)  next_code += offset
+#define JUMPTO(offset)  next_code = first_code + offset
+#define NEXTOP()        (*next_code++)
+#define NEXTARG()       (next_code += 2, (next_code[-1]<<8) + next_code[-2])
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
 #define PUSH(o)         (*stack_top++ = (o))
 #define POP()           (*--stack_top)
@@ -112,6 +112,9 @@ vm_eval(COObject *func)
     COObject *consts;
 
     COObject **stack_top;       /* Stack top, points to next free slot in stack */
+
+    unsigned char *next_code;
+    unsigned char *first_code;
     unsigned char opcode;       /* Current opcode */
     int oparg;                  /* Current opcode argument, if any */
     COObject *x;                /* Result object -- NULL if error */
@@ -147,6 +150,8 @@ new_frame:                     /* reentry point when function call */
     }
 
 start_frame:                   /* reentry point when function return */
+    first_code = (unsigned char *)COBytes_AsString(code->co_code);
+    next_code = first_code + frame->f_lasti;
     for (;;) {
         opcode = NEXTOP();
         switch (opcode) {
@@ -321,13 +326,14 @@ start_frame:                   /* reentry point when function return */
             }
             func = o1;
             frame->f_stacktop = stack_top;
+            frame->f_lasti = (int)(next_code - first_code);
             goto new_frame;
             break;
         case OP_RETURN:
             x = POP();
             COFrameObject *old_frame = (COFrameObject *)TS(frame);
             TS(frame) = old_frame->f_prev;
-            CO_XDECREF(old_frame);
+            /*CO_XDECREF(old_frame);*/
             if (!TS(frame)) {
                 goto vm_exit;
             }
