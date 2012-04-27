@@ -31,13 +31,13 @@ struct arena {
     /* Pointer to the first block allocated for the arena, never NULL.
      * It's used only to find the first block when the arena is beeing freed.
      */
-    struct block a_head;
+    struct block *a_head;
 
     /* Pointer to the block currently used for allocation. It's b_next should be
      * NULL, it means a new block has been allocated and a_cur should be reset
      * to point it.
      */
-    struct block a_cur;
+    struct block *a_cur;
 
     /* A list object containing references to all the COObject pointers. They
      * will be DECREFed when the arean is freed.
@@ -97,20 +97,46 @@ arena_new(void)
     if (!arena)
         return NULL;
 
+    arena->a_head = block_new(DEFAULT_BLOCK_SIZE);
+    arena->a_cur = arena->a_head;
+    if (!arena->a_head) {
+        COMem_FREE(arena);
+        return NULL;
+    }
+    arena->a_objects = COList_New(0);
+    if (!arena->a_objects) {
+        block_free(arena->a_head);
+        free(arena);
+        return NULL;
+    }
+
     return arena;
 }
 
 void *
 arena_malloc(struct arena *arena, size_t size)
 {
+    void *p = block_alloc(arena->a_cur, size);
+    if (!p)
+        return NULL;
+
+    /* Reset cur if we allocated a new block. */
+    if (arena->a_cur->b_next) {
+        arena->a_cur = arena->a_cur->b_next;
+    }
+    return p;
 }
 
 void
 arena_free(struct arena *arena)
 {
+    block_free(arena->a_head);
+    CO_DECREF(arena->a_objects);
+    COMem_FREE(arena);
 }
 
 int
 arena_addobject(struct arena *arena, COObject *o)
 {
+    return 0;
 }

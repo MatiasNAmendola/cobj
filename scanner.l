@@ -208,17 +208,15 @@ ANY_CHAR    = [^];
 <SC_INIT>NUM {
     char c = yytext[yyleng];
     yytext[yyleng] = '\0';
-    yylval->node = COMem_MALLOC(sizeof(Node));
+    yylval->node = node_new(NODE_CONST, NULL, NULL);
     yylval->node->o = COInt_FromString(yytext, NULL, 0);
     yytext[yyleng] = c;
-    yylval->node->type = NODE_CONST;
     return T_NUM;
 }
 
 <SC_INIT>FNUM {
-    yylval->node = COMem_MALLOC(sizeof(Node));
+    yylval->node = node_new(NODE_CONST, NULL, NULL);
     yylval->node->o = COFloat_FromString(yytext);
-    yylval->node->type = NODE_CONST;
     return T_FNUM;
 }
 
@@ -275,23 +273,20 @@ ANY_CHAR    = [^];
 }
 
 <SC_INIT>"None" {
-    yylval->node = COMem_MALLOC(sizeof(Node));
+    yylval->node = node_new(NODE_CONST, NULL, NULL);
     yylval->node->o = CO_None;
-    yylval->node->type = NODE_CONST;
     return T_NONE;
 }
 
 <SC_INIT>"True" {
-    yylval->node = COMem_MALLOC(sizeof(Node));
+    yylval->node = node_new(NODE_CONST, NULL, NULL);
     yylval->node->o = CO_True;
-    yylval->node->type = NODE_CONST;
     return T_BOOL;
 }
 
 <SC_INIT>"False" {
-    yylval->node = COMem_MALLOC(sizeof(Node));
+    yylval->node = node_new(NODE_CONST, NULL, NULL);
     yylval->node->o = CO_False;
-    yylval->node->type = NODE_CONST;
     return T_BOOL;
 }
 
@@ -317,10 +312,9 @@ ANY_CHAR    = [^];
             YYCURSOR++;
         }
     }
-    yylval->node = COMem_MALLOC(sizeof(Node));
+    yylval->node = node_new(NODE_CONST, NULL, NULL);
     yylval->node->o = COStr_FromStringN(yytext + 1, yyleng - 2);
     co_scan_doublequoted_string((COStrObject *)yylval->node->o);
-    yylval->node->type = NODE_CONST;
     return T_STRING;
 }
 
@@ -337,17 +331,15 @@ ANY_CHAR    = [^];
             YYCURSOR++;
         }
     } 
-    yylval->node = COMem_MALLOC(sizeof(Node));
+    yylval->node = node_new(NODE_CONST, NULL, NULL);
     yylval->node->o = COStr_FromStringN(yytext + 1, yyleng -2);
     co_scan_singlequoted_string((COStrObject *)yylval->node->o);
-    yylval->node->type = NODE_CONST;
     return T_STRING;
 }
 
 <SC_INIT>NAME {
-    yylval->node = COMem_MALLOC(sizeof(Node));
+    yylval->node = node_new(NODE_NAME, NULL, NULL);
     yylval->node->o = COStr_FromStringN(yytext, yyleng);
-    yylval->node->type = NODE_NAME;
     return T_NAME;
 }
 

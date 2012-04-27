@@ -4,11 +4,9 @@
 static Node *
 return_none_node()
 {
-    Node *n;
-    n = COMem_MALLOC(sizeof(Node));
+    Node *n = node_new(NODE_CONST, NULL, NULL);
     n->o = CO_None;
     CO_INCREF(CO_None);
-    n->type = NODE_CONST;
     return node_new(NODE_RETURN, n, NULL);
 }
 
@@ -20,7 +18,6 @@ return_none_node()
 
 %union {
     Node *node;
-    Node *list;
 }
 
 %parse-param {Node **xtop}
@@ -64,13 +61,13 @@ return_none_node()
 %left   UNARY_OP
 
 %type <node> expr
-%type <list> stmt stmt_list start open_stmt_list
-%type <list> simple_stmt compound_stmt opt_else if_tail
-%type <list> expr_list non_empty_expr_list expr_list_inline non_empty_expr_list_inline
-%type <list> assoc_list non_empty_assoc_list
-%type <list> opt_param_list name_list non_empty_name_list
+%type <node> stmt stmt_list start open_stmt_list
+%type <node> simple_stmt compound_stmt opt_else if_tail
+%type <node> expr_list non_empty_expr_list expr_list_inline non_empty_expr_list_inline
+%type <node> assoc_list non_empty_assoc_list
+%type <node> opt_param_list name_list non_empty_name_list
 %type <node> catch_block
-%type <list> catch_list opt_catch_list opt_finally_block
+%type <node> catch_list opt_catch_list opt_finally_block
 
 /*
  * Manual override of shift/reduce conflicts.
