@@ -72,7 +72,6 @@ main(int argc, const char **argv)
         OPT_BOOLEAN('V', "verbose", &verbose,
                     "show runtime info, can be supplied multiple times to increase verbosity",
                     NULL),
-        OPT_BOOLEAN('c', "compile", &flag_compile, "compile only", NULL),
         OPT_STRING('e', "eval", &eval, "code passed as string", NULL),
         OPT_END(),
     };
@@ -100,19 +99,7 @@ main(int argc, const char **argv)
                 error("open %s failed", *argv);
             }
             f_name = *argv;
-            // detect if it's a code cache
-            COObject *first_object;
-            first_object = unmarshal_fromfile(f);
-            if (first_object && COInt_Check(first_object)
-                && COInt_AsLong(first_object) == CODEDUMP_MAGIC) {
-                COObject *code = unmarshal_fromfile(f);
-                if (!code) {
-                    return -1;
-                }
-                return eval_wrapper(code) ? 0 : -1;
-            }
         }
-        fseek(f, 0, SEEK_SET);
 
         if (isatty((int)fileno(f))) {
             char *code;
@@ -144,15 +131,6 @@ main(int argc, const char **argv)
     }
 
     COObject *code = compile();
-    if (flag_compile) {
-        FILE *f;
-        f = fopen("a.out", "wb");
-        marshal_tofile(COInt_FromLong(CODEDUMP_MAGIC), f);
-        marshal_tofile(code, f);
-        CO_DECREF(code);
-        return 0;
-    }
-
     int ret = eval_wrapper(code) ? 0 : -1;
     CO_DECREF(code);
     return ret;

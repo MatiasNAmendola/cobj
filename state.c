@@ -14,3 +14,24 @@ COThreadState_New()
 
     return state;
 }
+
+void
+COThreadState_Delete(COThreadState *state)
+{
+    if (!state)
+        return;
+
+    CO_XDECREF(state->mainfunc);
+    CO_XDECREF(state->funcargs);
+    CO_XDECREF(state->frame);
+
+    CO_XDECREF(state->curexc_type);
+    CO_XDECREF(state->curexc_value);
+    CO_XDECREF(state->curexc_traceback);
+}
+
+void
+COThreadState_DeleteCurrent()
+{
+    COThreadState_Delete(threadstate_current);
+}

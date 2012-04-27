@@ -20,5 +20,7 @@ COThreadState *threadstate_current;
 #define TS(o)    (threadstate_current)->o
 
 COThreadState *COThreadState_New();
+void COThreadState_Delete(COThreadState *state);
+void COThreadState_DeleteCurrent();
 
 #endif
