@@ -65,13 +65,13 @@ run_file(FILE *fp, const char *filename)
     struct arena *arena = arena_new();
     scanner_init(arena);
     COObject *f = COFile_FromFile(fp, (char *)filename, "r", fclose);
-    scanner_setfile(f);
-    CO_DECREF(f);
+    COObject *source = COFile_Read(f, -1);
+    scanner_setcode(COBytes_AsString(source));
     COObject *code = compile(arena);
     COObject *func = COFunction_New(code);
     int exit_code = eval_wrapper(func) ? 0 : -1;
-    /*COObject_dump(code);*/
-    /*COObject_dump(func);*/
+    CO_DECREF(source);
+    CO_DECREF(f);
     CO_DECREF(code);
     CO_DECREF(func);
     COThreadState_DeleteCurrent();

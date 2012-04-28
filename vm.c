@@ -107,6 +107,8 @@ vm_eval(COObject *func)
         } \
     } while (0)
 
+    CO_INCREF(func);
+
     COFrameObject *frame;
     COCodeObject *code;
     COObject *names;
@@ -352,13 +354,10 @@ start_frame:                   /* reentry point when function return */
             oparg = NEXTARG();
             while (oparg--) {
                 o2 = POP();
-                /*printf("list first\n");*/
-                /*COObject_dump(o2);*/
                 COList_Append(TS(funcargs), o2);
-                /*COObject_dump(o2);*/
-                /*printf("list last\n");*/
                 CO_DECREF(o2);
             }
+            CO_DECREF(func);
             func = o1;
             frame->f_stacktop = stack_top;
             frame->f_lasti = (int)(next_code - first_code);
@@ -369,13 +368,12 @@ start_frame:                   /* reentry point when function return */
             o1 = POP();
             COFrameObject *old_frame = (COFrameObject *)TS(frame);
             TS(frame) = old_frame->f_prev;
-            /*CO_DECREF(old_frame);*/
+            CO_DECREF(old_frame);
             if (!TS(frame)) {
                 CO_DECREF(o1);
                 goto vm_exit;
             }
             // init function return
-            /*CO_DECREF(func); // !important decrefs current function object*/
             frame = (COFrameObject *)TS(frame);
             *frame->f_stacktop++ = o1;
             stack_top = frame->f_stacktop;

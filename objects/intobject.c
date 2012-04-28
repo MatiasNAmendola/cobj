@@ -68,7 +68,8 @@ maybe_small_int(COIntObject *o)
         sdigit ival = ONEDIGIT_VALUE(o);
         if (-SMALL_NEG_INT <= ival && ival < SMALL_POS_INT) {
             CO_DECREF(o);
-            return (COIntObject *)(small_ints + ival + SMALL_NEG_INT);
+            o = (COIntObject *)(small_ints + ival + SMALL_NEG_INT);
+            CO_INCREF(o);
         }
     }
     return o;

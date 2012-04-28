@@ -34,7 +34,6 @@ int coerror(struct compiler *c, const char *err, ...);
 int colex(YYSTYPE *colval);
 int scanner_lex(YYSTYPE *yylval);
 void scanner_init(struct arena *arena);
-int scanner_setfile(COObject *f);
 int scanner_setcode(char *code);
 
 #endif

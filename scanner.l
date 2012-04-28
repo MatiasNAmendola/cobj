@@ -180,14 +180,6 @@ scanner_init(struct arena *arena)
 }
 
 int
-scanner_setfile(COObject *f)
-{
-    COObject *code = COFile_Read(f, -1);
-    arena_addobject(scanner_globals.arena, code);
-    return scanner_setcode(COBytes_AsString(code));
-}
-
-int
 scanner_setcode(char *code)
 {
     scanner_globals.yy_cursor = code;
