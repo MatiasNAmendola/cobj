@@ -211,6 +211,7 @@ COList_SetItem(COObject *this, ssize_t index, COObject *item)
     p = ((COListObject *)this)->co_item + index;
     olditem = *p;
     *p = item;
+    CO_INCREF(item);
     CO_XDECREF(olditem);
     return 0;
 }

@@ -14,6 +14,7 @@ bool_repr(COObject *this)
         s = False_str ? False_str : (False_str = COStr_FromString("False"));
     }
 
+    CO_INCREF(s);
     return s;
 }
 

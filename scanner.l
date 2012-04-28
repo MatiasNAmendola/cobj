@@ -278,21 +278,18 @@ ANY_CHAR    = [^];
 <SC_INIT>"None" {
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
     yylval->node->o = CO_None;
-    arena_addobject(scanner_globals.arena, yylval->node->o);
     return T_NONE;
 }
 
 <SC_INIT>"True" {
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
     yylval->node->o = CO_True;
-    arena_addobject(scanner_globals.arena, yylval->node->o);
     return T_BOOL;
 }
 
 <SC_INIT>"False" {
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
     yylval->node->o = CO_False;
-    arena_addobject(scanner_globals.arena, yylval->node->o);
     return T_BOOL;
 }
 
