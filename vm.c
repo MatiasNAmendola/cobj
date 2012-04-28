@@ -367,16 +367,16 @@ start_frame:                   /* reentry point when function return */
             o1 = POP();
             COFrameObject *old_frame = (COFrameObject *)TS(frame);
             TS(frame) = (COFrameObject *)old_frame->f_prev;
-            CO_DECREF(old_frame);
+            CO_DECREF(frame);
             if (!TS(frame)) {
                 CO_DECREF(o1);
                 goto vm_exit;
             }
             // init function return
-            CO_DECREF(func);
             frame = (COFrameObject *)TS(frame);
             *frame->f_stacktop++ = o1;
             stack_top = frame->f_stacktop;
+            func = frame->f_func;
             code =
                 (COCodeObject *)((COFunctionObject *)frame->f_func)->func_code;
             names = code->co_names;
@@ -480,11 +480,11 @@ fast_end:
     }
 
 vm_exit:
-    /* Clear stack. */
-    while (STACK_LEVEL() != 0) {
-        o1 = POP();
-        CO_XDECREF(o1);
-    }
+    /**//* Clear stack. */
+    /*while (STACK_LEVEL() != 0) {*/
+    /*o1 = POP();*/
+    /*CO_XDECREF(o1);*/
+    /*}*/
 
     /* Clear frame stack. */
     while (TS(frame)) {

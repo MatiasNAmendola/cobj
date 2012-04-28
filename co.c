@@ -91,6 +91,8 @@ run_string(const char *str)
     COObject *func = COFunction_New(code);
     int exit_code = eval_wrapper(func) ? 0 : -1;
     CO_DECREF(code);
+    /*COObject_dump(code);*/
+    /*COObject_dump(func);*/
     CO_DECREF(func);
     COThreadState_DeleteCurrent();
     arena_free(arena);
