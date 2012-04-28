@@ -480,11 +480,6 @@ fast_end:
     }
 
 vm_exit:
-    /**//* Clear stack. */
-    /*while (STACK_LEVEL() != 0) {*/
-    /*o1 = POP();*/
-    /*CO_XDECREF(o1);*/
-    /*}*/
 
     /* Clear frame stack. */
     while (TS(frame)) {

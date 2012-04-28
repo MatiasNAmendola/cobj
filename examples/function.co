@@ -8,7 +8,7 @@ end
 
 #print fibo(0)
 #print fibo(1)
-print fibo(2);
+print fibo(5);
 #i = 0
 #while i < 10
     #print fibo(i)

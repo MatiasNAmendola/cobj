@@ -56,9 +56,18 @@ bits_in_digit(digit d)
 static COIntObject small_ints[SMALL_NEG_INT + SMALL_POS_INT];
 
 #if SMALL_NEG_INT + SMALL_POS_INT > 0
+
+static COObject *
+get_small_int(sdigit ival)
+{
+    COObject *o = (COIntObject *)(small_ints + ival + SMALL_NEG_INT);
+    CO_INCREF(o);
+    return o;
+}
+
 #define CHECK_SMALL_INT(ival)   \
     do if (-SMALL_NEG_INT <= ival && ival < SMALL_POS_INT) {    \
-        return (COObject *)(small_ints + ival + SMALL_NEG_INT); \
+        return get_small_int(ival); \
     } while (0);
 
 static COIntObject *
@@ -68,8 +77,7 @@ maybe_small_int(COIntObject *o)
         sdigit ival = ONEDIGIT_VALUE(o);
         if (-SMALL_NEG_INT <= ival && ival < SMALL_POS_INT) {
             CO_DECREF(o);
-            o = (COIntObject *)(small_ints + ival + SMALL_NEG_INT);
-            CO_INCREF(o);
+            return (COIntObject *)get_small_int(ival);
         }
     }
     return o;
