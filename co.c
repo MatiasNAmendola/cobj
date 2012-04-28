@@ -70,6 +70,8 @@ run_file(FILE *fp, const char *filename)
     COObject *code = compile(arena);
     COObject *func = COFunction_New(code);
     int exit_code = eval_wrapper(func) ? 0 : -1;
+    /*COObject_dump(code);*/
+    /*COObject_dump(func);*/
     CO_DECREF(code);
     CO_DECREF(func);
     COThreadState_DeleteCurrent();

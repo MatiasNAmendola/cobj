@@ -19,6 +19,9 @@ COErr_Restore(COObject *type, COObject *value, COObject *traceback)
     TS(curexc_value) = value;
     TS(curexc_traceback) = traceback;
 
+    CO_XINCREF(type);
+    CO_XINCREF(value);
+    CO_XINCREF(traceback);
     CO_XDECREF(oldtype);
     CO_XDECREF(oldvalue);
     CO_XDECREF(oldtraceback);

@@ -34,6 +34,7 @@ COTypeObject COType_Type = {
 void
 default_dealloc(COObject *this)
 {
+    COObject_dump(this);
     error("deallocated");
     exit(0);
 }

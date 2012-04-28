@@ -93,6 +93,7 @@ vm_eval(COObject *func)
 #define PUSH(o)         (*stack_top++ = (o))
 #define POP()           (*--stack_top)
 #define TOP()           (stack_top[-1])
+#define SET_TOP(o)      (stack_top[-1] = (o))
 #define SECOND()        (stack_top[-2])
 #define THIRD()         (stack_top[-3])
 #define FOURTH()        (stack_top[-4])
@@ -155,66 +156,85 @@ start_frame:                   /* reentry point when function return */
         switch (opcode) {
         case OP_BINARY_ADD:
             o1 = POP();
-            o2 = POP();
+            o2 = TOP();
             x = COInt_Type.tp_int_interface->int_add(o1, o2);
-            PUSH(x);
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            SET_TOP(x);
             break;
         case OP_BINARY_SUB:
             o1 = POP();
-            o2 = POP();
+            o2 = TOP();
             x = COInt_Type.tp_int_interface->int_sub(o2, o1);
-            PUSH(x);
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            SET_TOP(x);
             break;
         case OP_BINARY_MUL:
             o1 = POP();
-            o2 = POP();
+            o2 = TOP();
             x = COInt_Type.tp_int_interface->int_mul(o2, o1);
-            PUSH(x);
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            SET_TOP(x);
             break;
         case OP_BINARY_DIV:
             o1 = POP();
-            o2 = POP();
+            o2 = TOP();
             x = COInt_Type.tp_int_interface->int_div(o2, o1);
-            PUSH(x);
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            SET_TOP(x);
             break;
         case OP_BINARY_MOD:
             o1 = POP();
-            o2 = POP();
+            o2 = TOP();
             x = COInt_Type.tp_int_interface->int_mod(o2, o1);
-            PUSH(x);
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            SET_TOP(x);
             break;
         case OP_BINARY_SL:
             o1 = POP();
-            o2 = POP();
+            o2 = TOP();
             x = COInt_Type.tp_int_interface->int_lshift(o2, o1);
-            PUSH(x);
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            SET_TOP(x);
             break;
         case OP_BINARY_SR:
             o1 = POP();
-            o2 = POP();
+            o2 = TOP();
             x = COInt_Type.tp_int_interface->int_rshift(o2, o1);
-            PUSH(x);
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            SET_TOP(x);
             break;
         case OP_CMP:
             o1 = POP();
-            o2 = POP();
+            o2 = TOP();
             oparg = NEXTARG();
             x = _vm_cmp(oparg, o1, o2);
             if (!x) {
                 status = STATUS_EXCEPTION;
                 goto fast_end;
             }
-            PUSH(x);
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            CO_INCREF(x);
+            SET_TOP(x);
             break;
         case OP_UNARY_NEGATE:
-            o1 = POP();
+            o1 = TOP();
             x = COInt_Type.tp_int_interface->int_neg(o1);
-            PUSH(x);
+            CO_DECREF(o1);
+            SET_TOP(x);
             break;
         case OP_UNARY_INVERT:
-            o1 = POP();
+            o1 = TOP();
             x = COInt_Type.tp_int_interface->int_invert(o1);
-            PUSH(x);
+            CO_DECREF(o1);
+            SET_TOP(x);
             break;
         case OP_LOAD_NAME:
             oparg = NEXTARG();
@@ -238,6 +258,7 @@ start_frame:                   /* reentry point when function return */
         case OP_PRINT:
             x = POP();
             COObject_print(x);
+            CO_DECREF(x);
             break;
         case OP_BUILD_TUPLE:
             oparg = NEXTARG();
@@ -246,7 +267,9 @@ start_frame:                   /* reentry point when function return */
                 for (; --oparg >= 0;) {
                     o1 = POP();
                     COTuple_SET_ITEM(x, oparg, o1);
+                    CO_DECREF(o1);
                 }
+                CO_INCREF(x);
                 PUSH(x);
             }
             break;
@@ -257,7 +280,9 @@ start_frame:                   /* reentry point when function return */
                 for (; --oparg >= 0;) {
                     o1 = POP();
                     COList_SetItem(x, oparg, o1);
+                    CO_DECREF(o1);
                 }
+                CO_INCREF(x);
                 PUSH(x);
                 continue;
             }
@@ -273,6 +298,8 @@ start_frame:                   /* reentry point when function return */
             o3 = POP();
             CODict_SetItem(o3, o1, o2);
             x = o3;
+            CO_DECREF(o1);
+            CO_DECREF(o2);
             PUSH(x);
             break;
         case OP_ASSIGN:
@@ -280,6 +307,7 @@ start_frame:                   /* reentry point when function return */
             o1 = GETITEM(names, oparg);
             o2 = POP();
             COObject_set(o1, o2);
+            CO_DECREF(o2);
             break;
         case OP_JMPZ:
             oparg = NEXTARG();
@@ -294,6 +322,7 @@ start_frame:                   /* reentry point when function return */
                 else if (err == 0)
                     JUMPTO(oparg);
             }
+            CO_DECREF(o1);
             break;
         case OP_JMP:
             oparg = NEXTARG();
@@ -305,7 +334,6 @@ start_frame:                   /* reentry point when function return */
             break;
         case OP_DECLARE_FUNCTION:
             o1 = POP();
-            CO_DECREF(o1);
             x = COFunction_New(o1);
             COCodeObject *c = (COCodeObject *)o1;
             for (int i = 0; i < CO_SIZE(c->co_names); i++) {
@@ -316,39 +344,42 @@ start_frame:                   /* reentry point when function return */
                                    upvalue);
                 }
             }
+            CO_DECREF(o1);
             PUSH(x);
             break;
         case OP_CALL_FUNCTION:
             o1 = POP();
-            CO_DECREF(o1);
             oparg = NEXTARG();
             while (oparg--) {
                 o2 = POP();
-                CO_DECREF(o2);
                 COList_Append(TS(funcargs), o2);
+                CO_DECREF(o2);
             }
             func = o1;
             frame->f_stacktop = stack_top;
             frame->f_lasti = (int)(next_code - first_code);
+            CO_DECREF(o1);
             goto new_frame;
             break;
         case OP_RETURN:
-            x = POP();
+            o1 = POP();
             COFrameObject *old_frame = (COFrameObject *)TS(frame);
             TS(frame) = old_frame->f_prev;
+            /*CO_DECREF(old_frame);*/
             if (!TS(frame)) {
-                CO_DECREF(old_frame);
+                CO_DECREF(o1);
                 goto vm_exit;
             }
             // init function return
             /*CO_DECREF(func); // !important decrefs current function object*/
             frame = (COFrameObject *)TS(frame);
-            *frame->f_stacktop++ = x;
+            *frame->f_stacktop++ = o1;
             stack_top = frame->f_stacktop;
             code =
                 (COCodeObject *)((COFunctionObject *)frame->f_func)->func_code;
             names = code->co_names;
             consts = code->co_consts;
+            CO_DECREF(o1);
             goto start_frame;
             break;
         case OP_SETUP_LOOP:
@@ -380,21 +411,23 @@ start_frame:                   /* reentry point when function return */
             break;
         case OP_THROW:
             status = STATUS_EXCEPTION;
-            o1 = POP();
+            o1 = TOP();
             COErr_SetObject(COException_SystemError, o1);
-            PUSH(o1);
             break;
         case OP_DUP_TOP:
             o1 = TOP();
+            CO_INCREF(o1);
             PUSH(o1);
             break;
         case OP_POP_TOP:
             o1 = POP();
+            CO_DECREF(o1);
             break;
         case OP_END_TRY:
             o1 = POP();
             COErr_SetString(COException_SystemError, COStr_AsString(o1));
             status = STATUS_EXCEPTION;
+            CO_DECREF(o1);
             break;
         case OP_SETUP_FINALLY:
             oparg = NEXTARG();
@@ -406,6 +439,7 @@ start_frame:                   /* reentry point when function return */
                 COErr_SetString(COException_SystemError, COStr_AsString(o1));
                 status = STATUS_EXCEPTION;
             }
+            CO_DECREF(o1);
             break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);

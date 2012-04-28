@@ -228,7 +228,9 @@ CODict_SetItem(COObject *this, COObject *key, COObject *item)
         return _dict_insert((CODictObject *)this, key, item);
     }
 
+    CO_DECREF(p->pItem);
     p->pItem = item;
+    CO_INCREF(item);
 
     return 0;
 }

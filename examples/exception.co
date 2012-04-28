@@ -5,20 +5,20 @@
 #end
 
 #try
-    #throw 1
+    #throw "a"
 #end
 
-#try
-    #print "try-catch: try"
-    #throw "a"
-    #print "try-catch: after throw"
-#catch "a"
-    #print "try-catch: catch a"
-#catch "b", "c"
-    #print "try-catch: catch b or c"
-#catch
-    #print "try-catch: default catch"
-#end
+try
+    print "try-catch: try"
+    throw "a"
+    print "try-catch: after throw"
+catch "a"
+    print "try-catch: catch a"
+catch "b", "c"
+    print "try-catch: catch b or c"
+catch
+    print "try-catch: default catch"
+end
 
 # nested 
 #try
@@ -38,13 +38,13 @@
     #print "no errors"
 #end
 
-try
-    print "try-catch-finally: try"
-    throw "a"
-catch "a"
-    print "try-catch-finally: a"
-else
-    print "no error"
-finally
-    print "try-catch-finally: finally"
-end
+#try
+    #print "try-catch-finally: try"
+    #throw "a"
+#catch "a"
+    #print "try-catch-finally: a"
+#else
+    #print "no error"
+#finally
+    #print "try-catch-finally: finally"
+#end
