@@ -47,6 +47,9 @@ COErr_Print(void)
     COErr_Fetch(&type, &value, &traceback);
     fprintf(stderr, "%s: %s\n", ((COTypeObject *)type)->tp_name,
             COStr_AsString(value));
+    CO_XDECREF(type);
+    CO_XDECREF(value);
+    CO_XDECREF(traceback);
 }
 
 void

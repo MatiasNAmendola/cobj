@@ -5,10 +5,11 @@
  */
 
 #include "object.h"
+#include "objects/frameobject.h"
 
 typedef struct _COThreadState {
     COObject *funcargs;
-    COObject *frame;
+    COFrameObject *frame;
 
     COObject *curexc_type;
     COObject *curexc_value;
