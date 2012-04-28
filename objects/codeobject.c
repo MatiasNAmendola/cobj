@@ -33,10 +33,10 @@ code_hash(COCodeObject *co)
 static void
 code_dealloc(COCodeObject *this)
 {
-    CO_XDECREF(this->co_name);
-    CO_XDECREF(this->co_code);
-    CO_XDECREF(this->co_consts);
-    CO_XDECREF(this->co_names);
+    CO_DECREF(this->co_name);
+    CO_DECREF(this->co_code);
+    CO_DECREF(this->co_consts);
+    CO_DECREF(this->co_names);
     COMem_FREE(this);
 }
 

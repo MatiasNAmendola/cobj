@@ -474,9 +474,6 @@ compiler_visit_node(struct compiler *c, Node *n)
         }
         compiler_visit_nodelist(c, n->nfuncbody);
         COObject *co = assemble(c);
-        if (n->nfuncname) {
-            ((COCodeObject *)co)->co_name = n->nfuncname->o;
-        }
 #ifdef CO_DEBUG
         printf("begin function\n");
         dump_code(co);

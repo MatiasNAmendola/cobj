@@ -13,9 +13,9 @@ function_repr(COFunctionObject *this)
 static void
 function_dealloc(COFunctionObject *this)
 {
-    CO_XDECREF(this->func_name);
-    CO_XDECREF(this->func_upvalues);
-    CO_XDECREF(this->func_code);
+    CO_DECREF(this->func_name);
+    CO_DECREF(this->func_upvalues);
+    CO_DECREF(this->func_code);
     COMem_FREE(this);
 }
 

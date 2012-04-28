@@ -12,7 +12,7 @@ COObject_dump(COObject *o)
     if (o == NULL) {
         fprintf(stderr, "NULL\n");
     } else {
-        fprintf(stderr, "object:\n");
+        fprintf(stderr, "object(%p):\n", o);
         fprintf(stderr, "    type: %s\n",
                 CO_TYPE(o) == NULL ? "NULL" : CO_TYPE(o)->tp_name);
         fprintf(stderr, "    refcnt: %d\n", o->co_refcnt);

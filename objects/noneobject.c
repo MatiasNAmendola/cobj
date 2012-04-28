@@ -1,11 +1,9 @@
 #include "../co.h"
 
-static COObject *None_str = NULL;
-
 static COObject *
 none_repr(COObject *o)
 {
-    return None_str ? None_str : (None_str = COStr_FromString("None"));
+    return COStr_FromString("None");
 }
 
 COTypeObject CONone_Type = {

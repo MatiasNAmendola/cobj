@@ -73,6 +73,8 @@ run_file(FILE *fp, const char *filename)
     CO_DECREF(source);
     CO_DECREF(f);
     CO_DECREF(code);
+    /*COObject_dump(code);*/
+    /*COObject_dump(func);*/
     CO_DECREF(func);
     COThreadState_DeleteCurrent();
     arena_free(arena);
