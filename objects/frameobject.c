@@ -3,12 +3,13 @@
 static COObject *
 frame_repr(COFrameObject *this)
 {
-    return COStr_FromString("<stack>");
+    return COStr_FromString("<frame>");
 }
 
 static void
 frame_dealloc(COFrameObject *this)
 {
+    CO_XDECREF(this->f_prev);
     CO_XDECREF(this->f_code);
     CO_XDECREF(this->f_func);
     CO_XDECREF(this->f_locals);
@@ -26,7 +27,7 @@ frame_dealloc(COFrameObject *this)
 
 COTypeObject COFrame_Type = {
     COObject_HEAD_INIT(&COType_Type),
-    "stack",
+    "frame",
     sizeof(COFrameObject),
     sizeof(COObject *),
     (deallocfunc)frame_dealloc, /* tp_dealloc */

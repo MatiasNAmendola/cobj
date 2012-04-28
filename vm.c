@@ -305,6 +305,7 @@ start_frame:                   /* reentry point when function return */
             break;
         case OP_DECLARE_FUNCTION:
             o1 = POP();
+            CO_DECREF(o1);
             x = COFunction_New(o1);
             COCodeObject *c = (COCodeObject *)o1;
             for (int i = 0; i < CO_SIZE(c->co_names); i++) {
@@ -319,9 +320,11 @@ start_frame:                   /* reentry point when function return */
             break;
         case OP_CALL_FUNCTION:
             o1 = POP();
+            CO_DECREF(o1);
             oparg = NEXTARG();
             while (oparg--) {
                 o2 = POP();
+                CO_DECREF(o2);
                 COList_Append(TS(funcargs), o2);
             }
             func = o1;
@@ -333,11 +336,12 @@ start_frame:                   /* reentry point when function return */
             x = POP();
             COFrameObject *old_frame = (COFrameObject *)TS(frame);
             TS(frame) = old_frame->f_prev;
-            CO_XDECREF(old_frame);
             if (!TS(frame)) {
+                CO_DECREF(old_frame);
                 goto vm_exit;
             }
             // init function return
+            /*CO_DECREF(func); // !important decrefs current function object*/
             frame = (COFrameObject *)TS(frame);
             *frame->f_stacktop++ = x;
             stack_top = frame->f_stacktop;

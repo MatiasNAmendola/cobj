@@ -20,6 +20,7 @@ ssize_t char_str_num = 0;
 static COObject *
 str_repr(COObject *this)
 {
+    CO_INCREF(this);
     return this;
 }
 

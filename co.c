@@ -45,13 +45,11 @@ cli_completion(const char *buf, linenoiseCompletions *lc)
 }
 
 COObject *
-eval_wrapper(COObject *co)
+eval_wrapper(COObject *func)
 {
     COObject *ret;
 
-    COObject *func = COFunction_New(co);
     ret = vm_eval(func);
-    CO_DECREF(func);
     if (!ret) {
         if (COErr_Occurred()) {
             COErr_Print();
@@ -70,8 +68,10 @@ run_file(FILE *fp, const char *filename)
     scanner_setfile(f);
     CO_DECREF(f);
     COObject *code = compile(arena);
-    int exit_code = eval_wrapper(code) ? 0 : -1;
+    COObject *func = COFunction_New(code);
+    int exit_code = eval_wrapper(func) ? 0 : -1;
     CO_DECREF(code);
+    CO_DECREF(func);
     COThreadState_DeleteCurrent();
     arena_free(arena);
     return exit_code;
@@ -84,8 +84,10 @@ run_string(const char *str)
     scanner_init(arena);
     scanner_setcode((char*)str);
     COObject *code = compile(arena);
-    int exit_code = eval_wrapper(code) ? 0 : -1;
+    COObject *func = COFunction_New(code);
+    int exit_code = eval_wrapper(func) ? 0 : -1;
     CO_DECREF(code);
+    CO_DECREF(func);
     COThreadState_DeleteCurrent();
     arena_free(arena);
     return exit_code;
@@ -132,7 +134,7 @@ main(int argc, const char **argv)
         }
 
         if (isatty((int)fileno(f))) {
-            char *code;
+            char *eval;
             linenoiseSetCompletionCallback(cli_completion);
             char *home = getenv("HOME");
             char history[PATH_MAX];
@@ -146,12 +148,16 @@ main(int argc, const char **argv)
             /* Read-Eval-Print Loop */
             struct arena *arena;
             arena = arena_new();
-            while ((code = linenoise(">>> ")) != NULL) {
-                scanner_setcode(code);
-                COObject *co = compile(arena);
-                eval_wrapper(co);
-                CO_DECREF(co);
-                linenoiseHistoryAdd(code);
+            while ((eval = linenoise(">>> ")) != NULL) {
+                scanner_setcode(eval);
+
+                COObject *code = compile(arena);
+                COObject *func = COFunction_New(code);
+                eval_wrapper(func);
+                CO_DECREF(code);
+                CO_DECREF(func);
+
+                linenoiseHistoryAdd(eval);
                 if (history_path) {
                     linenoiseHistorySave(history_path);
                 }

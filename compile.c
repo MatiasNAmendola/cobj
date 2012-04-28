@@ -484,6 +484,7 @@ compiler_visit_node(struct compiler *c, Node *n)
 #endif
         compiler_exit_scope(c);
         oparg = compiler_add(c->u->consts, co);
+        CO_DECREF(co);
         compiler_addop_i(c, OP_LOAD_CONST, oparg);
         compiler_addop(c, OP_DECLARE_FUNCTION);
 
