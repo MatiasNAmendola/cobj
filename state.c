@@ -25,7 +25,6 @@ COThreadState_Delete(COThreadState *state)
     if (!state)
         return;
 
-    CO_XDECREF(state->mainfunc);
     CO_XDECREF(state->funcargs);
     CO_XDECREF(state->frame);
 

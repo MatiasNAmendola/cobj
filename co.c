@@ -51,6 +51,7 @@ eval_wrapper(COObject *co)
 
     COObject *func = COFunction_New(co);
     ret = vm_eval(func);
+    CO_DECREF(func);
     if (!ret) {
         if (COErr_Occurred()) {
             COErr_Print();

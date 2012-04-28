@@ -7,7 +7,6 @@
 #include "object.h"
 
 typedef struct _COThreadState {
-    COObject *mainfunc;
     COObject *funcargs;
     COObject *frame;
 

@@ -122,8 +122,6 @@ vm_eval(COObject *func)
     int status;                 /* VM status */
     int err;                    /* C function error code */
 
-    TS(mainfunc) = func;
-
 new_frame:                     /* reentry point when function call */
     status = STATUS_NONE;
     code = (COCodeObject *)((COFunctionObject *)func)->func_code;
