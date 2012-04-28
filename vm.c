@@ -212,7 +212,7 @@ start_frame:                   /* reentry point when function return */
             break;
         case OP_CMP:
             o1 = POP();
-            o2 = TOP();
+            o2 = POP();
             oparg = NEXTARG();
             x = _vm_cmp(oparg, o1, o2);
             if (!x) {
@@ -222,7 +222,7 @@ start_frame:                   /* reentry point when function return */
             CO_DECREF(o1);
             CO_DECREF(o2);
             CO_INCREF(x);
-            SET_TOP(x);
+            PUSH(x);
             break;
         case OP_UNARY_NEGATE:
             o1 = TOP();
@@ -352,7 +352,11 @@ start_frame:                   /* reentry point when function return */
             oparg = NEXTARG();
             while (oparg--) {
                 o2 = POP();
+                /*printf("list first\n");*/
+                /*COObject_dump(o2);*/
                 COList_Append(TS(funcargs), o2);
+                /*COObject_dump(o2);*/
+                /*printf("list last\n");*/
                 CO_DECREF(o2);
             }
             func = o1;

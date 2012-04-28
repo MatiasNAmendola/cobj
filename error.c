@@ -69,6 +69,7 @@ COErr_Format(COObject *exception, const char *fmt, ...)
 
     str = COStr_FromFormatV(fmt, vargs);
     COErr_SetObject(exception, str);
+    CO_DECREF(str);
 
     va_end(vargs);
 }
