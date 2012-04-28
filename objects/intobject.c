@@ -60,7 +60,7 @@ static COIntObject small_ints[SMALL_NEG_INT + SMALL_POS_INT];
 static COObject *
 get_small_int(sdigit ival)
 {
-    COObject *o = (COIntObject *)(small_ints + ival + SMALL_NEG_INT);
+    COObject *o = (COObject *)(small_ints + ival + SMALL_NEG_INT);
     CO_INCREF(o);
     return o;
 }
