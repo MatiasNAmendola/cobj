@@ -18,6 +18,7 @@ COObject_dump(COObject *o)
         COStrObject *s = (COStrObject *)COObject_repr(o);
         fprintf(stderr, "    repr: %s\n", s->co_sval);
         fprintf(stderr, "    refcnt: %d\n", o->co_refcnt);
+        CO_DECREF(s);
     }
 }
 
