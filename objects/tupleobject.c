@@ -25,6 +25,7 @@ tuple_hash(COTupleObject *this)
     long x, y;
     ssize_t len;
     COObject **p;
+    x = 0x345678L;
     len = this->co_size;
     p = this->co_item;
     while (--len >= 0) {
