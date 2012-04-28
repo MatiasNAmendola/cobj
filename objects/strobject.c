@@ -42,6 +42,8 @@ str_concat(COStrObject *this, COStrObject *s)
     memcpy(co->co_sval + CO_SIZE(this), s->co_sval, CO_SIZE(s));
     co->co_shash = -1;
     co->co_sval[size] = '\0';
+    CO_DECREF(this);
+    CO_DECREF(s);
     return co;
 }
 
@@ -274,12 +276,14 @@ COStr_FromStringN(const char *s, ssize_t len)
 #ifdef STR_COUNT
         null_str_num++;
 #endif
+        CO_INCREF(str);
         return (COObject *)str;
     }
     if (len == 1 && s != NULL && (str = char_strs[*s & UCHAR_MAX]) != NULL) {
 #ifdef STR_COUNT
         char_str_num++;
 #endif
+        CO_INCREF(str);
         return (COObject *)str;
     }
 

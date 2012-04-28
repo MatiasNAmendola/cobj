@@ -333,7 +333,8 @@ compound_stmt:
             if (t->nfuncbody) {
                 t->nfuncbody = nodelist_append(c->arena, t->nfuncbody, return_none_node(c->arena));
             } else {
-                t->nfuncbody = nodelist(c->arena, return_none_node(c->arena));
+                t->nfuncbody = nodelist(c->arena, return_none_node(c->arena),
+                NULL);
             }
             $$ = nodelist(c->arena, t, NULL);
         }

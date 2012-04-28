@@ -369,7 +369,6 @@ start_frame:                   /* reentry point when function return */
             TS(frame) = (COFrameObject *)old_frame->f_prev;
             CO_DECREF(old_frame);
             if (!TS(frame)) {
-                CO_DECREF(func);
                 CO_DECREF(o1);
                 goto vm_exit;
             }
@@ -496,6 +495,6 @@ vm_exit:
     
     /* Clear current function. */
     CO_DECREF(func);
-    
+
     return x;
 }
