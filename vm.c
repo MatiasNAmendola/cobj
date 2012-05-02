@@ -67,15 +67,21 @@ _vm_cmp(int op, COObject *o1, COObject *o2)
         int i = COTuple_Size(o1);
         for (; --i >= 0;) {
             if (COObject_CompareBool(COTuple_GET_ITEM(o1, i), o2, Cmp_EQ)) {
-                return CO_True;
+                x = CO_True;
+                CO_INCREF(x);
+                goto end;
             }
         }
-        return CO_False;
+        x = CO_False;
+        CO_INCREF(x);
+        goto end;
         break;
     default:
         x = COObject_Compare(o2, o1, op);
         break;
     }
+
+end:
     return x;
 }
 
@@ -214,8 +220,10 @@ start_frame:                   /* reentry point when function return */
             break;
         case OP_CMP:
             o1 = POP();
-            o2 = POP();
+            o2 = TOP();
             oparg = NEXTARG();
+            /*COObject_dump(CO_True);*/
+            /*COObject_dump(CO_False);*/
             x = _vm_cmp(oparg, o1, o2);
             if (!x) {
                 status = STATUS_EXCEPTION;
@@ -223,8 +231,7 @@ start_frame:                   /* reentry point when function return */
             }
             CO_DECREF(o1);
             CO_DECREF(o2);
-            CO_INCREF(x);
-            PUSH(x);
+            SET_TOP(x);
             break;
         case OP_UNARY_NEGATE:
             o1 = TOP();
@@ -367,21 +374,20 @@ start_frame:                   /* reentry point when function return */
             o1 = POP();
             COFrameObject *old_frame = (COFrameObject *)TS(frame);
             TS(frame) = (COFrameObject *)old_frame->f_prev;
-            CO_DECREF(frame);
+            CO_DECREF(old_frame);
             if (!TS(frame)) {
                 CO_DECREF(o1);
                 goto vm_exit;
             }
             // init function return
             frame = (COFrameObject *)TS(frame);
-            *frame->f_stacktop++ = o1;
             stack_top = frame->f_stacktop;
+            PUSH(o1);
             func = frame->f_func;
             code =
                 (COCodeObject *)((COFunctionObject *)frame->f_func)->func_code;
             names = code->co_names;
             consts = code->co_consts;
-            CO_DECREF(o1);
             goto start_frame;
             break;
         case OP_SETUP_LOOP:

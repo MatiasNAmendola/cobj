@@ -62,6 +62,7 @@ eval_wrapper(COObject *func)
 int
 run_file(FILE *fp, const char *filename)
 {
+    int exit_code = 0;
     struct arena *arena = arena_new();
     scanner_init(arena);
     COObject *f = COFile_FromFile(fp, (char *)filename, "r", fclose);
@@ -69,7 +70,7 @@ run_file(FILE *fp, const char *filename)
     scanner_setcode(COBytes_AsString(source));
     COObject *code = compile(arena);
     COObject *func = COFunction_New(code);
-    int exit_code = eval_wrapper(func) ? 0 : -1;
+    exit_code = eval_wrapper(func) ? 0 : -1;
     CO_DECREF(source);
     CO_DECREF(f);
     CO_DECREF(code);
@@ -78,6 +79,11 @@ run_file(FILE *fp, const char *filename)
     CO_DECREF(func);
     COThreadState_DeleteCurrent();
     arena_free(arena);
+
+    // check gc
+    /*COObject_dump(CO_None);*/
+    /*COObject_dump(CO_True);*/
+    /*COObject_dump(CO_False);*/
     return exit_code;
 }
 

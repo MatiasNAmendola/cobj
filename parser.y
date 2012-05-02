@@ -6,7 +6,6 @@ return_none_node(struct arena *arena)
 {
     Node *n = node_new(arena, NODE_CONST, NULL, NULL);
     n->o = CO_None;
-    CO_INCREF(CO_None);
     return node_new(arena, NODE_RETURN, n, NULL);
 }
 
