@@ -8,9 +8,9 @@ end
 
 #print fibo(0)
 #print fibo(1)
-print fibo(7);
-#i = 0
-#while i < 10
-    #print fibo(i)
-    #i += 1
-#end
+#print fibo(10);
+i = 0
+while i < 10
+    print fibo(i)
+    i += 1
+end

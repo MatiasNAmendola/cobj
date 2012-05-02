@@ -222,8 +222,6 @@ start_frame:                   /* reentry point when function return */
             o1 = POP();
             o2 = TOP();
             oparg = NEXTARG();
-            /*COObject_dump(CO_True);*/
-            /*COObject_dump(CO_False);*/
             x = _vm_cmp(oparg, o1, o2);
             if (!x) {
                 status = STATUS_EXCEPTION;
@@ -382,6 +380,7 @@ start_frame:                   /* reentry point when function return */
             // init function return
             frame = (COFrameObject *)TS(frame);
             stack_top = frame->f_stacktop;
+            CO_INCREF(o1);
             PUSH(o1);
             func = frame->f_func;
             code =
