@@ -10,7 +10,6 @@ static void
 frame_dealloc(COFrameObject *this)
 {
     CO_XDECREF(this->f_prev);
-    CO_XDECREF(this->f_code);
     CO_XDECREF(this->f_func);
     CO_XDECREF(this->f_locals);
 
@@ -40,14 +39,12 @@ COTypeObject COFrame_Type = {
 };
 
 COObject *
-COFrame_New(COObject *code, COObject *prev, COObject *func)
+COFrame_New(COObject *prev, COObject *func)
 {
     COFrameObject *f = COVarObject_New(COFrameObject, &COFrame_Type,
-                                       ((COCodeObject *)code)->co_stacksize);
+                                       ((COCodeObject *)((COFunctionObject *)func)->func_code)->co_stacksize);
 
     f->f_lasti = 0;
-    f->f_code = code;
-    CO_XINCREF(code);
     f->f_prev = prev;
     CO_XINCREF(prev);
     f->f_func = func;

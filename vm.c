@@ -104,7 +104,7 @@ vm_eval(COObject *func)
 #define THIRD()         (stack_top[-3])
 #define FOURTH()        (stack_top[-4])
 #define PEEK(n)         (stack_top[-(n)])
-#define STACK_LEVEL()   ((int)(stack_top - frame->f_stack))
+#define STACK_LEVEL()   ((int)(stack_top - TS(frame)->f_stack))
 #define UNWIND_BLOCK(b) \
     do { \
         while (STACK_LEVEL() > (b)->fb_level) { \
@@ -113,7 +113,6 @@ vm_eval(COObject *func)
         } \
     } while (0)
 
-    COFrameObject *frame;
     COCodeObject *code;
     COObject *names;
     COObject *consts;
@@ -130,13 +129,14 @@ vm_eval(COObject *func)
     int err;                    /* C function error code */
     status = STATUS_NONE;
 
-new_frame:                     /* reentry point when function call */
-    code = (COCodeObject *)((COFunctionObject *)func)->func_code;
-    frame = (COFrameObject *)COFrame_New((COObject *)code, (COObject *)TS(frame), func);
-    TS(frame) = frame;
-    stack_top = frame->f_stacktop;
+new_frame:                      /* reentry point when function call */
+    TS(frame) = (COFrameObject *)COFrame_New((COObject *)TS(frame), func);
+    code = (COCodeObject *)((COFunctionObject *)TS(frame)->f_func)->func_code;
+    stack_top = TS(frame)->f_stacktop;
     names = code->co_names;
     consts = code->co_consts;
+    first_code = (unsigned char *)COBytes_AsString(code->co_code);
+    next_code = first_code + TS(frame)->f_lasti;
     if (COList_Size(TS(funcargs))) {
         // check arguments count
         if (code->co_argcount != COList_Size(TS(funcargs))) {
@@ -155,8 +155,6 @@ new_frame:                     /* reentry point when function call */
     }
 
 start_frame:                   /* reentry point when function return */
-    first_code = (unsigned char *)COBytes_AsString(code->co_code);
-    next_code = first_code + frame->f_lasti;
     for (;;) {
         opcode = NEXTOP();
         switch (opcode) {
@@ -361,15 +359,16 @@ start_frame:                   /* reentry point when function return */
                 CO_DECREF(o2);
             }
             func = o1;
-            frame->f_stacktop = stack_top;
-            frame->f_lasti = (int)(next_code - first_code);
+            TS(frame)->f_stacktop = stack_top;
+            TS(frame)->f_lasti = (int)(next_code - first_code);
             CO_DECREF(o1);
             goto new_frame;
             break;
         case OP_RETURN:
             o1 = POP();
+            TS(frame)->f_stacktop = stack_top;
+            TS(frame)->f_lasti = (int)(next_code - first_code);
             COFrameObject *old_frame = (COFrameObject *)TS(frame);
-            old_frame->f_stacktop = stack_top;
             TS(frame) = (COFrameObject *)old_frame->f_prev;
             CO_DECREF(old_frame);
             if (!TS(frame)) {
@@ -377,33 +376,34 @@ start_frame:                   /* reentry point when function return */
                 goto vm_exit;
             }
             // init function return
-            frame = (COFrameObject *)TS(frame);
-            stack_top = frame->f_stacktop;
+            stack_top = TS(frame)->f_stacktop;
             PUSH(o1);
-            func = frame->f_func;
+            func = TS(frame)->f_func;
             code =
-                (COCodeObject *)((COFunctionObject *)frame->f_func)->func_code;
+                (COCodeObject *)((COFunctionObject *)TS(frame)->f_func)->func_code;
             names = code->co_names;
             consts = code->co_consts;
+            first_code = (unsigned char *)COBytes_AsString(code->co_code);
+            next_code = first_code + TS(frame)->f_lasti;
             goto start_frame;
             break;
         case OP_SETUP_LOOP:
             oparg = NEXTARG();
-            COFrameBlock_Setup(frame, opcode, oparg, STACK_LEVEL());
+            COFrameBlock_Setup(TS(frame), opcode, oparg, STACK_LEVEL());
             break;
         case OP_SETUP_TRY:
             oparg = NEXTARG();
-            COFrameBlock_Setup(frame, opcode, oparg, STACK_LEVEL());
+            COFrameBlock_Setup(TS(frame), opcode, oparg, STACK_LEVEL());
             break;
         case OP_POP_BLOCK:
             {
-                COFrameBlock *fb = COFrameBlock_Pop(frame);
+                COFrameBlock *fb = COFrameBlock_Pop(TS(frame));
                 UNWIND_BLOCK(fb);
             }
             break;
         case OP_POP_TRY:
             {
-                COFrameBlock *fb = COFrameBlock_Pop(frame);
+                COFrameBlock *fb = COFrameBlock_Pop(TS(frame));
                 UNWIND_BLOCK(fb);
             }
             break;
@@ -436,7 +436,7 @@ start_frame:                   /* reentry point when function return */
             break;
         case OP_SETUP_FINALLY:
             oparg = NEXTARG();
-            COFrameBlock_Setup(frame, opcode, oparg, STACK_LEVEL());
+            COFrameBlock_Setup(TS(frame), opcode, oparg, STACK_LEVEL());
             break;
         case OP_END_FINALLY:
             o1 = POP();
@@ -452,14 +452,14 @@ start_frame:                   /* reentry point when function return */
 
 fast_end:
 
-        while (status != STATUS_NONE && frame->f_iblock > 0) {
-            COFrameBlock *fb = &frame->f_blockstack[frame->f_iblock - 1];
+        while (status != STATUS_NONE && TS(frame)->f_iblock > 0) {
+            COFrameBlock *fb = &TS(frame)->f_blockstack[TS(frame)->f_iblock - 1];
             if (fb->fb_type == OP_SETUP_LOOP && status == STATUS_CONTINUE) {
                 status = STATUS_NONE;
                 JUMPTO(oparg);
                 break;
             }
-            frame->f_iblock--;
+            TS(frame)->f_iblock--;
             UNWIND_BLOCK(fb);
             if (fb->fb_type == OP_SETUP_LOOP && status == STATUS_BREAK) {
                 status = STATUS_NONE;
@@ -486,9 +486,9 @@ vm_exit:
 
     /* Clear frame stack. */
     while (TS(frame)) {
-        frame = (COFrameObject *)TS(frame)->f_prev;
+        COFrameObject *tmp_frame = (COFrameObject *)TS(frame)->f_prev;
         CO_DECREF(TS(frame));
-        TS(frame) = frame;
+        TS(frame) = tmp_frame;
     }
 
     return x;
