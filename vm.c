@@ -372,6 +372,7 @@ start_frame:                   /* reentry point when function return */
             o1 = POP();
             COFrameObject *old_frame = (COFrameObject *)TS(frame);
             TS(frame) = (COFrameObject *)old_frame->f_prev;
+            CO_INCREF(o1); // incremnt return value before deallocate current frame
             CO_DECREF(old_frame);
             if (!TS(frame)) {
                 CO_DECREF(o1);
@@ -380,7 +381,6 @@ start_frame:                   /* reentry point when function return */
             // init function return
             frame = (COFrameObject *)TS(frame);
             stack_top = frame->f_stacktop;
-            CO_INCREF(o1);
             PUSH(o1);
             func = frame->f_func;
             code =
