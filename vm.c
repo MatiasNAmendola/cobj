@@ -269,10 +269,9 @@ start_frame:                   /* reentry point when function return */
             if (x != NULL) {
                 for (; --oparg >= 0;) {
                     o1 = POP();
-                    COTuple_SET_ITEM(x, oparg, o1);
+                    COTuple_SetItem(x, oparg, o1);
                     CO_DECREF(o1);
                 }
-                CO_INCREF(x);
                 PUSH(x);
             }
             break;
@@ -285,9 +284,7 @@ start_frame:                   /* reentry point when function return */
                     COList_SetItem(x, oparg, o1);
                     CO_DECREF(o1);
                 }
-                CO_INCREF(x);
                 PUSH(x);
-                continue;
             }
             break;
         case OP_DICT_BUILD:
