@@ -113,8 +113,6 @@ vm_eval(COObject *func)
         } \
     } while (0)
 
-    CO_INCREF(func);
-
     COFrameObject *frame;
     COCodeObject *code;
     COObject *names;
@@ -130,9 +128,9 @@ vm_eval(COObject *func)
     COObject *o1, *o2, *o3;     /* Temporary objects popped of stack */
     int status;                 /* VM status */
     int err;                    /* C function error code */
+    status = STATUS_NONE;
 
 new_frame:                     /* reentry point when function call */
-    status = STATUS_NONE;
     code = (COCodeObject *)((COFunctionObject *)func)->func_code;
     frame = (COFrameObject *)COFrame_New((COObject *)code, (COObject *)TS(frame), func);
     TS(frame) = frame;
@@ -371,8 +369,8 @@ start_frame:                   /* reentry point when function return */
         case OP_RETURN:
             o1 = POP();
             COFrameObject *old_frame = (COFrameObject *)TS(frame);
+            old_frame->f_stacktop = stack_top;
             TS(frame) = (COFrameObject *)old_frame->f_prev;
-            CO_INCREF(o1); // incremnt return value before deallocate current frame
             CO_DECREF(old_frame);
             if (!TS(frame)) {
                 CO_DECREF(o1);
@@ -492,9 +490,6 @@ vm_exit:
         CO_DECREF(TS(frame));
         TS(frame) = frame;
     }
-    
-    /* Clear current function. */
-    CO_DECREF(func);
 
     return x;
 }
