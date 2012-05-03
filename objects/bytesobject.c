@@ -81,6 +81,7 @@ COTypeObject COBytes_Type = {
     (hashfunc)bytes_hash,       /* tp_hash */
     0,                          /* tp_compare */
     0,                          /* tp_int_interface */
+    0,                          /* tp_mapping_interface */
 };
 
 char *

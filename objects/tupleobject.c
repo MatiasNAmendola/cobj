@@ -64,6 +64,7 @@ COTypeObject COTuple_Type = {
     (hashfunc)tuple_hash,       /* tp_hash */
     0,                          /* tp_compare */
     0,                          /* tp_int_interface */
+    0,                          /* tp_mapping_interface */
 };
 
 static COObject *

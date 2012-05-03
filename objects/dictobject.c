@@ -36,6 +36,22 @@ dict_dealloc(CODictObject *this)
     COMem_FREE(this);
 }
 
+static COObject *
+dict_subscript(COListObject *this, COObject *index)
+{
+    COObject *x = CODict_GetItem((COObject *)this, index);
+    if (!x) {
+        COErr_SetObject(COException_KeyError, index);
+        return NULL;
+    }
+    return x;
+}
+
+static COMappingInterface mapping_interface = {
+    (lenfunc)CODict_Size,
+    (binaryfunc)dict_subscript,
+};
+
 COTypeObject CODict_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "dict",
@@ -48,6 +64,7 @@ COTypeObject CODict_Type = {
     0,                          /* tp_hash */
     0,                          /* tp_compare */
     0,                          /* tp_int_interface */
+    &mapping_interface,                          /* tp_mapping_interface */
 };
 
 int

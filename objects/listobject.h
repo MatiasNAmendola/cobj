@@ -30,4 +30,10 @@ int COList_Append(COObject *this, COObject *item);
 COObject *COList_AsTuple(COObject *this);
 COObject *COList_GetSlice(COObject *this, int ilow, int ihigh);
 
+/* Macros, trading safety for speed */
+#define COList_GET_ITEM(co, i)     (((COListObject *)(co))->co_item[i])
+// this *only* to be used to fill in brand new tuples 
+#define COList_SET_ITEM(co, i, v)  (((COListObject *)(co))->co_item[i] = v)
+#define COList_GET_SIZE(co)        (((COListObject *)(co))->co_size)
+
 #endif

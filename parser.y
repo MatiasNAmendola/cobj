@@ -187,7 +187,7 @@ expr: /* express something */
             $$->list = $3;
         }
     |   expr '[' expr ']' {
-            $$ = 0;
+            $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_SUBSCRIPT;
         }
     |   funcliteral opt_param_list stmt_list T_END {
             Node *t = node_new(c->arena, NODE_FUNC, NULL, NULL);

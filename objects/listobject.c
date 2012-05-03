@@ -33,6 +33,30 @@ list_dealloc(COListObject *this)
     COMem_FREE(this);
 }
 
+static COObject *
+list_subscript(COListObject *this, COObject *index)
+{
+    if (COInt_Check(index)) {
+        ssize_t i;
+        i = COInt_AsSsize_t(index);
+        if (i == -1 && COErr_Occurred()) {
+            // TODO errors
+            return NULL;
+        }
+        if (i < 0)
+            i += COList_GET_SIZE(this);
+        return COList_GetItem((COObject *)this, i);
+    } else {
+        COErr_Format(COException_TypeError, "list indices must be integers, not %.200s", index->co_type->tp_name);
+        return NULL;
+    }
+}
+
+static COMappingInterface mapping_interface = {
+    (lenfunc)COList_Size,
+    (binaryfunc)list_subscript,
+};
+
 COTypeObject COList_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "list",
@@ -45,6 +69,7 @@ COTypeObject COList_Type = {
     0,                          /* tp_hash */
     0,                          /* tp_compare */
     0,                          /* tp_int_interface */
+    &mapping_interface,         /* tp_mapping_interface */
 };
 
 /*
@@ -171,7 +196,7 @@ COObject *
 COList_GetItem(COObject *this, ssize_t index)
 {
     if (index >= ((COListObject *)this)->co_size) {
-        // TODO errors
+        COErr_Format(COException_IndexError, "list index out of range");
         return NULL;
     }
     return ((COListObject *)this)->co_item[index];

@@ -51,5 +51,6 @@ int COInt_Init(void);
 COObject *COInt_FromString(char *s, char **pend, int base);
 COObject *COInt_FromLong(long ival);
 long COInt_AsLong(COObject *o);
+ssize_t COInt_AsSsize_t(COObject *o);
 
 #endif

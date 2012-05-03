@@ -12,6 +12,7 @@ typedef long (*hashfunc) (COObject *);
 typedef COObject *(*comparefunc)(COObject *, COObject *, int);
 typedef COObject *(*unaryfunc)(COObject *);
 typedef COObject *(*binaryfunc)(COObject *, COObject *);
+typedef ssize_t (*lenfunc)(COObject *);
 /* ! Object Methods */
 
 /* Object Interfaces */
@@ -26,6 +27,16 @@ typedef struct {
     unaryfunc int_neg;
     unaryfunc int_invert;
 } COIntInterface;
+
+typedef struct {
+    lenfunc sq_length;
+    binaryfunc sq_concat;
+} COSequenceInterface;
+
+typedef struct {
+    lenfunc mp_length;
+    binaryfunc mp_subscript;
+} COMappingInterface;
 /* ! Object Interfaces */
 
 struct _COTypeObject {
@@ -44,6 +55,7 @@ struct _COTypeObject {
 
     /* Interfaces for standard types */
     COIntInterface *tp_int_interface;
+    COMappingInterface *tp_mapping_interface;
 };
 
 COTypeObject COType_Type;

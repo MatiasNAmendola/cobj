@@ -219,6 +219,22 @@ start_frame:                   /* reentry point when function return */
             CO_DECREF(o2);
             SET_TOP(x);
             break;
+        case OP_BINARY_SUBSCRIPT:
+            o1 = POP();
+            o2 = TOP();
+            if (!CO_TYPE(o2)->tp_mapping_interface) {
+                COErr_Format(COException_TypeError, "'%.200s' object is not subscriptable", CO_TYPE(o2)->tp_name);
+                status = STATUS_EXCEPTION;
+            } else {
+                x = CO_TYPE(o2)->tp_mapping_interface->mp_subscript(o2, o1);
+                if (!x) {
+                    status = STATUS_EXCEPTION;
+                }
+            }
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            SET_TOP(x);
+            break;
         case OP_CMP:
             o1 = POP();
             o2 = TOP();
@@ -301,7 +317,7 @@ start_frame:                   /* reentry point when function return */
             o1 = POP();
             o2 = POP();
             o3 = POP();
-            CODict_SetItem(o3, o1, o2);
+            CODict_SetItem(o3, o2, o1);
             x = o3;
             CO_DECREF(o1);
             CO_DECREF(o2);

@@ -17,6 +17,7 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_BINARY_POW);
         GIVE_NAME(OP_BINARY_SL);
         GIVE_NAME(OP_BINARY_SR);
+        GIVE_NAME(OP_BINARY_SUBSCRIPT);
         GIVE_NAME(OP_UNARY_NEGATE);
         GIVE_NAME(OP_UNARY_INVERT);
         GIVE_NAME(OP_CMP);
