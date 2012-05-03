@@ -37,9 +37,10 @@ COObject *
 COFunction_New(COObject *func_code)
 {
     COFunctionObject *func = COObject_New(COFunctionObject, &COFunction_Type);
-    COObject *func_name = anonymous_func_name ? anonymous_func_name : (anonymous_func_name =
-                                                         COStr_FromString
-                                                         ("anonymous"));
+    COObject *func_name =
+        anonymous_func_name ? anonymous_func_name : (anonymous_func_name =
+                                                     COStr_FromString
+                                                     ("anonymous"));
     func->func_name = func_name;
     CO_XINCREF(func_name);
     func->func_upvalues = CODict_New();

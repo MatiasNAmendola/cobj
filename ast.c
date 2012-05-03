@@ -83,6 +83,7 @@ node_type(Node_Type type)
         GIVE_NAME(NODE_WHILE);
         GIVE_NAME(NODE_FUNC);
         GIVE_NAME(NODE_FUNC_CALL);
+        GIVE_NAME(NODE_FUNC_CALL_STMT);
         GIVE_NAME(NODE_RETURN);
         GIVE_NAME(NODE_CONST);
         GIVE_NAME(NODE_NAME);

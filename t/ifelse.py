@@ -9,25 +9,25 @@ else
 """, """
 num = 10
 if num < 100
-    print "if"
+    print("if")
 else
-    print "bad"
+    print("bad")
 end
 
 if num == 1
-    print "if"
+    print("if")
 else if num == 10
-    print "else if"
+    print("else if")
 else 
-    print "else"
+    print("else")
 end
 end
 
 if num == 0
-    print "if"
+    print("if")
 elif num == 1
-    print "else if"
+    print("else if")
 else 
-    print "else"
+    print("else")
 end
 """)

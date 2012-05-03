@@ -12,6 +12,7 @@ frame_dealloc(COFrameObject *this)
     CO_XDECREF(this->f_prev);
     CO_XDECREF(this->f_func);
     CO_XDECREF(this->f_locals);
+    CO_XDECREF(this->f_builtins);
 
     /* free stack */
     COObject **p;
@@ -38,11 +39,15 @@ COTypeObject COFrame_Type = {
     0,                          /* tp_int_interface */
 };
 
+static COObject *builtins = NULL;
+
 COObject *
 COFrame_New(COObject *prev, COObject *func)
 {
     COFrameObject *f = COVarObject_New(COFrameObject, &COFrame_Type,
-                                       ((COCodeObject *)((COFunctionObject *)func)->func_code)->co_stacksize);
+                                       ((COCodeObject *)((COFunctionObject *)
+                                                         func)->
+                                        func_code)->co_stacksize);
 
     f->f_lasti = 0;
     f->f_prev = prev;
@@ -51,6 +56,12 @@ COFrame_New(COObject *prev, COObject *func)
     CO_XINCREF(func);
 
     f->f_locals = CODict_New();
+    if (builtins == NULL) {
+        builtins = CODict_New();
+        CODict_SetItemString(builtins, "print", (COObject *)&_CO_Builtin_print);
+    }
+    f->f_builtins = builtins;
+    CO_INCREF(builtins);
 
     f->f_stacktop = f->f_stack;
     f->f_iblock = 0;

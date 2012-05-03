@@ -305,7 +305,12 @@ simple_stmt:
             $$ = nodelist(c->arena, node_new(c->arena, NODE_THROW, $2, 0), NULL);
         }
     |   T_PRINT expr { Node *t = node_new(c->arena, NODE_PRINT, $2, NULL); $$ = nodelist(c->arena, t, NULL); }
-    |   expr { $$ = nodelist(c->arena, $1, NULL); }
+    |   expr { 
+            if ($1->type == NODE_FUNC_CALL) {
+                $1->type = NODE_FUNC_CALL_STMT;
+            }
+            $$ = nodelist(c->arena, $1, NULL); 
+        }
     |   T_RETURN { $$ = nodelist(c->arena, return_none_node(c->arena), NULL); }
     |   T_RETURN expr { $$ = nodelist(c->arena, node_new(c->arena, NODE_RETURN, $2, NULL), NULL); }
 ;

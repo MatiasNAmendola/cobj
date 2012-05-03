@@ -10,11 +10,11 @@ i = 1
 while i < 10 
     i = i + 1
 end
-print i
+print(i)
 
 while False 
-    print i
-    print "hello world"
+    print(i)
+    print("hello world")
 end
 ''')
 
@@ -26,7 +26,7 @@ i = 1
 
 while i < 10 
     if i == 4 then break end
-    print i
+    print(i)
     i += 1
 end
 ''')
@@ -45,6 +45,6 @@ i = 1
 while i < 10 
     i += 1
     if i == 4 then continue end
-    print i
+    print(i)
 end
 ''')

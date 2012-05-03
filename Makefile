@@ -39,6 +39,7 @@ LIB_OBJS += ast.o
 LIB_OBJS += opcode.o
 LIB_OBJS += peephole.o
 LIB_OBJS += arena.o
+LIB_OBJS += builtin.o
 LIB_OBJS += objects/typeobject.o
 LIB_OBJS += objects/boolobject.o
 LIB_OBJS += objects/noneobject.o

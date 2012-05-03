@@ -34,6 +34,7 @@
 #include "state.h"
 #include "peephole.h"
 #include "arena.h"
+#include "builtin.h"
 #include "object.h"
 #include "objects/typeobject.h"
 #include "objects/intobject.h"

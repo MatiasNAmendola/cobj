@@ -62,5 +62,8 @@ void CODict_Rewind(COObject *this);
 COObject *CODict_Keys(COObject *this);
 COObject *CODict_Values(COObject *this);
 int CODict_Contains(COObject *this, COObject *key);
+COObject *CODict_GetItemString(COObject *this, const char *key);
+int CODict_SetItemString(COObject *this, const char *key, COObject *item);
+int CODict_DelItemString(COObject *this, const char *key);
 
 #endif

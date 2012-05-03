@@ -247,7 +247,7 @@ ANY_CHAR    = [^];
     return T_END;
 }
 
-<SC_INIT>"print" {
+<SC_INIT>"puts" {
     return T_PRINT;
 }
 

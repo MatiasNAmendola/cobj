@@ -11,7 +11,6 @@ cfunction_repr(COCFunctionObject *this)
 static void
 cfunction_dealloc(COCFunctionObject *this)
 {
-    CO_XDECREF(this->c_func);
     COMem_FREE(this);
 }
 
@@ -28,3 +27,4 @@ COTypeObject COCFunction_Type = {
     0,                          /* tp_compare */
     0,                          /* tp_int_interface */
 };
+

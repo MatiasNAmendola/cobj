@@ -74,16 +74,16 @@ run_file(FILE *fp, const char *filename)
     CO_DECREF(source);
     CO_DECREF(f);
     CO_DECREF(code);
-    /*COObject_dump(code);*/
-    /*COObject_dump(func);*/
+    /*COObject_dump(code); */
+    /*COObject_dump(func); */
     CO_DECREF(func);
     COThreadState_DeleteCurrent();
     arena_free(arena);
 
     // check gc
-    /*COObject_dump(CO_None);*/
-    /*COObject_dump(CO_True);*/
-    /*COObject_dump(CO_False);*/
+    /*COObject_dump(CO_None); */
+    /*COObject_dump(CO_True); */
+    /*COObject_dump(CO_False); */
     return exit_code;
 }
 
@@ -92,13 +92,13 @@ run_string(const char *str)
 {
     struct arena *arena = arena_new();
     scanner_init(arena);
-    scanner_setcode((char*)str);
+    scanner_setcode((char *)str);
     COObject *code = compile(arena);
     COObject *func = COFunction_New(code);
     int exit_code = eval_wrapper(func) ? 0 : -1;
     CO_DECREF(code);
-    /*COObject_dump(code);*/
-    /*COObject_dump(func);*/
+    /*COObject_dump(code); */
+    /*COObject_dump(func); */
     CO_DECREF(func);
     COThreadState_DeleteCurrent();
     arena_free(arena);

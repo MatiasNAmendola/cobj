@@ -22,7 +22,7 @@ typedef struct _COFrameObject {
     COObject *f_prev;           /* previous frame, NULL indicates first frame */
     COObject *f_func;           /* function called on this frame */
 
-    /*COObject *f_builtins;       *//* dict object for builtins names */
+    COObject *f_builtins;       /* dict object for builtins names */
     COObject *f_locals;         /* dict object for names */
 
     int f_iblock;               /* index of block */

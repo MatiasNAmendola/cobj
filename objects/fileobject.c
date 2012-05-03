@@ -89,9 +89,8 @@ COFile_Read(COObject *this, int n)
         return NULL;
 
     for (;;) {
-        size_t read =
-            fread(o_start + bytesread, 1, buffersize - bytesread,
-                  f->f_fp);
+        size_t read = fread(o_start + bytesread, 1, buffersize - bytesread,
+                            f->f_fp);
         if (read == 0) {
             if (!ferror(f->f_fp))
                 break;

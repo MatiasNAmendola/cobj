@@ -1,0 +1,8 @@
+#ifndef BUILTIN_H
+#define BUILTIN_H
+
+#include "objects/cfunctionobject.h"
+
+COCFunctionObject _CO_Builtin_print;
+
+#endif

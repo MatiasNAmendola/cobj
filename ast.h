@@ -20,6 +20,7 @@ typedef enum {
     NODE_WHILE,
     NODE_FUNC,
     NODE_FUNC_CALL,
+    NODE_FUNC_CALL_STMT,
     NODE_RETURN,
     NODE_CONST,
     NODE_NAME,

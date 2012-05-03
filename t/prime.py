@@ -44,7 +44,7 @@ end
 i = 2
 while i <= 100
     if is_prime(i)
-        print i
+        print(i)
     end
     i += 1
 end

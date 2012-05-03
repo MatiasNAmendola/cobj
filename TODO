@@ -1,4 +1,3 @@
-* built-in functions (print, etc)
 * reimplement vm_stack
 * dict/list subscript
 * support tuple literal

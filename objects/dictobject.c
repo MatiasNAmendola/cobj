@@ -6,12 +6,13 @@ static COObject *
 dict_repr(CODictObject *this)
 {
 #ifdef CO_DEBUG
-    COObject *key;
-    COObject *item;
-    while (CODict_Next((COObject *)this, &key, &item) == 0) {
-        COObject_dump(key);
-        COObject_dump(item);
-    }
+    /*COObject *key;*/
+    /*COObject *item;*/
+    /*CODict_Rewind((COObject *)this);*/
+    /*while (CODict_Next((COObject *)this, &key, &item) == 0) {*/
+    /*COObject_dump(key);*/
+    /*COObject_dump(item);*/
+    /*}*/
 #endif
 
     return COStr_FromFormat("<dict 'size: %d'>", this->nNumOfElements);
@@ -302,4 +303,42 @@ size_t
 CODict_Size(COObject *this)
 {
     return ((CODictObject *)this)->nNumOfElements;
+}
+
+COObject *
+CODict_GetItemString(COObject *this, const char *key)
+{
+    COObject *kv, *o;
+    kv = COStr_FromString(key);
+    if (!kv)
+        return NULL;
+    o = CODict_GetItem(this, kv);
+    CO_DECREF(kv);
+    return o;
+}
+
+int
+CODict_SetItemString(COObject *this, const char *key, COObject *item)
+{
+    COObject *kv;
+    int err;
+    kv = COStr_FromString(key);
+    if (!kv)
+        return -1;
+    err = CODict_SetItem(this, kv, item);
+    CO_DECREF(kv);
+    return err;
+}
+
+int
+CODict_DelItemString(COObject *this, const char *key)
+{
+    COObject *kv;
+    int err;
+    kv = COStr_FromString(key);
+    if (!kv)
+        return -1;
+    err = CODict_DelItem(this, kv);
+    CO_DECREF(kv);
+    return err;
 }

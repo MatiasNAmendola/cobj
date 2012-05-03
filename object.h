@@ -127,4 +127,6 @@ COObject *COObject_Compare(COObject *a, COObject *b, int op);
 int COObject_CompareBool(COObject *a, COObject *b, int op);
 int COObject_IsTrue(COObject *o);
 
+#define CO_RETURN_NONE return CO_INCREF(CO_None), CO_None
+
 #endif

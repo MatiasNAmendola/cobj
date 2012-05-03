@@ -62,7 +62,6 @@ struct assembler {
     struct block **a_postorder; /* list of blocks in dfs postorder */
 };
 
-
 /* Forward declarations */
 static int compiler_visit_node(struct compiler *c, Node *n);
 static COObject *assemble(struct compiler *c);
@@ -495,6 +494,13 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_visit_node(c, n->left);
         oparg = nodelist_len(n->list);
         compiler_addop_i(c, OP_CALL_FUNCTION, oparg);
+        break;
+    case NODE_FUNC_CALL_STMT:
+        compiler_visit_nodelist(c, n->list);
+        compiler_visit_node(c, n->left);
+        oparg = nodelist_len(n->list);
+        compiler_addop_i(c, OP_CALL_FUNCTION, oparg);
+        compiler_addop(c, OP_POP_TOP);
         break;
     case NODE_TRY:
         {
@@ -957,23 +963,23 @@ dump_code(COObject *code)
         case OP_LOAD_CONST:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
-            /*printf(" (%s)",*/
-            /*COStr_AsString(COObject_repr*/
-            /*(GETITEM(_code->co_consts, oparg))));*/
+            /*printf(" (%s)", */
+            /*COStr_AsString(COObject_repr */
+            /*(GETITEM(_code->co_consts, oparg)))); */
             break;
         case OP_LOAD_NAME:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
-            /*printf(" (%s)",*/
-            /*COStr_AsString(COObject_repr*/
-            /*(GETITEM(_code->co_names, oparg))));*/
+            /*printf(" (%s)", */
+            /*COStr_AsString(COObject_repr */
+            /*(GETITEM(_code->co_names, oparg)))); */
             break;
         case OP_ASSIGN:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
-            /*printf(" (%s)",*/
-            /*COStr_AsString(COObject_repr*/
-            /*(GETITEM(_code->co_names, oparg))));*/
+            /*printf(" (%s)", */
+            /*COStr_AsString(COObject_repr */
+            /*(GETITEM(_code->co_names, oparg)))); */
             break;
         case OP_CONTINUE_LOOP:
         case OP_JMP:

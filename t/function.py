@@ -10,12 +10,12 @@ hello,
 10
 """, """
 func helloworld
-    print "hello world"
+    print("hello world")
 end
 
 func hello(str) 
-    print "hello,"
-    print str
+    print("hello,")
+    print(str)
 end
 
 helloworld()
@@ -28,7 +28,7 @@ test_expect_result("""outside a
 a = "outside a"
 str = "outside str"
 func hello(str)
-    print str
+    print(str)
 end
 
 hello(a)
@@ -57,7 +57,7 @@ end
 
 i = 0
 while i < 10
-    print fibo(i)
+    print(fibo(i))
     i = i + 1
 end
 """, "recursive function")
@@ -78,7 +78,7 @@ end
 
 i = 0
 while i < 5
-    print f(i)
+    print(f(i))
     i = i + 1
 end
 """, "closures")
@@ -98,7 +98,7 @@ end
 f = newIncrer(10)
 i = 0
 while i < 3
-    print f(i)
+    print(f(i))
     i = i + 1
 end
 """, "closures")
@@ -109,10 +109,10 @@ test_expect_result("""1
 6
 """, """
 func sum(a, b, c)
-    print a
-    print b
-    print c
+    print(a)
+    print(b)
+    print(c)
     return a + b + c
 end
-print sum(1, 2, 3)
+print(sum(1, 2, 3))
 """)

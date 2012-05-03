@@ -21,7 +21,7 @@ test_expect_result("", "try end", "allow empty try block")
 # literal
 test_expect_result("""[1, 2]
 """, """
-print [ 1
+print([ 1
 , 2
 ,
-]""", "list span multi lines")
+])""", "list span multi lines")

@@ -52,5 +52,5 @@ COIntObject _CO_False = {
 
 COIntObject _CO_True = {
     COVarObject_HEAD_INIT(&COBool_Type, 1),
-    {1}
+    {1},
 };

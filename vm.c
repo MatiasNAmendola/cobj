@@ -35,6 +35,11 @@ COObject_get(COObject *name)
             break;
         }
     } while (true);
+    // at last
+    co = CODict_GetItem(TS(frame)->f_builtins, name);
+    if (co) {
+        return co;
+    }
     return NULL;
 }
 
@@ -56,7 +61,7 @@ COObject_set(COObject *name, COObject *co)
 }
 
 static inline COObject *
-_vm_cmp(int op, COObject *o1, COObject *o2)
+vm_cmp(int op, COObject *o1, COObject *o2)
 {
     COObject *x;
     switch (op) {
@@ -64,8 +69,8 @@ _vm_cmp(int op, COObject *o1, COObject *o2)
         if (!COTuple_Check(o1)) {
             assert(0);
         }
-        int i = COTuple_Size(o1);
-        for (; --i >= 0;) {
+        int i = 0;
+        for (; i < COTuple_Size(o1); i++) {
             if (COObject_CompareBool(COTuple_GET_ITEM(o1, i), o2, Cmp_EQ)) {
                 x = CO_True;
                 CO_INCREF(x);
@@ -129,7 +134,7 @@ vm_eval(COObject *func)
     int err;                    /* C function error code */
     status = STATUS_NONE;
 
-new_frame:                      /* reentry point when function call */
+new_frame:                     /* reentry point when function call */
     TS(frame) = (COFrameObject *)COFrame_New((COObject *)TS(frame), func);
     code = (COCodeObject *)((COFunctionObject *)TS(frame)->f_func)->func_code;
     stack_top = TS(frame)->f_stacktop;
@@ -218,7 +223,7 @@ start_frame:                   /* reentry point when function return */
             o1 = POP();
             o2 = TOP();
             oparg = NEXTARG();
-            x = _vm_cmp(oparg, o1, o2);
+            x = vm_cmp(oparg, o1, o2);
             if (!x) {
                 status = STATUS_EXCEPTION;
                 goto fast_end;
@@ -350,16 +355,34 @@ start_frame:                   /* reentry point when function return */
         case OP_CALL_FUNCTION:
             o1 = POP();
             oparg = NEXTARG();
-            while (oparg--) {
-                o2 = POP();
-                COList_Append(TS(funcargs), o2);
-                CO_DECREF(o2);
+            if (COCFunction_Check(o1)) {
+                COCFunction cfunc = COCFunction_GET_FUNCTION(o1);
+                if (oparg == 0) {
+                    x = cfunc(NULL, NULL);
+                } else {
+                    COObject *args;
+                    args = COTuple_New(oparg);
+                    while (--oparg >= 0) {
+                        o2 = POP();
+                        COTuple_SetItem(args, oparg, o2);
+                        CO_DECREF(o2);
+                    }
+                    x = cfunc(NULL, args);
+                    CO_DECREF(args);
+                }
+                PUSH(x);
+            } else {
+                while (--oparg >= 0) {
+                    o2 = POP();
+                    COList_Append(TS(funcargs), o2);
+                    CO_DECREF(o2);
+                }
+                func = o1;
+                TS(frame)->f_stacktop = stack_top;
+                TS(frame)->f_lasti = (int)(next_code - first_code);
+                CO_DECREF(o1);
+                goto new_frame;
             }
-            func = o1;
-            TS(frame)->f_stacktop = stack_top;
-            TS(frame)->f_lasti = (int)(next_code - first_code);
-            CO_DECREF(o1);
-            goto new_frame;
             break;
         case OP_RETURN:
             o1 = POP();
@@ -377,7 +400,8 @@ start_frame:                   /* reentry point when function return */
             PUSH(o1);
             func = TS(frame)->f_func;
             code =
-                (COCodeObject *)((COFunctionObject *)TS(frame)->f_func)->func_code;
+                (COCodeObject *)((COFunctionObject *)TS(frame)->
+                                 f_func)->func_code;
             names = code->co_names;
             consts = code->co_consts;
             first_code = (unsigned char *)COBytes_AsString(code->co_code);
@@ -408,12 +432,19 @@ start_frame:                   /* reentry point when function return */
             status = STATUS_BREAK;
             break;
         case OP_CONTINUE_LOOP:
-            oparg = NEXTOP();
+            oparg = NEXTARG();
             status = STATUS_CONTINUE;
             break;
         case OP_THROW:
+            oparg = NEXTARG();
+            if (oparg == 1) {
+                o1 = POP();
+            } else if (oparg == 0) {
+                o1 = CO_None;
+            } else {
+                error("error oparg");
+            }
             status = STATUS_EXCEPTION;
-            o1 = TOP();
             COErr_SetObject(COException_SystemError, o1);
             break;
         case OP_DUP_TOP:
@@ -450,7 +481,8 @@ start_frame:                   /* reentry point when function return */
 fast_end:
 
         while (status != STATUS_NONE && TS(frame)->f_iblock > 0) {
-            COFrameBlock *fb = &TS(frame)->f_blockstack[TS(frame)->f_iblock - 1];
+            COFrameBlock *fb =
+                &TS(frame)->f_blockstack[TS(frame)->f_iblock - 1];
             if (fb->fb_type == OP_SETUP_LOOP && status == STATUS_CONTINUE) {
                 status = STATUS_NONE;
                 JUMPTO(oparg);
