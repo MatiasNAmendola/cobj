@@ -1,3 +1,4 @@
+* fix exception opcode and stacksize bug
 * reimplement vm_stack
 * dict/list subscript
 * support tuple literal

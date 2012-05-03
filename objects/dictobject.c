@@ -6,13 +6,13 @@ static COObject *
 dict_repr(CODictObject *this)
 {
 #ifdef CO_DEBUG
-    /*COObject *key;*/
-    /*COObject *item;*/
-    /*CODict_Rewind((COObject *)this);*/
-    /*while (CODict_Next((COObject *)this, &key, &item) == 0) {*/
-    /*COObject_dump(key);*/
-    /*COObject_dump(item);*/
-    /*}*/
+    COObject *key;
+    COObject *item;
+    CODict_Rewind((COObject *)this);
+    while (CODict_Next((COObject *)this, &key, &item) == 0) {
+        COObject_dump(key);
+        COObject_dump(item);
+    }
 #endif
 
     return COStr_FromFormat("<dict 'size: %d'>", this->nNumOfElements);
