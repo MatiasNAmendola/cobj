@@ -1,4 +1,3 @@
-* support tuple literal
 * implement keyword this
 * add gc
 * error message with location
