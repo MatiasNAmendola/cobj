@@ -62,7 +62,7 @@ eval_wrapper(COObject *func)
 int
 run_file(FILE *fp, const char *filename)
 {
-    int exit_code = 0;
+    COObject *ret;
     struct arena *arena = arena_new();
     scanner_init(arena);
     COObject *f = COFile_FromFile(fp, (char *)filename, "r", fclose);
@@ -70,39 +70,31 @@ run_file(FILE *fp, const char *filename)
     scanner_setcode(COBytes_AsString(source));
     COObject *code = compile(arena);
     COObject *func = COFunction_New(code);
-    exit_code = eval_wrapper(func) ? 0 : -1;
+    ret = eval_wrapper(func);
     CO_DECREF(source);
     CO_DECREF(f);
     CO_DECREF(code);
-    /*COObject_dump(code); */
-    /*COObject_dump(func); */
     CO_DECREF(func);
     COThreadState_DeleteCurrent();
     arena_free(arena);
-
-    // check gc
-    /*COObject_dump(CO_None); */
-    /*COObject_dump(CO_True); */
-    /*COObject_dump(CO_False); */
-    return exit_code;
+    return ret ? 1 : 0;
 }
 
 int
 run_string(const char *str)
 {
+    COObject *ret;
     struct arena *arena = arena_new();
     scanner_init(arena);
     scanner_setcode((char *)str);
     COObject *code = compile(arena);
     COObject *func = COFunction_New(code);
-    int exit_code = eval_wrapper(func) ? 0 : -1;
+    ret = eval_wrapper(func);
     CO_DECREF(code);
-    /*COObject_dump(code); */
-    /*COObject_dump(func); */
     CO_DECREF(func);
     COThreadState_DeleteCurrent();
     arena_free(arena);
-    return exit_code;
+    return ret ? 1 : 0;
 }
 
 int
@@ -160,12 +152,16 @@ main(int argc, const char **argv)
             /* Read-Eval-Print Loop */
             struct arena *arena;
             arena = arena_new();
+            scanner_init(arena);
+            COObject *evaluated;
             while ((eval = linenoise(">>> ")) != NULL) {
                 scanner_setcode(eval);
-
                 COObject *code = compile(arena);
                 COObject *func = COFunction_New(code);
-                eval_wrapper(func);
+                evaluated = eval_wrapper(func);
+                if (evaluated && evaluated != CO_None) {
+                    COObject_print(evaluated);
+                }
                 CO_DECREF(code);
                 CO_DECREF(func);
 
@@ -173,7 +169,7 @@ main(int argc, const char **argv)
                 if (history_path) {
                     linenoiseHistorySave(history_path);
                 }
-                free(code);
+                free(eval);
             }
             arena_free(arena);
             return 0;
