@@ -26,7 +26,7 @@ dict_repr(CODictObject *this)
     if (!colon)
         goto Done;
 
-    DictBucket *tmp = this->pCursor; // backup current cursor
+    DictBucket *tmp = this->pCursor;    // backup current cursor
     this->pCursor = this->pListHead;
     while (CODict_Next((COObject *)this, &key, &item) == 0) {
         int status;
@@ -119,7 +119,7 @@ COTypeObject CODict_Type = {
     0,                          /* tp_hash */
     0,                          /* tp_compare */
     0,                          /* tp_int_interface */
-    &mapping_interface,                          /* tp_mapping_interface */
+    &mapping_interface,         /* tp_mapping_interface */
 };
 
 int

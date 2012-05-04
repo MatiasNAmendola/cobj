@@ -47,7 +47,9 @@ list_subscript(COListObject *this, COObject *index)
             i += COList_GET_SIZE(this);
         return COList_GetItem((COObject *)this, i);
     } else {
-        COErr_Format(COException_TypeError, "list indices must be integers, not %.200s", index->co_type->tp_name);
+        COErr_Format(COException_TypeError,
+                     "list indices must be integers, not %.200s",
+                     index->co_type->tp_name);
         return NULL;
     }
 }

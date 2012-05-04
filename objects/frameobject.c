@@ -47,8 +47,8 @@ COFrame_New(COObject *prev, COObject *func)
 {
     COFrameObject *f = COVarObject_New(COFrameObject, &COFrame_Type,
                                        ((COCodeObject *)((COFunctionObject *)
-                                                         func)->
-                                        func_code)->co_stacksize);
+                                                         func)->func_code)->
+                                       co_stacksize);
 
     f->f_lasti = 0;
     f->f_prev = prev;

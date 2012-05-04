@@ -57,7 +57,7 @@ str_join(COStrObject *this, COObject *list)
     seqlen = COList_GET_SIZE(list);
 
     if (seqlen == 0) {
-        return COStr_FromString(""); 
+        return COStr_FromString("");
     }
 
     if (seqlen == 1) {
@@ -79,11 +79,11 @@ str_join(COStrObject *this, COObject *list)
         if (i != 0)
             sz += seplen;
         if (sz < old_sz || sz > SSIZE_MAX) {
-            COErr_SetString(COException_OverflowError, "join() result is too long");
+            COErr_SetString(COException_OverflowError,
+                            "join() result is too long");
             return NULL;
         }
     }
-
 
     /* Allocate result space. */
     result = COStr_FromStringN(NULL, sz);

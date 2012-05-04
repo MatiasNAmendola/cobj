@@ -8,7 +8,8 @@ builtin_print(COObject *this, COObject *args)
         for (i = 0; i < COTuple_Size(args); i++) {
             if (i > 0)
                 printf(" ");
-            COStrObject *s = (COStrObject *)COObject_repr(COTuple_GET_ITEM(args, i));
+            COStrObject *s =
+                (COStrObject *)COObject_repr(COTuple_GET_ITEM(args, i));
             printf("%s", s->co_sval);
             CO_DECREF(s);
         }

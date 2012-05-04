@@ -222,7 +222,9 @@ new_frame:                     /* reentry point when function call/return */
             o1 = POP();
             o2 = TOP();
             if (!CO_TYPE(o2)->tp_mapping_interface) {
-                COErr_Format(COException_TypeError, "'%.200s' object is not subscriptable", CO_TYPE(o2)->tp_name);
+                COErr_Format(COException_TypeError,
+                             "'%.200s' object is not subscriptable",
+                             CO_TYPE(o2)->tp_name);
                 status = STATUS_EXCEPTION;
             } else {
                 x = CO_TYPE(o2)->tp_mapping_interface->mp_subscript(o2, o1);
@@ -394,7 +396,8 @@ new_frame:                     /* reentry point when function call/return */
                 }
                 TS(frame)->f_stacktop = stack_top;
                 TS(frame)->f_lasti = (int)(next_code - first_code);
-                TS(frame) = (COFrameObject *)COFrame_New((COObject *)TS(frame), o1);
+                TS(frame) =
+                    (COFrameObject *)COFrame_New((COObject *)TS(frame), o1);
                 CO_DECREF(o1);
                 goto new_frame;
             }

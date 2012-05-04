@@ -12,7 +12,7 @@ typedef long (*hashfunc) (COObject *);
 typedef COObject *(*comparefunc)(COObject *, COObject *, int);
 typedef COObject *(*unaryfunc)(COObject *);
 typedef COObject *(*binaryfunc)(COObject *, COObject *);
-typedef ssize_t (*lenfunc)(COObject *);
+typedef ssize_t(*lenfunc) (COObject *);
 /* ! Object Methods */
 
 /* Object Interfaces */

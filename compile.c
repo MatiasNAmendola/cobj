@@ -777,7 +777,7 @@ opcode_stack_effect(int opcode, int oparg)
         return 1;
     case OP_BUILD_TUPLE:
     case OP_BUILD_LIST:
-        return 1-oparg;
+        return 1 - oparg;
     case OP_DICT_BUILD:
         return 1;
     case OP_DICT_ADD:
