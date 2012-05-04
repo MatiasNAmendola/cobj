@@ -9,7 +9,7 @@ d = {
     'key': 'value',
     'c': 'test',
 }
-print d
+print(d)
 # statments
 #print 10
 #a = 1

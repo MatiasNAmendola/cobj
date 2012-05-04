@@ -5,17 +5,72 @@ static COObject *dummy = NULL;
 static COObject *
 dict_repr(CODictObject *this)
 {
-#ifdef CO_DEBUG
-    COObject *key;
-    COObject *item;
-    CODict_Rewind((COObject *)this);
-    while (CODict_Next((COObject *)this, &key, &item) == 0) {
-        COObject_dump(key);
-        COObject_dump(item);
-    }
-#endif
+    COObject *result = NULL;
+    COObject *pieces = NULL;
+    COObject *colon = NULL;
+    COObject *s;
+    COObject *key = NULL;
+    COObject *item = NULL;
+    COObject *tmpobj;
 
-    return COStr_FromFormat("<dict 'size: %d'>", this->nNumOfElements);
+    if (this->nNumOfElements == 0) {
+        result = COStr_FromString("{}");
+        goto Done;
+    }
+
+    pieces = COList_New(0);
+    if (!pieces)
+        goto Done;
+
+    colon = COStr_FromString(": ");
+    if (!colon)
+        goto Done;
+
+    DictBucket *tmp = this->pCursor; // backup current cursor
+    this->pCursor = this->pListHead;
+    while (CODict_Next((COObject *)this, &key, &item) == 0) {
+        int status;
+        s = COObject_repr(key);
+        COStr_Concat(&s, colon);
+        COStr_ConcatAndDel(&s, COObject_repr(item));
+        if (s == NULL)
+            goto Done;
+        status = COList_Append(pieces, s);
+        CO_DECREF(s);
+        if (status < 0)
+            goto Done;
+    }
+    this->pCursor = tmp;
+
+    s = COStr_FromString("{");
+    if (!s)
+        goto Done;
+    tmpobj = COList_GET_ITEM(pieces, 0);
+    COStr_ConcatAndDel(&s, tmpobj);
+    COList_SET_ITEM(pieces, 0, s);
+    if (!s)
+        goto Done;
+
+    s = COStr_FromString("}");
+    if (!s)
+        goto Done;
+    tmpobj = COList_GET_ITEM(pieces, COList_GET_SIZE(pieces) - 1);
+    COStr_ConcatAndDel(&tmpobj, s);
+    COList_SET_ITEM(pieces, COList_GET_SIZE(pieces) - 1, tmpobj);
+    if (!tmpobj)
+        goto Done;
+
+    s = COStr_FromString(", ");
+    if (!s)
+        goto Done;
+
+    result = COStr_Join(s, pieces);
+    CO_DECREF(s);
+
+Done:
+    CO_XDECREF(pieces);
+    CO_XDECREF(colon);
+    return result;
 }
 
 static void

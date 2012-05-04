@@ -33,6 +33,11 @@ COObject *COStr_FromStringN(const char *s, ssize_t len);
 COObject *COStr_FromFormat(const char *fmt, ...);
 COObject *COStr_FromFormatV(const char *fmt, va_list params);
 void COStr_Concat(COObject **pv, COObject *s);
+void COStr_ConcatAndDel(COObject **pv, COObject *s);
 COObject *COStr_Repr(COObject *s, int smartquotes);
+COObject *COStr_Join(COObject *sep, COObject *x);
+
+/* Macro, trading safety for speed */
+#define COStr_AS_STRING(o) (((COStrObject *)(o))->co_sval)
 
 #endif

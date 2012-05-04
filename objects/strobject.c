@@ -42,9 +42,70 @@ str_concat(COStrObject *this, COStrObject *s)
     memcpy(co->co_sval + CO_SIZE(this), s->co_sval, CO_SIZE(s));
     co->co_shash = -1;
     co->co_sval[size] = '\0';
-    CO_DECREF(this);
-    CO_DECREF(s);
     return co;
+}
+
+static COObject *
+str_join(COStrObject *this, COObject *list)
+{
+    char *sep = COStr_AS_STRING(this);
+    const ssize_t seplen = CO_SIZE(this);
+    ssize_t seqlen = 0;
+    char *p;
+    COObject *result;
+
+    seqlen = COList_GET_SIZE(list);
+
+    if (seqlen == 0) {
+        return COStr_FromString(""); 
+    }
+
+    if (seqlen == 1) {
+        return COList_GET_ITEM(list, 0);
+    }
+
+    int i;
+    ssize_t sz = 0;
+    COObject *item;
+    for (i = 0; i < seqlen; i++) {
+        const size_t old_sz = sz;
+        item = COList_GET_ITEM(list, i);
+        if (!COStr_Check(item)) {
+            // TODO
+            COErr_BadInternalCall();
+            return NULL;
+        }
+        sz += CO_SIZE(item);
+        if (i != 0)
+            sz += seplen;
+        if (sz < old_sz || sz > SSIZE_MAX) {
+            COErr_SetString(COException_OverflowError, "join() result is too long");
+            return NULL;
+        }
+    }
+
+
+    /* Allocate result space. */
+    result = COStr_FromStringN(NULL, sz);
+    if (!result) {
+        return NULL;
+    }
+
+    /* Catenate everything. */
+    p = COStr_AS_STRING(result);
+    for (i = 0; i < seqlen; i++) {
+        size_t n;
+        item = COList_GET_ITEM(list, i);
+        n = CO_SIZE(item);
+        memcpy(p, COStr_AS_STRING(item), n);
+        p += n;
+        if (i < seqlen - 1) {
+            memcpy(p, sep, seplen);
+            p += seplen;
+        }
+    }
+
+    return result;
 }
 
 /*
@@ -413,7 +474,23 @@ COStr_Concat(COObject **pv, COObject *s)
 
     COStrObject *co;
     co = str_concat(*(COStrObject **)pv, (COStrObject *)s);
+    CO_DECREF(*pv);
     *pv = (COObject *)co;
+}
+
+void
+COStr_ConcatAndDel(COObject **pv, COObject *s)
+{
+    COStr_Concat(pv, s);
+    CO_XDECREF(s);
+}
+
+COObject *
+COStr_Join(COObject *sep, COObject *x)
+{
+    assert(sep != NULL && COStr_Check(sep));
+    assert(x != NULL);
+    return str_join((COStrObject *)sep, x);
 }
 
 COObject *
