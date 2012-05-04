@@ -154,16 +154,17 @@ main(int argc, const char **argv)
             arena = arena_new();
             scanner_init(arena);
             COObject *evaluated;
+            COObject *func = COFunction_New(NULL);
             while ((eval = linenoise(">>> ")) != NULL) {
                 scanner_setcode(eval);
                 COObject *code = compile(arena);
-                COObject *func = COFunction_New(code);
+                COFunction_SetCode(func, code);
+                TS(frame) = (COFrameObject *)COFrame_New((COObject *)TS(frame), func);
                 evaluated = eval_wrapper(func);
                 if (evaluated && evaluated != CO_None) {
                     COObject_print(evaluated);
                 }
                 CO_DECREF(code);
-                CO_DECREF(func);
 
                 linenoiseHistoryAdd(eval);
                 if (history_path) {
@@ -171,6 +172,7 @@ main(int argc, const char **argv)
                 }
                 free(eval);
             }
+            CO_DECREF(func);
             arena_free(arena);
             return 0;
         } else {

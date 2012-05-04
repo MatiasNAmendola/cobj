@@ -134,15 +134,15 @@ vm_eval(COObject *func)
     int err;                    /* C function error code */
     status = STATUS_NONE;
 
-new_frame:                     /* reentry point when function call */
     TS(frame) = (COFrameObject *)COFrame_New((COObject *)TS(frame), func);
+new_frame:                     /* reentry point when function call/return */
     code = (COCodeObject *)((COFunctionObject *)TS(frame)->f_func)->func_code;
     stack_top = TS(frame)->f_stacktop;
     names = code->co_names;
     consts = code->co_consts;
     first_code = (unsigned char *)COBytes_AsString(code->co_code);
     next_code = first_code + TS(frame)->f_lasti;
-    if (COList_Size(TS(funcargs))) {
+    if (COList_GET_SIZE(TS(funcargs))) {
         // check arguments count
         if (code->co_argcount != COList_Size(TS(funcargs))) {
             COErr_Format(COException_ValueError,
@@ -159,7 +159,6 @@ new_frame:                     /* reentry point when function call */
         }
     }
 
-start_frame:                   /* reentry point when function return */
     for (;;) {
         opcode = NEXTOP();
         switch (opcode) {
@@ -393,9 +392,9 @@ start_frame:                   /* reentry point when function return */
                     COList_Append(TS(funcargs), o2);
                     CO_DECREF(o2);
                 }
-                func = o1;
                 TS(frame)->f_stacktop = stack_top;
                 TS(frame)->f_lasti = (int)(next_code - first_code);
+                TS(frame) = (COFrameObject *)COFrame_New((COObject *)TS(frame), o1);
                 CO_DECREF(o1);
                 goto new_frame;
             }
@@ -412,17 +411,8 @@ start_frame:                   /* reentry point when function return */
                 goto vm_exit;
             }
             // init function return
-            stack_top = TS(frame)->f_stacktop;
-            PUSH(o1);
-            func = TS(frame)->f_func;
-            code =
-                (COCodeObject *)((COFunctionObject *)TS(frame)->
-                                 f_func)->func_code;
-            names = code->co_names;
-            consts = code->co_consts;
-            first_code = (unsigned char *)COBytes_AsString(code->co_code);
-            next_code = first_code + TS(frame)->f_lasti;
-            goto start_frame;
+            *(TS(frame)->f_stacktop++) = o1;
+            goto new_frame;
             break;
         case OP_SETUP_LOOP:
             oparg = NEXTARG();

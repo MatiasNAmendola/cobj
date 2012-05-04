@@ -49,3 +49,12 @@ COFunction_New(COObject *func_code)
     CO_XINCREF(func_code);
     return (COObject *)func;
 }
+
+void
+COFunction_SetCode(COObject *func, COObject *code)
+{
+    COFunctionObject *this = (COFunctionObject *)func;
+    CO_XDECREF(this->func_code);
+    this->func_code = code;
+    CO_XINCREF(code);
+}
