@@ -5,6 +5,6 @@ def fibo(n):
 
 i = 0
 while i < 30:
-    print fibo(i)
+    print(fibo(i))
     i += 1
 

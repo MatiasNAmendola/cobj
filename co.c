@@ -120,6 +120,10 @@ main(int argc, const char **argv)
 
     /* test only */
     if (verbose) {
+        COObject *t = COTuple_New(3);
+        /*COObject_dump(COTuple_GetItem(t, 0));*/
+        /*COObject_dump(COTuple_GetItem(t, 0));*/
+        COObject_dump(t);
         return 0;
     }
 

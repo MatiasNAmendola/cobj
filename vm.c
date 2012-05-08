@@ -388,7 +388,7 @@ new_frame:                     /* reentry point when function call/return */
                     CO_DECREF(args);
                 }
                 PUSH(x);
-            } else {
+            } else if (COFunction_Check(o1)) {
                 while (--oparg >= 0) {
                     o2 = POP();
                     COList_Append(TS(funcargs), o2);
@@ -400,6 +400,9 @@ new_frame:                     /* reentry point when function call/return */
                     (COFrameObject *)COFrame_New((COObject *)TS(frame), o1);
                 CO_DECREF(o1);
                 goto new_frame;
+            } else {
+                COObject_dump(o1);
+                exit(0);
             }
             break;
         case OP_RETURN:

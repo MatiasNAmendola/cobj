@@ -2,3 +2,4 @@
 * add gc
 * error message with location
 * fix cli bug
+* dict as module

@@ -11,6 +11,7 @@
     :maxdepth: 2
     :numbered:
 
+    concepts.rst
     notation.rst
     lexical_elements.rst
     constants.rst

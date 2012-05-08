@@ -60,6 +60,7 @@ COFrame_New(COObject *prev, COObject *func)
     if (builtins == NULL) {
         builtins = CODict_New();
         CODict_SetItemString(builtins, "print", (COObject *)&_CO_Builtin_print);
+        CODict_SetItemString(builtins, "type", (COObject *)&COType_Type);
     }
     f->f_builtins = builtins;
     CO_INCREF(builtins);

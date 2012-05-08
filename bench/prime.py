@@ -11,5 +11,5 @@ def is_prime(n):
 
 while i <= maxnum:
     if is_prime(i):
-        print i
+        print(i)
     i += 1

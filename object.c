@@ -3,6 +3,8 @@
 COObject *
 COObject_repr(COObject *o)
 {
+    if (!o)
+        return COStr_FromString("<NULL>");
     return CO_TYPE(o)->tp_repr(o);
 }
 
@@ -61,8 +63,7 @@ _COObject_New(COTypeObject *tp)
     COObject *o;
     o = (COObject *)COMem_MALLOC(tp->tp_basicsize);
     if (o == NULL) {
-        COErr_NoMemory();
-        return NULL;
+        return COErr_NoMemory();
     }
 
     return COObject_Init(o, tp);
@@ -75,8 +76,7 @@ _COVarObject_New(COTypeObject *tp, ssize_t n)
     const size_t size = COObject_VAR_SIZE(tp, n);
     o = (COVarObject *)COMem_MALLOC(size);
     if (o == NULL) {
-        COErr_NoMemory();
-        return NULL;
+        return COErr_NoMemory();
     }
     return (COObject *)COVarObject_Init(o, tp, n);
 }

@@ -92,8 +92,9 @@ _COErr_BadInternalCall(const char *filename, int lineno)
                  "%s:%d: bad argument to internal function", filename, lineno);
 }
 
-void
+COObject *
 COErr_NoMemory(void)
 {
     COErr_SetObject(COException_MemoryError, CO_None);
+    return NULL;
 }
