@@ -263,11 +263,19 @@ COObject_GC_Init(void)
 static void
 delete_garbage(gc_head * collectable)
 {
+    inquiryfunc clear;
+
     while (!gc_list_is_empty(collectable)) {
         gc_head *gc = collectable->gc.gc_next;
         COObject *o = FROM_GC(gc);
         assert(IS_TENTETIVELY_UNREACHABLE(o));
-        COObject_dump(o);
+
+        if ((clear = CO_TYPE(o)->tp_clear) != NULL) {
+            CO_INCREF(o);
+            clear(o);
+            CO_DECREF(o);
+        }
+
         if (collectable->gc.gc_next == gc) {
             // object is still alive, move it, it may die later
             /*gc_list_move(gc, old); */
@@ -292,9 +300,6 @@ collect(int generation)
      * are reachable from outside. */
     update_refs(young);
     subtract_refs(young);
-    for (gc = young->gc.gc_next; gc != young; gc = gc->gc.gc_next) {
-        COObject_dump(FROM_GC(gc));
-    }
 
     /* Leave everything reachable from outside young in young, and more
      * everything else (in young) to unreachable.
@@ -305,9 +310,8 @@ collect(int generation)
     for (gc = unreachable.gc.gc_next; gc !=&unreachable; gc = gc->gc.gc_next) {
         m++;
     }
-    printf("%ld\n", m);
 
-    /*delete_garbage(&unreachable);*/
+    delete_garbage(&unreachable);
 
     return m + n;
 }
@@ -316,7 +320,6 @@ ssize_t
 COObject_GC_Collect(void)
 {
     ssize_t n;
-    return 0;
     if (collecting)
         n = 0;
     else {
