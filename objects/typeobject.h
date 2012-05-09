@@ -12,6 +12,7 @@ typedef long (*hashfunc) (COObject *);
 typedef COObject *(*comparefunc)(COObject *, COObject *, int);
 typedef int (*visitfunc)(COObject *, void *);
 typedef int (*traversefunc)(COObject *, visitfunc, void *);
+typedef int (*inquiryfunc)(COObject *);
 typedef COObject *(*unaryfunc)(COObject *);
 typedef COObject *(*binaryfunc)(COObject *, COObject *);
 typedef ssize_t(*lenfunc) (COObject *);
@@ -56,6 +57,7 @@ struct _COTypeObject {
     hashfunc tp_hash;
     comparefunc tp_compare;
     traversefunc tp_traverse;
+    inquiryfunc tp_clear;
 
     /* Interfaces for standard types */
     COIntInterface *tp_int_interface;

@@ -1155,6 +1155,7 @@ COTypeObject COInt_Type = {
     (hashfunc)int_hash,         /* tp_hash */
     (comparefunc)int_compare,   /* tp_compare */
     0,                          /* tp_traverse */
+    0,                          /* tp_clear */
     &int_interface,             /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };

@@ -30,7 +30,7 @@ list_dealloc(COListObject *this)
             CO_XDECREF(this->co_item[i]);
     }
     COMem_FREE(this->co_item);
-    COMem_FREE(this);
+    COObject_GC_Free(this);
 }
 
 static COObject *
@@ -71,6 +71,7 @@ COTypeObject COList_Type = {
     0,                          /* tp_hash */
     0,                          /* tp_compare */
     0,                          /* tp_traverse */
+    0,                          /* tp_clear */
     0,                          /* tp_int_interface */
     &mapping_interface,         /* tp_mapping_interface */
 };
@@ -173,7 +174,7 @@ COList_New(ssize_t size)
     ssize_t nbytes;
     nbytes = size * sizeof(COObject *);
 
-    this = COObject_NEW(COListObject, &COList_Type);
+    this = COObject_GC_NEW(COListObject, &COList_Type);
     if (size <= 0) {
         this->co_item = NULL;
     } else {

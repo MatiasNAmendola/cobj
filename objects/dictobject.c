@@ -119,6 +119,7 @@ COTypeObject CODict_Type = {
     0,                          /* tp_hash */
     0,                          /* tp_compare */
     0,                          /* tp_traverse */
+    0,                          /* tp_clear */
     0,                          /* tp_int_interface */
     &mapping_interface,         /* tp_mapping_interface */
 };

@@ -70,6 +70,7 @@ COTypeObject COTuple_Type = {
     (hashfunc)tuple_hash,           /* tp_hash */
     0,                              /* tp_compare */
     (traversefunc)tuple_traverse,   /* tp_traverse */
+    0,                              /* tp_clear */
     0,                              /* tp_int_interface */
     0,                              /* tp_mapping_interface */
 };
@@ -143,7 +144,7 @@ COTuple_SetItem(COObject *this, ssize_t index, COObject *item)
     COObject *olditem;
 
     if (this == item) {
-        error("tuple is immutable object, cannot contain itself");
+        error("tuple is immutable object, it's impossible to contain itself");
         return -1;
     }
 
