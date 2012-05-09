@@ -230,6 +230,7 @@ new_frame:                     /* reentry point when function call/return */
                 x = CO_TYPE(o2)->tp_mapping_interface->mp_subscript(o2, o1);
                 if (!x) {
                     status = STATUS_EXCEPTION;
+                    goto fast_end;
                 }
             }
             CO_DECREF(o1);

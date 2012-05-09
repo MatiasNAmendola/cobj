@@ -1,5 +1,4 @@
 #!./co
 
-a = []
-b = [a]
-print(b)
+a = [None, None]
+print(a[0])

@@ -37,7 +37,7 @@ COTypeObject COType_Type = {
 void
 default_dealloc(COObject *this)
 {
+    fprintf(stderr, "deallocated, object is:\n");
     COObject_dump(this);
-    error("deallocated");
     exit(0);
 }

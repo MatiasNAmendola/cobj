@@ -34,18 +34,30 @@ list_dealloc(COListObject *this)
 }
 
 static COObject *
+list_item(COListObject *this, ssize_t i)
+{
+    if (i < 0 || i >= this->co_size) {
+        COErr_SetString(COException_IndexError, "list index out of range");
+        return NULL;
+    }
+
+    CO_INCREF(this->co_item[i]);
+    return this->co_item[i];
+}
+
+static COObject *
 list_subscript(COListObject *this, COObject *index)
 {
     if (COInt_Check(index)) {
         ssize_t i;
         i = COInt_AsSsize_t(index);
         if (i == -1 && COErr_Occurred()) {
-            // TODO errors
+            COErr_SetString(COException_IndexError, "list index out of range");
             return NULL;
         }
         if (i < 0)
             i += COList_GET_SIZE(this);
-        return COList_GetItem((COObject *)this, i);
+        return list_item(this, i);
     } else {
         COErr_Format(COException_TypeError,
                      "list indices must be integers, not %.200s",
