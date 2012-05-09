@@ -118,6 +118,7 @@ COTypeObject CODict_Type = {
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
     0,                          /* tp_compare */
+    0,                          /* tp_traverse */
     0,                          /* tp_int_interface */
     &mapping_interface,         /* tp_mapping_interface */
 };
@@ -264,7 +265,7 @@ CODict_New(void)
         dummy = COStr_FromString("<dummy key>");
     }
     DictBucket **tmp;
-    CODictObject *dict = COObject_New(CODictObject, &CODict_Type);
+    CODictObject *dict = COObject_NEW(CODictObject, &CODict_Type);
     dict->pCursor = NULL;
     dict->pListHead = NULL;
     dict->pListTail = NULL;

@@ -25,6 +25,7 @@ COTypeObject COType_Type = {
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
     0,                          /* tp_compare */
+    0,                          /* tp_traverse */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };

@@ -30,6 +30,7 @@ COTypeObject COFunction_Type = {
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
     0,                          /* tp_compare */
+    0,                          /* tp_traverse */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };
@@ -37,7 +38,7 @@ COTypeObject COFunction_Type = {
 COObject *
 COFunction_New(COObject *func_code)
 {
-    COFunctionObject *func = COObject_New(COFunctionObject, &COFunction_Type);
+    COFunctionObject *func = COObject_NEW(COFunctionObject, &COFunction_Type);
     COObject *func_name =
         anonymous_func_name ? anonymous_func_name : (anonymous_func_name =
                                                      COStr_FromString

@@ -51,6 +51,7 @@ COTypeObject COCode_Type = {
     0,                          /* tp_setattr */
     (hashfunc)code_hash,        /* tp_hash */
     0,                          /* tp_compare */
+    0,                          /* tp_traverse */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };
@@ -59,7 +60,7 @@ COObject *
 COCode_New(COObject *name, COObject *code, COObject *consts, COObject *names,
            int argcount, int stacksize)
 {
-    COCodeObject *co = COObject_New(COCodeObject, &COCode_Type);
+    COCodeObject *co = COObject_NEW(COCodeObject, &COCode_Type);
 
     co->co_name = name;
     CO_INCREF(name);

@@ -31,6 +31,7 @@ COTypeObject COFile_Type = {
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
     0,                          /* tp_compare */
+    0,                          /* tp_traverse */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };
@@ -38,7 +39,7 @@ COTypeObject COFile_Type = {
 COObject *
 COFile_FromFile(FILE *fp, char *name, char *mode, int (*close) (FILE *))
 {
-    COFileObject *f = COObject_New(COFileObject, &COFile_Type);
+    COFileObject *f = COObject_NEW(COFileObject, &COFile_Type);
     if (f == NULL) {
         return NULL;
     }

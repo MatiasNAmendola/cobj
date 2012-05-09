@@ -36,6 +36,7 @@ COTypeObject COFrame_Type = {
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
     0,                          /* tp_compare */
+    0,                          /* tp_traverse */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };
@@ -45,7 +46,7 @@ static COObject *builtins = NULL;
 COObject *
 COFrame_New(COObject *prev, COObject *func)
 {
-    COFrameObject *f = COVarObject_New(COFrameObject, &COFrame_Type,
+    COFrameObject *f = COVarObject_NEW(COFrameObject, &COFrame_Type,
                                        ((COCodeObject *)((COFunctionObject *)
                                                          func)->func_code)->
                                        co_stacksize);

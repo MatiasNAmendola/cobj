@@ -121,7 +121,7 @@ _COInt_New(ssize_t size)
         COErr_SetString(COException_SystemError, "too many digits in integer");
         return NULL;
     }
-    result = COVarObject_New(COIntObject, &COInt_Type, size);
+    result = COVarObject_NEW(COIntObject, &COInt_Type, size);
     if (!result) {
         // TODO errors
         return NULL;
@@ -1154,6 +1154,7 @@ COTypeObject COInt_Type = {
     0,                          /* tp_setattr */
     (hashfunc)int_hash,         /* tp_hash */
     (comparefunc)int_compare,   /* tp_compare */
+    0,                          /* tp_traverse */
     &int_interface,             /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };
@@ -1165,7 +1166,7 @@ COInt_Init(void)
     COIntObject *o = small_ints;
     for (ival = -SMALL_NEG_INT; ival < SMALL_POS_INT; ival++, o++) {
         size = (ival < 0) ? -1 : ((ival == 0) ? 0 : 1);
-        (void)COVarObject_Init(o, &COInt_Type, size);
+        (void)COVarObject_INIT(o, &COInt_Type, size);
         o->co_digit[0] = abs(ival);
     }
     return 0;

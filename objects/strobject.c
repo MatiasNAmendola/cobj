@@ -32,7 +32,7 @@ str_concat(COStrObject *this, COStrObject *s)
 
     size = CO_SIZE(this) + CO_SIZE(s);
 
-    co = COVarObject_New(COStrObject, &COStr_Type, size);
+    co = COVarObject_NEW(COStrObject, &COStr_Type, size);
     if (co == NULL) {
         // TODO errors
         return NULL;
@@ -306,6 +306,7 @@ COTypeObject COStr_Type = {
     0,                          /* tp_setattr */
     (hashfunc)str_hash,         /* tp_hash */
     (comparefunc)str_compare,   /* tp_compare */
+    0,                          /* tp_traverse */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };
@@ -349,7 +350,7 @@ COStr_FromStringN(const char *s, ssize_t len)
         return (COObject *)str;
     }
 
-    str = COVarObject_New(COStrObject, &COStr_Type, len);
+    str = COVarObject_NEW(COStrObject, &COStr_Type, len);
     str->co_shash = -1;
     if (s != NULL) {
         memcpy(str->co_sval, s, len);

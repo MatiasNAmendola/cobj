@@ -80,6 +80,7 @@ COTypeObject COBytes_Type = {
     0,                          /* tp_setattr */
     (hashfunc)bytes_hash,       /* tp_hash */
     0,                          /* tp_compare */
+    0,                          /* tp_traverse */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };
@@ -101,7 +102,7 @@ COBytes_FromStringN(const char *bytes, ssize_t len)
 {
     COBytesObject *new;
 
-    new = COObject_New(COBytesObject, &COBytes_Type);
+    new = COObject_NEW(COBytesObject, &COBytes_Type);
     if (new == NULL) {
         return NULL;
     }

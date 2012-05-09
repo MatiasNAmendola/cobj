@@ -12,10 +12,10 @@ tuple_repr(COTupleObject *this)
     for (i = 0; i < CO_SIZE(this); i++) {
         COObject *co = COTuple_GET_ITEM(this, i);
         if (i != 0)
-            COStr_Concat(&s, COStr_FromString(", "));
-        COStr_Concat(&s, COObject_repr(co));
+            COStr_ConcatAndDel(&s, COStr_FromString(", "));
+        COStr_ConcatAndDel(&s, COObject_repr(co));
     }
-    COStr_Concat(&s, COStr_FromString(")"));
+    COStr_ConcatAndDel(&s, COStr_FromString(")"));
     return s;
 }
 
@@ -46,7 +46,7 @@ tuple_dealloc(COTupleObject *this)
             CO_XDECREF(this->co_item[i]);
         }
     }
-    COMem_FREE(this);
+    COObject_GC_Free(this);
 }
 
 COTypeObject COTuple_Type = {
@@ -60,6 +60,7 @@ COTypeObject COTuple_Type = {
     0,                          /* tp_setattr */
     (hashfunc)tuple_hash,       /* tp_hash */
     0,                          /* tp_compare */
+    0,                          /* tp_traverse */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };
@@ -102,11 +103,11 @@ COTuple_New(ssize_t size)
         return NULL;
     }
 
-    this = COVarObject_New(COTupleObject, &COTuple_Type, size);
-    for (int i = 0; i < size; i++) {
-        this->co_item[i] = NULL;
-    }
-    /*memset(this->co_item, 0, size * sizeof(COObject *));*/
+    this = COVarObject_GC_NEW(COTupleObject, &COTuple_Type, size);
+    memset(this->co_item, 0, size * sizeof(COObject *));
+
+    COObject_GC_TRACK(this);
+
     return (COObject *)this;
 }
 

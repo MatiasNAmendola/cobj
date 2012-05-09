@@ -123,7 +123,10 @@ main(int argc, const char **argv)
         COObject *t = COTuple_New(3);
         /*COObject_dump(COTuple_GetItem(t, 0));*/
         /*COObject_dump(COTuple_GetItem(t, 0));*/
-        COObject_dump(t);
+        COTuple_SetItem(t, 0, CO_None);
+        COTuple_SetItem(t, 1, t);
+        CO_DECREF(t);
+        COObject_GC_Collect();
         return 0;
     }
 

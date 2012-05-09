@@ -48,6 +48,8 @@
  * !!! This module is based on Python GC module.
  */
 
+#include "object.h"
+
 // GC information is stored before the object structure.
 typedef union _gc_head {
     struct {
@@ -58,8 +60,8 @@ typedef union _gc_head {
     long double dummy;
 } gc_head;
 
-#define AS_GC(o)    ((gc_head)(o) - 1)
-#define FROM_GC(o)  ((COObject *)(((gc_head *)g) + 1))
+#define AS_GC(o)    ((gc_head *)(o) - 1)
+#define FROM_GC(o)  ((COObject *)((gc_head *)o + 1))
 
 /* gc_refs values.
  * 
@@ -81,8 +83,26 @@ typedef union _gc_head {
 #define GC_REACHABLE                    -2
 #define GC_TENTETIVELY_UNREACHABLE      -3
 
-#define IS_UNTRACKED                    ((AS_GC(o))->gc.gc_refs != GC_UNTRACKED)
-#define IS_REACHABLE                    ((AS_GC(o))->gc.gc_refs != GC_REACHABLE)
-#define IS_TENTETIVELY_UNREACHABLE      ((AS_GC(o))->gc.gc_refs != GC_TENTETIVELY_UNREACHABLE)
+#define IS_TRACKED(o)                   ((AS_GC(o))->gc.gc_refs != GC_UNTRACKED)
+#define IS_REACHABLE(o)                 ((AS_GC(o))->gc.gc_refs == GC_REACHABLE)
+#define IS_TENTETIVELY_UNREACHABLE(o)   ((AS_GC(o))->gc.gc_refs == GC_TENTETIVELY_UNREACHABLE)
+
+COObject *COObject_GC_New(COTypeObject *tp);
+COVarObject *COVarObject_GC_New(COTypeObject *tp, ssize_t nitems);
+void COObject_GC_Free(void *o);
+ssize_t COObject_GC_Collect(void);
+
+gc_head *gc_generation0;
+
+#define COObject_GC_TRACK(o)    do {            \
+    gc_head *g = AS_GC(o);                      \
+    if (g->gc.gc_refs != GC_UNTRACKED)          \
+        error("GC object alread tracked");      \
+    g->gc.gc_refs = GC_REACHABLE;               \
+    g->gc.gc_next = gc_generation0;             \
+    g->gc.gc_prev = gc_generation0->gc.gc_prev; \
+    g->gc.gc_prev->gc.gc_next = g;              \
+    gc_generation0->gc.gc_prev = g;             \
+    } while(0);
 
 #endif

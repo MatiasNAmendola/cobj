@@ -70,6 +70,7 @@ COTypeObject COList_Type = {
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
     0,                          /* tp_compare */
+    0,                          /* tp_traverse */
     0,                          /* tp_int_interface */
     &mapping_interface,         /* tp_mapping_interface */
 };
@@ -172,7 +173,7 @@ COList_New(ssize_t size)
     ssize_t nbytes;
     nbytes = size * sizeof(COObject *);
 
-    this = COObject_New(COListObject, &COList_Type);
+    this = COObject_NEW(COListObject, &COList_Type);
     if (size <= 0) {
         this->co_item = NULL;
     } else {

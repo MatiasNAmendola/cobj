@@ -74,9 +74,9 @@ void _CO_NegativeRefCnt(const char *fname, int lineno, COObject *co);
 #define CO_REFCNT(co)     (((COObject *)(co))->co_refcnt)
 #define CO_SIZE(co)     (((COVarObject *)(co))->co_size)
 
-#define COObject_Init(co, typeobj)          \
+#define COObject_INIT(co, typeobj)          \
     ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1, (co))
-#define COVarObject_Init(co, typeobj, size) \
+#define COVarObject_INIT(co, typeobj, size) \
     ( CO_TYPE(co) = (typeobj), CO_REFCNT(co) = 1, CO_SIZE(co) = size, (co))
 
 #define CO_INCREF(co)   (((COObject *)co)->co_refcnt++)
@@ -111,14 +111,18 @@ void _CO_NegativeRefCnt(const char *fname, int lineno, COObject *co);
         ) & ~(sizeof(void*) - 1)            \
     )
 
-COObject *_COObject_New(COTypeObject *);
-COObject *_COVarObject_New(COTypeObject *tp, ssize_t n);
+#define COObject_NEW(type, typeobj)         \
+    ((type *)COObject_New((typeobj)))
+#define COVarObject_NEW(type, typeobj, n)   \
+    ((type *)COVarObject_New((typeobj), (n)))
 
-#define COObject_New(type, typeobj)         \
-    ((type *)_COObject_New((typeobj)))
-#define COVarObject_New(type, typeobj, n)   \
-    ((type *)_COVarObject_New((typeobj), (n)))
+#define COObject_GC_NEW(type, typeobj)          \
+    ((type *)COObject_GC_New((typeobj)))
+#define COVarObject_GC_NEW(type, typeobj, n)    \
+    ((type *)COVarObject_GC_New((typeobj), (n)))
 
+COObject *COObject_New(COTypeObject *);
+COObject *COVarObject_New(COTypeObject *tp, ssize_t n);
 void COObject_dump(COObject *co);
 long COObject_Hash(COObject *co);
 void COObject_print(COObject *co);

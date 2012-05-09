@@ -25,6 +25,7 @@ COTypeObject COFloat_Type = {
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
     0,                          /* tp_compare */
+    0,                          /* tp_traverse */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };
@@ -34,7 +35,7 @@ COFloat_FromString(char *s)
 {
     COFloatObject *f;
 
-    f = COObject_New(COFloatObject, &COFloat_Type);
+    f = COObject_NEW(COFloatObject, &COFloat_Type);
     f->co_fval = strtof(s, NULL);
     return (COObject *)f;
 }
