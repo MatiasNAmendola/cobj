@@ -257,9 +257,11 @@ non_empty_assoc_list:
 
 simple_stmt:
         T_NAME '=' expr { Node *t = node_new(c->arena, NODE_ASSIGN, $1, $3); $$ = nodelist(c->arena, t, NULL); }
+        /*
     |   expr '[' expr ']' '=' expr {
-            $$ = 0;
+            $$ = node_new(c->arena, NODE_TERNARY, NULL, NULL);
         }
+        */
     |   T_NAME T_ADD_ASSIGN expr {
             Node *t;
             t = node_new(c->arena, NODE_BIN, $1, $3); t->op = OP_BINARY_ADD;

@@ -1,4 +1,5 @@
 #!./co
 
 a = [None, None]
+a[1] = a
 print(a[0])
