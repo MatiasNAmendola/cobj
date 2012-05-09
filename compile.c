@@ -386,6 +386,12 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_visit_node(c, n->right);
         compiler_addop(c, n->op);
         break;
+    case NODE_STORE_SUBSCRIPT:
+        compiler_visit_node(c, n->left);
+        compiler_visit_node(c, n->middle);
+        compiler_visit_node(c, n->right);
+        compiler_addop(c, OP_STORE_SUBSCRIPT);
+        break;
     case NODE_CMP:
         compiler_visit_node(c, n->left);
         compiler_visit_node(c, n->right);
@@ -796,6 +802,8 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_END_TRY:
     case OP_END_FINALLY:
         return -1;
+    case OP_STORE_SUBSCRIPT:
+        return -3;
     default:
         error("opcode_stack_effect error, opcode: %d\n", opcode);
     }

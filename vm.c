@@ -109,6 +109,7 @@ vm_eval(COObject *func)
 #define THIRD()         (stack_top[-3])
 #define FOURTH()        (stack_top[-4])
 #define PEEK(n)         (stack_top[-(n)])
+#define STACK_ADJ(n)    (stack_top += n)
 #define STACK_LEVEL()   ((int)(stack_top - TS(frame)->f_stack))
 #define UNWIND_BLOCK(b) \
     do { \
@@ -486,6 +487,16 @@ new_frame:                     /* reentry point when function call/return */
                 status = STATUS_EXCEPTION;
             }
             CO_DECREF(o1);
+            break;
+        case OP_STORE_SUBSCRIPT:
+            o1 = TOP();
+            o2 = SECOND();
+            o3 = THIRD();
+            STACK_ADJ(-3);
+            err = COList_SetItem(o1, COInt_AsSsize_t(o2), o3);
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            CO_DECREF(o3);
             break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);

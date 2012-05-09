@@ -47,6 +47,7 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_END_TRY);
         GIVE_NAME(OP_SETUP_FINALLY);
         GIVE_NAME(OP_END_FINALLY);
+        GIVE_NAME(OP_STORE_SUBSCRIPT);
     }
     error("unknow opcode: %d\n", opcode);
     return NULL;

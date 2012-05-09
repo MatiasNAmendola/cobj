@@ -14,6 +14,7 @@ typedef struct _Node Node;
 typedef enum {
     NODE_BLOCK,
     NODE_BIN,                   /* binary op node */
+    NODE_STORE_SUBSCRIPT,
     NODE_CMP,
     NODE_UNARY,
     NODE_IF,
@@ -46,6 +47,7 @@ struct _Node {
 
     /* For Binary/Unary Node */
     Node *left;
+    Node *middle;
     Node *right;
 
     /* For Dict/List, etc */

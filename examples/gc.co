@@ -2,4 +2,4 @@
 
 a = [None, None]
 a[1] = a
-print(a[0])
+#print(a[0])

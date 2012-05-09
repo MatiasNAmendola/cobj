@@ -257,11 +257,13 @@ non_empty_assoc_list:
 
 simple_stmt:
         T_NAME '=' expr { Node *t = node_new(c->arena, NODE_ASSIGN, $1, $3); $$ = nodelist(c->arena, t, NULL); }
-        /*
     |   expr '[' expr ']' '=' expr {
-            $$ = node_new(c->arena, NODE_TERNARY, NULL, NULL);
+            Node *t = node_new(c->arena, NODE_STORE_SUBSCRIPT, NULL, NULL);
+            t->left = $1;
+            t->middle = $3;
+            t->right = $6;
+            $$ = nodelist(c->arena, t, NULL);
         }
-        */
     |   T_NAME T_ADD_ASSIGN expr {
             Node *t;
             t = node_new(c->arena, NODE_BIN, $1, $3); t->op = OP_BINARY_ADD;

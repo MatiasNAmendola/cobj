@@ -77,6 +77,7 @@ node_type(Node_Type type)
     switch (type) {
         GIVE_NAME(NODE_BLOCK);
         GIVE_NAME(NODE_BIN);    /* binary op node */
+        GIVE_NAME(NODE_STORE_SUBSCRIPT);
         GIVE_NAME(NODE_CMP);
         GIVE_NAME(NODE_UNARY);
         GIVE_NAME(NODE_IF);

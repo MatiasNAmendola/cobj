@@ -42,6 +42,7 @@
 #define OP_END_TRY                  36
 #define OP_SETUP_FINALLY            37
 #define OP_END_FINALLY              38
+#define OP_STORE_SUBSCRIPT          39
 
 /* OP_CMP's opargs */
 enum Cmp_OpArg {
