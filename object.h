@@ -133,4 +133,15 @@ int COObject_IsTrue(COObject *o);
 
 #define CO_RETURN_NONE return CO_INCREF(CO_None), CO_None
 
+/* Macro to help write tp_traverse functions.
+ */
+#define CO_VISIT(o)                                     \
+    do {                                                \
+        if (o) {                                        \
+            int ret = visit((COObject *)(o), arg);      \
+            if (ret)                                    \
+                return ret;                             \
+        }                                               \
+    } while (0);
+
 #endif

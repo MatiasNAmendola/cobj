@@ -116,17 +116,16 @@ main(int argc, const char **argv)
 
     /* Init */
     COInt_Init();
+    COObject_GC_Init();
     threadstate_current = COThreadState_New();
 
     /* test only */
     if (verbose) {
-        COObject *t = COTuple_New(3);
-        /*COObject_dump(COTuple_GetItem(t, 0));*/
-        /*COObject_dump(COTuple_GetItem(t, 0));*/
-        COTuple_SetItem(t, 0, CO_None);
-        COTuple_SetItem(t, 1, t);
+        COObject *t = COList_New(3);
+        COList_SetItem(t, 0, CO_None);
+        COList_SetItem(t, 1, t);
         CO_DECREF(t);
-        COObject_GC_Collect();
+        printf("%ld\n", COObject_GC_Collect());
         return 0;
     }
 

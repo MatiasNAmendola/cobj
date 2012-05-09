@@ -1,6 +1,8 @@
 #include "co.h"
 
-static int collecting = 0;
+static int enable = 1;              /* GC enabled? */
+static int collecting = 0;          /* GC collecting? */
+static COObject *garbage = NULL;    /* list of uncollectable objects */
 
 struct gc_generation {
     gc_head head;
@@ -72,6 +74,24 @@ gc_list_remove(gc_head *node)
     node->gc.gc_next->gc.gc_prev = node->gc.gc_prev;
     node->gc.gc_next = NULL;
 }
+
+/* Move `node` from the gc list it's currently in to the end of `list`. */
+static void
+gc_list_move(gc_head *node, gc_head *list)
+{
+    gc_head *current_prev = node->gc.gc_prev;
+    gc_head *current_next = node->gc.gc_next;
+    /* Unlink from current list. */
+    current_prev->gc.gc_next = current_next;
+    current_next->gc.gc_prev = current_prev;
+    /* Relink at end of new list. */
+    node->gc.gc_prev = list->gc.gc_prev;
+    node->gc.gc_prev->gc.gc_next = node;
+    list->gc.gc_prev = node;
+    node->gc.gc_next = list;
+}
+
+/*** ! GC doubly linked list functions ***/
 
 COObject *
 COObject_GC_Malloc(size_t basicsize)
@@ -149,6 +169,16 @@ update_refs(gc_head *container)
     }
 }
 
+static int
+visit_decref(COObject *o, void *data)
+{
+    /*if (COObject_IS_*/
+    gc_head *gc = AS_GC(o);
+    if (gc->gc.gc_refs > 0)
+        gc->gc.gc_refs--;
+    return 0;
+}
+
 /* Subtract internal references from gc_refs. After this, gc_refs is >= 0 for
  * all objects in containers, and is GC_REACHABLE for all tracked gc objects not
  * in containers. The ones with gc_refs > 0 are directly reachable from outside
@@ -157,15 +187,93 @@ update_refs(gc_head *container)
 static void
 subtract_refs(gc_head *container)
 {
-
+    traversefunc traverser;
+    gc_head *gc = container->gc.gc_next;
+    for (; gc != container; gc = gc->gc.gc_next) {
+        traverser = CO_TYPE(FROM_GC(gc))->tp_traverse;
+        (void)traverser(FROM_GC(gc), (visitfunc)visit_decref, NULL);
+    }
 }
+
+/* 
+ * Move the unreachable objects from young to unreachable. After this, all
+ * objects in young have gc_refs = GC_REACHABLE, and all objects in unreachable
+ * have gc_refs = GC_TENTETIVELY_UNREACHABLE. All tracked gc objects not in
+ * young or unreachable still have gc_refs = GC_REACHABLE.
+ *
+ * All objects in young after this are directly or indirectly reachable from
+ * outside the original young; and all objects in unreachable are not.
+ */
+static void
+move_unreachable(gc_head *young, gc_head *unreachable)
+{
+    gc_head *gc = young->gc.gc_next;
+
+    /* Invariants: all objects "to the left" of us in young have gc_refs =
+     * GC_REACHABLE, and are indeed reachable (directly or indirectly) from
+     * outside the young list as it was at entry. All other objects from the
+     * original young "to the left" of us are in unreachable now, and have
+     * gc_refs = GC_TENTETIVELY_UNREACHABLE. All objects to the left of us in
+     * 'young' now have been scanned, and no objects here or to the right have
+     * been scanned yet.
+     */
+
+    while (gc != young) {
+        gc_head *next;
+
+        if (gc->gc.gc_refs) {
+            /* gc is definitely reachable from outside the original 'young'.
+             * Mark it as such, and 
+             */
+        } else {
+            /* This *may* be unreachable. To make progress, assume it is.
+             */
+            next = gc->gc.gc_next;
+            gc_list_move(gc, unreachable);
+            gc->gc.gc_refs = GC_TENTETIVELY_UNREACHABLE;
+        }
+        gc = next;
+    }
+}
+
+void
+COObject_GC_Init(void)
+{
+    if (garbage == NULL) {
+        garbage = COList_New(0);
+        if (!garbage)
+            return NULL;
+    }
+}
+
+/* 
+ * Break reference cycles by clearing the containers involved.
+ */
+static void
+delete_garbage(gc_head *collectable)
+{
+    while (!gc_list_is_empty(collectable)) {
+        gc_head *gc = collectable->gc.gc_next;
+        COObject *o = FROM_GC(gc);
+        /*assert(IS_TENTETIVELY_UNREACHABLE(o));*/
+        if (collectable->gc.gc_next == gc) {
+            // object is still alive, move it, it may die later
+            /*gc_list_move(gc, old);*/
+            /*gc->gc.gc_refs = GC_REACHABLE;*/
+        }
+    }
+}
+
 
 /* Main Garbage Collecting Routine. */
 static ssize_t
 collect(int generation)
 {
-    int i;
+    ssize_t m = 0;  /* objects collected */
+    ssize_t n = 0;  /* uureachable objects that couldn't be collected */
     gc_head *young;
+    gc_head unreachable;    /* non-problematic unreachable trash */
+    gc_head *gc;
 
     young = gc_generation0;
 
@@ -173,6 +281,20 @@ collect(int generation)
      * are reachable from outside. */
     update_refs(young);
     subtract_refs(young);
+
+    /* Leave everything reachable from outside young in young, and more
+     * everything else (in young) to unreachable.
+     */
+    gc_list_init(&unreachable);
+    move_unreachable(young, &unreachable);
+
+    for (gc = unreachable.gc.gc_next; gc != &unreachable; gc = gc->gc.gc_next) {
+        m++;
+    }
+
+    delete_garbage(&unreachable);
+
+    return m + n;
 }
 
 ssize_t

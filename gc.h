@@ -87,6 +87,7 @@ typedef union _gc_head {
 #define IS_REACHABLE(o)                 ((AS_GC(o))->gc.gc_refs == GC_REACHABLE)
 #define IS_TENTETIVELY_UNREACHABLE(o)   ((AS_GC(o))->gc.gc_refs == GC_TENTETIVELY_UNREACHABLE)
 
+void COObject_GC_Init(void);
 COObject *COObject_GC_New(COTypeObject *tp);
 COVarObject *COVarObject_GC_New(COTypeObject *tp, ssize_t nitems);
 void COObject_GC_Free(void *o);

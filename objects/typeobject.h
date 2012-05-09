@@ -46,6 +46,7 @@ struct _COTypeObject {
     char *tp_name;              /* For printing */
     int tp_basicsize;           /* Following two are for allocation */
     int tp_itemsize;
+    //int tp_flags;
 
     /* Basic Methods  */
     deallocfunc tp_dealloc;

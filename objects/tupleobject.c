@@ -49,20 +49,29 @@ tuple_dealloc(COTupleObject *this)
     COObject_GC_Free(this);
 }
 
+static int
+tuple_traverse(COTupleObject *this, visitfunc visit, void *arg)
+{
+    ssize_t i;
+    for (i = CO_SIZE(this); --i >= 0;)
+        CO_VISIT(this->co_item[i]);
+    return 0;
+}
+
 COTypeObject COTuple_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "tuple",
     sizeof(COTupleObject) - sizeof(COObject *),
     sizeof(COObject *),
-    (deallocfunc)tuple_dealloc, /* tp_dealloc */
-    (reprfunc)tuple_repr,       /* tp_repr */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
-    (hashfunc)tuple_hash,       /* tp_hash */
-    0,                          /* tp_compare */
-    0,                          /* tp_traverse */
-    0,                          /* tp_int_interface */
-    0,                          /* tp_mapping_interface */
+    (deallocfunc)tuple_dealloc,     /* tp_dealloc */
+    (reprfunc)tuple_repr,           /* tp_repr */
+    0,                              /* tp_getattr */
+    0,                              /* tp_setattr */
+    (hashfunc)tuple_hash,           /* tp_hash */
+    0,                              /* tp_compare */
+    (traversefunc)tuple_traverse,   /* tp_traverse */
+    0,                              /* tp_int_interface */
+    0,                              /* tp_mapping_interface */
 };
 
 static COObject *
@@ -132,10 +141,24 @@ COTuple_SetItem(COObject *this, ssize_t index, COObject *item)
 {
     COObject **p;
     COObject *olditem;
-    if (index >= CO_SIZE(this)) {
-        // TODO errors
+
+    if (this == item) {
+        error("tuple is immutable object, cannot contain itself");
         return -1;
     }
+
+    if (!COTuple_Check(this) || this->co_refcnt != 1) {
+        CO_XDECREF(item);
+        COErr_BadInternalCall();
+        return -1;
+    }
+
+    if (index < 0 || index >= CO_SIZE(this)) {
+        CO_XDECREF(item);
+        COErr_SetString(COException_IndexError, "tuple assignment index out of range");
+        return -1;
+    }
+
     p = ((COTupleObject *)this)->co_item + index;
     olditem = *p;
     *p = item;
