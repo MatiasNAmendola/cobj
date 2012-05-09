@@ -114,24 +114,15 @@ main(int argc, const char **argv)
     argparse_init(&argparse, options, usagestr, 0);
     argc = argparse_parse(&argparse, argc, argv);
 
-    /* Init */
+    /* Initialize */
     COInt_Init();
     COObject_GC_Init();
     threadstate_current = COThreadState_New();
 
-    /* test only */
-    if (verbose) {
-        COObject *t = COList_New(3);
-        COList_SetItem(t, 0, CO_None);
-        COList_SetItem(t, 1, t);
-        CO_DECREF(t);
-        printf("%ld\n", COObject_GC_Collect());
-        return 0;
-    }
-
-    /* compilation */
+    /* Run */
+    int ret = 0;
     if (eval) {
-        return run_string(eval);
+        ret = run_string(eval);
     } else {
         FILE *f = stdin;
         const char *f_name = "<stdin>";
@@ -181,9 +172,11 @@ main(int argc, const char **argv)
             }
             CO_DECREF(func);
             arena_free(arena);
-            return 0;
         } else {
-            return run_file(f, f_name);
+            ret = run_file(f, f_name);
         }
     }
+
+    /* Finialize */
+    COObject_GC_Collect();
 }

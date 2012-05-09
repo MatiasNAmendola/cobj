@@ -12,10 +12,10 @@ list_repr(COObject *this)
     for (i = 0; i < ((COListObject *)this)->co_size; i++) {
         COObject *co = COList_GetItem(this, i);
         if (i != 0)
-            COStr_Concat(&s, COStr_FromString(", "));
-        COStr_Concat(&s, CO_TYPE(co)->tp_repr(co));
+            COStr_ConcatAndDel(&s, COStr_FromString(", "));
+        COStr_ConcatAndDel(&s, COObject_repr(co));
     }
-    COStr_Concat(&s, COStr_FromString("]"));
+    COStr_ConcatAndDel(&s, COStr_FromString("]"));
     return s;
 }
 
@@ -54,6 +54,36 @@ list_subscript(COListObject *this, COObject *index)
     }
 }
 
+static int
+list_clear(COListObject *this)
+{
+    ssize_t i;
+    COObject **item = this->co_item;
+    if (item != NULL) {
+        /* Because CO_XDECREF can recursively invoke operations on this list, we
+         * make it empty first!
+         */
+        i = this->co_size;
+        this->co_size = 0;
+        this->co_item = NULL;
+        this->allocated = 0;
+        while (--i >= 0) {
+            CO_XDECREF(item[i]);
+        }
+        COMem_FREE(item);
+    }
+    return 0;
+}
+
+static int
+list_traverse(COListObject *this, visitfunc visit, void *arg)
+{
+    ssize_t i;
+    for (i = this->co_size; --i > 0;)
+        CO_VISIT(this->co_item[i]);
+    return 0;
+}
+
 static COMappingInterface mapping_interface = {
     (lenfunc)COList_Size,
     (binaryfunc)list_subscript,
@@ -64,16 +94,16 @@ COTypeObject COList_Type = {
     "list",
     sizeof(COListObject),
     0,
-    (deallocfunc)list_dealloc,  /* tp_dealloc */
-    (reprfunc)list_repr,        /* tp_repr */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
-    0,                          /* tp_hash */
-    0,                          /* tp_compare */
-    0,                          /* tp_traverse */
-    0,                          /* tp_clear */
-    0,                          /* tp_int_interface */
-    &mapping_interface,         /* tp_mapping_interface */
+    (deallocfunc)list_dealloc,      /* tp_dealloc */
+    (reprfunc)list_repr,            /* tp_repr */
+    0,                              /* tp_getattr */
+    0,                              /* tp_setattr */
+    0,                              /* tp_hash */
+    0,                              /* tp_compare */
+    (traversefunc)list_traverse,    /* tp_traverse */
+    (inquiryfunc)list_clear,        /* tp_clear */
+    0,                              /* tp_int_interface */
+    &mapping_interface,             /* tp_mapping_interface */
 };
 
 /*
@@ -187,6 +217,7 @@ COList_New(ssize_t size)
     }
     ((COListObject *)this)->co_size = size;
     this->allocated = size;
+    COObject_GC_TRACK(this);
     return (COObject *)this;
 }
 

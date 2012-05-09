@@ -63,16 +63,16 @@ COTypeObject COTuple_Type = {
     "tuple",
     sizeof(COTupleObject) - sizeof(COObject *),
     sizeof(COObject *),
-    (deallocfunc)tuple_dealloc,     /* tp_dealloc */
-    (reprfunc)tuple_repr,           /* tp_repr */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
-    (hashfunc)tuple_hash,           /* tp_hash */
-    0,                              /* tp_compare */
-    (traversefunc)tuple_traverse,   /* tp_traverse */
-    0,                              /* tp_clear */
-    0,                              /* tp_int_interface */
-    0,                              /* tp_mapping_interface */
+    (deallocfunc)tuple_dealloc, /* tp_dealloc */
+    (reprfunc)tuple_repr,       /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
+    (hashfunc)tuple_hash,       /* tp_hash */
+    0,                          /* tp_compare */
+    (traversefunc)tuple_traverse,       /* tp_traverse */
+    0,                          /* tp_clear */
+    0,                          /* tp_int_interface */
+    0,                          /* tp_mapping_interface */
 };
 
 static COObject *
@@ -156,7 +156,8 @@ COTuple_SetItem(COObject *this, ssize_t index, COObject *item)
 
     if (index < 0 || index >= CO_SIZE(this)) {
         CO_XDECREF(item);
-        COErr_SetString(COException_IndexError, "tuple assignment index out of range");
+        COErr_SetString(COException_IndexError,
+                        "tuple assignment index out of range");
         return -1;
     }
 
