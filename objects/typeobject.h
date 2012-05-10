@@ -47,7 +47,7 @@ struct _COTypeObject {
     char *tp_name;              /* For printing */
     int tp_basicsize;           /* Following two are for allocation */
     int tp_itemsize;
-    //int tp_flags;
+    int tp_flags;               /* Flags to define optional/expanded features */
 
     /* Basic Methods  */
     deallocfunc tp_dealloc;
@@ -67,6 +67,9 @@ struct _COTypeObject {
 COTypeObject COType_Type;
 
 #define COType_Check(co) (CO_TYPE(co) == &COType_Type)
+
+#define COType_FLAG_GC  (1<<0)
+#define COType_HasFeature(t, f) (((t)->tp_flags & (f)) != 0)
 
 void default_dealloc(COObject *this);
 

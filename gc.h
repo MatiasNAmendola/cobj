@@ -12,7 +12,7 @@
  * How does this work?
  * ===================
  *  First, we observe that reference cycles can only be created by container
- *  objects (e.g. tuple/list/dict/exception/file, etc). With this observation we
+ *  objects (e.g. tuple/list/dict, etc). With this observation we
  *  realize that non-container objects can be ignored for the purpose of garbage
  *  collection.
  *

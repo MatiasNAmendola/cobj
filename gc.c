@@ -91,6 +91,23 @@ gc_list_move(gc_head * node, gc_head * list)
     node->gc.gc_next = list;
 }
 
+/* Append list `from` onto list `to`; `from` becomes an empty list */
+static void
+gc_list_append(gc_head *to, gc_head *from)
+{
+    assert(from != to);
+
+    if (!gc_list_is_empty(from)) {
+        gc_head *tail = to->gc.gc_prev;
+        tail->gc.gc_next = from->gc.gc_next;
+        tail->gc.gc_next->gc.gc_prev = tail;
+        to->gc.gc_prev = from->gc.gc_prev;
+        to->gc.gc_prev->gc.gc_next = to;
+    }
+
+    gc_list_init(from);
+}
+
 /*** ! GC doubly linked list functions ***/
 
 static ssize_t
@@ -183,9 +200,12 @@ update_refs(gc_head * container)
 static int
 visit_decref(COObject *o, void *data)
 {
+    if (!COObject_IS_GC(o)) {
+        return 0;
+    }
+
     gc_head *gc = AS_GC(o);
-    if (gc->gc.gc_refs > 0)
-        gc->gc.gc_refs--;
+    gc->gc.gc_refs--;
     return 0;
 }
 
@@ -261,7 +281,7 @@ COObject_GC_Init(void)
  * Break reference cycles by clearing the containers involved.
  */
 static void
-delete_garbage(gc_head * collectable)
+delete_garbage(gc_head * collectable, gc_head *old)
 {
     inquiryfunc clear;
 
@@ -278,8 +298,8 @@ delete_garbage(gc_head * collectable)
 
         if (collectable->gc.gc_next == gc) {
             // object is still alive, move it, it may die later
-            /*gc_list_move(gc, old); */
-            /*gc->gc.gc_refs = GC_REACHABLE; */
+            gc_list_move(gc, old); 
+            gc->gc.gc_refs = GC_REACHABLE; 
         }
     }
 }
@@ -290,11 +310,25 @@ collect(int generation)
 {
     ssize_t m = 0;              /* objects collected */
     ssize_t n = 0;              /* uureachable objects that couldn't be collected */
-    gc_head *young;
+    gc_head *young;             /* the generation we are examining */
+    gc_head *old;               /* next older generation */
     gc_head unreachable;        /* non-problematic unreachable trash */
     gc_head *gc;
+    int i;
 
-    young = gc_generation0;
+    /* merge younger generations with one we are currently collecting */
+    for (i = 0; i < generation; i++) {
+        generations[i].count = 0;
+        gc_list_append(GEN_HEAD(generation), GEN_HEAD(i));
+    }
+    generations[generation].count = 0;
+
+    young = GEN_HEAD(generation);
+    if (generation < NUM_GENERATIONS - 1)
+        old = GEN_HEAD(generation + 1);
+    else
+        old = young;
+
 
     /* Using co_refcnt & gc_refs, calculate which objects in the container set
      * are reachable from outside. */
@@ -311,8 +345,11 @@ collect(int generation)
         m++;
     }
 
-    delete_garbage(&unreachable);
+    delete_garbage(&unreachable, old);
 
+#ifdef CO_DEBUG
+    printf("gc, m: %ld, n: %ld\n", m, n);
+#endif
     return m + n;
 }
 
@@ -324,6 +361,7 @@ COObject_GC_Collect(void)
         n = 0;
     else {
         collecting = 1;
+        // collect from oldest generation
         n = collect(NUM_GENERATIONS - 1);
         collecting = 0;
     }

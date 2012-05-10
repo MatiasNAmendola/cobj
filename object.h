@@ -121,6 +121,8 @@ void _CO_NegativeRefCnt(const char *fname, int lineno, COObject *co);
 #define COVarObject_GC_NEW(type, typeobj, n)    \
     ((type *)COVarObject_GC_New((typeobj), (n)))
 
+#define COObject_IS_GC(o)   (COType_HasFeature(CO_TYPE(o), COType_FLAG_GC))
+
 COObject *COObject_New(COTypeObject *);
 COObject *COVarObject_New(COTypeObject *tp, ssize_t n);
 void COObject_dump(COObject *co);

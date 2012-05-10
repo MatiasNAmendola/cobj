@@ -19,6 +19,7 @@ COTypeObject COType_Type = {
     "type",
     sizeof(COTypeObject),
     0,
+    0,
     (deallocfunc)type_dealloc,  /* tp_dealloc */
     (reprfunc)type_repr,        /* tp_repr */
     0,                          /* tp_getattr */

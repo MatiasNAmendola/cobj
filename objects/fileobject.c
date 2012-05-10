@@ -25,6 +25,7 @@ COTypeObject COFile_Type = {
     "file",
     sizeof(COFileObject),
     0,
+    0,
     (deallocfunc)file_dealloc,  /* tp_dealloc */
     (reprfunc)file_repr,        /* tp_repr */
     0,                          /* tp_getattr */

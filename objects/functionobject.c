@@ -24,6 +24,7 @@ COTypeObject COFunction_Type = {
     "function",
     sizeof(COFunctionObject),
     0,
+    0,
     (deallocfunc)function_dealloc,      /* tp_dealloc */
     (reprfunc)function_repr,    /* tp_repr */
     0,                          /* tp_getattr */

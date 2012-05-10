@@ -18,6 +18,7 @@ COTypeObject COException_Type = {
     "Exception",
     sizeof(COExceptionObject),
     0,
+    0,
     (deallocfunc)exception_dealloc,     /* tp_dealloc */
     (reprfunc)exception_repr,   /* tp_repr */
     0,                          /* tp_getattr */
@@ -38,8 +39,14 @@ COObject *COException = (COObject *)&COException_Type;
         # EXCNAME,                                          \
         sizeof(COExceptionObject),                          \
         0,                                                  \
+        0,                                                  \
         (deallocfunc)exception_dealloc,                     \
         (reprfunc)exception_repr,                           \
+        0,                                                  \
+        0,                                                  \
+        0,                                                  \
+        0,                                                  \
+        0,                                                  \
         0,                                                  \
         0,                                                  \
         0,                                                  \

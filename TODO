@@ -1,5 +1,4 @@
-* implement keyword this
-* add gc
-* error message with location
 * fix cli bug
+* error message with location
+* implement keyword this
 * dict as module

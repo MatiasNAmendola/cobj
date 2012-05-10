@@ -112,6 +112,7 @@ COTypeObject CODict_Type = {
     "dict",
     sizeof(CODictObject),
     0,
+    0,
     (deallocfunc)dict_dealloc,  /* tp_dealloc */
     (reprfunc)dict_repr,        /* tp_repr */
     0,                          /* tp_getattr */

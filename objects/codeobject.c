@@ -45,6 +45,7 @@ COTypeObject COCode_Type = {
     "code",
     sizeof(COCodeObject),
     0,
+    0,
     (deallocfunc)code_dealloc,  /* tp_dealloc */
     (reprfunc)code_repr,        /* tp_repr */
     0,                          /* tp_getattr */

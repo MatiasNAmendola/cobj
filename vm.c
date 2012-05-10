@@ -493,7 +493,7 @@ new_frame:                     /* reentry point when function call/return */
             o2 = SECOND();
             o3 = THIRD();
             STACK_ADJ(-3);
-            err = COList_SetItem(o1, COInt_AsSsize_t(o2), o3);
+            err = COList_SetItem(o3, COInt_AsSsize_t(o2), o1);
             CO_DECREF(o1);
             CO_DECREF(o2);
             CO_DECREF(o3);

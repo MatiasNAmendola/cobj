@@ -22,6 +22,7 @@ COTypeObject COCapsule_Type = {
     "capsule",
     sizeof(COCapsuleObject),
     0,
+    0,
     (deallocfunc)capsule_dealloc,       /* tp_dealloc */
     (reprfunc)capsule_repr,     /* tp_repr */
     0,                          /* tp_getattr */
