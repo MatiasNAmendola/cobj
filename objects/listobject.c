@@ -156,7 +156,7 @@ list_resize(COListObject *this, ssize_t newsize)
 
     /* check for overflow */
     if (new_allocated > SIZE_MAX - newsize) {
-        // TODO errors: no memory
+        COErr_NoMemory();
         return -1;
     }
 
@@ -171,7 +171,7 @@ list_resize(COListObject *this, ssize_t newsize)
     if (new_allocated <= ((~(ssize_t) 0) / sizeof(COObject *))) {
         items = COMem_REALLOC(items, new_allocated * sizeof(COObject *));
     } else {
-        // TODO errors: no memory
+        COErr_NoMemory();
         return -1;
     }
 
@@ -223,8 +223,7 @@ COList_New(ssize_t size)
     } else {
         this->co_item = (COObject **)COMem_MALLOC(nbytes);
         if (this->co_item == NULL) {
-            // TODO errors
-            return NULL;
+            return COErr_NoMemory();
         }
         memset(this->co_item, 0, nbytes);
     }
@@ -278,7 +277,7 @@ COList_SetItem(COObject *this, ssize_t index, COObject *item)
     COObject **p;
     COObject *olditem;
     if (index >= ((COListObject *)this)->co_size) {
-        // TODO errors
+        COErr_SetString(COException_IndexError, "list index out of range");
         return -1;
     }
     p = ((COListObject *)this)->co_item + index;
