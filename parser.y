@@ -30,7 +30,7 @@ return_none_node(struct arena *arena)
 %token  T_FUNC
 %token  T_RETURN
 %token  T_WHILE
-%token  T_NEWLINES
+%token  T_NEWLINE
 %token  T_WHITESPACE
 %token  T_COMMENT
 %token  T_IGNORED
@@ -117,7 +117,7 @@ open_stmt_list:
 ;
 
 stmt_term:
-        T_NEWLINES
+        T_NEWLINE
     |   ';'
 ;
 
@@ -137,7 +137,7 @@ opt_stmt_terms:
  * stmt: if a - b end.
  */
 then:
-        T_NEWLINES
+        T_NEWLINE
     |   T_THEN
 ;
 
@@ -208,8 +208,13 @@ opt_comma:
     |   /* empty */
 ;
 
+newlines:
+        T_NEWLINE
+    |   T_NEWLINE T_NEWLINE
+;
+
 opt_newlines:
-        T_NEWLINES
+        newlines
     |   /* empty */
 ;
 

@@ -493,10 +493,18 @@ new_frame:                     /* reentry point when function call/return */
             o2 = SECOND();
             o3 = THIRD();
             STACK_ADJ(-3);
-            err = COList_SetItem(o3, COInt_AsSsize_t(o2), o1);
+            if (COList_Check(o3)) {
+                err = COList_SetItem(o3, COInt_AsSsize_t(o2), o1);
+            } else if (CODict_Check(o3)) {
+                CODict_SetItem(o3, o2, o1);
+            } else {
+                error("wrong store subscript");
+            }
             CO_DECREF(o1);
             CO_DECREF(o2);
             CO_DECREF(o3);
+            printf("o1 %p, %s, refcnt: %d\n", o1, CO_TYPE(o1)->tp_name, CO_REFCNT(o1));
+            printf("o3 %p, %s, refcnt: %d\n", o3, CO_TYPE(o3)->tp_name, CO_REFCNT(o3));
             break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);

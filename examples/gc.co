@@ -1,9 +1,12 @@
 #!./co
 
 # b -> a -> b
-a = [None, None]
+#a = [None, None]
+a = { 1: None}
 b = {
-    "a": a,
-    "str": "large test........"
+#"str": "large test........",
+    "a": a
 }
+#print(b)
+#b = [1, a]
 a[1] = b

@@ -42,5 +42,7 @@ void COFrame_Push(COObject *this, COObject *o);
 void COFrame_Destory(COObject *this);
 void COFrameBlock_Setup(COFrameObject *f, int type, int handler, int level);
 COFrameBlock *COFrameBlock_Pop(COFrameObject *f);
+int COFrame_Init(void);
+void COFrame_Fini(void);
 
 #endif

@@ -116,6 +116,7 @@ main(int argc, const char **argv)
 
     /* Initialize */
     COInt_Init();
+    COFrame_Init();
     COObject_GC_Init();
     threadstate_current = COThreadState_New();
 
@@ -178,5 +179,6 @@ main(int argc, const char **argv)
     }
 
     /* Finialize */
+    COFrame_Fini();
     COObject_GC_Collect();
 }

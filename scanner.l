@@ -200,7 +200,7 @@ FNUM        = ([0-9]*"."[0-9]+);
 NAME        = [a-zA-Z_][a-zA-Z0-9_]*;
 TOKENS      = [-+()=>/<*^,;:{}%\[\]~];
 WHITESPACE  = [ \t]+;
-NEWLINES     = [\n];
+NEWLINE     = [\n];
 ANY_CHAR    = [^];
 
 /* compute yyleng before each rule */
@@ -421,8 +421,8 @@ ANY_CHAR    = [^];
     return T_WHITESPACE;
 }
 
-<SC_INIT>NEWLINES {
-    return T_NEWLINES;
+<SC_INIT>NEWLINE {
+    return T_NEWLINE;
 }
 
 <SC_INIT>ANY_CHAR   {

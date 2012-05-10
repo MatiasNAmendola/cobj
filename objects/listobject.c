@@ -223,6 +223,7 @@ COList_New(ssize_t size)
     } else {
         this->co_item = (COObject **)COMem_MALLOC(nbytes);
         if (this->co_item == NULL) {
+            CO_DECREF(this);
             return COErr_NoMemory();
         }
         memset(this->co_item, 0, nbytes);

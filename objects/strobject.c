@@ -61,6 +61,7 @@ str_join(COStrObject *this, COObject *list)
     }
 
     if (seqlen == 1) {
+        CO_INCREF(COList_GET_ITEM(list, 0));
         return COList_GET_ITEM(list, 0);
     }
 
@@ -71,7 +72,6 @@ str_join(COStrObject *this, COObject *list)
         const size_t old_sz = sz;
         item = COList_GET_ITEM(list, i);
         if (!COStr_Check(item)) {
-            // TODO
             COErr_BadInternalCall();
             return NULL;
         }

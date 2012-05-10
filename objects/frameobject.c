@@ -45,6 +45,23 @@ COTypeObject COFrame_Type = {
 
 static COObject *builtins = NULL;
 
+int
+COFrame_Init(void)
+{
+    if (builtins == NULL) {
+        builtins = CODict_New();
+        CODict_SetItemString(builtins, "print", (COObject *)&_CO_Builtin_print);
+        CODict_SetItemString(builtins, "type", (COObject *)&COType_Type);
+    }
+    return 0;
+}
+
+void
+COFrame_Fini(void)
+{
+    CO_XDECREF(builtins);
+}
+
 COObject *
 COFrame_New(COObject *prev, COObject *func)
 {
@@ -60,11 +77,6 @@ COFrame_New(COObject *prev, COObject *func)
     CO_XINCREF(func);
 
     f->f_locals = CODict_New();
-    if (builtins == NULL) {
-        builtins = CODict_New();
-        CODict_SetItemString(builtins, "print", (COObject *)&_CO_Builtin_print);
-        CODict_SetItemString(builtins, "type", (COObject *)&COType_Type);
-    }
     f->f_builtins = builtins;
     CO_INCREF(builtins);
 

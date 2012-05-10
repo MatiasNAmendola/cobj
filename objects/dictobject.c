@@ -2,6 +2,16 @@
 
 static COObject *dummy = NULL;
 
+#define MAINTAIN_TRACKING(d, k, v) \
+    do { \
+        if (!IS_TRACKED(d)) { \
+            if (COObject_GC_MAYBE_TRACKED(k) || \
+                COObject_GC_MAYBE_TRACKED(v)) { \
+                COObject_GC_TRACK(d); \
+            } \
+        } \
+    } while (0)
+
 static COObject *
 dict_repr(CODictObject *this)
 {
@@ -88,11 +98,32 @@ dict_dealloc(CODictObject *this)
     }
 
     COMem_FREE(this->arBuckets);
-    COMem_FREE(this);
+    COObject_GC_Free(this);
+}
+
+static int
+dict_clear(CODictObject *this)
+{
+    CODict_Clear((COObject *)this);
+    return 0;
+}
+
+static int
+dict_traverse(CODictObject *this, visitfunc visit, void *arg)
+{
+    DictBucket *pCursor;
+
+    pCursor = this->pListHead;
+    while (pCursor) {
+        CO_VISIT(pCursor->pKey);
+        CO_VISIT(pCursor->pItem);
+        pCursor = pCursor->pListNext;
+    }
+    return 0;
 }
 
 static COObject *
-dict_subscript(COListObject *this, COObject *index)
+dict_subscript(CODictObject *this, COObject *index)
 {
     COObject *x = CODict_GetItem((COObject *)this, index);
     if (!x) {
@@ -112,17 +143,17 @@ COTypeObject CODict_Type = {
     "dict",
     sizeof(CODictObject),
     0,
-    0,
-    (deallocfunc)dict_dealloc,  /* tp_dealloc */
-    (reprfunc)dict_repr,        /* tp_repr */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
-    0,                          /* tp_hash */
-    0,                          /* tp_compare */
-    0,                          /* tp_traverse */
-    0,                          /* tp_clear */
-    0,                          /* tp_int_interface */
-    &mapping_interface,         /* tp_mapping_interface */
+    COType_FLAG_GC,
+    (deallocfunc)dict_dealloc,      /* tp_dealloc */
+    (reprfunc)dict_repr,            /* tp_repr */
+    0,                              /* tp_getattr */
+    0,                              /* tp_setattr */
+    0,                              /* tp_hash */
+    0,                              /* tp_compare */
+    (traversefunc)dict_traverse,    /* tp_traverse */
+    (inquiryfunc)dict_clear,        /* tp_clear */
+    0,                              /* tp_int_interface */
+    &mapping_interface,             /* tp_mapping_interface */
 };
 
 int
@@ -240,6 +271,7 @@ _dict_insert(CODictObject *this, COObject *key, COObject *item)
         _dict_do_resize(this);
     }
 
+    MAINTAIN_TRACKING(this, key, item);
     CO_INCREF(key);
     CO_INCREF(item);
     return 0;
@@ -267,7 +299,7 @@ CODict_New(void)
         dummy = COStr_FromString("<dummy key>");
     }
     DictBucket **tmp;
-    CODictObject *dict = COObject_NEW(CODictObject, &CODict_Type);
+    CODictObject *dict = COObject_GC_NEW(CODictObject, &CODict_Type);
     dict->pCursor = NULL;
     dict->pListHead = NULL;
     dict->pListTail = NULL;
@@ -304,6 +336,7 @@ CODict_SetItem(COObject *this, COObject *key, COObject *item)
         return _dict_insert((CODictObject *)this, key, item);
     }
 
+    MAINTAIN_TRACKING(this, key, item);
     CO_DECREF(p->pItem);
     p->pItem = item;
     CO_INCREF(item);
@@ -363,9 +396,10 @@ CODict_Clear(COObject *this)
     p = ((CODictObject *)this)->pListHead;
     while (p != NULL) {
         q = p;
-        free(q->pItem);
-        free(q);
+        CO_XDECREF(q->pItem);
+        CO_XDECREF(q->pKey);
         p = p->pListNext;
+        COMem_FREE(q);
     }
     memset(((CODictObject *)this)->arBuckets, 0,
            (((CODictObject *)this)->nTableMask + 1) * sizeof(DictBucket *));

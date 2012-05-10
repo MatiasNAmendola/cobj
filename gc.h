@@ -106,4 +106,8 @@ gc_head *gc_generation0;
     gc_generation0->gc.gc_prev = g;             \
     } while(0);
 
+/* True if the object may be tracked by the GC in the future, or already is. */
+#define COObject_GC_MAYBE_TRACKED(o)    \
+    (COObject_IS_GC(o) && (!COTuple_Check(o) || IS_TRACKED(o)))
+
 #endif

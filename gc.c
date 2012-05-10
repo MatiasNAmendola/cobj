@@ -362,6 +362,15 @@ COObject_GC_Collect(void)
     else {
         collecting = 1;
         // collect from oldest generation
+#ifdef CO_DEBUG
+        printf("count0: %d\n", generations[0].count);
+        printf("count1: %d\n", generations[1].count);
+        printf("count2: %d\n", generations[2].count);
+        gc_head *gc;
+        for (gc = gc_generation0->gc.gc_next; gc != gc_generation0; gc = gc->gc.gc_next) {
+            printf("gc: %p, %s, refcnt: %d\n", FROM_GC(gc), CO_TYPE(FROM_GC(gc))->tp_name, CO_REFCNT(FROM_GC(gc)));
+        }
+#endif
         n = collect(NUM_GENERATIONS - 1);
         collecting = 0;
     }
