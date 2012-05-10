@@ -1,5 +1,17 @@
 #include "../co.h"
 
+/* Speed optimization to avoid frequent malloc/free of small tuples. */
+#define COTuple_MAXSAVESIZE 0       // Largest tuple to save on free list.
+#define COTuple_MAXFREELIST 2000    // Maximum number of tuples of each size to save.
+
+#if COTuple_MAXSAVESIZE > 0
+/* Slot 0 is empty tuple.
+ * Slots 1 to COTuple_MAXSAVESIZE is free lists.
+ */
+static COTupleObject *free_list[COTuple_MAXSAVESIZE];
+static int numfree[COTuple_MAXSAVESIZE];
+#endif
+
 static COObject *
 tuple_repr(COTupleObject *this)
 {
@@ -45,8 +57,21 @@ tuple_dealloc(COTupleObject *this)
         while (--i >= 0) {
             CO_XDECREF(this->co_item[i]);
         }
+#if COTuple_MAXSAVESIZE > 0
+        if (len < COTuple_MAXSAVESIZE && numfree[len] < COTuple_MAXFREELIST) {
+            this->co_item[0] = (COObject *)free_list[len];
+            numfree[len]++;
+            free_list[len] = this;
+            if (IS_TRACKED(this)) {
+                COObject_GC_UNTRACK(this);
+            }
+            goto done;
+        }
+#endif
     }
     COObject_GC_Free(this);
+done:
+    return;
 }
 
 static int
@@ -114,8 +139,33 @@ COTuple_New(ssize_t size)
         return NULL;
     }
 
-    this = COVarObject_GC_NEW(COTupleObject, &COTuple_Type, size);
+#if COTuple_MAXSAVESIZE > 0
+    if (size == 0 && free_list[0]) {
+        this = free_list[0];
+        CO_INCREF(this);
+        return (COObject *)this;
+    }
+    if (size < COTuple_MAXSAVESIZE && (this = free_list[size]) != NULL) {
+        free_list[size] = (COTupleObject *)this->co_item[0]; /* abused as next pointer */
+        numfree[size]--;
+        CO_REFCNT(this) = 1;
+    }
+    else
+#endif
+    {
+        this = COVarObject_GC_NEW(COTupleObject, &COTuple_Type, size);
+        if (!this)
+            return NULL;
+    }
     memset(this->co_item, 0, size * sizeof(COObject *));
+
+#if COTuple_MAXSAVESIZE > 0
+    if (size == 0) {
+        free_list[0] = this;
+        ++numfree[0];
+        CO_INCREF(this);
+    }
+#endif
 
     COObject_GC_TRACK(this);
 

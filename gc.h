@@ -104,7 +104,22 @@ gc_head *gc_generation0;
     g->gc.gc_prev = gc_generation0->gc.gc_prev; \
     g->gc.gc_prev->gc.gc_next = g;              \
     gc_generation0->gc.gc_prev = g;             \
-    } while(0);
+    } while(0)
+
+#define COObject_GC_TRY_UNTRACK(o)              \
+    if (IS_TRACKED(o)
+/* Tell the GC to stop tracking this object.
+ * gc_next doesn't need to be set to NULL, but doing so is a good
+ * way to provoke memory errors if calling code is confused.
+ */
+#define COObject_GC_UNTRACK(o) do {             \
+    gc_head *g = AS_GC(o);                      \
+    assert(g->gc.gc_refs != GC_UNTRACKED);      \
+    g->gc.gc_refs = GC_UNTRACKED;               \
+    g->gc.gc_prev->gc.gc_next = g->gc.gc_next;  \
+    g->gc.gc_next->gc.gc_prev = g->gc.gc_prev;  \
+    g->gc.gc_next = NULL;                       \
+    } while (0)
 
 /* True if the object may be tracked by the GC in the future, or already is. */
 #define COObject_GC_MAYBE_TRACKED(o)    \

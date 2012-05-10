@@ -1,8 +1,8 @@
 #!./co
 
 # b -> a -> b
-#a = [None, None]
-a = { 1: None}
+a = [None, None]
+#a = { 1: None}
 b = {
 #"str": "large test........",
     "a": a
