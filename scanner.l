@@ -198,7 +198,7 @@ re2c:yyfill:check = 0;
 NUM         = ([1-9][0-9]*|[0]|"0"[xX][0-9a-fA-F]+|"0"[oO][0-7]+|"0"[bB][01]+);
 FNUM        = ([0-9]*"."[0-9]+);
 NAME        = [a-zA-Z_][a-zA-Z0-9_]*;
-TOKENS      = [-+()=>/<*^,;:{}%\[\]~];
+TOKENS      = [-+()=>/<*^,;:{}%\[\]~.];
 WHITESPACE  = [ \t]+;
 NEWLINE     = [\n];
 ANY_CHAR    = [^];
