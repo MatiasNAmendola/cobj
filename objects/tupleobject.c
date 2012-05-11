@@ -65,12 +65,11 @@ tuple_dealloc(COTupleObject *this)
             if (IS_TRACKED(this)) {
                 COObject_GC_UNTRACK(this);
             }
-            goto done;
+            return;
         }
 #endif
     }
     COObject_GC_Free(this);
-done:
     return;
 }
 

@@ -12,9 +12,9 @@
 /* NULL indicates error, and some systems would return NULL for malloc(0), so we
  * return one extra byte when size is 0.
  */
-# define COMem_MALLOC(n)   ((size_t)(n) > SIZE_MAX ? NULL : malloc((n) ? (n) : 1))
-# define COMem_REALLOC(p, n)  ((size_t)(n) > SIZE_MAX ? NULL : realloc((p), (n) ? (n) : 1))
-# define COMem_FREE     free
+# define COMem_MALLOC(n)        malloc((n))
+# define COMem_REALLOC(p, n)    realloc((p), (n))
+# define COMem_FREE             free
 #endif
 
 void *_COMem_DebugMalloc(size_t n);

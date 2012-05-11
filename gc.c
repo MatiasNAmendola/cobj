@@ -110,73 +110,6 @@ gc_list_append(gc_head * to, gc_head * from)
 
 /*** ! GC doubly linked list functions ***/
 
-static ssize_t
-collect_generations(void)
-{
-    // TODO
-    return 0;
-}
-
-COObject *
-COObject_GC_Malloc(size_t basicsize)
-{
-    COObject *o;
-    gc_head *g;
-    if (basicsize > SSIZE_MAX - sizeof(gc_head))
-        return COErr_NoMemory();
-    g = (gc_head *) COMem_MALLOC(sizeof(gc_head) + basicsize);
-    if (!g)
-        return COErr_NoMemory();
-
-    g->gc.gc_refs = GC_UNTRACKED;
-
-    generations[0].count++;
-
-    if (generations[0].count > generations[0].threshold
-        && enabled && !collecting && !COErr_Occurred()) {
-        collecting = 1;
-        collect_generations();
-        collecting = 0;
-    }
-
-    o = FROM_GC(g);
-    return o;
-}
-
-COObject *
-COObject_GC_New(COTypeObject *tp)
-{
-    COObject *o = COObject_GC_Malloc(tp->tp_basicsize);
-    if (o)
-        o = COObject_INIT(o, tp);
-    return o;
-}
-
-COVarObject *
-COVarObject_GC_New(COTypeObject *tp, ssize_t nitems)
-{
-    const size_t size = COObject_VAR_SIZE(tp, nitems);
-    COVarObject *o = (COVarObject *)COObject_GC_Malloc(size);
-    if (o)
-        o = COVarObject_INIT(o, tp, nitems);
-    return o;
-}
-
-void
-COObject_GC_Free(void *o)
-{
-    gc_head *g = AS_GC(o);
-
-    if (IS_TRACKED(o)) {
-        gc_list_remove(g);
-    }
-
-    if (generations[0].count > 0) {
-        generations[0].count--;
-    }
-
-    COMem_FREE(g);
-}
 
 /*
  * Set all gc_refs = co_refcnt. 
@@ -265,16 +198,6 @@ move_unreachable(gc_head * young, gc_head * unreachable)
     }
 }
 
-void
-COObject_GC_Init(void)
-{
-    if (garbage == NULL) {
-        garbage = COList_New(0);
-        if (!garbage)
-            return;
-    }
-}
-
 /* 
  * Break reference cycles by clearing the containers involved.
  */
@@ -350,6 +273,95 @@ collect(int generation)
     return m + n;
 }
 
+static ssize_t
+collect_generations(void)
+{
+    int i;
+    ssize_t n = 0;
+
+    /* Find the oldest generation (highest numbered) where the count exceeds the
+     * threshold. Objects in that generation and generations younger than it
+     * will be collected. */
+    for (i = NUM_GENERATIONS - 1; i >= 0; i--) {
+        if (generations[i].count > generations[i].threshold) {
+            n = collect(i);
+            break;
+        }
+    }
+    
+    return n;
+}
+
+void
+COObject_GC_Init(void)
+{
+    if (garbage == NULL) {
+        garbage = COList_New(0);
+        if (!garbage)
+            return;
+    }
+}
+
+COObject *
+COObject_GC_Malloc(size_t basicsize)
+{
+    COObject *o;
+    gc_head *g;
+    if (basicsize > SSIZE_MAX - sizeof(gc_head))
+        return COErr_NoMemory();
+    g = (gc_head *) COMem_MALLOC(sizeof(gc_head) + basicsize);
+    if (!g)
+        return COErr_NoMemory();
+
+    g->gc.gc_refs = GC_UNTRACKED;
+
+    generations[0].count++;
+
+    if (generations[0].count > generations[0].threshold
+        && enabled && !collecting && !COErr_Occurred()) {
+        collecting = 1;
+        collect_generations();
+        collecting = 0;
+    }
+
+    o = FROM_GC(g);
+    return o;
+}
+
+COObject *
+COObject_GC_New(COTypeObject *tp)
+{
+    COObject *o = COObject_GC_Malloc(tp->tp_basicsize);
+    if (o)
+        o = COObject_INIT(o, tp);
+    return o;
+}
+
+COVarObject *
+COVarObject_GC_New(COTypeObject *tp, ssize_t nitems)
+{
+    const size_t size = COObject_VAR_SIZE(tp, nitems);
+    COVarObject *o = (COVarObject *)COObject_GC_Malloc(size);
+    if (o)
+        o = COVarObject_INIT(o, tp, nitems);
+    return o;
+}
+
+void
+COObject_GC_Free(void *o)
+{
+    gc_head *g = AS_GC(o);
+
+    if (IS_TRACKED(o)) {
+        gc_list_remove(g);
+    }
+
+    if (generations[0].count > 0) {
+        generations[0].count--;
+    }
+
+    COMem_FREE(g);
+}
 ssize_t
 COObject_GC_Collect(void)
 {
