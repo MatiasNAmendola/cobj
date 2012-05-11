@@ -107,16 +107,16 @@ COTypeObject COList_Type = {
     sizeof(COListObject),
     0,
     COType_FLAG_GC,
-    (deallocfunc)list_dealloc,      /* tp_dealloc */
-    (reprfunc)list_repr,            /* tp_repr */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
-    0,                              /* tp_hash */
-    0,                              /* tp_compare */
-    (traversefunc)list_traverse,    /* tp_traverse */
-    (inquiryfunc)list_clear,        /* tp_clear */
-    0,                              /* tp_int_interface */
-    &mapping_interface,             /* tp_mapping_interface */
+    (deallocfunc)list_dealloc,  /* tp_dealloc */
+    (reprfunc)list_repr,        /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
+    0,                          /* tp_hash */
+    0,                          /* tp_compare */
+    (traversefunc)list_traverse,        /* tp_traverse */
+    (inquiryfunc)list_clear,    /* tp_clear */
+    0,                          /* tp_int_interface */
+    &mapping_interface,         /* tp_mapping_interface */
 };
 
 /*

@@ -1,8 +1,8 @@
 #include "co.h"
 
-static int enabled = 1;             /* GC enabled? */
-static int collecting = 0;          /* GC collecting? */
-static COObject *garbage = NULL;    /* list of uncollectable objects */
+static int enabled = 1;         /* GC enabled? */
+static int collecting = 0;      /* GC collecting? */
+static COObject *garbage = NULL;        /* list of uncollectable objects */
 
 struct gc_generation {
     gc_head head;
@@ -93,7 +93,7 @@ gc_list_move(gc_head * node, gc_head * list)
 
 /* Append list `from` onto list `to`; `from` becomes an empty list */
 static void
-gc_list_append(gc_head *to, gc_head *from)
+gc_list_append(gc_head * to, gc_head * from)
 {
     assert(from != to);
 
@@ -133,9 +133,7 @@ COObject_GC_Malloc(size_t basicsize)
     generations[0].count++;
 
     if (generations[0].count > generations[0].threshold
-        && enabled
-        && !collecting
-        && !COErr_Occurred()) {
+        && enabled && !collecting && !COErr_Occurred()) {
         collecting = 1;
         collect_generations();
         collecting = 0;
@@ -248,7 +246,7 @@ move_unreachable(gc_head * young, gc_head * unreachable)
      * been scanned yet.
      */
 
-    while (gc != young) {
+    while (gc !=young) {
         gc_head *next;
 
         if (gc->gc.gc_refs) {
@@ -281,7 +279,7 @@ COObject_GC_Init(void)
  * Break reference cycles by clearing the containers involved.
  */
 static void
-delete_garbage(gc_head * collectable, gc_head *old)
+delete_garbage(gc_head * collectable, gc_head * old)
 {
     inquiryfunc clear;
 
@@ -298,8 +296,8 @@ delete_garbage(gc_head * collectable, gc_head *old)
 
         if (collectable->gc.gc_next == gc) {
             // object is still alive, move it, it may die later
-            gc_list_move(gc, old); 
-            gc->gc.gc_refs = GC_REACHABLE; 
+            gc_list_move(gc, old);
+            gc->gc.gc_refs = GC_REACHABLE;
         }
     }
 }
@@ -328,7 +326,6 @@ collect(int generation)
         old = GEN_HEAD(generation + 1);
     else
         old = young;
-
 
     /* Using co_refcnt & gc_refs, calculate which objects in the container set
      * are reachable from outside. */
@@ -367,8 +364,10 @@ COObject_GC_Collect(void)
         printf("count1: %d\n", generations[1].count);
         printf("count2: %d\n", generations[2].count);
         gc_head *gc;
-        for (gc = gc_generation0->gc.gc_next; gc != gc_generation0; gc = gc->gc.gc_next) {
-            printf("gc: %p, %s, refcnt: %d\n", FROM_GC(gc), CO_TYPE(FROM_GC(gc))->tp_name, CO_REFCNT(FROM_GC(gc)));
+        for (gc = gc_generation0->gc.gc_next; gc !=gc_generation0;
+             gc = gc->gc.gc_next) {
+            printf("gc: %p, %s, refcnt: %d\n", FROM_GC(gc),
+                   CO_TYPE(FROM_GC(gc))->tp_name, CO_REFCNT(FROM_GC(gc)));
         }
 #endif
         n = collect(NUM_GENERATIONS - 1);

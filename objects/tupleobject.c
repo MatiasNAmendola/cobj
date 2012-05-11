@@ -1,8 +1,8 @@
 #include "../co.h"
 
 /* Speed optimization to avoid frequent malloc/free of small tuples. */
-#define COTuple_MAXSAVESIZE 0       // Largest tuple to save on free list.
-#define COTuple_MAXFREELIST 2000    // Maximum number of tuples of each size to save.
+#define COTuple_MAXSAVESIZE 0   // Largest tuple to save on free list.
+#define COTuple_MAXFREELIST 2000        // Maximum number of tuples of each size to save.
 
 #if COTuple_MAXSAVESIZE > 0
 /* Slot 0 is empty tuple.
@@ -89,16 +89,16 @@ COTypeObject COTuple_Type = {
     sizeof(COTupleObject) - sizeof(COObject *),
     sizeof(COObject *),
     COType_FLAG_GC,
-    (deallocfunc)tuple_dealloc,     /* tp_dealloc */
-    (reprfunc)tuple_repr,           /* tp_repr */
-    0,                              /* tp_getattr */
-    0,                              /* tp_setattr */
-    (hashfunc)tuple_hash,           /* tp_hash */
-    0,                              /* tp_compare */
-    (traversefunc)tuple_traverse,   /* tp_traverse */
-    0,                              /* tp_clear */
-    0,                              /* tp_int_interface */
-    0,                              /* tp_mapping_interface */
+    (deallocfunc)tuple_dealloc, /* tp_dealloc */
+    (reprfunc)tuple_repr,       /* tp_repr */
+    0,                          /* tp_getattr */
+    0,                          /* tp_setattr */
+    (hashfunc)tuple_hash,       /* tp_hash */
+    0,                          /* tp_compare */
+    (traversefunc)tuple_traverse,       /* tp_traverse */
+    0,                          /* tp_clear */
+    0,                          /* tp_int_interface */
+    0,                          /* tp_mapping_interface */
 };
 
 static COObject *
@@ -138,7 +138,6 @@ COTuple_New(ssize_t size)
         COErr_BadInternalCall();
         return NULL;
     }
-
 #if COTuple_MAXSAVESIZE > 0
     if (size == 0 && free_list[0]) {
         this = free_list[0];
@@ -146,11 +145,10 @@ COTuple_New(ssize_t size)
         return (COObject *)this;
     }
     if (size < COTuple_MAXSAVESIZE && (this = free_list[size]) != NULL) {
-        free_list[size] = (COTupleObject *)this->co_item[0]; /* abused as next pointer */
+        free_list[size] = (COTupleObject *)this->co_item[0];    /* abused as next pointer */
         numfree[size]--;
         CO_REFCNT(this) = 1;
-    }
-    else
+    } else
 #endif
     {
         this = COVarObject_GC_NEW(COTupleObject, &COTuple_Type, size);
