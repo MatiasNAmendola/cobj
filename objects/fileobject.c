@@ -17,7 +17,7 @@ file_dealloc(COFileObject *this)
 {
     CO_XDECREF(this->f_name);
     CO_XDECREF(this->f_mode);
-    COMem_FREE(this);
+    COObject_Mem_FREE(this);
 }
 
 COTypeObject COFile_Type = {

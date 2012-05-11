@@ -14,7 +14,7 @@ capsule_dealloc(COCapsuleObject *this)
     if (this->destructor) {
         this->destructor(this->pointer);
     }
-    COMem_FREE(this);
+    COObject_Mem_FREE(this);
 }
 
 COTypeObject COCapsule_Type = {

@@ -94,10 +94,10 @@ dict_dealloc(CODictObject *this)
         CO_XDECREF(pCursor->pItem);
         tmp = pCursor;
         pCursor = pCursor->pListNext;
-        COMem_FREE(tmp);
+        COObject_Mem_FREE(tmp);
     }
 
-    COMem_FREE(this->arBuckets);
+    COObject_Mem_FREE(this->arBuckets);
     COObject_GC_Free(this);
 }
 
@@ -179,7 +179,7 @@ _dict_do_resize(CODictObject *this)
     DictBucket **t;
 
     if (((this->nTableMask + 1) << 1) > 0) {    // double the table size
-        t = (DictBucket **)COMem_REALLOC(this->arBuckets,
+        t = (DictBucket **)COObject_Mem_REALLOC(this->arBuckets,
                                          ((this->nTableMask + 1) << 1) *
                                          sizeof(DictBucket *));
         this->arBuckets = t;
@@ -237,7 +237,7 @@ _dict_insert(CODictObject *this, COObject *key, COObject *item)
     unsigned long h = COObject_Hash(key);
     if (h == -1)
         return -1;
-    p = (DictBucket *)COMem_MALLOC(sizeof(DictBucket));
+    p = (DictBucket *)COObject_Mem_MALLOC(sizeof(DictBucket));
     p->pKey = key;
     p->pItem = item;
     p->h = h;
@@ -307,7 +307,7 @@ CODict_New(void)
     dict->nTableMask = CODict_MINSIZE - 1;
     dict->nNumOfElements = 0;
     tmp =
-        (DictBucket **)COMem_MALLOC((dict->nTableMask + 1) *
+        (DictBucket **)COObject_Mem_MALLOC((dict->nTableMask + 1) *
                                     sizeof(DictBucket *));
     memset(tmp, 0, (dict->nTableMask + 1) * sizeof(DictBucket *));
     dict->arBuckets = tmp;
@@ -399,7 +399,7 @@ CODict_Clear(COObject *this)
         CO_XDECREF(q->pItem);
         CO_XDECREF(q->pKey);
         p = p->pListNext;
-        COMem_FREE(q);
+        COObject_Mem_FREE(q);
     }
     memset(((CODictObject *)this)->arBuckets, 0,
            (((CODictObject *)this)->nTableMask + 1) * sizeof(DictBucket *));

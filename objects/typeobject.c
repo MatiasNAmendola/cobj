@@ -11,7 +11,7 @@ type_repr(COTypeObject *this)
 static void
 type_dealloc(COTypeObject *this)
 {
-    COMem_FREE(this);
+    COObject_Mem_FREE(this);
 }
 
 COTypeObject COType_Type = {

@@ -11,7 +11,7 @@ float_repr(COFloatObject *this)
 static void
 float_dealloc(COFloatObject *this)
 {
-    COMem_FREE(this);
+    COObject_Mem_FREE(this);
 }
 
 COTypeObject COFloat_Type = {

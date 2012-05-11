@@ -11,7 +11,7 @@ cfunction_repr(COCFunctionObject *this)
 static void
 cfunction_dealloc(COCFunctionObject *this)
 {
-    COMem_FREE(this);
+    COObject_Mem_FREE(this);
 }
 
 COTypeObject COCFunction_Type = {

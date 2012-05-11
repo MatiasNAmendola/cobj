@@ -74,7 +74,7 @@ static struct block *
 compiler_new_block(struct compiler *c)
 {
     struct block *b;
-    b = (struct block *)COMem_MALLOC(sizeof(struct block));
+    b = (struct block *)COObject_Mem_MALLOC(sizeof(struct block));
     if (!b)
         return NULL;
     memset(b, 0, sizeof(struct block));
@@ -143,21 +143,21 @@ compiler_unit_free(struct compiler_unit *u)
     b = u->u_blocklist;
     while (b) {
         if (b->b_instr)
-            COMem_FREE(b->b_instr);
+            COObject_Mem_FREE(b->b_instr);
         next = b->b_listnext;
-        COMem_FREE(b);
+        COObject_Mem_FREE(b);
         b = next;
     }
     CO_DECREF(u->names);
     CO_DECREF(u->consts);
-    COMem_FREE(u);
+    COObject_Mem_FREE(u);
 }
 
 static void
 compiler_enter_scope(struct compiler *c)
 {
     struct compiler_unit *u;
-    u = (struct compiler_unit *)COMem_MALLOC(sizeof(struct compiler_unit));
+    u = (struct compiler_unit *)COObject_Mem_MALLOC(sizeof(struct compiler_unit));
     if (!u) {
         return;
     }
@@ -239,7 +239,7 @@ compiler_next_instr(struct compiler *c, struct block *b)
 {
     if (b->b_instr == NULL) {
         b->b_instr =
-            (struct instr *)COMem_MALLOC(sizeof(struct instr) *
+            (struct instr *)COObject_Mem_MALLOC(sizeof(struct instr) *
                                          DEFAULT_INSTR_SIZE);
         if (!b->b_instr) {
             return -1;
@@ -255,7 +255,7 @@ compiler_next_instr(struct compiler *c, struct block *b)
             return -1;
         }
         b->b_ialloc <<= 1;
-        b->b_instr = (struct instr *)COMem_REALLOC(b->b_instr, newsize);
+        b->b_instr = (struct instr *)COObject_Mem_REALLOC(b->b_instr, newsize);
         if (!b->b_instr) {
             return -1;
         }
@@ -728,7 +728,7 @@ assembler_init(struct assembler *a, int nblocks)
     a->a_bytecode = COBytes_FromStringN(NULL, DEFAULT_BYTECODE_SIZE);
     a->a_bytecode_offset = 0;
     a->a_postorder =
-        (struct block **)COMem_MALLOC(sizeof(struct block *) * nblocks);
+        (struct block **)COObject_Mem_MALLOC(sizeof(struct block *) * nblocks);
     a->a_nblocks = 0;
     return 0;
 }
@@ -737,7 +737,7 @@ static void
 assembler_free(struct assembler *a)
 {
     CO_XDECREF(a->a_bytecode);
-    COMem_FREE(a->a_postorder);
+    COObject_Mem_FREE(a->a_postorder);
 }
 
 static int

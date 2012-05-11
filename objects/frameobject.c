@@ -22,7 +22,7 @@ frame_dealloc(COFrameObject *this)
         }
     }
 
-    COMem_FREE(this);
+    COObject_Mem_FREE(this);
 }
 
 COTypeObject COFrame_Type = {

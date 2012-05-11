@@ -10,7 +10,7 @@ static void
 exception_dealloc(COExceptionObject *this)
 {
     CO_XDECREF(this->message);
-    COMem_FREE(this);
+    COObject_Mem_FREE(this);
 }
 
 COTypeObject COException_Type = {

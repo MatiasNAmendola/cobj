@@ -309,7 +309,7 @@ COObject_GC_Malloc(size_t basicsize)
     gc_head *g;
     if (basicsize > SSIZE_MAX - sizeof(gc_head))
         return COErr_NoMemory();
-    g = (gc_head *) COMem_MALLOC(sizeof(gc_head) + basicsize);
+    g = (gc_head *) COObject_Mem_MALLOC(sizeof(gc_head) + basicsize);
     if (!g)
         return COErr_NoMemory();
 
@@ -360,7 +360,7 @@ COObject_GC_Free(void *o)
         generations[0].count--;
     }
 
-    COMem_FREE(g);
+    COObject_Mem_FREE(g);
 }
 ssize_t
 COObject_GC_Collect(void)

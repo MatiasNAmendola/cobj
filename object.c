@@ -61,7 +61,7 @@ COObject *
 COObject_New(COTypeObject *tp)
 {
     COObject *o;
-    o = (COObject *)COMem_MALLOC(tp->tp_basicsize);
+    o = (COObject *)COObject_Mem_MALLOC(tp->tp_basicsize);
     if (o == NULL) {
         return COErr_NoMemory();
     }
@@ -74,7 +74,7 @@ COVarObject_New(COTypeObject *tp, ssize_t n)
 {
     COVarObject *o;
     const size_t size = COObject_VAR_SIZE(tp, n);
-    o = (COVarObject *)COMem_MALLOC(size);
+    o = (COVarObject *)COObject_Mem_MALLOC(size);
     if (o == NULL) {
         return COErr_NoMemory();
     }

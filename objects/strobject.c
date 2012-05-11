@@ -123,7 +123,7 @@ str_resize(COStrObject **pv, ssize_t newsize)
         return -1;
     }
 
-    *pv = (COStrObject *)COMem_REALLOC((char *)v, COStr_BASESIZE + newsize);
+    *pv = (COStrObject *)COObject_Mem_REALLOC((char *)v, COStr_BASESIZE + newsize);
     if (*pv == NULL) {
         // TODO errors
         return -1;
@@ -292,7 +292,7 @@ end:
 static void
 str_dealloc(COStrObject *this)
 {
-    COMem_FREE(this);
+    COObject_Mem_FREE(this);
 }
 
 COTypeObject COStr_Type = {

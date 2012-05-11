@@ -48,7 +48,7 @@ struct arena {
 static struct block *
 block_new(size_t size)
 {
-    struct block *b = (struct block *)COMem_MALLOC(sizeof(struct block) + size);
+    struct block *b = (struct block *)COObject_Mem_MALLOC(sizeof(struct block) + size);
     if (!b)
         return NULL;
     b->b_size = size;
@@ -63,7 +63,7 @@ block_free(struct block *b)
 {
     while (b) {
         struct block *next = b->b_next;
-        COMem_FREE(b);
+        COObject_Mem_FREE(b);
         b = next;
     }
 }
@@ -93,14 +93,14 @@ block_alloc(struct block *b, size_t size)
 struct arena *
 arena_new(void)
 {
-    struct arena *arena = (struct arena *)COMem_MALLOC(sizeof(struct arena));
+    struct arena *arena = (struct arena *)COObject_Mem_MALLOC(sizeof(struct arena));
     if (!arena)
         return NULL;
 
     arena->a_head = block_new(DEFAULT_BLOCK_SIZE);
     arena->a_cur = arena->a_head;
     if (!arena->a_head) {
-        COMem_FREE(arena);
+        COObject_Mem_FREE(arena);
         return NULL;
     }
     arena->a_objects = COList_New(0);
@@ -132,7 +132,7 @@ arena_free(struct arena *arena)
 {
     block_free(arena->a_head);
     CO_DECREF(arena->a_objects);
-    COMem_FREE(arena);
+    COObject_Mem_FREE(arena);
 }
 
 int

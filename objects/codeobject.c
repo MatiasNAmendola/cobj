@@ -37,7 +37,7 @@ code_dealloc(COCodeObject *this)
     CO_DECREF(this->co_code);
     CO_DECREF(this->co_consts);
     CO_DECREF(this->co_names);
-    COMem_FREE(this);
+    COObject_Mem_FREE(this);
 }
 
 COTypeObject COCode_Type = {

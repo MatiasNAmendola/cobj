@@ -16,7 +16,7 @@ function_dealloc(COFunctionObject *this)
     CO_DECREF(this->func_name);
     CO_DECREF(this->func_upvalues);
     CO_DECREF(this->func_code);
-    COMem_FREE(this);
+    COObject_Mem_FREE(this);
 }
 
 COTypeObject COFunction_Type = {

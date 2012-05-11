@@ -29,7 +29,7 @@ list_dealloc(COListObject *this)
         while (--i >= 0)
             CO_XDECREF(this->co_item[i]);
     }
-    COMem_FREE(this->co_item);
+    COObject_Mem_FREE(this->co_item);
     COObject_GC_Free(this);
 }
 
@@ -82,7 +82,7 @@ list_clear(COListObject *this)
         while (--i >= 0) {
             CO_XDECREF(item[i]);
         }
-        COMem_FREE(item);
+        COObject_Mem_FREE(item);
     }
     return 0;
 }
@@ -169,7 +169,7 @@ list_resize(COListObject *this, ssize_t newsize)
 
     /* check for overflow */
     if (new_allocated <= ((~(ssize_t) 0) / sizeof(COObject *))) {
-        items = COMem_REALLOC(items, new_allocated * sizeof(COObject *));
+        items = COObject_Mem_REALLOC(items, new_allocated * sizeof(COObject *));
     } else {
         COErr_NoMemory();
         return -1;
@@ -221,7 +221,7 @@ COList_New(ssize_t size)
     if (size <= 0) {
         this->co_item = NULL;
     } else {
-        this->co_item = (COObject **)COMem_MALLOC(nbytes);
+        this->co_item = (COObject **)COObject_Mem_MALLOC(nbytes);
         if (this->co_item == NULL) {
             CO_DECREF(this);
             return COErr_NoMemory();

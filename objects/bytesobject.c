@@ -64,9 +64,9 @@ static void
 bytes_dealloc(COBytesObject *this)
 {
     if (this->co_bytes) {
-        COMem_FREE(this->co_bytes);
+        COObject_Mem_FREE(this->co_bytes);
     }
-    COMem_FREE(this);
+    COObject_Mem_FREE(this);
 }
 
 COTypeObject COBytes_Type = {
@@ -113,7 +113,7 @@ COBytes_FromStringN(const char *bytes, ssize_t len)
         new->co_bytes = NULL;
         new->co_alloc = 0;
     } else {
-        new->co_bytes = COMem_MALLOC(len + 1);
+        new->co_bytes = COObject_Mem_MALLOC(len + 1);
         if (new->co_bytes == NULL) {
             // TODO errors
             return NULL;
@@ -156,7 +156,7 @@ COBytes_Resize(COObject *this, ssize_t size)
         alloc = size + 1;
     }
 
-    bytes = (char *)COMem_REALLOC(((COBytesObject *)this)->co_bytes, alloc);
+    bytes = (char *)COObject_Mem_REALLOC(((COBytesObject *)this)->co_bytes, alloc);
     if (bytes == NULL) {
         // TODO errors
         return -1;
