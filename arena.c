@@ -48,7 +48,8 @@ struct arena {
 static struct block *
 block_new(size_t size)
 {
-    struct block *b = (struct block *)COObject_Mem_MALLOC(sizeof(struct block) + size);
+    struct block *b =
+        (struct block *)COObject_Mem_MALLOC(sizeof(struct block) + size);
     if (!b)
         return NULL;
     b->b_size = size;
@@ -93,7 +94,8 @@ block_alloc(struct block *b, size_t size)
 struct arena *
 arena_new(void)
 {
-    struct arena *arena = (struct arena *)COObject_Mem_MALLOC(sizeof(struct arena));
+    struct arena *arena =
+        (struct arena *)COObject_Mem_MALLOC(sizeof(struct arena));
     if (!arena)
         return NULL;
 

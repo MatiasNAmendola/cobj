@@ -157,7 +157,8 @@ static void
 compiler_enter_scope(struct compiler *c)
 {
     struct compiler_unit *u;
-    u = (struct compiler_unit *)COObject_Mem_MALLOC(sizeof(struct compiler_unit));
+    u = (struct compiler_unit *)
+        COObject_Mem_MALLOC(sizeof(struct compiler_unit));
     if (!u) {
         return;
     }
@@ -240,7 +241,7 @@ compiler_next_instr(struct compiler *c, struct block *b)
     if (b->b_instr == NULL) {
         b->b_instr =
             (struct instr *)COObject_Mem_MALLOC(sizeof(struct instr) *
-                                         DEFAULT_INSTR_SIZE);
+                                                DEFAULT_INSTR_SIZE);
         if (!b->b_instr) {
             return -1;
         }

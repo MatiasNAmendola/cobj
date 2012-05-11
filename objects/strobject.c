@@ -123,7 +123,9 @@ str_resize(COStrObject **pv, ssize_t newsize)
         return -1;
     }
 
-    *pv = (COStrObject *)COObject_Mem_REALLOC((char *)v, COStr_BASESIZE + newsize);
+    *pv =
+        (COStrObject *)COObject_Mem_REALLOC((char *)v,
+                                            COStr_BASESIZE + newsize);
     if (*pv == NULL) {
         // TODO errors
         return -1;

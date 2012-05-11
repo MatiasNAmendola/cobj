@@ -21,7 +21,7 @@ function print_typedef() {
         if (match($0, "typedef")) {
             a = 1
         }
-        if (a && match($0, "} [a-zA-Z0-9_]+;")) {
+        if (a && match($0, "^} [a-zA-Z0-9_]+;")) {
             if (x = index($2, ";")) {
                 typedefs[$0] = substr($2, 0, x - 1);
                 a = 0

@@ -180,8 +180,8 @@ _dict_do_resize(CODictObject *this)
 
     if (((this->nTableMask + 1) << 1) > 0) {    // double the table size
         t = (DictBucket **)COObject_Mem_REALLOC(this->arBuckets,
-                                         ((this->nTableMask + 1) << 1) *
-                                         sizeof(DictBucket *));
+                                                ((this->nTableMask + 1) << 1) *
+                                                sizeof(DictBucket *));
         this->arBuckets = t;
         this->nTableMask = this->nTableMask << 1;
         _dict_rehash(this);
@@ -308,7 +308,7 @@ CODict_New(void)
     dict->nNumOfElements = 0;
     tmp =
         (DictBucket **)COObject_Mem_MALLOC((dict->nTableMask + 1) *
-                                    sizeof(DictBucket *));
+                                           sizeof(DictBucket *));
     memset(tmp, 0, (dict->nTableMask + 1) * sizeof(DictBucket *));
     dict->arBuckets = tmp;
 

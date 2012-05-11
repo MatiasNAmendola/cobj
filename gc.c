@@ -54,21 +54,21 @@ gc_head *gc_generation0 = GEN_HEAD(0);
 
 /*** GC doubly linked list functions ***/
 static void
-gc_list_init(gc_head * list)
+gc_list_init(gc_head *list)
 {
     list->gc.gc_prev = list;
     list->gc.gc_next = list;
 }
 
 static int
-gc_list_is_empty(gc_head * list)
+gc_list_is_empty(gc_head *list)
 {
     return (list->gc.gc_next == list);
 }
 
 /* Remove `node` from the gc list it's currently in. */
 static void
-gc_list_remove(gc_head * node)
+gc_list_remove(gc_head *node)
 {
     node->gc.gc_prev->gc.gc_next = node->gc.gc_next;
     node->gc.gc_next->gc.gc_prev = node->gc.gc_prev;
@@ -77,7 +77,7 @@ gc_list_remove(gc_head * node)
 
 /* Move `node` from the gc list it's currently in to the end of `list`. */
 static void
-gc_list_move(gc_head * node, gc_head * list)
+gc_list_move(gc_head *node, gc_head *list)
 {
     gc_head *current_prev = node->gc.gc_prev;
     gc_head *current_next = node->gc.gc_next;
@@ -93,7 +93,7 @@ gc_list_move(gc_head * node, gc_head * list)
 
 /* Append list `from` onto list `to`; `from` becomes an empty list */
 static void
-gc_list_append(gc_head * to, gc_head * from)
+gc_list_append(gc_head *to, gc_head *from)
 {
     assert(from != to);
 
@@ -110,15 +110,14 @@ gc_list_append(gc_head * to, gc_head * from)
 
 /*** ! GC doubly linked list functions ***/
 
-
 /*
  * Set all gc_refs = co_refcnt. 
  */
 static void
-update_refs(gc_head * container)
+update_refs(gc_head *container)
 {
     gc_head *gc = container->gc.gc_next;
-    for (; gc !=container; gc = gc->gc.gc_next) {
+    for (; gc != container; gc = gc->gc.gc_next) {
         assert(gc->gc.gc_refs == GC_REACHABLE);
         gc->gc.gc_refs = CO_REFCNT(FROM_GC(gc));
         /*
@@ -146,11 +145,11 @@ visit_decref(COObject *o, void *data)
  * containers, and so cannot be collected.
  */
 static void
-subtract_refs(gc_head * container)
+subtract_refs(gc_head *container)
 {
     traversefunc traverser;
     gc_head *gc = container->gc.gc_next;
-    for (; gc !=container; gc = gc->gc.gc_next) {
+    for (; gc != container; gc = gc->gc.gc_next) {
         traverser = CO_TYPE(FROM_GC(gc))->tp_traverse;
         (void)traverser(FROM_GC(gc), (visitfunc)visit_decref, NULL);
     }
@@ -166,7 +165,7 @@ subtract_refs(gc_head * container)
  * outside the original young; and all objects in unreachable are not.
  */
 static void
-move_unreachable(gc_head * young, gc_head * unreachable)
+move_unreachable(gc_head *young, gc_head *unreachable)
 {
     gc_head *gc = young->gc.gc_next;
 
@@ -179,7 +178,7 @@ move_unreachable(gc_head * young, gc_head * unreachable)
      * been scanned yet.
      */
 
-    while (gc !=young) {
+    while (gc != young) {
         gc_head *next;
 
         if (gc->gc.gc_refs) {
@@ -202,7 +201,7 @@ move_unreachable(gc_head * young, gc_head * unreachable)
  * Break reference cycles by clearing the containers involved.
  */
 static void
-delete_garbage(gc_head * collectable, gc_head * old)
+delete_garbage(gc_head *collectable, gc_head *old)
 {
     inquiryfunc clear;
 
@@ -261,7 +260,7 @@ collect(int generation)
     gc_list_init(&unreachable);
     move_unreachable(young, &unreachable);
 
-    for (gc = unreachable.gc.gc_next; gc !=&unreachable; gc = gc->gc.gc_next) {
+    for (gc = unreachable.gc.gc_next; gc != &unreachable; gc = gc->gc.gc_next) {
         m++;
     }
 
@@ -288,7 +287,7 @@ collect_generations(void)
             break;
         }
     }
-    
+
     return n;
 }
 
@@ -309,7 +308,7 @@ COObject_GC_Malloc(size_t basicsize)
     gc_head *g;
     if (basicsize > SSIZE_MAX - sizeof(gc_head))
         return COErr_NoMemory();
-    g = (gc_head *) COObject_Mem_MALLOC(sizeof(gc_head) + basicsize);
+    g = (gc_head *)COObject_Mem_MALLOC(sizeof(gc_head) + basicsize);
     if (!g)
         return COErr_NoMemory();
 
@@ -362,6 +361,7 @@ COObject_GC_Free(void *o)
 
     COObject_Mem_FREE(g);
 }
+
 ssize_t
 COObject_GC_Collect(void)
 {
@@ -376,7 +376,7 @@ COObject_GC_Collect(void)
         printf("count1: %d\n", generations[1].count);
         printf("count2: %d\n", generations[2].count);
         gc_head *gc;
-        for (gc = gc_generation0->gc.gc_next; gc !=gc_generation0;
+        for (gc = gc_generation0->gc.gc_next; gc != gc_generation0;
              gc = gc->gc.gc_next) {
             printf("gc: %p, %s, refcnt: %d\n", FROM_GC(gc),
                    CO_TYPE(FROM_GC(gc))->tp_name, CO_REFCNT(FROM_GC(gc)));

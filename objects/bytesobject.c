@@ -156,7 +156,8 @@ COBytes_Resize(COObject *this, ssize_t size)
         alloc = size + 1;
     }
 
-    bytes = (char *)COObject_Mem_REALLOC(((COBytesObject *)this)->co_bytes, alloc);
+    bytes =
+        (char *)COObject_Mem_REALLOC(((COBytesObject *)this)->co_bytes, alloc);
     if (bytes == NULL) {
         // TODO errors
         return -1;
