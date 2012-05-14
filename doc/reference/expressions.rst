@@ -1,6 +1,15 @@
 Expressions
 -----------
 
+Operations
+~~~~~~~~~~
+
+Arithmetic operations
+Order comparisions
+Concatention
+Length operation
+Indexing
+
 Function Literals
 ~~~~~~~~~~~~~~~~~
 
