@@ -36,10 +36,7 @@ COTypeObject COFrame_Type;
 
 #define COFrame_Check(co) (CO_TYPE(co) == &COFrame_Type)
 
-COObject *COFrame_New(COObject *prev, COObject *func);
-COObject *COFrame_Pop(COObject *this);
-void COFrame_Push(COObject *this, COObject *o);
-void COFrame_Destory(COObject *this);
+COObject *COFrame_New(COObject *prev, COObject *func, COObject *locals);
 void COFrameBlock_Setup(COFrameObject *f, int type, int handler, int level);
 COFrameBlock *COFrameBlock_Pop(COFrameObject *f);
 int COFrame_Init(void);

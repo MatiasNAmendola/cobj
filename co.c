@@ -157,8 +157,6 @@ main(int argc, const char **argv)
                 scanner_setcode(eval);
                 COObject *code = compile(arena);
                 COFunction_SetCode(func, code);
-                TS(frame) =
-                    (COFrameObject *)COFrame_New((COObject *)TS(frame), func);
                 evaluated = eval_wrapper(func);
                 if (evaluated && evaluated != CO_None) {
                     COObject_print(evaluated);

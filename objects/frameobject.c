@@ -63,7 +63,7 @@ COFrame_Fini(void)
 }
 
 COObject *
-COFrame_New(COObject *prev, COObject *func)
+COFrame_New(COObject *prev, COObject *func, COObject *locals)
 {
     COFrameObject *f = COVarObject_NEW(COFrameObject, &COFrame_Type,
                                        ((COCodeObject *)((COFunctionObject *)
@@ -76,7 +76,12 @@ COFrame_New(COObject *prev, COObject *func)
     f->f_func = func;
     CO_XINCREF(func);
 
-    f->f_locals = CODict_New();
+    if (locals) {
+        f->f_locals = locals;
+        CO_INCREF(locals);
+    } else {
+        f->f_locals = CODict_New();
+    }
     f->f_builtins = builtins;
     CO_INCREF(builtins);
 

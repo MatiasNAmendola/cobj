@@ -1,6 +1,6 @@
 #include "co.h"
 
-/* status code for eval main loop (reason for stack unwind) */
+/* status code for eval main loop */
 enum status_code {
     STATUS_NONE = 0x0001,       /* None */
     STATUS_EXCEPTION = 0x0002,  /* Exception occurred */
@@ -17,7 +17,7 @@ COObject_get(COObject *name)
 {
     COObject *co;
 
-    COFrameObject *current_frame = (COFrameObject *)TS(frame);
+    COFrameObject *current_frame = TS(frame);
     if (current_frame->f_func) {
         co = CODict_GetItem(((COFunctionObject *)
                              current_frame->f_func)->func_upvalues, name);
@@ -46,7 +46,7 @@ COObject_get(COObject *name)
 int
 COObject_set(COObject *name, COObject *co)
 {
-    COFrameObject *current_frame = (COFrameObject *)TS(frame);
+    COFrameObject *current_frame = TS(frame);
     if (current_frame->f_func) {
         COObject *myco;
         myco = CODict_GetItem(((COFunctionObject *)
@@ -135,7 +135,8 @@ vm_eval(COObject *func)
     int err;                    /* C function error code */
     status = STATUS_NONE;
 
-    TS(frame) = (COFrameObject *)COFrame_New((COObject *)TS(frame), func);
+    TS(frame) = (COFrameObject *)COFrame_New((COObject *)TS(frame), func, NULL);
+
 new_frame:                     /* reentry point when function call/return */
     code = (COCodeObject *)((COFunctionObject *)TS(frame)->f_func)->func_code;
     stack_top = TS(frame)->f_stacktop;
@@ -399,7 +400,7 @@ new_frame:                     /* reentry point when function call/return */
                 TS(frame)->f_stacktop = stack_top;
                 TS(frame)->f_lasti = (int)(next_code - first_code);
                 TS(frame) =
-                    (COFrameObject *)COFrame_New((COObject *)TS(frame), o1);
+                    (COFrameObject *)COFrame_New((COObject *)TS(frame), o1, NULL);
                 CO_DECREF(o1);
                 goto new_frame;
             } else {
