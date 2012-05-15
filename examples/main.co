@@ -1,6 +1,3 @@
 #!./co
-
-print "Hello World";
-
-# this refer current main function itself, and run it again.
-#this();
+import module
+import module as a

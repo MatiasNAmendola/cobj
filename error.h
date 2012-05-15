@@ -3,9 +3,7 @@
 /**
  * Error Handling
  *
- * @example
  */
-#include <setjmp.h>
 
 /**
  * C Exception Emulator
@@ -27,6 +25,7 @@
  *      // do, if code is 2
  *  } co_end_try
  */
+#include <setjmp.h>
 
 /* chain list of exception buffers */
 struct co_exception_buf {

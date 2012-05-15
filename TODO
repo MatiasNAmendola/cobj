@@ -1,6 +1,5 @@
 * fix cli bug
 * add LOAD_FAST opcode
 * error message with location
-* implement keyword this
 * dict as module
 * fix embedded zeors in str

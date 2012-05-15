@@ -55,10 +55,6 @@ COErr_Print(void)
 void
 COErr_SetObject(COObject *exception, COObject *value)
 {
-    /*if (!COException_Check(exception)) { */
-    /*COErr_Format(COException_SystemError, "not a exception"); */
-    /*return; */
-    /*} */
     COErr_Restore(exception, value, NULL);
 }
 
