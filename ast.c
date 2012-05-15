@@ -10,8 +10,8 @@ node_new(struct arena *arena, Node_Type type, Node *nleft, Node *nright)
     n = arena_malloc(arena, sizeof(*n));
     memset(n, 0, sizeof(*n));
     n->type = type;
-    n->left = nleft;
-    n->right = nright;
+    n->nd_left = nleft;
+    n->nd_right = nright;
     return n;
 }
 
@@ -30,13 +30,13 @@ nodelist_append(struct arena *arena, Node *l, Node *n)
 Node *
 nodelist_concat(Node *a, Node *b)
 {
-    a->end->next = b;
-    a->end = b->end;
-    b->end = NULL;
+    a->nd_end->nd_next = b;
+    a->nd_end = b->nd_end;
+    b->nd_end = NULL;
     return a;
 }
 
-/* 
+/*
  * Construct a node list from list of nodes, last arg should be NULL to end
  * argument list.
  */
@@ -50,10 +50,10 @@ nodelist(struct arena *arena, Node *n, ...)
     Node *l;
 
     if (n) {
-        l = node_new(arena, NODE_BLOCK, NULL, NULL);
-        l->n = n;
-        l->next = NULL;
-        l->end = l;
+        l = node_new(arena, NODE_TREE, NULL, NULL);
+        l->nd_node = n;
+        l->nd_next = NULL;
+        l->nd_end = l;
     }
 
     while (true) {
@@ -75,8 +75,8 @@ node_type(Node_Type type)
         return #type
 
     switch (type) {
-        GIVE_NAME(NODE_BLOCK);
-        GIVE_NAME(NODE_BIN);    /* binary op node */
+        GIVE_NAME(NODE_TREE);
+        GIVE_NAME(NODE_BIN);
         GIVE_NAME(NODE_STORE_SUBSCRIPT);
         GIVE_NAME(NODE_CMP);
         GIVE_NAME(NODE_UNARY);
@@ -122,18 +122,6 @@ node_print(Node *n)
     static int level = 1;
     indent_printf(level, "Node(%p, %s)\n", n, node_type(n->type));
     level++;
-    /*if (n->left) { */
-    /*indent_printf(level, "->left\n", n, node_type(n->type)); */
-    /*node_print(n->left); */
-    /*} */
-    /*if (n->right) { */
-    /*indent_printf(level, "->right\n", n, node_type(n->type)); */
-    /*node_print(n->right); */
-    /*} */
-    /*if (n->list) { */
-    /*indent_printf(level, "->list\n", n, node_type(n->type)); */
-    /*nodelisttree(n->list); */
-    /*} */
     level--;
 }
 
@@ -145,8 +133,8 @@ nodelisttree(Node *l)
 {
     indent_printf(0, "Node(%)\n", l);
     Node *n;
-    for (; l; l = l->next) {
-        n = l->n;
+    for (; l; l = l->nd_next) {
+        n = l->nd_node;
         node_print(n);
     }
 }
@@ -157,17 +145,7 @@ nodelist_len(Node *l)
     int i = 0;
     while (l) {
         i++;
-        l = l->next;
+        l = l->nd_next;
     }
     return i;
-}
-
-Node *
-nodelist_changetype(Node *l, Node_Type t)
-{
-    while (l) {
-        l->n->type = t;
-        l = l->next;
-    }
-    return l;
 }

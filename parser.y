@@ -176,28 +176,29 @@ expr: /* express something */
     OP_UNARY_INVERT; }
     |   '[' expr_list ']' {
             $$ = node_new(c->arena, NODE_LIST, NULL, NULL);
-            $$->list = $2;
+            $$->nd_list = $2;
         }
     |   '{' assoc_list '}' {
             $$ = node_new(c->arena, NODE_DICT_BUILD, NULL, NULL);
-            $$->list = $2;
+            $$->nd_list = $2;
         }
     |   expr '(' expr_list ')' {
-            $$ = node_new(c->arena, NODE_FUNC_CALL, $1, NULL);
-            $$->list = $3;
+            $$ = node_new(c->arena, NODE_FUNC_CALL, NULL, NULL);
+            $$->nd_func = $1;
+            $$->nd_params = $3;
         }
     |   expr '[' expr ']' {
             $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_SUBSCRIPT;
         }
     |   funcliteral opt_param_list stmt_list T_END {
             Node *t = node_new(c->arena, NODE_FUNC, NULL, NULL);
-            t->nfuncname = 0;
-            t->nfuncargs = $2;
-            t->nfuncbody = $3;
-            if (t->nfuncbody) {
-                t->nfuncbody = nodelist_append(c->arena, t->nfuncbody, return_none_node(c->arena));
+            t->nd_funcname = 0;
+            t->nd_funcargs = $2;
+            t->nd_funcbody = $3;
+            if (t->nd_funcbody) {
+                t->nd_funcbody = nodelist_append(c->arena, t->nd_funcbody, return_none_node(c->arena));
             } else {
-                t->nfuncbody = nodelist(c->arena, return_none_node(c->arena), NULL);
+                t->nd_funcbody = nodelist(c->arena, return_none_node(c->arena), NULL);
             }
             $$ = t;
         }
@@ -264,9 +265,9 @@ simple_stmt:
         T_NAME '=' expr { Node *t = node_new(c->arena, NODE_ASSIGN, $1, $3); $$ = nodelist(c->arena, t, NULL); }
     |   expr '[' expr ']' '=' expr {
             Node *t = node_new(c->arena, NODE_STORE_SUBSCRIPT, NULL, NULL);
-            t->left = $1;
-            t->middle = $3;
-            t->right = $6;
+            t->nd_left = $1;
+            t->nd_middle = $3;
+            t->nd_right = $6;
             $$ = nodelist(c->arena, t, NULL);
         }
     |   T_NAME T_ADD_ASSIGN expr {
@@ -330,36 +331,36 @@ simple_stmt:
 compound_stmt:
         T_IF expr then stmt_list if_tail T_END {
             Node *t = node_new(c->arena, NODE_IF, NULL, NULL);
-            t->ntest = $2;
-            t->nbody = $4;
-            t->nelse = $5;
+            t->nd_cond = $2;
+            t->nd_condbody = $4;
+            t->nd_condelse = $5;
             $$ = nodelist(c->arena, t, NULL);
         }
     |   T_WHILE expr then stmt_list T_END {
             Node *t = node_new(c->arena, NODE_WHILE, NULL, NULL);
-            t->ntest = $2;
-            t->nbody = $4;
+            t->nd_cond = $2;
+            t->nd_condbody = $4;
             $$ = nodelist(c->arena, t, NULL);
         }
     |   T_FUNC T_NAME opt_param_list stmt_list T_END {
             Node *t = node_new(c->arena, NODE_FUNC, NULL, NULL);
-            t->nfuncname = $2;
-            t->nfuncargs = $3;
-            t->nfuncbody = $4;
-            if (t->nfuncbody) {
-                t->nfuncbody = nodelist_append(c->arena, t->nfuncbody, return_none_node(c->arena));
+            t->nd_funcname = $2;
+            t->nd_funcargs = $3;
+            t->nd_funcbody = $4;
+            if (t->nd_funcbody) {
+                t->nd_funcbody = nodelist_append(c->arena, t->nd_funcbody, return_none_node(c->arena));
             } else {
-                t->nfuncbody = nodelist(c->arena, return_none_node(c->arena),
+                t->nd_funcbody = nodelist(c->arena, return_none_node(c->arena),
                 NULL);
             }
             $$ = nodelist(c->arena, t, NULL);
         }
     |   T_TRY stmt_list opt_catch_list opt_else opt_finally_block T_END {
             Node *t = node_new(c->arena, NODE_TRY, NULL, NULL);
-            t->ntrybody = $2;
-            t->ncatches = $3;
-            t->norelse = $4;
-            t->nfinally = $5;
+            t->nd_trybody = $2;
+            t->nd_catches = $3;
+            t->nd_orelse = $4;
+            t->nd_finally = $5;
             $$ = nodelist(c->arena, t, NULL);
         }
 ;
@@ -372,8 +373,8 @@ opt_finally_block:
 catch_block:
         T_CATCH expr_list_inline then stmt_list {
             $$ = node_new(c->arena, NODE_CATCH, NULL, NULL);
-            $$->ncatchname = $2;
-            $$->ncatchbody = $4;
+            $$->nd_catchname = $2;
+            $$->nd_catchbody = $4;
         }
 ;
 
@@ -415,9 +416,9 @@ if_tail:
        opt_else
     |  T_ELIF expr then stmt_list if_tail {
             Node *t = node_new(c->arena, NODE_IF, NULL, NULL);
-            t->ntest = $2;
-            t->nbody = $4;
-            t->nelse = $5;
+            t->nd_cond = $2;
+            t->nd_condbody = $4;
+            t->nd_condelse = $5;
             $$ = nodelist(c->arena, t, NULL);
         }
 ;

@@ -357,8 +357,8 @@ compiler_visit_nodelist(struct compiler *c, Node *l)
     if (!l)
         return;
 
-    for (; l; l = l->next) {
-        compiler_visit_node(c, l->n);
+    for (; l; l = l->nd_next) {
+        compiler_visit_node(c, l->nd_node);
     }
 }
 
@@ -371,11 +371,11 @@ compiler_visit_node(struct compiler *c, Node *n)
 
     switch (n->type) {
     case NODE_PRINT:
-        compiler_visit_node(c, n->left);
+        compiler_visit_node(c, n->nd_left);
         compiler_addop(c, OP_PRINT);
         break;
     case NODE_RETURN:
-        compiler_visit_node(c, n->left);
+        compiler_visit_node(c, n->nd_left);
         compiler_addop(c, OP_RETURN);
         break;
     case NODE_CONST:
@@ -383,36 +383,36 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop_i(c, OP_LOAD_CONST, oparg);
         break;
     case NODE_BIN:
-        compiler_visit_node(c, n->left);
-        compiler_visit_node(c, n->right);
+        compiler_visit_node(c, n->nd_left);
+        compiler_visit_node(c, n->nd_right);
         compiler_addop(c, n->op);
         break;
     case NODE_STORE_SUBSCRIPT:
-        compiler_visit_node(c, n->left);
-        compiler_visit_node(c, n->middle);
-        compiler_visit_node(c, n->right);
+        compiler_visit_node(c, n->nd_left);
+        compiler_visit_node(c, n->nd_middle);
+        compiler_visit_node(c, n->nd_right);
         compiler_addop(c, OP_STORE_SUBSCRIPT);
         break;
     case NODE_CMP:
-        compiler_visit_node(c, n->left);
-        compiler_visit_node(c, n->right);
+        compiler_visit_node(c, n->nd_left);
+        compiler_visit_node(c, n->nd_right);
         compiler_addop_i(c, OP_CMP, n->oparg);
         break;
     case NODE_UNARY:
-        compiler_visit_node(c, n->left);
+        compiler_visit_node(c, n->nd_left);
         compiler_addop(c, n->op);
         break;
     case NODE_LIST:
-        compiler_visit_nodelist(c, n->list);
-        compiler_addop_i(c, OP_BUILD_LIST, nodelist_len(n->list));
+        compiler_visit_nodelist(c, n->nd_list);
+        compiler_addop_i(c, OP_BUILD_LIST, nodelist_len(n->nd_list));
         break;
     case NODE_DICT_BUILD:
-        compiler_addop_i(c, OP_DICT_BUILD, nodelist_len(n->list));
-        compiler_visit_nodelist(c, n->list);
+        compiler_addop_i(c, OP_DICT_BUILD, nodelist_len(n->nd_list));
+        compiler_visit_nodelist(c, n->nd_list);
         break;
     case NODE_DICT_ADD:
-        compiler_visit_node(c, n->left);
-        compiler_visit_node(c, n->right);
+        compiler_visit_node(c, n->nd_left);
+        compiler_visit_node(c, n->nd_right);
         compiler_addop(c, OP_DICT_ADD);
         break;
     case NODE_NAME:
@@ -420,27 +420,27 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop_i(c, OP_LOAD_NAME, oparg);
         break;
     case NODE_ASSIGN:
-        compiler_visit_node(c, n->right);
-        oparg = compiler_add(c->u->names, n->left->o);
+        compiler_visit_node(c, n->nd_right);
+        oparg = compiler_add(c->u->names, n->nd_left->o);
         compiler_addop_i(c, OP_ASSIGN, oparg);
         break;
     case NODE_IF:
         {
             struct block *ifelse, *ifend;
             ifend = compiler_new_block(c);
-            if (n->nelse) {
+            if (n->nd_condelse) {
                 ifelse = compiler_new_block(c);
             } else {
                 ifelse = ifend;
             }
-            compiler_visit_node(c, n->ntest);
+            compiler_visit_node(c, n->nd_cond);
             compiler_addop_j(c, OP_JMPZ, ifelse);
             compiler_next_block(c);
-            compiler_visit_nodelist(c, n->nbody);
+            compiler_visit_nodelist(c, n->nd_condbody);
             compiler_addop_j(c, OP_JMPX, ifend);
-            if (n->nelse) {
+            if (n->nd_condelse) {
                 compiler_use_next_block(c, ifelse);
-                compiler_visit_nodelist(c, n->nelse);
+                compiler_visit_nodelist(c, n->nd_condelse);
             }
             compiler_use_next_block(c, ifend);
             break;
@@ -457,9 +457,9 @@ compiler_visit_node(struct compiler *c, Node *n)
             if (!compiler_push_fblock(c, FB_LOOP, loop_start))
                 return 0;
 
-            compiler_visit_node(c, n->ntest);
+            compiler_visit_node(c, n->nd_cond);
             compiler_addop_j(c, OP_JMPZ, loop_exit);
-            compiler_visit_nodelist(c, n->nbody);
+            compiler_visit_nodelist(c, n->nd_condbody);
             compiler_addop_j(c, OP_JMPX, loop_start);
             compiler_use_next_block(c, loop_exit);
             compiler_addop(c, OP_POP_BLOCK);
@@ -472,13 +472,13 @@ compiler_visit_node(struct compiler *c, Node *n)
     case NODE_FUNC:
         compiler_enter_scope(c);
         compiler_use_new_block(c);
-        c->u->argcount = nodelist_len(n->nfuncargs);
-        Node *l = n->nfuncargs;
+        c->u->argcount = nodelist_len(n->nd_funcargs);
+        Node *l = n->nd_funcargs;
         while (l) {
-            oparg = compiler_add(c->u->names, l->n->o);
-            l = l->next;
+            oparg = compiler_add(c->u->names, l->nd_node->o);
+            l = l->nd_next;
         }
-        compiler_visit_nodelist(c, n->nfuncbody);
+        compiler_visit_nodelist(c, n->nd_funcbody);
         COObject *co = assemble(c);
 #ifdef CO_DEBUG
         printf("begin function\n");
@@ -491,21 +491,21 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop_i(c, OP_LOAD_CONST, oparg);
         compiler_addop(c, OP_DECLARE_FUNCTION);
 
-        if (n->nfuncname) {
-            oparg = compiler_add(c->u->names, n->nfuncname->o);
+        if (n->nd_funcname) {
+            oparg = compiler_add(c->u->names, n->nd_funcname->o);
             compiler_addop_i(c, OP_ASSIGN, oparg);
         }
         break;
     case NODE_FUNC_CALL:
-        compiler_visit_nodelist(c, n->list);
-        compiler_visit_node(c, n->left);
-        oparg = nodelist_len(n->list);
+        compiler_visit_nodelist(c, n->nd_params);
+        compiler_visit_node(c, n->nd_func);
+        oparg = nodelist_len(n->nd_params);
         compiler_addop_i(c, OP_CALL_FUNCTION, oparg);
         break;
     case NODE_FUNC_CALL_STMT:
-        compiler_visit_nodelist(c, n->list);
-        compiler_visit_node(c, n->left);
-        oparg = nodelist_len(n->list);
+        compiler_visit_nodelist(c, n->nd_params);
+        compiler_visit_node(c, n->nd_func);
+        oparg = nodelist_len(n->nd_params);
         compiler_addop_i(c, OP_CALL_FUNCTION, oparg);
         compiler_addop(c, OP_POP_TOP);
         break;
@@ -514,10 +514,10 @@ compiler_visit_node(struct compiler *c, Node *n)
             struct block *body, *end, *handler, *orelse, *finally_end;
             body = compiler_new_block(c);
             end = compiler_new_block(c);
-            if (n->norelse) {
+            if (n->nd_orelse) {
                 orelse = compiler_new_block(c);
             }
-            if (n->nfinally) {
+            if (n->nd_finally) {
                 finally_end = compiler_new_block(c);
                 compiler_addop_j(c, OP_SETUP_FINALLY, finally_end);
             }
@@ -526,23 +526,23 @@ compiler_visit_node(struct compiler *c, Node *n)
             compiler_use_next_block(c, body);
             if (!compiler_push_fblock(c, FB_EXCEPT, body))
                 return 0;
-            compiler_visit_nodelist(c, n->ntrybody);
+            compiler_visit_nodelist(c, n->nd_trybody);
             compiler_addop(c, OP_POP_BLOCK);
             compiler_pop_fblock(c, FB_EXCEPT, body);
-            if (n->norelse) {
+            if (n->nd_orelse) {
                 compiler_addop_j(c, OP_JMPX, orelse);
             } else {
                 compiler_addop_j(c, OP_JMPX, end);
             }
 
-            Node *l = n->ncatches;
+            Node *l = n->nd_catches;
             Node *catch;
             int len = nodelist_len(l);
             int i = 0;
             compiler_use_next_block(c, handler);
-            for (; l; l = l->next, i++) {
-                catch = l->n;
-                if (!catch->ncatchname && i < len - 1) {
+            for (; l; l = l->nd_next, i++) {
+                catch = l->nd_node;
+                if (!catch->nd_catchname && i < len - 1) {
                     printf("len - 1: %d, i: %d\n", len - 1, i);
                     // default catch must be last
                     assert(0);
@@ -550,45 +550,45 @@ compiler_visit_node(struct compiler *c, Node *n)
                 handler = compiler_new_block(c);
                 if (!handler)
                     return 0;
-                if (catch->ncatchname) {
-                    Node *namelist = catch->ncatchname;
+                if (catch->nd_catchname) {
+                    Node *namelist = catch->nd_catchname;
                     compiler_addop(c, OP_DUP_TOP);
-                    for (; namelist; namelist = namelist->next) {
-                        compiler_visit_node(c, namelist->n);
+                    for (; namelist; namelist = namelist->nd_next) {
+                        compiler_visit_node(c, namelist->nd_node);
                     }
                     compiler_addop_i(c, OP_BUILD_TUPLE,
-                                     nodelist_len(catch->ncatchname));
+                                     nodelist_len(catch->nd_catchname));
                     compiler_addop_i(c, OP_CMP, Cmp_EXC_MATCH);
                     compiler_addop_j(c, OP_JMPZ, handler);
                     compiler_addop(c, OP_POP_TOP);
-                    compiler_visit_nodelist(c, catch->ncatchbody);
+                    compiler_visit_nodelist(c, catch->nd_catchbody);
                 } else {
                     struct block *default_body;
                     default_body = compiler_new_block(c);
                     compiler_push_fblock(c, FB_FINALLY, default_body);
-                    compiler_visit_nodelist(c, catch->ncatchbody);
+                    compiler_visit_nodelist(c, catch->nd_catchbody);
                     compiler_pop_fblock(c, FB_FINALLY, default_body);
                 }
                 compiler_addop_j(c, OP_JMPX, end);
                 compiler_use_next_block(c, handler);
             }
             compiler_addop(c, OP_END_TRY);
-            if (n->norelse) {
+            if (n->nd_orelse) {
                 compiler_use_next_block(c, orelse);
-                compiler_visit_nodelist(c, n->norelse);
+                compiler_visit_nodelist(c, n->nd_orelse);
             }
             compiler_use_next_block(c, end);
-            if (n->nfinally) {
+            if (n->nd_finally) {
                 compiler_addop_o(c, OP_LOAD_CONST, c->u->consts, CO_None);
                 compiler_use_next_block(c, finally_end);
-                compiler_visit_nodelist(c, n->nfinally);
+                compiler_visit_nodelist(c, n->nd_finally);
                 compiler_addop(c, OP_END_FINALLY);
             }
         }
         break;
     case NODE_THROW:
-        if (n->left) {
-            compiler_visit_node(c, n->left);
+        if (n->nd_left) {
+            compiler_visit_node(c, n->nd_left);
             compiler_addop_i(c, OP_THROW, 1);
         } else {
             compiler_addop_i(c, OP_THROW, 0);
