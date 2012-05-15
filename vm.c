@@ -285,7 +285,7 @@ new_frame:                     /* reentry point when function call/return */
             break;
         case OP_PRINT:
             x = POP();
-            COObject_print(x);
+            COObject_Print(x, stdout, 0);
             CO_DECREF(x);
             break;
         case OP_BUILD_TUPLE:
@@ -405,7 +405,7 @@ new_frame:                     /* reentry point when function call/return */
                 CO_DECREF(o1);
                 goto new_frame;
             } else {
-                COObject_dump(o1);
+                COObject_Dump(o1);
                 exit(0);
             }
             break;

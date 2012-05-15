@@ -14,6 +14,7 @@ COTypeObject CONone_Type = {
     0,
     default_dealloc,            /* tp_dealloc */
     none_repr,                  /* tp_repr */
+    0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_hash */

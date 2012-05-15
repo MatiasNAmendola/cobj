@@ -3,3 +3,4 @@
 * error message with location
 * dict as module
 * fix embedded zeors in str
+* implement keyword this whict is used to refer current context (module/function, etc)

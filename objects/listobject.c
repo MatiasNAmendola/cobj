@@ -13,7 +13,7 @@ list_repr(COObject *this)
         COObject *co = COList_GetItem(this, i);
         if (i != 0)
             COStr_ConcatAndDel(&s, COStr_FromString(", "));
-        COStr_ConcatAndDel(&s, COObject_repr(co));
+        COStr_ConcatAndDel(&s, COObject_Repr(co));
     }
     COStr_ConcatAndDel(&s, COStr_FromString("]"));
     return s;
@@ -109,6 +109,7 @@ COTypeObject COList_Type = {
     COType_FLAG_GC,
     (deallocfunc)list_dealloc,  /* tp_dealloc */
     (reprfunc)list_repr,        /* tp_repr */
+    0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_hash */

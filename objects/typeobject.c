@@ -22,6 +22,7 @@ COTypeObject COType_Type = {
     0,
     (deallocfunc)type_dealloc,  /* tp_dealloc */
     (reprfunc)type_repr,        /* tp_repr */
+    0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
@@ -39,6 +40,6 @@ void
 default_dealloc(COObject *this)
 {
     fprintf(stderr, "deallocated, object is:\n");
-    COObject_dump(this);
+    COObject_Dump(this);
     exit(0);
 }

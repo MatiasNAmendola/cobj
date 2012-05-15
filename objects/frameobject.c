@@ -33,6 +33,7 @@ COTypeObject COFrame_Type = {
     0,
     (deallocfunc)frame_dealloc, /* tp_dealloc */
     (reprfunc)frame_repr,       /* tp_repr */
+    0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_hash */
@@ -67,8 +68,8 @@ COFrame_New(COObject *prev, COObject *func, COObject *locals)
 {
     COFrameObject *f = COVarObject_NEW(COFrameObject, &COFrame_Type,
                                        ((COCodeObject *)((COFunctionObject *)
-                                                         func)->func_code)->
-                                       co_stacksize);
+                                                         func)->
+                                        func_code)->co_stacksize);
 
     f->f_lasti = 0;
     f->f_prev = prev;

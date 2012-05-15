@@ -25,7 +25,7 @@ tuple_repr(COTupleObject *this)
         COObject *co = COTuple_GET_ITEM(this, i);
         if (i != 0)
             COStr_ConcatAndDel(&s, COStr_FromString(", "));
-        COStr_ConcatAndDel(&s, COObject_repr(co));
+        COStr_ConcatAndDel(&s, COObject_Repr(co));
     }
     COStr_ConcatAndDel(&s, COStr_FromString(")"));
     return s;
@@ -90,6 +90,7 @@ COTypeObject COTuple_Type = {
     COType_FLAG_GC,
     (deallocfunc)tuple_dealloc, /* tp_dealloc */
     (reprfunc)tuple_repr,       /* tp_repr */
+    0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     (hashfunc)tuple_hash,       /* tp_hash */

@@ -40,9 +40,9 @@ dict_repr(CODictObject *this)
     this->pCursor = this->pListHead;
     while (CODict_Next((COObject *)this, &key, &item) == 0) {
         int status;
-        s = COObject_repr(key);
+        s = COObject_Repr(key);
         COStr_Concat(&s, colon);
-        COStr_ConcatAndDel(&s, COObject_repr(item));
+        COStr_ConcatAndDel(&s, COObject_Repr(item));
         if (s == NULL)
             goto Done;
         status = COList_Append(pieces, s);
@@ -146,6 +146,7 @@ COTypeObject CODict_Type = {
     COType_FLAG_GC,
     (deallocfunc)dict_dealloc,  /* tp_dealloc */
     (reprfunc)dict_repr,        /* tp_repr */
+    0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_hash */

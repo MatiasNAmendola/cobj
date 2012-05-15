@@ -1151,6 +1151,7 @@ COTypeObject COInt_Type = {
     0,
     (deallocfunc)int_dealloc,   /* tp_dealloc */
     (reprfunc)int_repr,         /* tp_repr */
+    0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     (hashfunc)int_hash,         /* tp_hash */

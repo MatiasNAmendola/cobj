@@ -1,7 +1,7 @@
 #include "co.h"
 
 COObject *
-COObject_repr(COObject *o)
+COObject_Repr(COObject *o)
 {
     if (!o)
         return COStr_FromString("<NULL>");
@@ -9,7 +9,7 @@ COObject_repr(COObject *o)
 }
 
 void
-COObject_dump(COObject *o)
+COObject_Dump(COObject *o)
 {
     if (o == NULL) {
         fprintf(stderr, "NULL\n");
@@ -18,7 +18,7 @@ COObject_dump(COObject *o)
         fprintf(stderr, "    type: %s\n",
                 CO_TYPE(o) == NULL ? "NULL" : CO_TYPE(o)->tp_name);
         fprintf(stderr, "    refcnt: %d\n", o->co_refcnt);
-        COStrObject *s = (COStrObject *)COObject_repr(o);
+        COStrObject *s = (COStrObject *)COObject_Repr(o);
         fprintf(stderr, "    repr: %s\n", s->co_sval);
         CO_DECREF(s);
     }
@@ -81,12 +81,27 @@ COVarObject_New(COTypeObject *tp, ssize_t n)
     return (COObject *)COVarObject_INIT(o, tp, n);
 }
 
-void
-COObject_print(COObject *o)
+int
+COObject_Print(COObject *o, FILE *fp, int flags)
 {
-    COStrObject *s = (COStrObject *)CO_TYPE(o)->tp_repr(o);
-    printf("%s\n", s->co_sval);
-    CO_DECREF(s);
+    if (!o) {
+        fprintf(fp, "<null>");
+        return 0;
+    }
+    if (CO_REFCNT(o) <= 0) {
+        fprintf(fp, "<refcnt %ld at %p>", (long)CO_REFCNT(o), o);
+        return 0;
+    } else if (CO_TYPE(o)->tp_print == NULL) {
+        COObject *s = CO_TYPE(o)->tp_repr(o);
+        if (!s)
+            return -1;
+        int ret = 0;
+        ret = COObject_Print(s, fp, flags);
+        CO_DECREF(s);
+        return ret;
+    } else {
+        return CO_TYPE(o)->tp_print(o, fp, flags);
+    }
 }
 
 /*

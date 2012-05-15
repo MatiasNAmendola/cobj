@@ -6,6 +6,8 @@
 /* Object Methods */
 typedef void (*deallocfunc) (COObject *);
 typedef COObject *(*reprfunc)(COObject *);
+#define CO_PRINT_RAW    1
+typedef int (*printfunc)(COObject *, FILE *, int flags);
 typedef COObject *(*getattrfunc)(COObject *, char *);
 typedef int (*setattrfunc) (COObject *, char *, COObject *);
 typedef long (*hashfunc) (COObject *);
@@ -52,6 +54,7 @@ struct _COTypeObject {
     /* Basic Methods  */
     deallocfunc tp_dealloc;
     reprfunc tp_repr;
+    printfunc tp_print;
     getattrfunc tp_getattr;
     setattrfunc tp_setattr;
     hashfunc tp_hash;

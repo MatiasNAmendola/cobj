@@ -967,21 +967,21 @@ dump_code(COObject *code)
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             /*printf(" (%s)", */
-            /*COStr_AsString(COObject_repr */
+            /*COStr_AsString(COObject_Repr */
             /*(GETITEM(_code->co_consts, oparg)))); */
             break;
         case OP_LOAD_NAME:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             /*printf(" (%s)", */
-            /*COStr_AsString(COObject_repr */
+            /*COStr_AsString(COObject_Repr */
             /*(GETITEM(_code->co_names, oparg)))); */
             break;
         case OP_ASSIGN:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             /*printf(" (%s)", */
-            /*COStr_AsString(COObject_repr */
+            /*COStr_AsString(COObject_Repr */
             /*(GETITEM(_code->co_names, oparg)))); */
             break;
         case OP_CONTINUE_LOOP:

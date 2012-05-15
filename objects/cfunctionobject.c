@@ -22,6 +22,7 @@ COTypeObject COCFunction_Type = {
     0,
     (deallocfunc)cfunction_dealloc,     /* tp_dealloc */
     (reprfunc)cfunction_repr,   /* tp_repr */
+    0,                          /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     0,                          /* tp_hash */

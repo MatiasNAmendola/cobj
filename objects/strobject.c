@@ -297,6 +297,37 @@ str_dealloc(COStrObject *this)
     COObject_Mem_FREE(this);
 }
 
+static int
+str_print(COStrObject *this, FILE *fp, int flags)
+{
+    ssize_t size;
+    char *data;
+    char quote;
+
+    data = this->co_sval;
+    size = CO_SIZE(this);
+
+    if (flags & CO_PRINT_RAW) {
+        while (size > INT_MAX) {
+            /* Very long strings cannot be written atomically.
+             * But don't write exactly INT_MAX bytes at a time
+             * to avoid memory aligment issues.
+             */
+            const int chunk_size = INT_MAX & ~0x3FFF;
+            fwrite(data, 1, chunk_size, fp); 
+            data += chunk_size;
+            size -= chunk_size;
+        }
+
+        if (size) fwrite(data, (int)size, 1, fp);
+        return 0;
+    }
+
+    printf("here\n");
+    fwrite(data, sizeof(char), size, fp);
+    return 0;
+}
+
 COTypeObject COStr_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "str",
@@ -305,6 +336,7 @@ COTypeObject COStr_Type = {
     0,
     (deallocfunc)str_dealloc,   /* tp_dealloc */
     (reprfunc)str_repr,         /* tp_repr */
+    (printfunc)str_print,       /* tp_print */
     0,                          /* tp_getattr */
     0,                          /* tp_setattr */
     (hashfunc)str_hash,         /* tp_hash */
