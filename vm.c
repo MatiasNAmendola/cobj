@@ -400,7 +400,8 @@ new_frame:                     /* reentry point when function call/return */
                 TS(frame)->f_stacktop = stack_top;
                 TS(frame)->f_lasti = (int)(next_code - first_code);
                 TS(frame) =
-                    (COFrameObject *)COFrame_New((COObject *)TS(frame), o1, NULL);
+                    (COFrameObject *)COFrame_New((COObject *)TS(frame), o1,
+                                                 NULL);
                 CO_DECREF(o1);
                 goto new_frame;
             } else {

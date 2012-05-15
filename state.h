@@ -7,20 +7,20 @@
 #include "object.h"
 #include "objects/frameobject.h"
 
-typedef struct _COThreadState {
+typedef struct _COState {
     COObject *funcargs;
     COFrameObject *frame;
 
     COObject *curexc_type;
     COObject *curexc_value;
     COObject *curexc_traceback;
-} COThreadState;
+} COState;
 
-COThreadState *threadstate_current;
-#define TS(o)    (threadstate_current)->o
+COState *state_current;
+#define TS(o)    (state_current)->o
 
-COThreadState *COThreadState_New();
-void COThreadState_Delete(COThreadState *state);
-void COThreadState_DeleteCurrent();
+COState *COState_New();
+void COState_Delete(COState *state);
+void COState_DeleteCurrent();
 
 #endif

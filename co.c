@@ -75,7 +75,7 @@ run_file(FILE *fp, const char *filename)
     CO_DECREF(f);
     CO_DECREF(code);
     CO_DECREF(func);
-    COThreadState_DeleteCurrent();
+    COState_DeleteCurrent();
     arena_free(arena);
     return ret ? 1 : 0;
 }
@@ -92,7 +92,7 @@ run_string(const char *str)
     ret = eval_wrapper(func);
     CO_DECREF(code);
     CO_DECREF(func);
-    COThreadState_DeleteCurrent();
+    COState_DeleteCurrent();
     arena_free(arena);
     return ret ? 1 : 0;
 }
@@ -118,7 +118,7 @@ main(int argc, const char **argv)
     COInt_Init();
     COFrame_Init();
     COObject_GC_Init();
-    threadstate_current = COThreadState_New();
+    state_current = COState_New();
 
     /* Run */
     int ret = 0;

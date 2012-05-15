@@ -1,13 +1,13 @@
 #include "co.h"
 
-COThreadState *threadstate_current = NULL;
+COState *state_current = NULL;
 
-COThreadState *
-COThreadState_New()
+COState *
+COState_New()
 {
-    COThreadState *state = (COThreadState *)malloc(sizeof(COThreadState));
-    if (state != NULL) {
-        // TODO
+    COState *state = (COState *)malloc(sizeof(COState));
+    if (!state) {
+        return NULL;
     }
     state->funcargs = COList_New(0);
     state->frame = NULL;
@@ -20,7 +20,7 @@ COThreadState_New()
 }
 
 void
-COThreadState_Delete(COThreadState *state)
+COState_Delete(COState *state)
 {
     if (!state)
         return;
@@ -34,7 +34,7 @@ COThreadState_Delete(COThreadState *state)
 }
 
 void
-COThreadState_DeleteCurrent()
+COState_DeleteCurrent()
 {
-    COThreadState_Delete(threadstate_current);
+    COState_Delete(state_current);
 }
