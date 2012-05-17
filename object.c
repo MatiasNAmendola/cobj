@@ -82,7 +82,7 @@ COVarObject_New(COTypeObject *tp, ssize_t n)
 }
 
 int
-COObject_Print(COObject *o, FILE *fp, int flags)
+COObject_Print(COObject *o, FILE *fp)
 {
     if (!o) {
         fprintf(fp, "<null>");
@@ -96,11 +96,11 @@ COObject_Print(COObject *o, FILE *fp, int flags)
         if (!s)
             return -1;
         int ret = 0;
-        ret = COObject_Print(s, fp, flags);
+        ret = COObject_Print(s, fp);
         CO_DECREF(s);
         return ret;
     } else {
-        return CO_TYPE(o)->tp_print(o, fp, flags);
+        return CO_TYPE(o)->tp_print(o, fp);
     }
 }
 

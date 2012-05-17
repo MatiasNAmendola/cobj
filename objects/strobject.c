@@ -343,7 +343,7 @@ str_dealloc(COStrObject *this)
 }
 
 static int
-str_print(COStrObject *this, FILE *fp, int flags)
+str_print(COStrObject *this, FILE *fp)
 {
     ssize_t size;
     char *data;

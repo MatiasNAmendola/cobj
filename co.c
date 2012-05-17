@@ -159,7 +159,7 @@ main(int argc, const char **argv)
                 COFunction_SetCode(func, code);
                 evaluated = eval_wrapper(func);
                 if (evaluated && evaluated != CO_None) {
-                    COObject_Print(evaluated, stdout, 0);
+                    COObject_Print(evaluated, stdout);
                 }
                 CO_DECREF(code);
 

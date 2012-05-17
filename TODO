@@ -1,5 +1,7 @@
+* add LOAD_LOCAL opcode
+    - let arguments be local names
+    - load argument by LOAD_LOCAL
 * fix cli bug
-* add LOAD_FAST opcode
 * error message with location
 * dict as module
 * fix embedded zeors in str

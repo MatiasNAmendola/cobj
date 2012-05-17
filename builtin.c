@@ -8,7 +8,7 @@ builtin_print(COObject *this, COObject *args)
         for (i = 0; i < COTuple_Size(args); i++) {
             if (i > 0)
                 printf(" ");
-            COObject_Print(COTuple_GET_ITEM(args, i), stdout, 0);
+            COObject_Print(COTuple_GET_ITEM(args, i), stdout);
         }
     }
     printf("\n");

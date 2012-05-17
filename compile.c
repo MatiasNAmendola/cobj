@@ -41,8 +41,9 @@ struct fblock {
  * Compliation unit, change on entry and exit of function scope.
  */
 struct compiler_unit {
-    COObject *consts;
-    COObject *names;
+    COObject *u_consts;
+    COObject *u_names;
+    COObject *u_localnames;
 
     /* Pointer to the most recently allocated block. By following b_listnext,
      * you can reach all early allocated blocks. */
@@ -52,7 +53,7 @@ struct compiler_unit {
     int u_nfblocks;
     struct fblock u_fblock[FRAME_MAXBLOCKS];
 
-    int argcount;
+    int u_argcount;
 };
 
 struct assembler {
@@ -147,8 +148,9 @@ compiler_unit_free(struct compiler_unit *u)
         COObject_Mem_FREE(b);
         b = next;
     }
-    CO_DECREF(u->names);
-    CO_DECREF(u->consts);
+    CO_DECREF(u->u_names);
+    CO_DECREF(u->u_consts);
+    CO_DECREF(u->u_localnames);
     COObject_Mem_FREE(u);
 }
 
@@ -163,9 +165,10 @@ compiler_enter_scope(struct compiler *c)
     }
     memset(u, 0, sizeof(struct compiler_unit));
 
-    u->consts = CODict_New();
-    u->names = CODict_New();
-    u->argcount = 0;
+    u->u_consts = CODict_New();
+    u->u_names = CODict_New();
+    u->u_localnames = CODict_New();
+    u->u_argcount = 0;
 
     /* Push the old compiler_unit on the stack. */
     if (c->u) {
@@ -372,7 +375,7 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop(c, OP_RETURN);
         break;
     case NODE_CONST:
-        oparg = compiler_add(c->u->consts, n->o);
+        oparg = compiler_add(c->u->u_consts, n->o);
         compiler_addop_i(c, OP_LOAD_CONST, oparg);
         break;
     case NODE_BIN:
@@ -409,12 +412,13 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop(c, OP_DICT_ADD);
         break;
     case NODE_NAME:
-        oparg = compiler_add(c->u->names, n->o);
+        // 1. first try localnames
+        oparg = compiler_add(c->u->u_names, n->o);
         compiler_addop_i(c, OP_LOAD_NAME, oparg);
         break;
     case NODE_ASSIGN:
         compiler_visit_node(c, n->nd_right);
-        oparg = compiler_add(c->u->names, n->nd_left->o);
+        oparg = compiler_add(c->u->u_names, n->nd_left->o);
         compiler_addop_i(c, OP_STORE_NAME, oparg);
         break;
     case NODE_IF:
@@ -465,10 +469,10 @@ compiler_visit_node(struct compiler *c, Node *n)
     case NODE_FUNC:
         compiler_enter_scope(c);
         compiler_use_new_block(c);
-        c->u->argcount = nodelist_len(n->nd_funcargs);
+        c->u->u_argcount = nodelist_len(n->nd_funcargs);
         Node *l = n->nd_funcargs;
         while (l) {
-            oparg = compiler_add(c->u->names, l->nd_node->o);
+            oparg = compiler_add(c->u->u_names, l->nd_node->o);
             l = l->nd_next;
         }
         compiler_visit_node(c, n->nd_funcbody);
@@ -479,13 +483,13 @@ compiler_visit_node(struct compiler *c, Node *n)
         printf("end function\n");
 #endif
         compiler_exit_scope(c);
-        oparg = compiler_add(c->u->consts, co);
+        oparg = compiler_add(c->u->u_consts, co);
         CO_DECREF(co);
         compiler_addop_i(c, OP_LOAD_CONST, oparg);
         compiler_addop(c, OP_DECLARE_FUNCTION);
 
         if (n->nd_funcname) {
-            oparg = compiler_add(c->u->names, n->nd_funcname->o);
+            oparg = compiler_add(c->u->u_names, n->nd_funcname->o);
             compiler_addop_i(c, OP_STORE_NAME, oparg);
         }
         break;
@@ -572,7 +576,7 @@ compiler_visit_node(struct compiler *c, Node *n)
             }
             compiler_use_next_block(c, end);
             if (n->nd_finally) {
-                compiler_addop_o(c, OP_LOAD_CONST, c->u->consts, CO_None);
+                compiler_addop_o(c, OP_LOAD_CONST, c->u->u_consts, CO_None);
                 compiler_use_next_block(c, finally_end);
                 compiler_visit_node(c, n->nd_finally);
                 compiler_addop(c, OP_END_FINALLY);
@@ -774,6 +778,7 @@ opcode_stack_effect(int opcode, int oparg)
         return -oparg;
     case OP_LOAD_NAME:
     case OP_LOAD_CONST:
+    case OP_LOAD_LOCAL:
         return 1;
     case OP_BUILD_TUPLE:
     case OP_BUILD_LIST:
@@ -866,8 +871,8 @@ makecode(struct compiler *c, struct assembler *a)
     COObject *val;
 
     // consts
-    CODict_Rewind(c->u->consts);
-    while (CODict_Next(c->u->consts, &key, &val) == 0) {
+    CODict_Rewind(c->u->u_consts);
+    while (CODict_Next(c->u->u_consts, &key, &val) == 0) {
         COList_Insert(consts, COInt_AsLong(val), key);
     }
     tmp = consts;
@@ -878,8 +883,8 @@ makecode(struct compiler *c, struct assembler *a)
     CO_DECREF(tmp);
 
     // names
-    CODict_Rewind(c->u->names);
-    while (CODict_Next(c->u->names, &key, &val) == 0) {
+    CODict_Rewind(c->u->u_names);
+    while (CODict_Next(c->u->u_names, &key, &val) == 0) {
         COList_Insert(names, COInt_AsLong(val), key);
     }
     tmp = names;
@@ -894,7 +899,7 @@ makecode(struct compiler *c, struct assembler *a)
 
     COObject *co = COCode_New(name, a->a_bytecode,
                               consts, names,
-                              c->u->argcount, stackdepth(c));
+                              c->u->u_argcount, stackdepth(c));
 
 error:
     CO_XDECREF(name);
@@ -962,26 +967,33 @@ dump_code(COObject *code)
         opcode = NEXTOP();
         printf("%ld.\t%s", bytecode - start - 1, opcode_name(opcode));
         switch (opcode) {
+        case OP_LOAD_LOCAL:
+            oparg = NEXTARG();
+            printf("\t\t%d", oparg);
+            printf(" (");
+            COObject_Print(GETITEM(_code->co_localnames, oparg), stdout);
+            printf(")");
+            break;
         case OP_LOAD_CONST:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
-            /*printf(" (%s)", */
-            /*COStr_AsString(COObject_Repr */
-            /*(GETITEM(_code->co_consts, oparg)))); */
+            printf(" (");
+            COObject_Print(GETITEM(_code->co_consts, oparg), stdout);
+            printf(")");
             break;
         case OP_LOAD_NAME:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
-            /*printf(" (%s)", */
-            /*COStr_AsString(COObject_Repr */
-            /*(GETITEM(_code->co_names, oparg)))); */
+            printf(" (");
+            COObject_Print(GETITEM(_code->co_names, oparg), stdout);
+            printf(")");
             break;
         case OP_STORE_NAME:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
-            /*printf(" (%s)", */
-            /*COStr_AsString(COObject_Repr */
-            /*(GETITEM(_code->co_names, oparg)))); */
+            printf(" (");
+            COObject_Print(GETITEM(_code->co_names, oparg), stdout);
+            printf(")");
             break;
         case OP_CONTINUE_LOOP:
         case OP_JMP:

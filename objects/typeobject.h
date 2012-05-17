@@ -6,7 +6,7 @@
 /* Object Methods */
 typedef void (*deallocfunc) (COObject *);
 typedef COObject *(*reprfunc)(COObject *);
-typedef int (*printfunc) (COObject *, FILE *, int flags);
+typedef int (*printfunc) (COObject *, FILE *);
 typedef COObject *(*getattrfunc)(COObject *, char *);
 typedef int (*setattrfunc) (COObject *, char *, COObject *);
 typedef long (*hashfunc) (COObject *);
