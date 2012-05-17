@@ -3,11 +3,11 @@
 /**
  * Function Object
  *
- * Running program itself is function `main` which is created by co with program
- * statements as code object. `main` can be refered by `this` keyword, just as
- * `this` in user-defined functions.
- *
- * Function has code object, code object can consists of functions.
+ * Function objects are created by the execution of the "func" statement or
+ * expression. Code object is purely syntactic object, nothing more than a
+ * compiled version of some source code lines. There is one code object per
+ * source code "fragment", but each code object can be referenced by zero or
+ * many function objects.
  */
 
 #include "../object.h"

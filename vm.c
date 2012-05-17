@@ -328,7 +328,7 @@ new_frame:                     /* reentry point when function call/return */
             CO_DECREF(o2);
             PUSH(x);
             break;
-        case OP_ASSIGN:
+        case OP_STORE_NAME:
             oparg = NEXTARG();
             o1 = GETITEM(names, oparg);
             o2 = POP();

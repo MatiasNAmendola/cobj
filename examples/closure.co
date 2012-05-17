@@ -1,7 +1,6 @@
 #!./co
 
-newIncrer = func(s)
-    n = s
+newIncrer = func(n)
     return func(i) 
         n = n + i
         return n
@@ -11,6 +10,6 @@ end
 f = newIncrer(10)
 i = 0
 while i < 5
-    print f(i)
+    print(f(i))
     i = i + 1
 end

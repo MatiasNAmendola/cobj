@@ -415,7 +415,7 @@ compiler_visit_node(struct compiler *c, Node *n)
     case NODE_ASSIGN:
         compiler_visit_node(c, n->nd_right);
         oparg = compiler_add(c->u->names, n->nd_left->o);
-        compiler_addop_i(c, OP_ASSIGN, oparg);
+        compiler_addop_i(c, OP_STORE_NAME, oparg);
         break;
     case NODE_IF:
         {
@@ -486,7 +486,7 @@ compiler_visit_node(struct compiler *c, Node *n)
 
         if (n->nd_funcname) {
             oparg = compiler_add(c->u->names, n->nd_funcname->o);
-            compiler_addop_i(c, OP_ASSIGN, oparg);
+            compiler_addop_i(c, OP_STORE_NAME, oparg);
         }
         break;
     case NODE_FUNC_CALL:
@@ -755,7 +755,7 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_UNARY_NEGATE:
     case OP_UNARY_INVERT:
         return 0;
-    case OP_ASSIGN:
+    case OP_STORE_NAME:
         return -1;
     case OP_PRINT:
         return -1;
@@ -819,7 +819,6 @@ stackdepth_walk(struct compiler *c, struct block *b, int depth, int maxdepth)
         depth += opcode_stack_effect(instr->i_opcode, instr->i_oparg);
         if (depth > maxdepth)
             maxdepth = depth;
-        /*assert(depth >= 0); */
         if (instr->i_target) {
             base_depth = depth;
             maxdepth =
@@ -977,7 +976,7 @@ dump_code(COObject *code)
             /*COStr_AsString(COObject_Repr */
             /*(GETITEM(_code->co_names, oparg)))); */
             break;
-        case OP_ASSIGN:
+        case OP_STORE_NAME:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             /*printf(" (%s)", */

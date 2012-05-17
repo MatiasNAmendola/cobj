@@ -14,6 +14,7 @@ typedef struct _COCodeObject {
     COObject *co_names;         /* tuple, names in code */
     int co_argcount;            /* arguments count */
     int co_stacksize;           /* stack size needed */
+    int co_nlocals;             /* number of local variables */
 } COCodeObject;
 
 COTypeObject COCode_Type;
