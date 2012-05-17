@@ -17,11 +17,59 @@ ssize_t char_str_num = 0;
  */
 #define COStr_BASESIZE    (offsetof(COStrObject, co_sval) + 1)
 
+int str_resize(COStrObject **pv, ssize_t newsize);
+
 static COObject *
-str_repr(COObject *this)
+str_repr(COStrObject *this)
 {
-    CO_INCREF(this);
-    return this;
+    size_t newsize = 2 + 4 * CO_SIZE(this);
+    COObject *v;
+    if (newsize > SSIZE_MAX || newsize / 4 != CO_SIZE(this)) {
+        COErr_SetString(COException_OverflowError,
+                        "string is too large to make repr");
+        return NULL;
+    }
+    v = COStr_FromStringN((char *)NULL, newsize);
+    if (!v)
+        return NULL;
+    ssize_t i;
+    char c;
+    char *p;
+    int quote;
+
+    /* figure out which quote to use; single is preferred */
+    quote = '\'';
+    if (memchr(this->co_sval, '\'', CO_SIZE(this))
+        && !memchr(this->co_sval, '"', CO_SIZE(this))) {
+        quote = '"';
+    }
+
+    p = COStr_AS_STRING(v);
+    *p++ = quote;
+    for (i = 0; i < CO_SIZE(this); i++) {
+        /* There's at least enough room for a hex escape and a closing quote. */
+        assert(newsize - (p - COStr_AS_STRING(v)) >= 5);
+        c = this->co_sval[i];
+        if (c == quote || c == '\\') {
+            *p++ = '\\', *p++ = c;
+        } else if (c == '\t') {
+            *p++ = '\\', *p++ = 't';
+        } else if (c == '\n') {
+            *p++ = '\\', *p++ = 'n';
+        } else if (c == '\r') {
+            *p++ = '\\', *p++ = 'r';
+        } else if (c < ' ' || c >= 0x7f) {
+            sprintf(p, "\\x%02x", c);
+            p += 4;
+        } else {
+            *p++ = c;
+        }
+    }
+    *p++ = quote;
+    *p = '\0';
+    if (str_resize((COStrObject **)&v, (p - COStr_AS_STRING(v))))
+        return NULL;
+    return v;
 }
 
 static COStrObject *
@@ -34,7 +82,6 @@ str_concat(COStrObject *this, COStrObject *s)
 
     co = COVarObject_NEW(COStrObject, &COStr_Type, size);
     if (co == NULL) {
-        // TODO errors
         return NULL;
     }
 
@@ -119,7 +166,6 @@ str_resize(COStrObject **pv, ssize_t newsize)
     COStrObject *v;
     v = *pv;
     if (CO_REFCNT(v) != 1) {
-        // TODO errors
         return -1;
     }
 
@@ -127,7 +173,6 @@ str_resize(COStrObject **pv, ssize_t newsize)
         (COStrObject *)COObject_Mem_REALLOC((char *)v,
                                             COStr_BASESIZE + newsize);
     if (*pv == NULL) {
-        // TODO errors
         return -1;
     }
     CO_SIZE((*pv)) = newsize;
@@ -302,28 +347,23 @@ str_print(COStrObject *this, FILE *fp, int flags)
 {
     ssize_t size;
     char *data;
-    char quote;
 
     data = this->co_sval;
     size = CO_SIZE(this);
 
-    if (flags & CO_PRINT_RAW) {
-        while (size > INT_MAX) {
-            /* Very long strings cannot be written atomically.
-             * But don't write exactly INT_MAX bytes at a time
-             * to avoid memory aligment issues.
-             */
-            const int chunk_size = INT_MAX & ~0x3FFF;
-            fwrite(data, 1, chunk_size, fp); 
-            data += chunk_size;
-            size -= chunk_size;
-        }
-
-        if (size) fwrite(data, (int)size, 1, fp);
-        return 0;
+    while (size > INT_MAX) {
+        /* Very long strings cannot be written atomically.
+         * But don't write exactly INT_MAX bytes at a time
+         * to avoid memory aligment issues.
+         */
+        const int chunk_size = INT_MAX & ~0x3FFF;
+        fwrite(data, 1, chunk_size, fp);
+        data += chunk_size;
+        size -= chunk_size;
     }
 
-    fwrite(data, sizeof(char), size, fp);
+    if (size)
+        fwrite(data, (int)size, 1, fp);
     return 0;
 }
 
@@ -395,7 +435,9 @@ COStr_FromStringN(const char *s, ssize_t len)
     /* share short strings */
     if (len == 0) {
         null_str = str;
+        CO_INCREF(str);
     } else if (len == 1 && s != NULL) {
+        CO_INCREF(str);
         char_strs[*s & UCHAR_MAX] = str;
     }
 
@@ -491,7 +533,6 @@ step2:
 
     n = vsnprintf(str->co_sval, n + 1, fmt, params);    // with extra '\0'
     if (str_resize(&str, n)) {
-        // TODO errors
         return NULL;
     }
 
@@ -527,11 +568,4 @@ COStr_Join(COObject *sep, COObject *x)
     assert(sep != NULL && COStr_Check(sep));
     assert(x != NULL);
     return str_join((COStrObject *)sep, x);
-}
-
-COObject *
-COStr_Repr(COObject *s, int smartquotes)
-{
-    // TODO
-    return NULL;
 }

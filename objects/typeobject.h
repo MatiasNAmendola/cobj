@@ -6,8 +6,7 @@
 /* Object Methods */
 typedef void (*deallocfunc) (COObject *);
 typedef COObject *(*reprfunc)(COObject *);
-#define CO_PRINT_RAW    1
-typedef int (*printfunc)(COObject *, FILE *, int flags);
+typedef int (*printfunc) (COObject *, FILE *, int flags);
 typedef COObject *(*getattrfunc)(COObject *, char *);
 typedef int (*setattrfunc) (COObject *, char *, COObject *);
 typedef long (*hashfunc) (COObject *);
