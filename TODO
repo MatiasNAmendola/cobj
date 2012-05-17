@@ -4,3 +4,8 @@
 * dict as module
 * fix embedded zeors in str
 * implement keyword this whict is used to refer current context (module/function, etc)
+* implement keyword local, indicates local only
+
+Namespace
+=========
+Every code block is compiled with context environment, which can be refered by

@@ -17,9 +17,9 @@ typedef struct {
 typedef struct _COFrameObject {
     COVarObject_HEAD;
 
+    COObject *f_prev;           /* previous frame, NULL indicates first frame */
     COObject *f_code;
     int f_lasti;                /* Last run instruction offset, defaults to -1. */
-    COObject *f_prev;           /* previous frame, NULL indicates first frame */
     COObject *f_func;           /* function called on this frame */
 
     COObject *f_builtins;       /* dict object for builtins names */
