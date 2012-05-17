@@ -323,7 +323,6 @@ str_print(COStrObject *this, FILE *fp, int flags)
         return 0;
     }
 
-    printf("here\n");
     fwrite(data, sizeof(char), size, fp);
     return 0;
 }

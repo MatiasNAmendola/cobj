@@ -9,7 +9,6 @@ COState_New()
     if (!state) {
         return NULL;
     }
-    state->funcargs = COList_New(0);
     state->frame = NULL;
 
     state->curexc_type = NULL;
@@ -25,7 +24,6 @@ COState_Delete(COState *state)
     if (!state)
         return;
 
-    CO_XDECREF(state->funcargs);
     CO_XDECREF(state->frame);
 
     CO_XDECREF(state->curexc_type);

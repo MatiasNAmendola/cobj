@@ -122,6 +122,7 @@ vm_eval(COObject *func)
     COCodeObject *code;
     COObject *names;
     COObject *consts;
+    COObject *funcargs = COList_New(0);
 
     COObject **stack_top;       /* Stack top, points to next free slot in stack */
 
@@ -144,20 +145,20 @@ new_frame:                     /* reentry point when function call/return */
     consts = code->co_consts;
     first_code = (unsigned char *)COBytes_AsString(code->co_code);
     next_code = first_code + TS(frame)->f_lasti;
-    if (COList_GET_SIZE(TS(funcargs))) {
+    if (COList_GET_SIZE(funcargs)) {
         // check arguments count
-        if (code->co_argcount != COList_Size(TS(funcargs))) {
+        if (code->co_argcount != COList_Size(funcargs)) {
             COErr_Format(COException_ValueError,
                          "takes exactly %d arguments (%d given)",
-                         code->co_argcount, COList_Size(TS(funcargs)));
+                         code->co_argcount, COList_Size(funcargs));
             status = STATUS_EXCEPTION;
             goto fast_end;
         }
-        size_t n = COList_Size(TS(funcargs));
+        size_t n = COList_Size(funcargs);
         for (int i = 0; i < n; i++) {
             o1 = GETITEM(names, n - i - 1);
-            COObject_set(o1, COList_GetItem(TS(funcargs), 0));
-            COList_DelItem(TS(funcargs), 0);
+            COObject_set(o1, COList_GetItem(funcargs, 0));
+            COList_DelItem(funcargs, 0);
         }
     }
 
@@ -394,7 +395,7 @@ new_frame:                     /* reentry point when function call/return */
             } else if (COFunction_Check(o1)) {
                 while (--oparg >= 0) {
                     o2 = POP();
-                    COList_Append(TS(funcargs), o2);
+                    COList_Append(funcargs, o2);
                     CO_DECREF(o2);
                 }
                 TS(frame)->f_stacktop = stack_top;
