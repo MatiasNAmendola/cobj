@@ -94,7 +94,7 @@ end:
  * Evaluate a function object into a object.
  */
 COObject *
-vm_eval(COObject *func)
+vm_eval(COObject *func, COObject *globals)
 {
 #define JUMPBY(offset)  next_code += offset
 #define JUMPTO(offset)  next_code = first_code + offset
@@ -136,7 +136,7 @@ vm_eval(COObject *func)
     int err;                    /* C function error code */
     status = STATUS_NONE;
 
-    TS(frame) = (COFrameObject *)COFrame_New((COObject *)TS(frame), func, NULL);
+    TS(frame) = (COFrameObject *)COFrame_New((COObject *)TS(frame), func, globals);
 
 new_frame:                     /* reentry point when function call/return */
     code = (COCodeObject *)((COFunctionObject *)TS(frame)->f_func)->func_code;

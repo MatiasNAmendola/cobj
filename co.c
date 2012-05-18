@@ -49,7 +49,7 @@ eval_wrapper(COObject *func)
 {
     COObject *ret;
 
-    ret = vm_eval(func);
+    ret = vm_eval(func, NULL);
     if (!ret) {
         if (COErr_Occurred()) {
             COErr_Print();
@@ -151,17 +151,22 @@ main(int argc, const char **argv)
             struct arena *arena;
             arena = arena_new();
             scanner_init(arena);
-            COObject *evaluated;
-            COObject *func = COFunction_New(NULL);
+            COObject *ret;
+            COObject *globals = CODict_New();
             while ((eval = linenoise(">>> ")) != NULL) {
                 scanner_setcode(eval);
                 COObject *code = compile(arena);
-                COFunction_SetCode(func, code);
-                evaluated = eval_wrapper(func);
-                if (evaluated && evaluated != CO_None) {
-                    COObject_Print(evaluated, stdout);
+                COObject *func = COFunction_New(code);
+                ret = vm_eval(func, globals);
+                if (!ret) {
+                    if (COErr_Occurred()) {
+                        COErr_Print();
+                    }
+                } else if (ret != CO_None) {
+                    COObject_Print(ret, stdout);
                 }
                 CO_DECREF(code);
+                CO_DECREF(func);
 
                 linenoiseHistoryAdd(eval);
                 if (history_path) {
@@ -169,7 +174,6 @@ main(int argc, const char **argv)
                 }
                 free(eval);
             }
-            CO_DECREF(func);
             arena_free(arena);
         } else {
             ret = run_file(f, f_name);

@@ -8,6 +8,6 @@
 
 #include "object.h"
 
-COObject *vm_eval(COObject *main);
+COObject *vm_eval(COObject *main, COObject *globals);
 
 #endif
