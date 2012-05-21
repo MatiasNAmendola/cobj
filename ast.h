@@ -9,8 +9,6 @@
 #include "object.h"
 #include "arena.h"
 
-typedef struct _Node Node;
-
 typedef enum {
     NODE_TREE,
     NODE_BIN,
@@ -37,7 +35,7 @@ typedef enum {
     NODE_THROW,
 } Node_Type;
 
-struct _Node {
+typedef struct _Node {
     Node_Type type;
 
     /* Associated data */
@@ -45,11 +43,11 @@ struct _Node {
     int oparg;
     COObject *o;
 
-    Node *n1;
-    Node *n2;
-    Node *n3;
-    Node *n4;
-};
+    struct _Node *n1;
+    struct _Node *n2;
+    struct _Node *n3;
+    struct _Node *n4;
+} Node;
 
 /* 
  * NODE_TREE
@@ -108,13 +106,10 @@ struct _Node {
 #define nd_catchbody    n2
 
 Node *node_new(struct arena *arena, Node_Type type, Node *nleft, Node *nright);
-Node *nodelist(struct arena *arena, Node *n, ...);
-Node *nodelist_concat(Node *a, Node *b);
-Node *nodelist_append(struct arena *arena, Node *l, Node *n);
-int nodelist_len(Node *l);
-void nodelisttree(Node *n);
+Node *node_list(struct arena *arena, Node *n, ...);
+Node *node_listconcat(Node *a, Node *b);
+Node *node_listappend(struct arena *arena, Node *l, Node *n);
+int node_listlen(Node *l);
 const char *node_type(Node_Type type);
-void node_print(Node *n);
-void nodelist_free(Node *l);
 
 #endif

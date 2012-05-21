@@ -136,7 +136,8 @@ vm_eval(COObject *func, COObject *globals)
     int err;                    /* C function error code */
     status = STATUS_NONE;
 
-    TS(frame) = (COFrameObject *)COFrame_New((COObject *)TS(frame), func, globals);
+    TS(frame) =
+        (COFrameObject *)COFrame_New((COObject *)TS(frame), func, globals);
 
 new_frame:                     /* reentry point when function call/return */
     code = (COCodeObject *)((COFunctionObject *)TS(frame)->f_func)->func_code;

@@ -16,32 +16,11 @@ node_new(struct arena *arena, Node_Type type, Node *nleft, Node *nright)
 }
 
 /*
- * Append a node into list.
- */
-Node *
-nodelist_append(struct arena *arena, Node *l, Node *n)
-{
-    return nodelist_concat(l, nodelist(arena, n, NULL));
-}
-
-/*
- * Concatenate two list.
- */
-Node *
-nodelist_concat(Node *a, Node *b)
-{
-    a->nd_end->nd_next = b;
-    a->nd_end = b->nd_end;
-    b->nd_end = NULL;
-    return a;
-}
-
-/*
  * Construct a node list from list of nodes, last arg should be NULL to end
  * argument list.
  */
 Node *
-nodelist(struct arena *arena, Node *n, ...)
+node_list(struct arena *arena, Node *n, ...)
 {
     va_list params;
 
@@ -60,11 +39,32 @@ nodelist(struct arena *arena, Node *n, ...)
         n = va_arg(params, Node *);
         if (!n)
             break;
-        l = nodelist_concat(l, nodelist(arena, n, NULL));
+        l = node_listconcat(l, node_list(arena, n, NULL));
     }
 
     va_end(params);
     return l;
+}
+
+/*
+ * Append a node into list.
+ */
+Node *
+node_listappend(struct arena *arena, Node *l, Node *n)
+{
+    return node_listconcat(l, node_list(arena, n, NULL));
+}
+
+/*
+ * Concatenate two list.
+ */
+Node *
+node_listconcat(Node *a, Node *b)
+{
+    a->nd_end->nd_next = b;
+    a->nd_end = b->nd_end;
+    b->nd_end = NULL;
+    return a;
 }
 
 const char *
@@ -103,44 +103,8 @@ node_type(Node_Type type)
     return NULL;
 }
 
-static void
-indent_printf(int level, const char *fmt, ...)
-{
-    va_list params;
-    va_start(params, fmt);
-
-    for (int i = 0; i < level; i++)
-        printf("----");
-    vprintf(fmt, params);
-
-    va_end(params);
-}
-
-void
-node_print(Node *n)
-{
-    static int level = 1;
-    indent_printf(level, "Node(%p, %s)\n", n, node_type(n->type));
-    level++;
-    level--;
-}
-
-/*
- * List node tree.
- */
-void
-nodelisttree(Node *l)
-{
-    indent_printf(0, "Node(%)\n", l);
-    Node *n;
-    for (; l; l = l->nd_next) {
-        n = l->nd_node;
-        node_print(n);
-    }
-}
-
 int
-nodelist_len(Node *l)
+node_listlen(Node *l)
 {
     int i = 0;
     while (l) {

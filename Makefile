@@ -95,6 +95,9 @@ clean:
 	$(RM) scanner.[ch]
 	$(RM) *.output
 
+analyzer: parser.h scanner.h
+	find . -name '*.[c]' | xargs clang -cc1 -analyze
+
 doc:
 	$(MAKE) -C doc/ html
 

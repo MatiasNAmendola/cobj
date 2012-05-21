@@ -1,12 +1,15 @@
+* AST -> Graphviz
 * add LOAD_LOCAL opcode
     - let arguments be local names
     - load argument by LOAD_LOCAL
 * error message with location
 * dict as module
-* fix embedded zeors in str
 * implement keyword this whict is used to refer current context (module/function, etc)
 * implement keyword local, indicates local only
 
 Namespace
 =========
 Every code block.
+
+Interface
+=========

@@ -400,10 +400,10 @@ compiler_visit_node(struct compiler *c, Node *n)
         break;
     case NODE_LIST:
         compiler_visit_node(c, n->nd_list);
-        compiler_addop_i(c, OP_BUILD_LIST, nodelist_len(n->nd_list));
+        compiler_addop_i(c, OP_BUILD_LIST, node_listlen(n->nd_list));
         break;
     case NODE_DICT_BUILD:
-        compiler_addop_i(c, OP_DICT_BUILD, nodelist_len(n->nd_list));
+        compiler_addop_i(c, OP_DICT_BUILD, node_listlen(n->nd_list));
         compiler_visit_node(c, n->nd_list);
         break;
     case NODE_DICT_ADD:
@@ -469,7 +469,7 @@ compiler_visit_node(struct compiler *c, Node *n)
     case NODE_FUNC:
         compiler_enter_scope(c);
         compiler_use_new_block(c);
-        c->u->u_argcount = nodelist_len(n->nd_funcargs);
+        c->u->u_argcount = node_listlen(n->nd_funcargs);
         Node *l = n->nd_funcargs;
         while (l) {
             oparg = compiler_add(c->u->u_names, l->nd_node->o);
@@ -496,13 +496,13 @@ compiler_visit_node(struct compiler *c, Node *n)
     case NODE_FUNC_CALL:
         compiler_visit_node(c, n->nd_params);
         compiler_visit_node(c, n->nd_func);
-        oparg = nodelist_len(n->nd_params);
+        oparg = node_listlen(n->nd_params);
         compiler_addop_i(c, OP_CALL_FUNCTION, oparg);
         break;
     case NODE_FUNC_CALL_STMT:
         compiler_visit_node(c, n->nd_params);
         compiler_visit_node(c, n->nd_func);
-        oparg = nodelist_len(n->nd_params);
+        oparg = node_listlen(n->nd_params);
         compiler_addop_i(c, OP_CALL_FUNCTION, oparg);
         compiler_addop(c, OP_POP_TOP);
         break;
@@ -534,7 +534,7 @@ compiler_visit_node(struct compiler *c, Node *n)
 
             Node *l = n->nd_catches;
             Node *catch;
-            int len = nodelist_len(l);
+            int len = node_listlen(l);
             int i = 0;
             compiler_use_next_block(c, handler);
             for (; l; l = l->nd_next, i++) {
@@ -554,7 +554,7 @@ compiler_visit_node(struct compiler *c, Node *n)
                         compiler_visit_node(c, namelist->nd_node);
                     }
                     compiler_addop_i(c, OP_BUILD_TUPLE,
-                                     nodelist_len(catch->nd_catchname));
+                                     node_listlen(catch->nd_catchname));
                     compiler_addop_i(c, OP_CMP, Cmp_EXC_MATCH);
                     compiler_addop_j(c, OP_JMPZ, handler);
                     compiler_addop(c, OP_POP_TOP);
