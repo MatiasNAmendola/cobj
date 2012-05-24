@@ -78,12 +78,11 @@ COTypeObject COBytes_Type = {
     (deallocfunc)bytes_dealloc, /* tp_dealloc */
     (reprfunc)bytes_repr,       /* tp_repr */
     0,                          /* tp_print */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
     (hashfunc)bytes_hash,       /* tp_hash */
     0,                          /* tp_compare */
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
+    0,                          /* tp_call */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };

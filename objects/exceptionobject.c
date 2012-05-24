@@ -22,12 +22,11 @@ COTypeObject COException_Type = {
     (deallocfunc)exception_dealloc,     /* tp_dealloc */
     (reprfunc)exception_repr,   /* tp_repr */
     0,                          /* tp_print */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
     0,                          /* tp_hash */
     0,                          /* tp_compare */
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
+    0,                          /* tp_call */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };
@@ -41,16 +40,15 @@ COObject *COException = (COObject *)&COException_Type;
         sizeof(COExceptionObject),                          \
         0,                                                  \
         0,                                                  \
-        (deallocfunc)exception_dealloc,                     \
-        (reprfunc)exception_repr,                           \
-        0,                                                  \
-        0,                                                  \
-        0,                                                  \
-        0,                                                  \
-        0,                                                  \
-        0,                                                  \
-        0,                                                  \
-        0,                                                  \
+        (deallocfunc)exception_dealloc,     /* tp_dealloc */            \
+        (reprfunc)exception_repr,           /* tp_repr */               \
+        0,                                  /* tp_print */              \
+        0,                                  /* tp_hash */               \
+        0,                                  /* tp_compare */            \
+        0,                                  /* tp_traverse */           \
+        0,                                  /* tp_clear */              \
+        0,                                  /* tp_int_interface */      \
+        0,                                  /* tp_mapping_interface */  \
     };                                                      \
     COObject *COException_ ## EXCNAME = (COObject *)&_COException_ ## EXCNAME
 

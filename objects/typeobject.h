@@ -7,8 +7,6 @@
 typedef void (*deallocfunc) (COObject *);
 typedef COObject *(*reprfunc)(COObject *);
 typedef int (*printfunc) (COObject *, FILE *);
-typedef COObject *(*getattrfunc)(COObject *, char *);
-typedef int (*setattrfunc) (COObject *, char *, COObject *);
 typedef long (*hashfunc) (COObject *);
 typedef COObject *(*comparefunc)(COObject *, COObject *, int);
 typedef int (*visitfunc) (COObject *, void *);
@@ -16,6 +14,7 @@ typedef int (*traversefunc) (COObject *, visitfunc, void *);
 typedef int (*inquiryfunc) (COObject *);
 typedef COObject *(*unaryfunc)(COObject *);
 typedef COObject *(*binaryfunc)(COObject *, COObject *);
+typedef COObject *(*ternaryfunc)(COObject *, COObject *);
 typedef ssize_t(*lenfunc) (COObject *);
 /* ! Object Methods */
 
@@ -54,12 +53,11 @@ struct _COTypeObject {
     deallocfunc tp_dealloc;
     reprfunc tp_repr;
     printfunc tp_print;
-    getattrfunc tp_getattr;
-    setattrfunc tp_setattr;
     hashfunc tp_hash;
     comparefunc tp_compare;
     traversefunc tp_traverse;
     inquiryfunc tp_clear;
+    ternaryfunc tp_call;
 
     /* Interfaces for standard types */
     COIntInterface *tp_int_interface;

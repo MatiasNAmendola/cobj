@@ -376,12 +376,11 @@ COTypeObject COStr_Type = {
     (deallocfunc)str_dealloc,   /* tp_dealloc */
     (reprfunc)str_repr,         /* tp_repr */
     (printfunc)str_print,       /* tp_print */
-    0,                          /* tp_getattr */
-    0,                          /* tp_setattr */
     (hashfunc)str_hash,         /* tp_hash */
     (comparefunc)str_compare,   /* tp_compare */
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
+    0,                          /* tp_call */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };
