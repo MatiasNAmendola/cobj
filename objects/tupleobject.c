@@ -88,7 +88,7 @@ COTypeObject COTuple_Type = {
     sizeof(COTupleObject) - sizeof(COObject *),
     sizeof(COObject *),
     COType_FLAG_GC,
-    (makefunc)tuple_make,                          /* tp_make */
+    0,                          /* tp_make */
     (deallocfunc)tuple_dealloc, /* tp_dealloc */
     (reprfunc)tuple_repr,       /* tp_repr */
     0,                          /* tp_print */

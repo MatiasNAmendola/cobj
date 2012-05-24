@@ -63,6 +63,7 @@ return_none_node(struct arena *arena)
 %type <node> stmt stmt_list start open_stmt_list
 %type <node> simple_stmt compound_stmt opt_else if_tail
 %type <node> expr_list non_empty_expr_list expr_list_inline non_empty_expr_list_inline
+%type <node> expr_list_morethanone
 %type <node> assoc_list non_empty_assoc_list
 %type <node> opt_param_list name_list non_empty_name_list
 %type <node> catch_block
@@ -174,6 +175,14 @@ expr: /* express something */
     OP_UNARY_NEGATE; }
     |   '~' expr %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->op =
     OP_UNARY_INVERT; }
+    |   '(' expr ',' ')' { 
+            $$ = node_new(c->arena, NODE_TUPLE, NULL, NULL);
+            $$->nd_list = $2;
+        }
+    |   '(' expr_list_morethanone ')' {
+            $$ = node_new(c->arena, NODE_TUPLE, NULL, NULL);
+            $$->nd_list = $2;
+        }
     |   '[' expr_list ']' {
             $$ = node_new(c->arena, NODE_LIST, NULL, NULL);
             $$->nd_list = $2;
@@ -243,6 +252,15 @@ non_empty_expr_list:
             $$ = node_list(c->arena, $2, NULL);
         }
     |   non_empty_expr_list ',' opt_newlines expr opt_newlines {
+            $$ = node_listappend(c->arena, $1, $4);
+        }
+;
+
+expr_list_morethanone:
+        expr ',' expr  {
+            $$ = node_list(c->arena, $1, $3, NULL);
+        }
+    |   expr_list_morethanone ',' opt_newlines expr opt_newlines {
             $$ = node_listappend(c->arena, $1, $4);
         }
 ;
@@ -318,11 +336,11 @@ simple_stmt:
             $$ = node_list(c->arena, node_new(c->arena, NODE_THROW, $2, 0), NULL);
         }
     |   T_PRINT expr { Node *t = node_new(c->arena, NODE_PRINT, $2, NULL); $$ = node_list(c->arena, t, NULL); }
-    |   expr { 
-            if ($1->type == NODE_FUNC_CALL) {
-                $1->type = NODE_FUNC_CALL_STMT;
-            }
-            $$ = node_list(c->arena, $1, NULL); 
+    |   expr '(' expr_list ')' {
+            $$ = node_new(c->arena, NODE_FUNC_CALL_STMT, NULL, NULL);
+            $$->nd_func = $1;
+            $$->nd_params = $3;
+            $$ = node_list(c->arena, $$, NULL); 
         }
     |   T_RETURN { $$ = node_list(c->arena, return_none_node(c->arena), NULL); }
     |   T_RETURN expr { $$ = node_list(c->arena, node_new(c->arena, NODE_RETURN, $2, NULL), NULL); }

@@ -398,6 +398,10 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_visit_node(c, n->nd_left);
         compiler_addop(c, n->op);
         break;
+    case NODE_TUPLE:
+        compiler_visit_node(c, n->nd_list);
+        compiler_addop_i(c, OP_BUILD_TUPLE, node_listlen(n->nd_list));
+        break;
     case NODE_LIST:
         compiler_visit_node(c, n->nd_list);
         compiler_addop_i(c, OP_BUILD_LIST, node_listlen(n->nd_list));

@@ -90,6 +90,7 @@ node_type(Node_Type type)
         GIVE_NAME(NODE_NAME);
         GIVE_NAME(NODE_ASSIGN);
         GIVE_NAME(NODE_PRINT);
+        GIVE_NAME(NODE_TUPLE);
         GIVE_NAME(NODE_LIST);
         GIVE_NAME(NODE_DICT_BUILD);
         GIVE_NAME(NODE_DICT_ADD);
