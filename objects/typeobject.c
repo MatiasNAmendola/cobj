@@ -14,13 +14,26 @@ type_dealloc(COTypeObject *this)
     COObject_Mem_FREE(this);
 }
 
+static COObject *
+type_call(COTypeObject *type, COObject *args)
+{
+    COObject *o;
+    if (!type->tp_make) {
+        COErr_Format(COException_TypeError, "cannot make '%.100s' instance", type->tp_name);
+        return NULL;
+    }
+
+    o = type->tp_make(type, args);
+    return o;
+}
+
 COTypeObject COType_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "type",
     sizeof(COTypeObject),
     0,
     0,
-    0,                          /* tp_new */
+    0,                          /* tp_make */
     (deallocfunc)type_dealloc,  /* tp_dealloc */
     (reprfunc)type_repr,        /* tp_repr */
     0,                          /* tp_print */
@@ -28,7 +41,7 @@ COTypeObject COType_Type = {
     0,                          /* tp_compare */
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
-    0,                          /* tp_call */
+    (binaryfunc)type_call,      /* tp_call */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };

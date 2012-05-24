@@ -107,7 +107,7 @@ COTypeObject COList_Type = {
     sizeof(COListObject),
     0,
     COType_FLAG_GC,
-    0,                          /* tp_new */
+    0,                          /* tp_make */
     (deallocfunc)list_dealloc,  /* tp_dealloc */
     (reprfunc)list_repr,        /* tp_repr */
     0,                          /* tp_print */

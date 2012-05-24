@@ -4,7 +4,7 @@
 #include "../object.h"
 
 /* Object Methods */
-typedef void (*newfunc)(COObject *, COObject *, COObject *);
+typedef COObject* (*makefunc)(COTypeObject *, COObject *);
 typedef void (*deallocfunc) (COObject *);
 typedef COObject *(*reprfunc)(COObject *);
 typedef int (*printfunc) (COObject *, FILE *);
@@ -15,7 +15,7 @@ typedef int (*traversefunc) (COObject *, visitfunc, void *);
 typedef int (*inquiryfunc) (COObject *);
 typedef COObject *(*unaryfunc)(COObject *);
 typedef COObject *(*binaryfunc)(COObject *, COObject *);
-typedef COObject *(*ternaryfunc)(COObject *, COObject *);
+typedef COObject *(*ternaryfunc)(COObject *, COObject *, COObject *);
 typedef ssize_t(*lenfunc) (COObject *);
 /* ! Object Methods */
 
@@ -51,7 +51,7 @@ struct _COTypeObject {
     int tp_flags;               /* Flags to define optional/expanded features */
 
     /* Basic Methods  */
-    newfunc tp_new;
+    makefunc tp_make;
     deallocfunc tp_dealloc;
     reprfunc tp_repr;
     printfunc tp_print;
@@ -59,7 +59,7 @@ struct _COTypeObject {
     comparefunc tp_compare;
     traversefunc tp_traverse;
     inquiryfunc tp_clear;
-    ternaryfunc tp_call;
+    binaryfunc tp_call;
 
     /* Interfaces for standard types */
     COIntInterface *tp_int_interface;

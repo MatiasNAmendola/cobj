@@ -12,7 +12,7 @@ COTypeObject CONone_Type = {
     sizeof(long),
     0,
     0,
-    0,                          /* tp_new */
+    0,                          /* tp_make */
     default_dealloc,            /* tp_dealloc */
     none_repr,                  /* tp_repr */
     0,                          /* tp_print */
