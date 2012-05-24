@@ -6,7 +6,7 @@
  * `arena_new` creates a new arena, `arena_free` frees it.
  * Once an arena has been created, it can be used to allocated memory via
  * `arena_malloc`.
- * When arena is freed, all the memory it allocated is freed.
+ * When arena is freed, all the memory it allocated will be freed.
  *
  * `arena_malloc`, like malloc(), return the address of a block of memory
  * spanning `size` bytes, or return NULL if new memory can't be obtained.

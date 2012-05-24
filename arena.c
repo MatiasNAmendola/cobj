@@ -34,8 +34,8 @@ struct arena {
     struct block *a_head;
 
     /* Pointer to the block currently used for allocation. It's b_next should be
-     * NULL, it means a new block has been allocated and a_cur should be reset
-     * to point it.
+     * NULL. If it is not-null after a call to block_alloc(), it means a new
+     * block has been allocated and a_cur should be reset to point it.
      */
     struct block *a_cur;
 
@@ -126,6 +126,7 @@ arena_malloc(struct arena *arena, size_t size)
     if (arena->a_cur->b_next) {
         arena->a_cur = arena->a_cur->b_next;
     }
+
     return p;
 }
 

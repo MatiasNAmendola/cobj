@@ -66,10 +66,10 @@ COFrame_Fini(void)
 COObject *
 COFrame_New(COObject *prev, COObject *func, COObject *locals)
 {
+    COCodeObject *code = (COCodeObject *)((COFunctionObject *)
+                                          func)->func_code;
     COFrameObject *f = COVarObject_NEW(COFrameObject, &COFrame_Type,
-                                       ((COCodeObject *)((COFunctionObject *)
-                                                         func)->
-                                        func_code)->co_stacksize);
+                                       code->co_stacksize);
 
     f->f_lasti = 0;
     f->f_prev = prev;
