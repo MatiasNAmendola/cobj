@@ -75,6 +75,7 @@ COTypeObject COBytes_Type = {
     sizeof(COBytesObject),
     0,
     0,
+    0,                          /* tp_new */
     (deallocfunc)bytes_dealloc, /* tp_dealloc */
     (reprfunc)bytes_repr,       /* tp_repr */
     0,                          /* tp_print */

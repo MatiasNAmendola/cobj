@@ -1149,6 +1149,7 @@ COTypeObject COInt_Type = {
     offsetof(COIntObject, co_digit),
     sizeof(digit),
     0,
+    0,                          /* tp_new */
     (deallocfunc)int_dealloc,   /* tp_dealloc */
     (reprfunc)int_repr,         /* tp_repr */
     0,                          /* tp_print */
