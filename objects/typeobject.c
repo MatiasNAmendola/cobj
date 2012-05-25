@@ -27,13 +27,23 @@ type_call(COTypeObject *type, COObject *args)
     return o;
 }
 
+static COTypeObject *
+type_make(COTypeObject *type, COObject *args)
+{
+    COObject *x = NULL;
+    if (!COObject_ParseArgs(args, &x, NULL))
+        return NULL;
+    CO_INCREF(CO_TYPE(x));
+    return CO_TYPE(x);
+}
+
 COTypeObject COType_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "type",
     sizeof(COTypeObject),
     0,
     0,
-    0,                          /* tp_make */
+    (makefunc)type_make,        /* tp_make */
     (deallocfunc)type_dealloc,  /* tp_dealloc */
     (reprfunc)type_repr,        /* tp_repr */
     0,                          /* tp_print */

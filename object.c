@@ -205,3 +205,61 @@ _CO_NegativeRefCnt(const char *fname, int lineno, COObject *co)
     fprintf(stderr, "%s\n", buf);
     exit(-1);
 }
+
+int
+COObject_ParseArgs(COObject *args, ...)
+{
+    va_list va;
+
+    if (args == NULL || !COTuple_Check(args)) {
+        COErr_BadInternalCall();
+        return 0;
+    }
+
+    va_start(va, args);
+
+    int i;
+    COObject **o;
+
+    i = 0;
+    while (true) {
+        o = va_arg(va, COObject **);
+        if (!o)
+            break;
+        *o = COTuple_GET_ITEM(args, i);
+        i++;
+    }
+
+    va_end(va);
+
+    return 1;
+}
+
+COObject *
+COObject_Str(COObject *o)
+{
+    if (!o)
+        return COStr_FromString("<NULL>");
+
+    if (COStr_Check(o)) {
+        CO_INCREF(o);
+        return o;
+    }
+
+    return COObject_Repr(o);
+}
+
+COObject *
+COObject_Call(COObject *this, COObject *args)
+{
+    binaryfunc call;
+    if ((call = this->co_type->tp_call) != NULL) {
+        COObject *result;
+        result = call(this, args);
+        if (!result && !COErr_Occurred())
+            COErr_SetString(COException_SystemError, "NULL result without error in COObject_Call");
+        return result;
+    }
+    COErr_Format(COException_TypeError, "'%.200s' object is not callable", this->co_type->tp_name);
+    return NULL;
+}

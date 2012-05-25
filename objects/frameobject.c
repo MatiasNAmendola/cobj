@@ -53,6 +53,7 @@ COFrame_Init(void)
         builtins = CODict_New();
         CODict_SetItemString(builtins, "print", (COObject *)&_CO_Builtin_print);
         CODict_SetItemString(builtins, "type", (COObject *)&COType_Type);
+        CODict_SetItemString(builtins, "str", (COObject *)&COStr_Type);
     }
     return 0;
 }

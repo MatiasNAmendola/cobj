@@ -377,28 +377,25 @@ new_frame:                     /* reentry point when function call/return */
         case OP_CALL_FUNCTION:
             o1 = POP();
             oparg = NEXTARG();
+            COObject *args = COTuple_New(oparg);
+            while (--oparg >= 0) {
+                o2 = POP();
+                COTuple_SetItem(args, oparg, o2);
+                CO_DECREF(o2);
+            }
+
             if (COCFunction_Check(o1)) {
                 COCFunction cfunc = COCFunction_GET_FUNCTION(o1);
-                if (oparg == 0) {
-                    x = cfunc(NULL, NULL);
-                } else {
-                    COObject *args;
-                    args = COTuple_New(oparg);
-                    while (--oparg >= 0) {
-                        o2 = POP();
-                        COTuple_SetItem(args, oparg, o2);
-                        CO_DECREF(o2);
-                    }
-                    x = cfunc(NULL, args);
-                    CO_DECREF(args);
-                }
+                x = cfunc(NULL, args);
+                CO_DECREF(o1);
+                CO_DECREF(args);
                 PUSH(x);
             } else if (COFunction_Check(o1)) {
-                while (--oparg >= 0) {
-                    o2 = POP();
-                    COList_Append(funcargs, o2);
-                    CO_DECREF(o2);
+                ssize_t i = CO_SIZE(args);
+                while (--i >= 0) {
+                    COList_Append(funcargs, COTuple_GET_ITEM(args, i));
                 }
+                CO_DECREF(args);
                 TS(frame)->f_stacktop = stack_top;
                 TS(frame)->f_lasti = (int)(next_code - first_code);
                 TS(frame) =
@@ -407,8 +404,10 @@ new_frame:                     /* reentry point when function call/return */
                 CO_DECREF(o1);
                 goto new_frame;
             } else {
-                COObject_Dump(o1);
-                exit(0);
+                x = COObject_Call(o1, args);
+                CO_DECREF(args);
+                CO_DECREF(o1);
+                PUSH(x);
             }
             break;
         case OP_RETURN:

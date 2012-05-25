@@ -367,13 +367,24 @@ str_print(COStrObject *this, FILE *fp)
     return 0;
 }
 
+static COObject *
+str_make(COTypeObject *type, COObject *args)
+{
+    COObject *x = NULL;
+    if (!COObject_ParseArgs(args, &x, NULL))
+        return NULL;
+    if (!x)
+        return COStr_FromString("");
+    return COObject_Str(x);
+}
+
 COTypeObject COStr_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "str",
     COStr_BASESIZE,
     sizeof(char),
     0,
-    0,                          /* tp_make */
+    (makefunc)str_make,         /* tp_make */
     (deallocfunc)str_dealloc,   /* tp_dealloc */
     (reprfunc)str_repr,         /* tp_repr */
     (printfunc)str_print,       /* tp_print */
