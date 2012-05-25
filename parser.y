@@ -58,6 +58,7 @@ return_none_node(struct arena *arena)
 %right  '[' '{'
 %right  T_PRINT
 %left   UNARY_OP
+%nonassoc '.'
 
 %type <node> expr
 %type <node> stmt stmt_list start open_stmt_list
@@ -197,6 +198,10 @@ expr: /* express something */
             $$->nd_params = $3;
         }
     |   expr '[' expr ']' {
+            $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_SUBSCRIPT;
+        }
+    |   expr '.' T_NAME {
+            /* TODO */
             $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_SUBSCRIPT;
         }
     |   funcliteral opt_param_list stmt_list T_END {

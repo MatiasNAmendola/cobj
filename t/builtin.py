@@ -13,3 +13,9 @@ test_expect_result("10\n", "print(str(10))")
 
 # type
 test_expect_result("10\n", "print(type('1')(10))")
+
+# tuple
+
+# list
+
+# dict
