@@ -1,4 +1,3 @@
-* add tuple literal syntax
 * add LOAD_LOCAL opcode
     - let arguments be local names
     - load argument by LOAD_LOCAL

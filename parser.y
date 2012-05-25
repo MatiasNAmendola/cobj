@@ -153,7 +153,7 @@ expr: /* express something */
     |   T_NONE
     |   T_NUM
     |   T_FNUM
-    |    '(' expr ')' { $$ = $2; }
+    |    '(' opt_newlines expr opt_newlines ')' { $$ = $3; }
     |   expr '+' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_ADD; }
     |   expr '-' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_SUB; }
     |   expr '*' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_MUL; }
@@ -175,9 +175,9 @@ expr: /* express something */
     OP_UNARY_NEGATE; }
     |   '~' expr %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->op =
     OP_UNARY_INVERT; }
-    |   '(' expr ',' ')' { 
+    |  '(' opt_newlines expr opt_newlines ',' opt_newlines ')' { 
             $$ = node_new(c->arena, NODE_TUPLE, NULL, NULL);
-            $$->nd_list = $2;
+            $$->nd_list = node_list(c->arena, $3, NULL);
         }
     |   '(' expr_list_morethanone ')' {
             $$ = node_new(c->arena, NODE_TUPLE, NULL, NULL);
@@ -257,8 +257,8 @@ non_empty_expr_list:
 ;
 
 expr_list_morethanone:
-        expr ',' expr  {
-            $$ = node_list(c->arena, $1, $3, NULL);
+        opt_newlines expr opt_newlines ',' opt_newlines expr opt_newlines  {
+            $$ = node_list(c->arena, $2, $6, NULL);
         }
     |   expr_list_morethanone ',' opt_newlines expr opt_newlines {
             $$ = node_listappend(c->arena, $1, $4);

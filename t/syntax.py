@@ -17,10 +17,18 @@ test_expect_result("", "a = func (a,b) return a + b end", "function iteral");
 # exeptions
 test_expect_result("", "try end", "allow empty try block")
 
-# literal
+# list literal
 test_expect_result("""[1, 2]
 """, """
 print([ 1
 , 2
 ,
 ])""", "list span multi lines")
+
+# tuple literal
+test_expect_result("""(1)
+""", """
+print((
+1,
+
+))""", "tuple span multi lines")
