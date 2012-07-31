@@ -1,8 +1,8 @@
 #include "co.h"
 
-static int enabled = 1;             /* GC enabled? */
-static int collecting = 0;          /* GC collecting? */
-static COObject *garbage = NULL;    /* list of uncollectable objects */
+static int enabled = 1;         /* GC enabled? */
+static int collecting = 0;      /* GC collecting? */
+static COObject *garbage = NULL;        /* list of uncollectable objects */
 
 struct gc_generation {
     gc_head head;

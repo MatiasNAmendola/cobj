@@ -57,7 +57,7 @@ typedef union _gc_head {
         union _gc_head *gc_prev;
         ssize_t gc_refs;
     } gc;
-    long double dummy; /* force worst-case alignment */
+    long double dummy;          /* force worst-case alignment */
 } gc_head;
 
 #define AS_GC(o)    ((gc_head *)(o) - 1)
