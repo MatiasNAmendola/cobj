@@ -19,7 +19,8 @@ type_call(COTypeObject *type, COObject *args)
 {
     COObject *o;
     if (!type->tp_make) {
-        COErr_Format(COException_TypeError, "cannot make '%.100s' instance", type->tp_name);
+        COErr_Format(COException_TypeError, "cannot make '%.100s' instance",
+                     type->tp_name);
         return NULL;
     }
 

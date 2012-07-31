@@ -4,7 +4,7 @@
 #include "../object.h"
 
 /* Object Methods */
-typedef COObject* (*makefunc)(COTypeObject *, COObject *);
+typedef COObject *(*makefunc)(COTypeObject *, COObject *);
 typedef void (*deallocfunc) (COObject *);
 typedef COObject *(*reprfunc)(COObject *);
 typedef int (*printfunc) (COObject *, FILE *);

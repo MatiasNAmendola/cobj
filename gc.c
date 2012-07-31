@@ -1,8 +1,8 @@
 #include "co.h"
 
-static int enabled = 1;         /* GC enabled? */
-static int collecting = 0;      /* GC collecting? */
-static COObject *garbage = NULL;        /* list of uncollectable objects */
+static int enabled = 1;             /* GC enabled? */
+static int collecting = 0;          /* GC collecting? */
+static COObject *garbage = NULL;    /* list of uncollectable objects */
 
 struct gc_generation {
     gc_head head;
@@ -158,7 +158,7 @@ subtract_refs(gc_head *container)
 /* 
  * Move the unreachable objects from young to unreachable. After this, all
  * objects in young have gc_refs = GC_REACHABLE, and all objects in unreachable
- * have gc_refs = GC_TENTETIVELY_UNREACHABLE. All tracked gc objects not in
+ * have gc_refs = GC_TENTATIVELY_UNREACHABLE. All tracked gc objects not in
  * young or unreachable still have gc_refs = GC_REACHABLE.
  *
  * All objects in young after this are directly or indirectly reachable from
@@ -173,7 +173,7 @@ move_unreachable(gc_head *young, gc_head *unreachable)
      * GC_REACHABLE, and are indeed reachable (directly or indirectly) from
      * outside the young list as it was at entry. All other objects from the
      * original young "to the left" of us are in unreachable now, and have
-     * gc_refs = GC_TENTETIVELY_UNREACHABLE. All objects to the left of us in
+     * gc_refs = GC_TENTATIVELY_UNREACHABLE. All objects to the left of us in
      * 'young' now have been scanned, and no objects here or to the right have
      * been scanned yet.
      */
@@ -191,7 +191,7 @@ move_unreachable(gc_head *young, gc_head *unreachable)
              */
             next = gc->gc.gc_next;
             gc_list_move(gc, unreachable);
-            gc->gc.gc_refs = GC_TENTETIVELY_UNREACHABLE;
+            gc->gc.gc_refs = GC_TENTATIVELY_UNREACHABLE;
         }
         gc = next;
     }
@@ -208,7 +208,7 @@ delete_garbage(gc_head *collectable, gc_head *old)
     while (!gc_list_is_empty(collectable)) {
         gc_head *gc = collectable->gc.gc_next;
         COObject *o = FROM_GC(gc);
-        assert(IS_TENTETIVELY_UNREACHABLE(o));
+        assert(IS_TENTATIVELY_UNREACHABLE(o));
 
         if ((clear = CO_TYPE(o)->tp_clear) != NULL) {
             CO_INCREF(o);

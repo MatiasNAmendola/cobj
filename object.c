@@ -257,9 +257,11 @@ COObject_Call(COObject *this, COObject *args)
         COObject *result;
         result = call(this, args);
         if (!result && !COErr_Occurred())
-            COErr_SetString(COException_SystemError, "NULL result without error in COObject_Call");
+            COErr_SetString(COException_SystemError,
+                            "NULL result without error in COObject_Call");
         return result;
     }
-    COErr_Format(COException_TypeError, "'%.200s' object is not callable", this->co_type->tp_name);
+    COErr_Format(COException_TypeError, "'%.200s' object is not callable",
+                 this->co_type->tp_name);
     return NULL;
 }
