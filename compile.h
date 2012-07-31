@@ -27,7 +27,7 @@ struct compiler {
 };
 
 // parser
-int coparse();
+int coparse(struct compiler *c);
 int coerror(struct compiler *c, const char *err, ...);
 
 // scanner
