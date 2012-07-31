@@ -100,15 +100,16 @@ arena_new(void)
         return NULL;
 
     arena->a_head = block_new(DEFAULT_BLOCK_SIZE);
-    arena->a_cur = arena->a_head;
     if (!arena->a_head) {
         COObject_Mem_FREE(arena);
         return NULL;
     }
+    arena->a_cur = arena->a_head;
+
     arena->a_objects = COList_New(0);
     if (!arena->a_objects) {
         block_free(arena->a_head);
-        free(arena);
+        COObject_Mem_FREE(arena);
         return NULL;
     }
 

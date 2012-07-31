@@ -16,7 +16,7 @@
 #define OP_CMP                      10
 #define OP_UNARY_NEGATE             11
 #define OP_UNARY_INVERT             12
-#define OP_STORE_NAME                   13
+#define OP_STORE_NAME               13
 #define OP_PRINT                    14
 #define OP_JMPZ                     15
 #define OP_JMP                      16
