@@ -22,8 +22,6 @@
 #include "compile.h"
 #include "error.h"
 #include "object.h"
-#include "parser.h"
-#include "scanner.h"
 #include "vm.h"
 #include "opcode.h"
 #include "wrapper.h"

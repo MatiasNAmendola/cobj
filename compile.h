@@ -5,7 +5,6 @@
 #include "object.h"
 #include "objects/listobject.h"
 #include "ast.h"
-#include "parser.h"
 #include "arena.h"
 
 /* Change whenever the bytecode emmited by the compiler may no longer be
@@ -27,7 +26,7 @@ struct compiler {
 };
 
 // parser
-int coparse(struct compiler *c);
+#include "parser.h"
 int coerror(struct compiler *c, const char *err, ...);
 
 // scanner

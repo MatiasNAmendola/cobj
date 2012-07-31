@@ -2,6 +2,7 @@
 all::
 
 # Define CO_DEBUG=1 to debug (Defaults: 0)
+# Define YY_DEBUG=1 to debug re2c/bison scripts. (Defaults: 0)
 # Define CC=clang to use clang to compile (Defaults: gcc)
 
 CC = gcc

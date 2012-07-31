@@ -1,4 +1,5 @@
 #include "co.h"
+#include "scanner.h"
 
 struct scanner_globals {
     unsigned int yy_leng;
@@ -22,6 +23,7 @@ struct scanner_globals scanner_globals;
 #define YYMARKER    scanner_globals.yy_marker
 #define YYGETCONDITION()  scanner_globals.yy_state
 #define YYSETCONDITION(s) scanner_globals.yy_state = s
+#undef YYDEBUG      /* conflicts with bison */
 #ifdef YY_DEBUG
 # define YYDEBUG(s, c)   printf("state: %d char: %c\n", s, c)
 #else
