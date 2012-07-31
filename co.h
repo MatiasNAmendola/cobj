@@ -20,6 +20,8 @@
 
 #include "compat.h"
 #include "compile.h"
+#include "parser.h"
+#include "scanner.h"
 #include "error.h"
 #include "object.h"
 #include "vm.h"

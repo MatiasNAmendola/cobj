@@ -1,5 +1,4 @@
 #include "co.h"
-#include "scanner.h"
 
 struct scanner_globals {
     unsigned int yy_leng;
