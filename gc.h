@@ -7,6 +7,8 @@
  *
  * In COObject, each object has a reference count which indicates how many objects are
  * referring to it. When this reference count reaches zero the object is freed.
+ * However, there is one fundamental flaw with reference couting and it's due to
+ * something called reference cycle.
  *
  * If there is a reference cycle, this module is used to detct it and free it
  * together.
@@ -40,12 +42,6 @@
  *      5. Objects left in our original set are referenced only by objects
  *      within that set (ie. they are inaccessible and are garbage). We can now
  *      go about freeing these objects.
- *
- *  What are the costs?
- *  ===================
- *  This form of garbage collection is fairly cheap. One of the biggest costs is
- *  the three extra words of memory required for each container object. There is
- *  also the overhead of maintaining the set of containers.
  *
  *  GC Generation & Threshold
  *  =========================
@@ -151,7 +147,9 @@ gc_head *gc_generation0;
         g->gc.gc_next = NULL;                       \
     } while (0)
 
-/* True if the object may be tracked by the GC in the future, or already is. */
+/* True if the object may be tracked by the GC in the future, or already is.
+ * This can be useful to implement some optimizations.
+ */
 #define COObject_GC_MAYBE_TRACKED(o)    \
     (COObject_IS_GC(o) && (!COTuple_Check(o) || IS_TRACKED(o)))
 
