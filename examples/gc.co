@@ -5,7 +5,11 @@ func hello()
     b = [a]
     c = [b]
     d = [c]
-    a[0] = d
+    e = [d]
+    a[0] = e
+    print(gc_collect())
 end
 
+print(gc_collect())
 hello()
+print(gc_collect())

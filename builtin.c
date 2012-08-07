@@ -21,3 +21,16 @@ COCFunctionObject _CO_Builtin_print = {
     "print",
     builtin_print,
 };
+
+static COObject *
+builtin_gc_collect(COObject *this, COObject *args)
+{
+    ssize_t n = COObject_GC_Collect();
+    return COInt_FromLong(n);
+}
+
+COCFunctionObject _CO_Builtin_gc_collect = {
+    COObject_HEAD_INIT(&COCFunction_Type),
+    "gc_collect",
+    builtin_gc_collect,
+};
