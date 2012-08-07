@@ -2,7 +2,6 @@
 
 static int enabled = 1;         /* GC enabled? */
 static int collecting = 0;      /* GC collecting? */
-static COObject *garbage = NULL;        /* list of uncollectable objects */
 
 struct gc_generation {
     gc_head head;
@@ -108,6 +107,17 @@ gc_list_append(gc_head *to, gc_head *from)
     gc_list_init(from);
 }
 
+static ssize_t
+gc_list_size(gc_head *list)
+{
+    gc_head *gc;
+    ssize_t n = 0;
+    for (gc = list->gc.gc_next; gc != list; gc = gc->gc.gc_next) {
+        n++;
+    }
+    return n;
+}
+
 /*** ! GC doubly linked list functions ***/
 
 /*
@@ -139,7 +149,8 @@ visit_decref(COObject *o, void *data)
     return 0;
 }
 
-/* Subtract internal references from gc_refs. After this, gc_refs is >= 0 for
+/* 
+ * Subtract internal references from gc_refs. After this, gc_refs is >= 0 for
  * all objects in containers, and is GC_REACHABLE for all tracked gc objects not
  * in containers. The ones with gc_refs > 0 are directly reachable from outside
  * containers, and so cannot be collected.
@@ -147,12 +158,51 @@ visit_decref(COObject *o, void *data)
 static void
 subtract_refs(gc_head *container)
 {
-    traversefunc traverser;
+    traversefunc traverse;
     gc_head *gc = container->gc.gc_next;
     for (; gc != container; gc = gc->gc.gc_next) {
-        traverser = CO_TYPE(FROM_GC(gc))->tp_traverse;
-        (void)traverser(FROM_GC(gc), (visitfunc)visit_decref, NULL);
+        traverse = CO_TYPE(FROM_GC(gc))->tp_traverse;
+        (void)traverse(FROM_GC(gc), (visitfunc)visit_decref, NULL);
     }
+}
+
+/*
+ * A traversal callback for move_unreachable.
+ */
+static int
+visit_reachable(COObject *o, gc_head *reachable)
+{
+    if (COObject_IS_GC(o)) {
+        gc_head *gc = AS_GC(o);
+        const ssize_t gc_refs = gc->gc.gc_refs;
+        if (gc_refs == 0) {
+            /* This is in move_unreachable's 'young' list, but the traverse
+             * hasn't gotten to it. All we need to do is tell move_unreachable
+             * that it's reachable.
+             */
+            gc->gc.gc_refs = 1;
+        } else if (gc_refs == GC_TENTATIVELY_UNREACHABLE) {
+            /* This had gc_refs = 0 when move_unreachable got to it, but turns
+             * out it's reachable after all.
+             * Move it back to move_unreachable's 'young' list, and
+             * move_unreachable will eventually get to it again.
+             */
+            gc_list_move(gc, reachable);
+            gc->gc.gc_refs = 1;
+        } else {
+            /* Else there is nothing to do.
+             * If gc_refs > 0, it must be in move_unreachable's 'young' list,
+             * and move_unreachable will eventually get to it.
+             * If gc_refs = GC_REACHABLE, it's either in some other generation
+             * so we don't care about it, or move_unreachable already dealt with
+             * it.
+             * If gc_refs = GC_UNTRACKED, it must be ignored.
+             */
+            assert(gc_refs > 0 || gc_refs == GC_REACHABLE
+                   || gc_refs == GC_UNTRACKED);
+        }
+    }
+    return 0;
 }
 
 /* 
@@ -169,25 +219,39 @@ move_unreachable(gc_head *young, gc_head *unreachable)
 {
     gc_head *gc = young->gc.gc_next;
 
-    /* Invariants: all objects "to the left" of us in young have gc_refs =
+    /* Invariants: 
+     *
+     * All objects "to the left" of us in young have gc_refs =
      * GC_REACHABLE, and are indeed reachable (directly or indirectly) from
-     * outside the young list as it was at entry. All other objects from the
-     * original young "to the left" of us are in unreachable now, and have
-     * gc_refs = GC_TENTATIVELY_UNREACHABLE. All objects to the left of us in
-     * 'young' now have been scanned, and no objects here or to the right have
-     * been scanned yet.
+     * outside the young list as it was at entry. 
+     *
+     * All other objects from the original young "to the left" of us are in
+     * unreachable now, and have gc_refs = GC_TENTATIVELY_UNREACHABLE.
+     *
+     * All objects to the left of us in 'young' now have been scanned, and no
+     * objects here or to the right have been scanned yet.
      */
 
     while (gc != young) {
         gc_head *next;
-
         if (gc->gc.gc_refs) {
-            /* gc is definitely reachable from outside the original 'young'.
-             * Mark it as such, and 
+            /* gc is definitely reachable from outside the original 'young'. Mark
+             * it as such, and traverse its pointers to find any other objects
+             * that may be directly reachable from it. Note that the call to
+             * `tp_traverse` may append objects to young, so we have to wait
+             * until it returns to determine the next object to visit.
              */
+            COObject *o = FROM_GC(gc);
+            traversefunc traverse = CO_TYPE(o)->tp_traverse;
+            gc->gc.gc_refs = GC_REACHABLE;
+            (void)traverse(o, (visitfunc)visit_reachable, (void *)young);
             next = gc->gc.gc_next;
         } else {
-            /* This *may* be unreachable. To make progress, assume it is.
+            /* This *may* be unreachable. To make progress, assume it is. gc
+             * isn't directly reachable from any object we've already traversed,
+             * but may be reachable from an object we haven't gotten to yet.
+             * visit_reachable will eventually move gc back into young if that's
+             * so, and we will see it again.
              */
             next = gc->gc.gc_next;
             gc_list_move(gc, unreachable);
@@ -210,14 +274,19 @@ delete_garbage(gc_head *collectable, gc_head *old)
         COObject *o = FROM_GC(gc);
         assert(IS_TENTATIVELY_UNREACHABLE(o));
 
+        /* This clear process is tricky business as the lists can be changing
+         * and we don't know which objects may be freed.
+         */
         if ((clear = CO_TYPE(o)->tp_clear) != NULL) {
             CO_INCREF(o);
             clear(o);
             CO_DECREF(o);
         }
 
+        /* If gc.gc_next is equal to gc, the object is not freed, move it 
+         * temporarily, it will die later.
+         */
         if (collectable->gc.gc_next == gc) {
-            // object is still alive, move it, it may die later
             gc_list_move(gc, old);
             gc->gc.gc_refs = GC_REACHABLE;
         }
@@ -229,19 +298,21 @@ static ssize_t
 collect(int generation)
 {
     ssize_t m = 0;              /* objects collected */
-    ssize_t n = 0;              /* uureachable objects that couldn't be collected */
     gc_head *young;             /* the generation we are examining */
     gc_head *old;               /* next older generation */
     gc_head unreachable;        /* non-problematic unreachable trash */
-    gc_head *gc;
     int i;
+
+    /* update counters */
+    if (generation + 1 < NUM_GENERATIONS)
+        generations[generation + 1].count += 1;
+    for (i = 0; i <= generation; i++)
+        generations[i].count = 0;
 
     /* merge younger generations with one we are currently collecting */
     for (i = 0; i < generation; i++) {
-        generations[i].count = 0;
         gc_list_append(GEN_HEAD(generation), GEN_HEAD(i));
     }
-    generations[generation].count = 0;
 
     young = GEN_HEAD(generation);
     if (generation < NUM_GENERATIONS - 1)
@@ -256,20 +327,23 @@ collect(int generation)
 
     /* Leave everything reachable from outside young in young, and more
      * everything else (in young) to unreachable.
+     * Note: This used to move the reachable objects into a reachable set
+     * instead. But most things usually turn out to be reachable, so it's more
+     * efficient to move the unreachable things.
      */
     gc_list_init(&unreachable);
     move_unreachable(young, &unreachable);
 
-    for (gc = unreachable.gc.gc_next; gc != &unreachable; gc = gc->gc.gc_next) {
-        m++;
+    /* Move reachable objects to next generation. */
+    if (young != old) {
+        gc_list_append(old, young);
     }
+
+    m = gc_list_size(&unreachable);
 
     delete_garbage(&unreachable, old);
 
-#ifdef CO_DEBUG
-    printf("gc, m: %ld, n: %ld\n", m, n);
-#endif
-    return m + n;
+    return m;
 }
 
 static ssize_t
@@ -294,17 +368,11 @@ collect_generations(void)
 void
 COObject_GC_Init(void)
 {
-    if (garbage == NULL) {
-        garbage = COList_New(0);
-        if (!garbage)
-            return;
-    }
 }
 
 COObject *
 COObject_GC_Malloc(size_t basicsize)
 {
-    COObject *o;
     gc_head *g;
     if (basicsize > SSIZE_MAX - sizeof(gc_head))
         return COErr_NoMemory();
@@ -314,7 +382,7 @@ COObject_GC_Malloc(size_t basicsize)
 
     g->gc.gc_refs = GC_UNTRACKED;
 
-    generations[0].count++;
+    generations[0].count++;     /* number of allocated GC objects */
 
     if (generations[0].count > generations[0].threshold
         && enabled && !collecting && !COErr_Occurred()) {
@@ -323,8 +391,7 @@ COObject_GC_Malloc(size_t basicsize)
         collecting = 0;
     }
 
-    o = FROM_GC(g);
-    return o;
+    return FROM_GC(g);
 }
 
 COObject *
@@ -371,17 +438,6 @@ COObject_GC_Collect(void)
     else {
         collecting = 1;
         // collect from oldest generation
-#ifdef CO_DEBUG
-        printf("count0: %d\n", generations[0].count);
-        printf("count1: %d\n", generations[1].count);
-        printf("count2: %d\n", generations[2].count);
-        gc_head *gc;
-        for (gc = gc_generation0->gc.gc_next; gc != gc_generation0;
-             gc = gc->gc.gc_next) {
-            printf("gc: %p, %s, refcnt: %d\n", FROM_GC(gc),
-                   CO_TYPE(FROM_GC(gc))->tp_name, CO_REFCNT(FROM_GC(gc)));
-        }
-#endif
         n = collect(NUM_GENERATIONS - 1);
         collecting = 0;
     }

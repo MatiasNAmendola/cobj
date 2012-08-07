@@ -91,7 +91,7 @@ static int
 list_traverse(COListObject *this, visitfunc visit, void *arg)
 {
     ssize_t i;
-    for (i = this->co_size; --i > 0;)
+    for (i = this->co_size; --i >= 0;)
         CO_VISIT(this->co_item[i]);
     return 0;
 }

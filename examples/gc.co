@@ -1,12 +1,11 @@
 #!./co
 
-# b -> a -> b
-a = [None, None]
-#a = { 1: None}
-b = {
-#"str": "large test........",
-    "a": a
-}
-#print(b)
-#b = [1, a]
-a[1] = b
+func hello()
+    a = [None, [1,2,3]]
+    b = [a]
+    c = [b]
+    d = [c]
+    a[0] = d
+end
+
+hello()

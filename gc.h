@@ -46,6 +46,21 @@
  *  This form of garbage collection is fairly cheap. One of the biggest costs is
  *  the three extra words of memory required for each container object. There is
  *  also the overhead of maintaining the set of containers.
+ *
+ *  GC Generation & Threshold
+ *  =========================
+ *  The GC classifies objects into three generations depending on how many
+ *  collection sweeps they have survivied. New objects are placed in the
+ *  youngest generation (generation 0). If an object survives a collection it is
+ *  moved into the next older generation. Since generation 2 is the oldest
+ *  generation, objects in that generation remain there after a collection. In
+ *  order to decide when to run, the collector keeps track of the number object
+ *  allocations and deallocations since the last collection. When the number of
+ *  allocations minus the number of deallocations exceed threshold0, collection
+ *  starts. Initially only generation 0 is examined. If generation 0 has been
+ *  examied more than threshold1 times since generation 1 has been examined,
+ *  then generation 1 is examined as well. Similarly, threshold2 controls the
+ *  number of collections of generation 1 before collecting generation 2.
  */
 
 #include "object.h"
@@ -68,18 +83,29 @@ typedef union _gc_head {
  * Between collections, every object has one of two gc_refs values:
  *
  * - GC_UNTRACKED
- *  The initial state. The object doesn't live in any generation list.
+ *  The initial state, objects returned by COObject_GC_Malloc are in this state.
+ *  The object doesn't live in any generation list, and its tp_traverse slot
+ *  must not be called.
  *
  * - GC_REACHABLE
  *  The object lives in some generation list, and its tp_traverse is safe to
- *  call. 
+ *  call. An object transitions to GC_REACHABLE when COObject_GC_TRACK is called.
  *
  * During a collection, gc_refs can temporarily take on other states:
  *
  *  - >= 0
- *      At the start of a collection, `gc_refs` is refcount.
+ *      At the start of a collection, `update_refs()` copies the true refcount
+ *      to gc_refs, for each object in the generation being collected.
+ *      `subtract_refs()` then adjusts gc_refs so that it equals the number of
+ *      times an object is referenceed directly from outside the generation
+ *      being collected.
+ *      gc_refs remains >=0 throughout these steps.
  *
  *  - GC_TENTATIVELY_UNREACHABLE
+ *      `move_unreachable()` then moves objects which maybe unreachable from
+ *      outside the generation into an "unreachable" set. It's "tentatively"
+ *      because the pass doing this cannot be sure until it ends, and
+ *      GC_TENTATIVELY_UNREACHABLE may transition back to GC_REACHABLE.
  */
 #define GC_UNTRACKED                    -1
 #define GC_REACHABLE                    -2
