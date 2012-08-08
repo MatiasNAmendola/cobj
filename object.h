@@ -95,6 +95,18 @@ void _CO_NegativeRefCnt(const char *fname, int lineno, COObject *co);
 #define CO_XINCREF(co)  do { if ((co) == NULL) ; else CO_INCREF(co); } while (0)
 #define CO_XDECREF(co)  do { if ((co) == NULL) ; else CO_DECREF(co); } while (0)
 
+/* Safely decref `o` and set `o` to NULL, especially useful in tp_clear and
+ * tp_dealloc implementations.
+ */
+#define CO_CLEAR(o)                                 \
+    do {                                            \
+        if (o) {                                    \
+            COObject *tmp = (COObject *)(o);        \
+            (o) = NULL;                             \
+            CO_DECREF(tmp);                         \
+        }                                           \
+    } while (0);
+
 /* COObject_VAR_SIZE returns the number of bytes allocated for a variable-size
  * object with n items. The value is rounded up to the closest multiple of
  * sizeof(void *), in order to ensure that pointer fields at the end of the

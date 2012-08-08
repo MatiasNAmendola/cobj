@@ -22,14 +22,15 @@ typedef struct _COFrameObject {
     int f_lasti;                /* Last run instruction offset, defaults to -1. */
     COObject *f_func;           /* function called on this frame */
 
-    COObject *f_builtins;       /* dict object for builtins names */
-    COObject *f_locals;         /* dict object for names */
+    COObject *f_builtins;       /* dict of builtin symbol table */
+    COObject *f_locals;         /* dict of local symbol table */
 
     int f_iblock;               /* index of block */
     COFrameBlock f_blockstack[FRAME_MAXBLOCKS];
 
     COObject **f_stacktop;      /* stack top, points to next free slot of stack */
-    COObject *f_stack[1];       /* stack */
+    COObject **f_stack;         /* points after the last local */
+    COObject *f_extraplus[1];   /* extra space (locals + stack), dynamically sized */
 } COFrameObject;
 
 COTypeObject COFrame_Type;

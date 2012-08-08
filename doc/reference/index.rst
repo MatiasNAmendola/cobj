@@ -18,5 +18,6 @@
     variables.rst
     scoping_rules.rst
     expressions.rst
+    visibility_rules.rst
     errors.rst
     grammar.rst

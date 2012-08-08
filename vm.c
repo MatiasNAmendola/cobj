@@ -101,6 +101,13 @@ vm_eval(COObject *func, COObject *globals)
 #define NEXTOP()        (*next_code++)
 #define NEXTARG()       (next_code += 2, (next_code[-1]<<8) + next_code[-2])
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
+#define GETLOCAL(i)     (fastlocals[i])
+#define SETLOCAL(i, v)                  \
+    do {                                \
+        COObject *tmp = GETLOCAL(i);    \
+        GETLOCAL(i) = v;                \
+        CO_XDECREF(tmp);                \
+    } while (0);
 #define PUSH(o)         (*stack_top++ = (o))
 #define POP()           (*--stack_top)
 #define TOP()           (stack_top[-1])
@@ -122,8 +129,10 @@ vm_eval(COObject *func, COObject *globals)
     COCodeObject *code;
     COObject *names;
     COObject *consts;
+    COObject *localnames;
     COObject *funcargs = COList_New(0);
 
+    COObject **fastlocals;
     COObject **stack_top;       /* Stack top, points to next free slot in stack */
 
     unsigned char *next_code;
@@ -143,12 +152,16 @@ new_frame:                     /* reentry point when function call/return */
     code = (COCodeObject *)((COFunctionObject *)TS(frame)->f_func)->func_code;
     stack_top = TS(frame)->f_stacktop;
     names = code->co_names;
+    localnames = code->co_localnames;
     consts = code->co_consts;
     first_code = (unsigned char *)COBytes_AsString(code->co_code);
     next_code = first_code + TS(frame)->f_lasti;
+    fastlocals = TS(frame)->f_extraplus;
+
+    /* Parse arguments. */
     if (COList_GET_SIZE(funcargs)) {
         // check arguments count
-        if (code->co_argcount != COList_Size(funcargs)) {
+        if (code->co_argcount != COList_GET_SIZE(funcargs)) {
             COErr_Format(COException_ValueError,
                          "takes exactly %d arguments (%d given)",
                          code->co_argcount, COList_Size(funcargs));
@@ -157,8 +170,9 @@ new_frame:                     /* reentry point when function call/return */
         }
         size_t n = COList_Size(funcargs);
         for (int i = 0; i < n; i++) {
-            o1 = GETITEM(names, n - i - 1);
-            COObject_set(o1, COList_GetItem(funcargs, 0));
+            x = COList_GetItem(funcargs, 0);
+            CO_INCREF(x);
+            SETLOCAL(n - i - 1, x);
             COList_DelItem(funcargs, 0);
         }
     }
@@ -267,6 +281,11 @@ new_frame:                     /* reentry point when function call/return */
             SET_TOP(x);
             break;
         case OP_LOAD_LOCAL:
+            oparg = NEXTARG();
+            x = GETLOCAL(oparg);
+            CO_INCREF(x);
+            PUSH(x);
+            break;
         case OP_LOAD_NAME:
             oparg = NEXTARG();
             o1 = GETITEM(names, oparg);

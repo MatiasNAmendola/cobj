@@ -1,0 +1,5 @@
+func is_ok(a, b)
+    print(a)
+    print(b)
+end
+is_ok(10, 1)

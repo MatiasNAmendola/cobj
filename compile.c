@@ -13,8 +13,8 @@ struct instr {
 
 // block
 struct block {
-    /* Each block in compiler unit is linked via b_listnext in the reverse
-     * order. */
+    /* Each block in a compiler unit is linked via b_listnext in the reverse 
+     * order that the block are allocated. */
     struct block *b_listnext;
     struct instr *b_instr;      /* pointer to an array of instructions */
     int b_iused;                /* number of instructions used */
@@ -25,7 +25,7 @@ struct block {
 
     unsigned b_seen:1;          /* flag to used to perform a DFS of blocks */
     int b_startdepth;           /* depth of stack upon entry of block */
-    int b_offset;               /* instruction offset of this block */
+    int b_offset;               /* instruction offset of this block, computed by assembler_jump_offsets() */
 };
 
 /*
@@ -39,11 +39,13 @@ struct fblock {
 
 /* 
  * Compliation unit, change on entry and exit of function scope.
+ * They must be saved and restored when returning to a block.
  */
 struct compiler_unit {
     COObject *u_consts;
     COObject *u_names;
     COObject *u_localnames;
+    int u_argcount;             /* number of arguments for block */
 
     /* Pointer to the most recently allocated block. By following b_listnext,
      * you can reach all early allocated blocks. */
@@ -52,13 +54,11 @@ struct compiler_unit {
 
     int u_nfblocks;
     struct fblock u_fblock[FRAME_MAXBLOCKS];
-
-    int u_argcount;
 };
 
 struct assembler {
-    COObject *a_bytecode;
-    int a_bytecode_offset;
+    COObject *a_bytecode;       /* byte object containting bytecode */
+    int a_offset;               /* offset in bytecode */
     int a_nblocks;              /* number of reachable blocks */
     struct block **a_postorder; /* list of blocks in dfs postorder */
 };
@@ -416,8 +416,16 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop(c, OP_DICT_ADD);
         break;
     case NODE_NAME:
-        oparg = compiler_add(c->u->u_names, n->o);
-        compiler_addop_i(c, OP_LOAD_NAME, oparg);
+        {
+            COObject *v;
+            v = CODict_GetItem(c->u->u_localnames, n->o);
+            if (v) {
+                compiler_addop_i(c, OP_LOAD_LOCAL, COInt_AsLong(v));
+            } else {
+                oparg = compiler_add(c->u->u_names, n->o);
+                compiler_addop_i(c, OP_LOAD_NAME, oparg);
+            }
+        }
         break;
     case NODE_ASSIGN:
         compiler_visit_node(c, n->nd_right);
@@ -475,7 +483,7 @@ compiler_visit_node(struct compiler *c, Node *n)
         c->u->u_argcount = node_listlen(n->nd_funcargs);
         Node *l = n->nd_funcargs;
         while (l) {
-            oparg = compiler_add(c->u->u_names, l->nd_node->o);
+            oparg = compiler_add(c->u->u_localnames, l->nd_node->o);
             l = l->nd_next;
         }
         compiler_visit_node(c, n->nd_funcbody);
@@ -683,13 +691,13 @@ assembler_emit(struct assembler *a, struct instr *i)
     size = instrsize(i);
 
     // resize if necessary 
-    if (a->a_bytecode_offset + size >= len) {
+    if (a->a_offset + size >= len) {
         if (COBytes_Resize(a->a_bytecode, len * 2) < 0)
             return -1;
     }
 
-    char *code = COBytes_AsString(a->a_bytecode) + a->a_bytecode_offset;
-    a->a_bytecode_offset += size;
+    char *code = COBytes_AsString(a->a_bytecode) + a->a_offset;
+    a->a_offset += size;
     *code++ = i->i_opcode;
     if (i->i_hasarg) {
         *code++ = i->i_oparg & 0xff;
@@ -700,7 +708,9 @@ assembler_emit(struct assembler *a, struct instr *i)
 }
 
 /*
- * Do depth-first search.
+ * Do depth-first search of block graph.
+ *
+ * Handle implicit jumps from one block to next.
  */
 static void
 dfs(struct assembler *a, struct block *b)
@@ -727,7 +737,7 @@ assembler_init(struct assembler *a, int nblocks)
 {
     memset(a, 0, sizeof(struct assembler));
     a->a_bytecode = COBytes_FromStringN(NULL, DEFAULT_BYTECODE_SIZE);
-    a->a_bytecode_offset = 0;
+    a->a_offset = 0;
     a->a_postorder =
         (struct block **)COObject_Mem_MALLOC(sizeof(struct block *) * nblocks);
     a->a_nblocks = 0;
@@ -883,7 +893,7 @@ dict_keys_inorder(COObject *dict, int offset)
 static COObject *
 makecode(struct compiler *c, struct assembler *a)
 {
-    COBytes_Resize(a->a_bytecode, a->a_bytecode_offset);
+    COBytes_Resize(a->a_bytecode, a->a_offset);
 
     COObject *consts = COList_New(0);
     COObject *names = COList_New(0);

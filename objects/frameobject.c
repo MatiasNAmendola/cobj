@@ -9,18 +9,23 @@ frame_repr(COFrameObject *this)
 static void
 frame_dealloc(COFrameObject *this)
 {
-    CO_XDECREF(this->f_prev);
-    CO_XDECREF(this->f_func);
-    CO_XDECREF(this->f_locals);
-    CO_XDECREF(this->f_builtins);
+    COObject **p;
+
+    /* free local objects */
+    for (p = this->f_extraplus; p < this->f_stack; p++)
+        CO_CLEAR(*p);
 
     /* free stack */
-    COObject **p;
     if (this->f_stacktop != NULL) {
         for (p = this->f_stack; p < this->f_stacktop; p++) {
             CO_XDECREF(*p);
         }
     }
+
+    CO_XDECREF(this->f_prev);
+    CO_XDECREF(this->f_func);
+    CO_XDECREF(this->f_locals);
+    CO_XDECREF(this->f_builtins);
 
     COObject_Mem_FREE(this);
 }
@@ -71,8 +76,10 @@ COFrame_New(COObject *prev, COObject *func, COObject *locals)
 {
     COCodeObject *code = (COCodeObject *)((COFunctionObject *)
                                           func)->func_code;
+    ssize_t extras = code->co_stacksize + code->co_nlocals;
     COFrameObject *f = COVarObject_NEW(COFrameObject, &COFrame_Type,
-                                       code->co_stacksize);
+                                       extras);
+    int i;
 
     f->f_lasti = 0;
     f->f_prev = prev;
@@ -89,6 +96,9 @@ COFrame_New(COObject *prev, COObject *func, COObject *locals)
     f->f_builtins = builtins;
     CO_INCREF(builtins);
 
+    for (i = 0; i < extras; i++)
+        f->f_extraplus[i] = NULL;
+    f->f_stack = f->f_extraplus + code->co_nlocals;
     f->f_stacktop = f->f_stack;
     f->f_iblock = 0;
     return (COObject *)f;
