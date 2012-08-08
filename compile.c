@@ -416,16 +416,8 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop(c, OP_DICT_ADD);
         break;
     case NODE_NAME:
-        {
-            COObject *v;
-            v = CODict_GetItem(c->u->u_localnames, n->o);
-            if (v) {
-                compiler_addop_i(c, OP_LOAD_LOCAL, COInt_AsLong(v));
-            } else {
-                oparg = compiler_add(c->u->u_names, n->o);
-                compiler_addop_i(c, OP_LOAD_NAME, oparg);
-            }
-        }
+        oparg = compiler_add(c->u->u_names, n->o);
+        compiler_addop_i(c, OP_LOAD_NAME, oparg);
         break;
     case NODE_ASSIGN:
         compiler_visit_node(c, n->nd_right);
@@ -483,7 +475,7 @@ compiler_visit_node(struct compiler *c, Node *n)
         c->u->u_argcount = node_listlen(n->nd_funcargs);
         Node *l = n->nd_funcargs;
         while (l) {
-            oparg = compiler_add(c->u->u_localnames, l->nd_node->o);
+            oparg = compiler_add(c->u->u_names, l->nd_node->o);
             l = l->nd_next;
         }
         compiler_visit_node(c, n->nd_funcbody);
