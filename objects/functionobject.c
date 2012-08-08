@@ -14,7 +14,6 @@ static void
 function_dealloc(COFunctionObject *this)
 {
     CO_DECREF(this->func_name);
-    CO_DECREF(this->func_upvalues);
     CO_DECREF(this->func_code);
     COObject_Mem_FREE(this);
 }
@@ -48,9 +47,9 @@ COFunction_New(COObject *func_code)
                                                      ("anonymous"));
     func->func_name = func_name;
     CO_XINCREF(func_name);
-    func->func_upvalues = CODict_New();
     func->func_code = func_code;
     CO_XINCREF(func_code);
+    func->func_upvalues = COTuple_New(COTuple_Size(((COCodeObject *)func_code)->co_upvals));
     return (COObject *)func;
 }
 

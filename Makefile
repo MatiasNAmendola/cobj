@@ -59,6 +59,7 @@ LIB_OBJS += objects/fileobject.o
 LIB_OBJS += objects/exceptionobject.o
 LIB_OBJS += objects/capsuleobject.o
 LIB_OBJS += objects/cfunctionobject.o
+LIB_OBJS += objects/cellobject.o
 
 LIB_OBJS += linenoise/linenoise.o
 LIB_OBJS += argparse/argparse.o

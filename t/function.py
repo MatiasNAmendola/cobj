@@ -24,10 +24,13 @@ hello(10)
 """)
 
 test_expect_result("""outside a
+changed
 """, """
 a = "outside a"
 str = "outside str"
 func hello(str)
+    print(str)
+    str = "changed"
     print(str)
 end
 

@@ -147,6 +147,7 @@ w_object(COObject *co, WFILE *p)
         w_object(code->co_consts, p);
         w_object(code->co_names, p);
         w_object(code->co_localnames, p);
+        w_object(code->co_upvals, p);
         w_int64((long)code->co_argcount, p);
         w_int64((long)code->co_stacksize, p);
         w_int64((long)code->co_nlocals, p);
@@ -300,11 +301,12 @@ r_object(RFILE *p)
             COObject *consts = r_object(p);
             COObject *names = r_object(p);
             COObject *localnames = r_object(p);
+            COObject *upvals = r_object(p);
             int argcount = r_int64(p);
             int stacksize = r_int64(p);
             int nlocals = r_int64(p);
 
-            rs = COCode_New(name, code, consts, names, localnames, argcount,
+            rs = COCode_New(name, code, consts, names, localnames, upvals, argcount,
                             stacksize, nlocals);
             SET_OBJECT(rs);
         }

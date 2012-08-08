@@ -44,6 +44,7 @@ struct fblock {
 struct compiler_unit {
     COObject *u_consts;
     COObject *u_names;
+    COObject *u_upvals;
     COObject *u_localnames;
     int u_argcount;             /* number of arguments for block */
 
@@ -148,6 +149,7 @@ compiler_unit_free(struct compiler_unit *u)
         COObject_Mem_FREE(b);
         b = next;
     }
+    CO_DECREF(u->u_upvals);
     CO_DECREF(u->u_localnames);
     CO_DECREF(u->u_names);
     CO_DECREF(u->u_consts);
@@ -168,6 +170,7 @@ compiler_enter_scope(struct compiler *c)
     u->u_consts = CODict_New();
     u->u_names = CODict_New();
     u->u_localnames = CODict_New();
+    u->u_upvals = CODict_New();
     u->u_argcount = 0;
 
     /* Push the old compiler_unit on the stack. */
@@ -416,13 +419,58 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop(c, OP_DICT_ADD);
         break;
     case NODE_NAME:
-        oparg = compiler_add(c->u->u_names, n->o);
-        compiler_addop_i(c, OP_LOAD_NAME, oparg);
+        {
+            ssize_t i = COList_Size(c->stack);
+            bool is_upval = false;
+            if (!CODict_GetItem(c->u->u_names, n->o)) {
+                while (i > 0) {
+                    COCapsuleObject *capsule =
+                        (COCapsuleObject *)COList_GetItem(c->stack, i - 1);
+                    struct compiler_unit *tmp;
+                    tmp = (struct compiler_unit *)capsule->pointer;
+                    if (CODict_GetItem(tmp->u_names, n->o)) {
+                        is_upval = true; 
+                        break;
+                    }
+                    i--;
+                }
+            }
+            if (is_upval) {
+                oparg = compiler_add(c->u->u_upvals, n->o);
+                compiler_addop_i(c, OP_LOAD_UPVAL, oparg);
+            } else {
+                oparg = compiler_add(c->u->u_names, n->o);
+                compiler_addop_i(c, OP_LOAD_NAME, oparg);
+            }
+        }
         break;
     case NODE_ASSIGN:
-        compiler_visit_node(c, n->nd_right);
-        oparg = compiler_add(c->u->u_names, n->nd_left->o);
-        compiler_addop_i(c, OP_STORE_NAME, oparg);
+        {
+            compiler_visit_node(c, n->nd_right);
+
+            ssize_t i = COList_Size(c->stack);
+            bool is_upval = false;
+            if (!CODict_GetItem(c->u->u_names, n->nd_left->o)) {
+                while (i > 0) {
+                    COCapsuleObject *capsule =
+                        (COCapsuleObject *)COList_GetItem(c->stack, i - 1);
+                    struct compiler_unit *tmp;
+                    tmp = (struct compiler_unit *)capsule->pointer;
+                    if (CODict_GetItem(tmp->u_names, n->nd_left->o)) {
+                        is_upval = true; 
+                        break;
+                    }
+                    i--;
+                }
+            }
+            if (is_upval) {
+                oparg = compiler_add(c->u->u_upvals, n->nd_left->o);
+                compiler_addop_i(c, OP_STORE_UPVAL, oparg);
+            } else {
+                oparg = compiler_add(c->u->u_names, n->nd_left->o);
+                compiler_addop_i(c, OP_STORE_NAME, oparg);
+            }
+        }
         break;
     case NODE_IF:
         {
@@ -764,6 +812,7 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_UNARY_NEGATE:
     case OP_UNARY_INVERT:
         return 0;
+    case OP_STORE_UPVAL:
     case OP_STORE_NAME:
         return -1;
     case OP_PRINT:
@@ -781,6 +830,7 @@ opcode_stack_effect(int opcode, int oparg)
         return -oparg;
     case OP_THROW:
         return -oparg;
+    case OP_LOAD_UPVAL:
     case OP_LOAD_NAME:
     case OP_LOAD_CONST:
     case OP_LOAD_LOCAL:
@@ -887,9 +937,10 @@ makecode(struct compiler *c, struct assembler *a)
 {
     COBytes_Resize(a->a_bytecode, a->a_offset);
 
-    COObject *consts = COList_New(0);
-    COObject *names = COList_New(0);
-    COObject *localnames = COList_New(0);
+    COObject *consts = NULL;
+    COObject *names = NULL;
+    COObject *localnames = NULL;
+    COObject *upvals = NULL;
     COObject *name = NULL;
     int nlocals;
 
@@ -904,12 +955,16 @@ makecode(struct compiler *c, struct assembler *a)
     if (!localnames)
         goto error;
     nlocals = CODict_Size(c->u->u_localnames);
+    upvals = dict_keys_inorder(c->u->u_upvals, 0);
+    if (!upvals)
+        goto error;
+    
 
     // name
     name = COStr_FromString("<main>");
 
     COObject *co = COCode_New(name, a->a_bytecode,
-                              consts, names, localnames,
+                              consts, names, localnames, upvals,
                               c->u->u_argcount, stackdepth(c), nlocals);
 
 error:
@@ -999,11 +1054,25 @@ dump_code(COObject *code)
             COObject_Print(GETITEM(_code->co_names, oparg), stdout);
             printf(")");
             break;
+        case OP_LOAD_UPVAL:
+            oparg = NEXTARG();
+            printf("\t\t%d", oparg);
+            printf(" (");
+            COObject_Print(GETITEM(_code->co_upvals, oparg), stdout);
+            printf(")");
+            break;
         case OP_STORE_NAME:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             printf(" (");
             COObject_Print(GETITEM(_code->co_names, oparg), stdout);
+            printf(")");
+            break;
+        case OP_STORE_UPVAL:
+            oparg = NEXTARG();
+            printf("\t\t%d", oparg);
+            printf(" (");
+            COObject_Print(GETITEM(_code->co_upvals, oparg), stdout);
             printf(")");
             break;
         case OP_CONTINUE_LOOP:

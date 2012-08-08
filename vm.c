@@ -18,13 +18,6 @@ COObject_get(COObject *name)
     COObject *co;
 
     COFrameObject *current_frame = TS(frame);
-    if (current_frame->f_func) {
-        co = CODict_GetItem(((COFunctionObject *)
-                             current_frame->f_func)->func_upvalues, name);
-        if (co) {
-            return co;
-        }
-    }
     do {
         co = CODict_GetItem(current_frame->f_locals, name);
         if (co) {
@@ -47,16 +40,6 @@ int
 COObject_set(COObject *name, COObject *co)
 {
     COFrameObject *current_frame = TS(frame);
-    if (current_frame->f_func) {
-        COObject *myco;
-        myco = CODict_GetItem(((COFunctionObject *)
-                               current_frame->f_func)->func_upvalues, name);
-        if (myco) {
-            return CODict_SetItem(((COFunctionObject *)
-                                   current_frame->f_func)->func_upvalues, name,
-                                  co);
-        }
-    }
     return CODict_SetItem(current_frame->f_locals, name, co);
 }
 
@@ -132,6 +115,7 @@ vm_eval(COObject *func, COObject *globals)
     COObject *localnames;
     COObject *funcargs = COList_New(0);
 
+    COObject **upvalues;
     COObject **fastlocals;
     COObject **stack_top;       /* Stack top, points to next free slot in stack */
 
@@ -157,6 +141,7 @@ new_frame:                     /* reentry point when function call/return */
     first_code = (unsigned char *)COBytes_AsString(code->co_code);
     next_code = first_code + TS(frame)->f_lasti;
     fastlocals = TS(frame)->f_extraplus;
+    upvalues = TS(frame)->f_extraplus + code->co_nlocals;
 
     /* Parse arguments. */
     if (COList_GET_SIZE(funcargs)) {
@@ -300,6 +285,12 @@ new_frame:                     /* reentry point when function call/return */
             CO_INCREF(x);
             PUSH(x);
             break;
+        case OP_LOAD_UPVAL:
+            oparg = NEXTARG();
+            o1 = COTuple_GET_ITEM(((COFunctionObject *)func)->func_upvalues, oparg);
+            o2 = COCell_Get(o1);
+            PUSH(o2);
+            break;
         case OP_LOAD_CONST:
             oparg = NEXTARG();
             x = GETITEM(consts, oparg);
@@ -357,6 +348,13 @@ new_frame:                     /* reentry point when function call/return */
             COObject_set(o1, o2);
             CO_DECREF(o2);
             break;
+        case OP_STORE_UPVAL:
+            oparg = NEXTARG();
+            o1 = COTuple_GET_ITEM(((COFunctionObject *)func)->func_upvalues, oparg);
+            o2 = POP();
+            COCell_Set(o1, o2);
+            CO_DECREF(o2);
+            break;
         case OP_JMPZ:
             oparg = NEXTARG();
             o1 = POP();
@@ -384,12 +382,12 @@ new_frame:                     /* reentry point when function call/return */
             o1 = POP();
             x = COFunction_New(o1);
             COCodeObject *c = (COCodeObject *)o1;
-            for (int i = 0; i < CO_SIZE(c->co_names); i++) {
-                COObject *name = COTuple_GET_ITEM(c->co_names, i);
+            for (int i = 0; i < CO_SIZE(c->co_upvals); i++) {
+                COObject *name = COTuple_GET_ITEM(c->co_upvals, i);
                 COObject *upvalue = COObject_get(name);
                 if (upvalue) {
-                    CODict_SetItem(((COFunctionObject *)x)->func_upvalues, name,
-                                   upvalue);
+                    COObject *cell = COCell_New(upvalue);
+                    COTuple_SET_ITEM(((COFunctionObject *)x)->func_upvalues, i, cell);
                 }
             }
             CO_DECREF(o1);
@@ -423,6 +421,7 @@ new_frame:                     /* reentry point when function call/return */
                     (COFrameObject *)COFrame_New((COObject *)TS(frame), o1,
                                                  NULL);
                 CO_DECREF(o1);
+                func = o1;
                 goto new_frame;
             } else {
                 x = COObject_Call(o1, args);

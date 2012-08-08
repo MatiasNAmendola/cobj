@@ -1,5 +1,9 @@
-func is_ok(a, b)
-    print(a)
-    print(b)
+a = "outside a"
+str = "outside str"
+func hello(str)
+    print(str)
+    str = "changed"
+    print(str)
 end
-is_ok(10, 1)
+
+hello(a)
