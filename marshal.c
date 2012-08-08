@@ -306,8 +306,8 @@ r_object(RFILE *p)
             int stacksize = r_int64(p);
             int nlocals = r_int64(p);
 
-            rs = COCode_New(name, code, consts, names, localnames, upvals, argcount,
-                            stacksize, nlocals);
+            rs = COCode_New(name, code, consts, names, localnames, upvals,
+                            argcount, stacksize, nlocals);
             SET_OBJECT(rs);
         }
         break;

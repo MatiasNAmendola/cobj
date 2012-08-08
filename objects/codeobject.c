@@ -61,8 +61,8 @@ COTypeObject COCode_Type = {
 
 COObject *
 COCode_New(COObject *name, COObject *code, COObject *consts,
-           COObject *names, COObject *localnames, COObject *upvals, int argcount, int stacksize,
-           int nlocals)
+           COObject *names, COObject *localnames, COObject *upvals,
+           int argcount, int stacksize, int nlocals)
 {
     COCodeObject *co = COObject_NEW(COCodeObject, &COCode_Type);
 

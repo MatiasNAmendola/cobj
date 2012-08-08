@@ -24,6 +24,6 @@ COTypeObject COCode_Type;
 #define COCode_Check(co) (CO_TYPE(co) == &COCode_Type)
 
 COObject *COCode_New(COObject *name, COObject *code, COObject *consts,
-                     COObject *names, COObject *localnames, COObject *upvals, int argcount,
-                     int stacksize, int nlocals);
+                     COObject *names, COObject *localnames, COObject *upvals,
+                     int argcount, int stacksize, int nlocals);
 #endif

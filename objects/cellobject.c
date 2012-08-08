@@ -31,24 +31,23 @@ cell_clear(COCellObject *this)
     return 0;
 }
 
-
 COTypeObject COCell_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "cell",
     sizeof(COCellObject),
     0,
     0,
-    0,                              /* tp_make */
-    (deallocfunc)cell_dealloc,      /* tp_dealloc */
-    (reprfunc)cell_repr,            /* tp_repr */
-    0,                              /* tp_print */
-    0,                              /* tp_hash */
-    0,                              /* tp_compare */
-    (traversefunc)cell_traverse,    /* tp_traverse */
-    (inquiryfunc)cell_clear,        /* tp_clear */
-    0,                              /* tp_call */
-    0,                              /* tp_int_interface */
-    0,                              /* tp_mapping_interface */
+    0,                          /* tp_make */
+    (deallocfunc)cell_dealloc,  /* tp_dealloc */
+    (reprfunc)cell_repr,        /* tp_repr */
+    0,                          /* tp_print */
+    0,                          /* tp_hash */
+    0,                          /* tp_compare */
+    (traversefunc)cell_traverse,        /* tp_traverse */
+    (inquiryfunc)cell_clear,    /* tp_clear */
+    0,                          /* tp_call */
+    0,                          /* tp_int_interface */
+    0,                          /* tp_mapping_interface */
 };
 
 COObject *

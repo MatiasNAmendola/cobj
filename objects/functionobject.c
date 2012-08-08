@@ -49,7 +49,8 @@ COFunction_New(COObject *func_code)
     CO_XINCREF(func_name);
     func->func_code = func_code;
     CO_XINCREF(func_code);
-    func->func_upvalues = COTuple_New(COTuple_Size(((COCodeObject *)func_code)->co_upvals));
+    func->func_upvalues =
+        COTuple_New(COTuple_Size(((COCodeObject *)func_code)->co_upvals));
     return (COObject *)func;
 }
 

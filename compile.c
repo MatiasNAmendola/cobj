@@ -356,6 +356,27 @@ compiler_addop_o(struct compiler *c, int opcode, COObject *dict, COObject *o)
     return compiler_addop_i(c, opcode, oparg);
 }
 
+static bool
+compiler_is_upval(struct compiler *c, COObject *o)
+{
+    bool is_upval = false;
+    if (!CODict_GetItem(c->u->u_names, o)) {
+        ssize_t i = COList_Size(c->stack);
+        while (i > 0) {
+            COCapsuleObject *capsule =
+                (COCapsuleObject *)COList_GetItem(c->stack, i - 1);
+            struct compiler_unit *tmp;
+            tmp = (struct compiler_unit *)capsule->pointer;
+            if (CODict_GetItem(tmp->u_names, o)) {
+                is_upval = true;
+                break;
+            }
+            i--;
+        }
+    }
+    return is_upval;
+}
+
 static int
 compiler_visit_node(struct compiler *c, Node *n)
 {
@@ -420,22 +441,7 @@ compiler_visit_node(struct compiler *c, Node *n)
         break;
     case NODE_NAME:
         {
-            ssize_t i = COList_Size(c->stack);
-            bool is_upval = false;
-            if (!CODict_GetItem(c->u->u_names, n->o)) {
-                while (i > 0) {
-                    COCapsuleObject *capsule =
-                        (COCapsuleObject *)COList_GetItem(c->stack, i - 1);
-                    struct compiler_unit *tmp;
-                    tmp = (struct compiler_unit *)capsule->pointer;
-                    if (CODict_GetItem(tmp->u_names, n->o)) {
-                        is_upval = true; 
-                        break;
-                    }
-                    i--;
-                }
-            }
-            if (is_upval) {
+            if (compiler_is_upval(c, n->o)) {
                 oparg = compiler_add(c->u->u_upvals, n->o);
                 compiler_addop_i(c, OP_LOAD_UPVAL, oparg);
             } else {
@@ -447,23 +453,7 @@ compiler_visit_node(struct compiler *c, Node *n)
     case NODE_ASSIGN:
         {
             compiler_visit_node(c, n->nd_right);
-
-            ssize_t i = COList_Size(c->stack);
-            bool is_upval = false;
-            if (!CODict_GetItem(c->u->u_names, n->nd_left->o)) {
-                while (i > 0) {
-                    COCapsuleObject *capsule =
-                        (COCapsuleObject *)COList_GetItem(c->stack, i - 1);
-                    struct compiler_unit *tmp;
-                    tmp = (struct compiler_unit *)capsule->pointer;
-                    if (CODict_GetItem(tmp->u_names, n->nd_left->o)) {
-                        is_upval = true; 
-                        break;
-                    }
-                    i--;
-                }
-            }
-            if (is_upval) {
+            if (compiler_is_upval(c, n->nd_left->o)) {
                 oparg = compiler_add(c->u->u_upvals, n->nd_left->o);
                 compiler_addop_i(c, OP_STORE_UPVAL, oparg);
             } else {
@@ -958,7 +948,6 @@ makecode(struct compiler *c, struct assembler *a)
     upvals = dict_keys_inorder(c->u->u_upvals, 0);
     if (!upvals)
         goto error;
-    
 
     // name
     name = COStr_FromString("<main>");
