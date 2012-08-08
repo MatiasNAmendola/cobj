@@ -148,9 +148,9 @@ compiler_unit_free(struct compiler_unit *u)
         COObject_Mem_FREE(b);
         b = next;
     }
+    CO_DECREF(u->u_localnames);
     CO_DECREF(u->u_names);
     CO_DECREF(u->u_consts);
-    CO_DECREF(u->u_localnames);
     COObject_Mem_FREE(u);
 }
 
@@ -416,7 +416,6 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop(c, OP_DICT_ADD);
         break;
     case NODE_NAME:
-        // 1. first try localnames
         oparg = compiler_add(c->u->u_names, n->o);
         compiler_addop_i(c, OP_LOAD_NAME, oparg);
         break;
@@ -861,49 +860,55 @@ stackdepth(struct compiler *c)
 }
 
 static COObject *
+dict_keys_inorder(COObject *dict, int offset)
+{
+    COObject *tuple;
+    COObject *key;
+    COObject *val;
+
+    ssize_t i;
+    ssize_t size = CODict_Size(dict);
+    tuple = COTuple_New(size);
+    if (!tuple)
+        return NULL;
+
+    while (CODict_Next(dict, &key, &val) == 0) {
+        i = COInt_AsLong(val);
+        CO_INCREF(key);
+        COTuple_SET_ITEM(tuple, i - offset, key);
+    }
+    return tuple;
+}
+
+static COObject *
 makecode(struct compiler *c, struct assembler *a)
 {
     COBytes_Resize(a->a_bytecode, a->a_bytecode_offset);
 
-    COObject *tmp;
-
-    // Dict to List
     COObject *consts = COList_New(0);
     COObject *names = COList_New(0);
+    COObject *localnames = COList_New(0);
     COObject *name = NULL;
-    COObject *key;
-    COObject *val;
+    int nlocals;
 
     // consts
-    CODict_Rewind(c->u->u_consts);
-    while (CODict_Next(c->u->u_consts, &key, &val) == 0) {
-        COList_Insert(consts, COInt_AsLong(val), key);
-    }
-    tmp = consts;
-    consts = COList_AsTuple(tmp);
-    if (!consts) {
+    consts = dict_keys_inorder(c->u->u_consts, 0);
+    if (!consts)
         goto error;
-    }
-    CO_DECREF(tmp);
-
-    // names
-    CODict_Rewind(c->u->u_names);
-    while (CODict_Next(c->u->u_names, &key, &val) == 0) {
-        COList_Insert(names, COInt_AsLong(val), key);
-    }
-    tmp = names;
-    names = COList_AsTuple(tmp);
-    if (!names) {
+    names = dict_keys_inorder(c->u->u_names, 0);
+    if (!names)
         goto error;
-    }
-    CO_DECREF(tmp);
+    localnames = dict_keys_inorder(c->u->u_localnames, 0);
+    if (!localnames)
+        goto error;
+    nlocals = CODict_Size(c->u->u_localnames);
 
     // name
     name = COStr_FromString("<main>");
 
     COObject *co = COCode_New(name, a->a_bytecode,
-                              consts, names,
-                              c->u->u_argcount, stackdepth(c));
+                              consts, names, localnames,
+                              c->u->u_argcount, stackdepth(c), nlocals);
 
 error:
     CO_XDECREF(name);

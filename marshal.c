@@ -146,8 +146,10 @@ w_object(COObject *co, WFILE *p)
         w_object(code->co_code, p);
         w_object(code->co_consts, p);
         w_object(code->co_names, p);
+        w_object(code->co_localnames, p);
         w_int64((long)code->co_argcount, p);
         w_int64((long)code->co_stacksize, p);
+        w_int64((long)code->co_nlocals, p);
     } else if (COStr_Check(co)) {
         w_byte(TYPE_STRING, p);
         size_t n = CO_SIZE(co);
@@ -297,10 +299,13 @@ r_object(RFILE *p)
             COObject *code = r_object(p);
             COObject *consts = r_object(p);
             COObject *names = r_object(p);
+            COObject *localnames = r_object(p);
             int argcount = r_int64(p);
             int stacksize = r_int64(p);
+            int nlocals = r_int64(p);
 
-            rs = COCode_New(name, code, consts, names, argcount, stacksize);
+            rs = COCode_New(name, code, consts, names, localnames, argcount,
+                            stacksize, nlocals);
             SET_OBJECT(rs);
         }
         break;

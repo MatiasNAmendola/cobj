@@ -266,6 +266,7 @@ new_frame:                     /* reentry point when function call/return */
             CO_DECREF(o1);
             SET_TOP(x);
             break;
+        case OP_LOAD_LOCAL:
         case OP_LOAD_NAME:
             oparg = NEXTARG();
             o1 = GETITEM(names, oparg);
