@@ -115,7 +115,6 @@ vm_eval(COObject *func, COObject *globals)
     COObject *localnames;
     COObject *funcargs = COList_New(0);
 
-    COObject **upvalues;
     COObject **fastlocals;
     COObject **stack_top;       /* Stack top, points to next free slot in stack */
 
@@ -141,7 +140,6 @@ new_frame:                     /* reentry point when function call/return */
     first_code = (unsigned char *)COBytes_AsString(code->co_code);
     next_code = first_code + TS(frame)->f_lasti;
     fastlocals = TS(frame)->f_extraplus;
-    upvalues = TS(frame)->f_extraplus + code->co_nlocals;
 
     /* Parse arguments. */
     if (COList_GET_SIZE(funcargs)) {

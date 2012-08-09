@@ -1,6 +1,4 @@
-* add LOAD_LOCAL opcode
-    - let arguments be local names
-    - load argument by LOAD_LOCAL
+* distinct global/local names in co_names
 * error message with location
 * dict as module
 * implement keyword this whict is used to refer current context (module/function, etc)
