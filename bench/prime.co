@@ -2,7 +2,7 @@ maxnum = 100000
 i = 2
 
 func is_prime(n)
-    j = 2
+    local j = 2
     while j * j < n + 1
         if n % j == 0
             return False

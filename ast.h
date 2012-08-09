@@ -24,6 +24,7 @@ typedef enum {
     NODE_CONST,
     NODE_NAME,
     NODE_ASSIGN,
+    NODE_ASSIGN_LOCAL,
     NODE_PRINT,
     NODE_TUPLE,
     NODE_LIST,
@@ -61,6 +62,8 @@ typedef struct _Node {
  * NODE_BIN
  * NODE_STORE_SUBSCRIPT
  * NODE_UNARY
+ * NODE_ASSIGN
+ * NODE_ASSIGN_LOCAL
  */
 #define nd_left     n1
 #define nd_middle   n2

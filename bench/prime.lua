@@ -1,8 +1,8 @@
 maxnum = 100000
 i = 2
 
-function is_prime(n)
-    j = 2
+function is_prime(n) -- n is local implicitly
+    local j = 2 -- make it local, performance critical
     while j * j < n + 1 do
         if n % j == 0 then
             return false

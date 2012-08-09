@@ -244,6 +244,10 @@ ANY_CHAR    = [^];
     return T_FUNC;
 }
 
+<SC_INIT>"local" {
+    return T_LOCAL;
+}
+
 <SC_INIT>"end" {
     return T_END;
 }

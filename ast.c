@@ -89,6 +89,7 @@ node_type(Node_Type type)
         GIVE_NAME(NODE_CONST);
         GIVE_NAME(NODE_NAME);
         GIVE_NAME(NODE_ASSIGN);
+        GIVE_NAME(NODE_ASSIGN_LOCAL);
         GIVE_NAME(NODE_PRINT);
         GIVE_NAME(NODE_TUPLE);
         GIVE_NAME(NODE_LIST);

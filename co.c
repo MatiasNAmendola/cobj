@@ -49,7 +49,8 @@ eval_wrapper(COObject *func)
 {
     COObject *ret;
 
-    ret = vm_eval(func, NULL);
+    COObject *globals = CODict_New();
+    ret = vm_eval(func, globals);
     if (!ret) {
         if (COErr_Occurred()) {
             COErr_Print();

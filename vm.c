@@ -17,17 +17,10 @@ COObject_get(COObject *name)
 {
     COObject *co;
 
-    COFrameObject *current_frame = TS(frame);
-    do {
-        co = CODict_GetItem(current_frame->f_locals, name);
-        if (co) {
-            return co;
-        }
-        current_frame = (COFrameObject *)current_frame->f_prev;
-        if (!current_frame) {
-            break;
-        }
-    } while (true);
+    co = CODict_GetItem(TS(frame)->f_globals, name);
+    if (co) {
+        return co;
+    }
     // at last
     co = CODict_GetItem(TS(frame)->f_builtins, name);
     if (co) {
@@ -39,8 +32,7 @@ COObject_get(COObject *name)
 int
 COObject_set(COObject *name, COObject *co)
 {
-    COFrameObject *current_frame = TS(frame);
-    return CODict_SetItem(current_frame->f_locals, name, co);
+    return CODict_SetItem(TS(frame)->f_globals, name, co);
 }
 
 static inline COObject *
@@ -425,7 +417,7 @@ new_frame:                     /* reentry point when function call/return */
                 TS(frame)->f_lasti = (int)(next_code - first_code);
                 TS(frame) =
                     (COFrameObject *)COFrame_New((COObject *)TS(frame), o1,
-                                                 NULL);
+                                                 globals);
                 CO_DECREF(o1);
                 func = o1;
                 goto new_frame;

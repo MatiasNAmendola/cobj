@@ -23,7 +23,7 @@ typedef struct _COFrameObject {
     COObject *f_func;           /* function called on this frame */
 
     COObject *f_builtins;       /* dict of builtin symbol table */
-    COObject *f_locals;         /* dict of local symbol table */
+    COObject *f_globals;        /* dict of global symbol table */
 
     int f_iblock;               /* index of block */
     COFrameBlock f_blockstack[FRAME_MAXBLOCKS];
@@ -37,7 +37,7 @@ COTypeObject COFrame_Type;
 
 #define COFrame_Check(co) (CO_TYPE(co) == &COFrame_Type)
 
-COObject *COFrame_New(COObject *prev, COObject *func, COObject *locals);
+COObject *COFrame_New(COObject *prev, COObject *func, COObject *globals);
 void COFrameBlock_Setup(COFrameObject *f, int type, int handler, int level);
 COFrameBlock *COFrameBlock_Pop(COFrameObject *f);
 int COFrame_Init(void);

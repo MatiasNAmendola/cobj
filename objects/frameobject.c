@@ -24,7 +24,7 @@ frame_dealloc(COFrameObject *this)
 
     CO_XDECREF(this->f_prev);
     CO_XDECREF(this->f_func);
-    CO_XDECREF(this->f_locals);
+    CO_XDECREF(this->f_globals);
     CO_XDECREF(this->f_builtins);
 
     COObject_Mem_FREE(this);
@@ -72,7 +72,7 @@ COFrame_Fini(void)
 }
 
 COObject *
-COFrame_New(COObject *prev, COObject *func, COObject *locals)
+COFrame_New(COObject *prev, COObject *func, COObject *globals)
 {
     COCodeObject *code = (COCodeObject *)((COFunctionObject *)
                                           func)->func_code;
@@ -89,12 +89,9 @@ COFrame_New(COObject *prev, COObject *func, COObject *locals)
     f->f_func = func;
     CO_XINCREF(func);
 
-    if (locals) {
-        f->f_locals = locals;
-        CO_INCREF(locals);
-    } else {
-        f->f_locals = CODict_New();
-    }
+    f->f_globals = globals;
+    CO_XINCREF(globals);
+
     f->f_builtins = builtins;
     CO_INCREF(builtins);
 

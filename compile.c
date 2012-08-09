@@ -474,6 +474,11 @@ compiler_visit_node(struct compiler *c, Node *n)
             compiler_addop_i(c, OP_STORE_NAME, oparg);
         }
         break;
+    case NODE_ASSIGN_LOCAL:
+        compiler_visit_node(c, n->nd_right);
+        oparg = compiler_add(c->u->u_localnames, n->nd_left->o);
+        compiler_addop_i(c, OP_STORE_LOCAL, oparg);
+        break;
     case NODE_IF:
         {
             struct block *ifelse, *ifend;

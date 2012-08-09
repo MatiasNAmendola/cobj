@@ -28,6 +28,7 @@ return_none_node(struct arena *arena)
  */
 %token  T_IF T_ELIF T_ELSE
 %token  T_FUNC
+%token  T_LOCAL
 %token  T_RETURN
 %token  T_WHILE
 %token  T_NEWLINE
@@ -286,6 +287,7 @@ non_empty_assoc_list:
 
 simple_stmt:
         T_NAME '=' expr { Node *t = node_new(c->arena, NODE_ASSIGN, $1, $3); $$ = node_list(c->arena, t, NULL); }
+    |   T_LOCAL T_NAME '=' expr { Node *t = node_new(c->arena, NODE_ASSIGN_LOCAL, $2, $4);printf("OK"); $$ = node_list(c->arena, t, NULL); }
     |   expr '[' expr ']' '=' expr {
             Node *t = node_new(c->arena, NODE_STORE_SUBSCRIPT, NULL, NULL);
             t->nd_left = $1;
