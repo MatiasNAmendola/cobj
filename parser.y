@@ -199,11 +199,10 @@ expr: /* express something */
             $$->nd_params = $3;
         }
     |   expr '[' expr ']' {
-            $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_SUBSCRIPT;
+            $$ = node_new(c->arena, NODE_LOAD_SUBSCRIPT, $1, $3); $$->op = OP_BINARY_SUBSCRIPT;
         }
     |   expr '.' T_NAME {
-            /* TODO */
-            $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_SUBSCRIPT;
+            $$ = node_new(c->arena, NODE_LOAD_DOTSUBSCRIPT, $1, $3); $$->op = OP_BINARY_SUBSCRIPT;
         }
     |   funcliteral opt_param_list stmt_list T_END {
             Node *t = node_new(c->arena, NODE_FUNC, NULL, NULL);
@@ -293,6 +292,13 @@ simple_stmt:
             t->nd_left = $1;
             t->nd_middle = $3;
             t->nd_right = $6;
+            $$ = node_list(c->arena, t, NULL);
+        }
+    |   expr '.' T_NAME '=' expr {
+            Node *t = node_new(c->arena, NODE_STORE_DOTSUBSCRIPT, NULL, NULL);
+            t->nd_left = $1;
+            t->nd_middle = $3;
+            t->nd_right = $5;
             $$ = node_list(c->arena, t, NULL);
         }
     |   T_NAME T_ADD_ASSIGN expr {

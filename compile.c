@@ -424,6 +424,24 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_visit_node(c, n->nd_right);
         compiler_addop(c, OP_STORE_SUBSCRIPT);
         break;
+    case NODE_STORE_DOTSUBSCRIPT:
+        compiler_visit_node(c, n->nd_left);
+        oparg = compiler_add(c->u->u_consts, n->nd_middle->o);
+        compiler_addop_i(c, OP_LOAD_CONST, oparg);
+        compiler_visit_node(c, n->nd_right);
+        compiler_addop(c, OP_STORE_SUBSCRIPT);
+        break;
+    case NODE_LOAD_SUBSCRIPT:
+        compiler_visit_node(c, n->nd_left);
+        compiler_visit_node(c, n->nd_right);
+        compiler_addop(c, n->op);
+        break;
+    case NODE_LOAD_DOTSUBSCRIPT:
+        compiler_visit_node(c, n->nd_left);
+        oparg = compiler_add(c->u->u_consts, n->nd_right->o);
+        compiler_addop_i(c, OP_LOAD_CONST, oparg);
+        compiler_addop(c, n->op);
+        break;
     case NODE_CMP:
         compiler_visit_node(c, n->nd_left);
         compiler_visit_node(c, n->nd_right);
