@@ -148,7 +148,6 @@ new_frame:                     /* reentry point when function call/return */
             x = COList_GetItem(funcargs, 0);
             CO_INCREF(x);
             SETLOCAL(n - i - 1, x);
-            //COObject_set(GETITEM(names, n - i - 1), x);
             COList_DelItem(funcargs, 0);
         }
     }
