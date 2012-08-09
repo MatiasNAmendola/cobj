@@ -76,8 +76,9 @@ COFrame_New(COObject *prev, COObject *func, COObject *locals)
 {
     COCodeObject *code = (COCodeObject *)((COFunctionObject *)
                                           func)->func_code;
-    ssize_t extras;
-    extras = code->co_nlocals + code->co_stacksize;
+    ssize_t extras, nlocals;
+    nlocals = COTuple_Size(code->co_localnames);
+    extras = nlocals + code->co_stacksize;
     COFrameObject *f = COVarObject_NEW(COFrameObject, &COFrame_Type,
                                        extras);
     int i;
@@ -99,7 +100,7 @@ COFrame_New(COObject *prev, COObject *func, COObject *locals)
 
     for (i = 0; i < extras; i++)
         f->f_extraplus[i] = NULL;
-    f->f_stack = f->f_extraplus + code->co_nlocals;
+    f->f_stack = f->f_extraplus + nlocals;
     f->f_stacktop = f->f_stack;
     f->f_iblock = 0;
     return (COObject *)f;

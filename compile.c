@@ -377,6 +377,16 @@ compiler_is_upval(struct compiler *c, COObject *o)
     return is_upval;
 }
 
+static bool
+compiler_is_local(struct compiler *c, COObject *o)
+{
+    if (CODict_GetItem(c->u->u_localnames, o)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 static int
 compiler_visit_node(struct compiler *c, Node *n)
 {
@@ -440,26 +450,28 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop(c, OP_DICT_ADD);
         break;
     case NODE_NAME:
-        {
-            if (compiler_is_upval(c, n->o)) {
-                oparg = compiler_add(c->u->u_upvals, n->o);
-                compiler_addop_i(c, OP_LOAD_UPVAL, oparg);
-            } else {
-                oparg = compiler_add(c->u->u_names, n->o);
-                compiler_addop_i(c, OP_LOAD_NAME, oparg);
-            }
+        if (compiler_is_local(c, n->o)) {
+            oparg = compiler_add(c->u->u_localnames, n->o);
+            compiler_addop_i(c, OP_LOAD_LOCAL, oparg);
+        } else if (compiler_is_upval(c, n->o)) {
+            oparg = compiler_add(c->u->u_upvals, n->o);
+            compiler_addop_i(c, OP_LOAD_UPVAL, oparg);
+        } else {
+            oparg = compiler_add(c->u->u_names, n->o);
+            compiler_addop_i(c, OP_LOAD_NAME, oparg);
         }
         break;
     case NODE_ASSIGN:
-        {
-            compiler_visit_node(c, n->nd_right);
-            if (compiler_is_upval(c, n->nd_left->o)) {
-                oparg = compiler_add(c->u->u_upvals, n->nd_left->o);
-                compiler_addop_i(c, OP_STORE_UPVAL, oparg);
-            } else {
-                oparg = compiler_add(c->u->u_names, n->nd_left->o);
-                compiler_addop_i(c, OP_STORE_NAME, oparg);
-            }
+        compiler_visit_node(c, n->nd_right);
+        if (compiler_is_local(c, n->nd_left->o)) {
+            oparg = compiler_add(c->u->u_localnames, n->nd_left->o);
+            compiler_addop_i(c, OP_STORE_LOCAL, oparg);
+        } else if (compiler_is_upval(c, n->nd_left->o)) {
+            oparg = compiler_add(c->u->u_upvals, n->nd_left->o);
+            compiler_addop_i(c, OP_STORE_UPVAL, oparg);
+        } else {
+            oparg = compiler_add(c->u->u_names, n->nd_left->o);
+            compiler_addop_i(c, OP_STORE_NAME, oparg);
         }
         break;
     case NODE_IF:
@@ -513,7 +525,7 @@ compiler_visit_node(struct compiler *c, Node *n)
         c->u->u_argcount = node_listlen(n->nd_funcargs);
         Node *l = n->nd_funcargs;
         while (l) {
-            oparg = compiler_add(c->u->u_names, l->nd_node->o);
+            oparg = compiler_add(c->u->u_localnames, l->nd_node->o);
             l = l->nd_next;
         }
         compiler_visit_node(c, n->nd_funcbody);
@@ -802,6 +814,7 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_UNARY_NEGATE:
     case OP_UNARY_INVERT:
         return 0;
+    case OP_STORE_LOCAL:
     case OP_STORE_UPVAL:
     case OP_STORE_NAME:
         return -1;
@@ -932,7 +945,6 @@ makecode(struct compiler *c, struct assembler *a)
     COObject *localnames = NULL;
     COObject *upvals = NULL;
     COObject *name = NULL;
-    int nlocals;
 
     // consts
     consts = dict_keys_inorder(c->u->u_consts, 0);
@@ -944,7 +956,6 @@ makecode(struct compiler *c, struct assembler *a)
     localnames = dict_keys_inorder(c->u->u_localnames, 0);
     if (!localnames)
         goto error;
-    nlocals = CODict_Size(c->u->u_localnames);
     upvals = dict_keys_inorder(c->u->u_upvals, 0);
     if (!upvals)
         goto error;
@@ -954,7 +965,7 @@ makecode(struct compiler *c, struct assembler *a)
 
     COObject *co = COCode_New(name, a->a_bytecode,
                               consts, names, localnames, upvals,
-                              c->u->u_argcount, stackdepth(c), nlocals);
+                              c->u->u_argcount, stackdepth(c));
 
 error:
     CO_XDECREF(name);
@@ -1062,6 +1073,13 @@ dump_code(COObject *code)
             printf("\t\t%d", oparg);
             printf(" (");
             COObject_Print(GETITEM(_code->co_upvals, oparg), stdout);
+            printf(")");
+            break;
+        case OP_STORE_LOCAL:
+            oparg = NEXTARG();
+            printf("\t\t%d", oparg);
+            printf(" (");
+            COObject_Print(GETITEM(_code->co_localnames, oparg), stdout);
             printf(")");
             break;
         case OP_CONTINUE_LOOP:

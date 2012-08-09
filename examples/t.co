@@ -1,3 +1,4 @@
+#!./co
 a = "outside a"
 str = "outside str"
 func hello(str)

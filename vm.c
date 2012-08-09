@@ -154,9 +154,9 @@ new_frame:                     /* reentry point when function call/return */
         size_t n = COList_Size(funcargs);
         for (int i = 0; i < n; i++) {
             x = COList_GetItem(funcargs, 0);
-            //CO_INCREF(x);
-            //SETLOCAL(n - i - 1, x);
-            COObject_set(GETITEM(names, n - i - 1), x);
+            CO_INCREF(x);
+            SETLOCAL(n - i - 1, x);
+            //COObject_set(GETITEM(names, n - i - 1), x);
             COList_DelItem(funcargs, 0);
         }
     }
@@ -354,6 +354,11 @@ new_frame:                     /* reentry point when function call/return */
             o2 = POP();
             COCell_Set(o1, o2);
             CO_DECREF(o2);
+            break;
+        case OP_STORE_LOCAL:
+            oparg = NEXTARG();
+            o1 = POP();
+            SETLOCAL(oparg, o1);
             break;
         case OP_JMPZ:
             oparg = NEXTARG();

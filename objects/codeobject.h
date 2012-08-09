@@ -8,7 +8,7 @@
 
 typedef struct _COCodeObject {
     COObject_HEAD;
-    COObject *co_name;
+    COObject *co_name;          /* string, name */
     COObject *co_code;          /* byte object, bytecode */
     COObject *co_consts;        /* tuple, constants */
     COObject *co_names;         /* tuple, all names */
@@ -16,7 +16,6 @@ typedef struct _COCodeObject {
     COObject *co_upvals;        /* tuple, upval names */
     int co_argcount;            /* arguments count */
     int co_stacksize;           /* stack size needed */
-    int co_nlocals;             /* number of local variables */
 } COCodeObject;
 
 COTypeObject COCode_Type;
@@ -25,5 +24,5 @@ COTypeObject COCode_Type;
 
 COObject *COCode_New(COObject *name, COObject *code, COObject *consts,
                      COObject *names, COObject *localnames, COObject *upvals,
-                     int argcount, int stacksize, int nlocals);
+                     int argcount, int stacksize);
 #endif
