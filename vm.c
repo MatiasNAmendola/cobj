@@ -382,11 +382,18 @@ new_frame:                     /* reentry point when function call/return */
             for (int i = 0; i < CO_SIZE(c->co_upvals); i++) {
                 COObject *name = COTuple_GET_ITEM(c->co_upvals, i);
                 COObject *upvalue = COObject_get(name);
-                if (upvalue) {
-                    COObject *cell = COCell_New(upvalue);
-                    COTuple_SET_ITEM(((COFunctionObject *)x)->func_upvalues, i,
-                                     cell);
+                if (!upvalue) {
+                    // local variables 
+                    for (int j = 0; j < COTuple_Size(localnames); j++) {
+                        if (COObject_CompareBool
+                            (COTuple_GET_ITEM(localnames, j), name, Cmp_EQ)) {
+                            upvalue = GETLOCAL(j);
+                        }
+                    }
                 }
+                COObject *cell = COCell_New(upvalue);
+                COTuple_SET_ITEM(((COFunctionObject *)x)->func_upvalues, i,
+                                 cell);
             }
             CO_DECREF(o1);
             PUSH(x);

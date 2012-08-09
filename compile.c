@@ -360,14 +360,16 @@ static bool
 compiler_is_upval(struct compiler *c, COObject *o)
 {
     bool is_upval = false;
-    if (!CODict_GetItem(c->u->u_names, o)) {
+    if (!CODict_GetItem(c->u->u_names, o)
+        || !CODict_GetItem(c->u->u_localnames, o)) {
         ssize_t i = COList_Size(c->stack);
         while (i > 0) {
             COCapsuleObject *capsule =
                 (COCapsuleObject *)COList_GetItem(c->stack, i - 1);
             struct compiler_unit *tmp;
             tmp = (struct compiler_unit *)capsule->pointer;
-            if (CODict_GetItem(tmp->u_names, o)) {
+            if (CODict_GetItem(tmp->u_names, o)
+                || CODict_GetItem(tmp->u_localnames, o)) {
                 is_upval = true;
                 break;
             }
