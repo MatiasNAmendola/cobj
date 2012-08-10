@@ -96,6 +96,24 @@ list_traverse(COListObject *this, visitfunc visit, void *arg)
     return 0;
 }
 
+static COObject *
+list_iter(COObject *seq)
+{
+    COListIterObject *it;
+    if (!COList_Check(seq)) {
+        COErr_BadInternalCall();
+        return NULL;
+    }
+    it = COObject_GC_NEW(COListIterObject, &COListIter_Type);
+    if (!it)
+        return NULL;
+    it->it_index = 0;
+    CO_INCREF(seq);
+    it->it_seq = (COListObject *)seq;
+    COObject_GC_TRACK(it);
+    return (COObject *)it;
+}
+
 static COMappingInterface mapping_interface = {
     (lenfunc)COList_Size,
     (binaryfunc)list_subscript,
@@ -116,6 +134,8 @@ COTypeObject COList_Type = {
     (traversefunc)list_traverse,        /* tp_traverse */
     (inquiryfunc)list_clear,    /* tp_clear */
     0,                          /* tp_call */
+    (getiterfunc)list_iter,     /* tp_iter */
+    0,                          /* tp_iternext */
     0,                          /* tp_int_interface */
     &mapping_interface,         /* tp_mapping_interface */
 };

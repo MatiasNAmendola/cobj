@@ -31,6 +31,8 @@ return_none_node(struct arena *arena)
 %token  T_LOCAL
 %token  T_RETURN
 %token  T_WHILE
+%token  T_FOR
+%token  T_IN
 %token  T_NEWLINE
 %token  T_WHITESPACE
 %token  T_COMMENT
@@ -371,6 +373,13 @@ compound_stmt:
             Node *t = node_new(c->arena, NODE_WHILE, NULL, NULL);
             t->nd_cond = $2;
             t->nd_condbody = $4;
+            $$ = node_list(c->arena, t, NULL);
+        }
+    |   T_FOR T_NAME T_IN expr then stmt_list T_END {
+            Node *t = node_new(c->arena, NODE_FOR, NULL, NULL);
+            t->nd_foritem = $2;
+            t->nd_forlist = $4;
+            t->nd_forbody = $6;
             $$ = node_list(c->arena, t, NULL);
         }
     |   T_FUNC T_NAME opt_param_list stmt_list T_END {

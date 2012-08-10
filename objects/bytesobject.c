@@ -84,6 +84,8 @@ COTypeObject COBytes_Type = {
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_call */
+    0,                          /* tp_iter */
+    0,                          /* tp_iternext */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };

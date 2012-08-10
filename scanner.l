@@ -248,6 +248,15 @@ ANY_CHAR    = [^];
     return T_LOCAL;
 }
 
+<SC_INIT>"for" {
+    return T_FOR;
+}
+
+<SC_INIT>"in" {
+    return T_IN;
+}
+
+
 <SC_INIT>"end" {
     return T_END;
 }

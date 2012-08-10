@@ -85,6 +85,7 @@ node_type(Node_Type type)
         GIVE_NAME(NODE_UNARY);
         GIVE_NAME(NODE_IF);
         GIVE_NAME(NODE_WHILE);
+        GIVE_NAME(NODE_FOR);
         GIVE_NAME(NODE_FUNC);
         GIVE_NAME(NODE_FUNC_CALL);
         GIVE_NAME(NODE_FUNC_CALL_STMT);

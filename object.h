@@ -147,6 +147,8 @@ int COObject_IsTrue(COObject *o);
 int COObject_ParseArgs(COObject *args, ...);
 COObject *COObject_Str(COObject *o);
 COObject *COObject_Call(COObject *func, COObject *args);
+COObject *COObject_GetIter(COObject *o);
+COObject *COObject_GetSelf(COObject *o);
 
 #define CO_RETURN_NONE return CO_INCREF(CO_None), CO_None
 

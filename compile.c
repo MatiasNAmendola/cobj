@@ -537,10 +537,36 @@ compiler_visit_node(struct compiler *c, Node *n)
             compiler_addop_j(c, OP_JMPX, loop_start);
             compiler_use_next_block(c, loop_exit);
             compiler_addop(c, OP_POP_BLOCK);
-
             compiler_pop_fblock(c, FB_LOOP, loop_start);
-
             compiler_use_next_block(c, loop_end);
+        }
+        break;
+    case NODE_FOR:
+        {
+            struct block *start, *end, *cleanup;
+            start = compiler_new_block(c);
+            end = compiler_new_block(c);
+            cleanup = compiler_new_block(c);
+            if (!start || !end || !cleanup)
+                return 0;
+            compiler_addop_j(c, OP_SETUP_LOOP, end);
+
+            if (!compiler_push_fblock(c, FB_LOOP, start))
+                return 0;
+            compiler_visit_node(c, n->nd_forlist);
+            compiler_addop(c, OP_GET_ITER);
+            compiler_use_next_block(c, start);
+            compiler_addop_j(c, OP_FOR_ITER, cleanup);
+
+            oparg = compiler_add(c->u->u_names, n->nd_foritem->o);
+            compiler_addop_i(c, OP_STORE_NAME, oparg);
+
+            compiler_visit_node(c, n->nd_forbody);
+            compiler_addop_j(c, OP_JMPX, start);
+            compiler_use_next_block(c, cleanup);
+            compiler_addop(c, OP_POP_BLOCK);
+            compiler_pop_fblock(c, FB_LOOP, start);
+            compiler_use_next_block(c, end);
         }
         break;
     case NODE_FUNC:
@@ -735,7 +761,8 @@ assembler_jump_offsets(struct assembler *a, struct compiler *c)
                 || instr->i_opcode == OP_JMPZ
                 || instr->i_opcode == OP_SETUP_LOOP
                 || instr->i_opcode == OP_SETUP_TRY
-                || instr->i_opcode == OP_CONTINUE_LOOP) {
+                || instr->i_opcode == OP_CONTINUE_LOOP
+                || instr->i_opcode == OP_FOR_ITER) {
                 // absolutely
                 instr->i_oparg = instr->i_target->b_offset;
             } else {
@@ -885,6 +912,10 @@ opcode_stack_effect(int opcode, int oparg)
         return -1;
     case OP_STORE_SUBSCRIPT:
         return -3;
+    case OP_GET_ITER:
+        return 0;
+    case OP_FOR_ITER:
+        return 1;
     default:
         error("opcode_stack_effect error, opcode: %d\n", opcode);
     }
@@ -1119,6 +1150,7 @@ dump_code(COObject *code)
         case OP_BUILD_TUPLE:
         case OP_BUILD_LIST:
         case OP_DICT_BUILD:
+        case OP_FOR_ITER:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             break;

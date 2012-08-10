@@ -1,0 +1,7 @@
+#!./co
+
+l = [1,2,3,4,"a", "b", "c"]
+
+for i in l
+    print(i)
+end

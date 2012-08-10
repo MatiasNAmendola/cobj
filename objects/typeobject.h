@@ -17,6 +17,8 @@ typedef COObject *(*unaryfunc)(COObject *);
 typedef COObject *(*binaryfunc)(COObject *, COObject *);
 typedef COObject *(*ternaryfunc)(COObject *, COObject *, COObject *);
 typedef ssize_t(*lenfunc) (COObject *);
+typedef COObject *(*getiterfunc)(COObject *);
+typedef COObject *(*iternextfunc)(COObject *);
 /* ! Object Methods */
 
 /* Object Interfaces */
@@ -60,6 +62,8 @@ struct _COTypeObject {
     traversefunc tp_traverse;
     inquiryfunc tp_clear;
     binaryfunc tp_call;
+    getiterfunc tp_iter;
+    iternextfunc tp_iternext;
 
     /* Interfaces for standard types */
     COIntInterface *tp_int_interface;

@@ -45,6 +45,7 @@
 #include "objects/functionobject.h"
 #include "objects/codeobject.h"
 #include "objects/listobject.h"
+#include "objects/listiterobject.h"
 #include "objects/tupleobject.h"
 #include "objects/frameobject.h"
 #include "objects/dictobject.h"

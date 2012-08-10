@@ -531,6 +531,24 @@ new_frame:                     /* reentry point when function call/return */
             CO_DECREF(o2);
             CO_DECREF(o3);
             break;
+        case OP_GET_ITER:
+            o1 = TOP();
+            x = COObject_GetIter(o1);
+            CO_DECREF(o1);
+            SET_TOP(x);
+            break;
+        case OP_FOR_ITER:
+            oparg = NEXTARG();
+            o1 = TOP();
+            x = (*o1->co_type->tp_iternext)(o1);
+            if (x) {
+                PUSH(x);
+                break;
+            }
+            o1 = POP();
+            CO_DECREF(o1);
+            JUMPTO(oparg);
+            break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);
         }

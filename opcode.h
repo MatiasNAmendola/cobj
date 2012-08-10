@@ -47,6 +47,8 @@
 #define OP_LOAD_UPVAL               41
 #define OP_STORE_UPVAL              42
 #define OP_STORE_LOCAL              43
+#define OP_GET_ITER                 44
+#define OP_FOR_ITER                 45
 
 /* OP_CMP's opargs */
 enum Cmp_OpArg {

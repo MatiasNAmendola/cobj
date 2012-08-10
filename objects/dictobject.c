@@ -153,6 +153,8 @@ COTypeObject CODict_Type = {
     (traversefunc)dict_traverse,        /* tp_traverse */
     (inquiryfunc)dict_clear,    /* tp_clear */
     0,                          /* tp_call */
+    0,                          /* tp_iter */
+    0,                          /* tp_iternext */
     0,                          /* tp_int_interface */
     &mapping_interface,         /* tp_mapping_interface */
 };

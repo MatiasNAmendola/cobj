@@ -265,3 +265,24 @@ COObject_Call(COObject *this, COObject *args)
                  this->co_type->tp_name);
     return NULL;
 }
+
+COObject *
+COObject_GetIter(COObject *o)
+{
+    COTypeObject *tp = o->co_type;
+    getiterfunc f = NULL;
+    f = tp->tp_iter;
+    if (f == NULL) {
+        COErr_BadInternalCall();
+        return NULL;
+    } else {
+        COObject *res = (*f)(o);
+        return res;
+    }
+}
+
+COObject *COObject_GetSelf(COObject *o)
+{
+    CO_INCREF(o);
+    return o;
+}

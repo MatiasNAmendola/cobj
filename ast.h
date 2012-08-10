@@ -20,6 +20,7 @@ typedef enum {
     NODE_UNARY,
     NODE_IF,
     NODE_WHILE,
+    NODE_FOR,
     NODE_FUNC,
     NODE_FUNC_CALL,
     NODE_FUNC_CALL_STMT,
@@ -93,6 +94,13 @@ typedef struct _Node {
 #define nd_cond     n1
 #define nd_condbody n2
 #define nd_condelse n3
+
+/*
+ * NODE_FOR
+ */
+#define nd_foritem     n1
+#define nd_forlist     n2
+#define nd_forbody     n3
 
 /*
  * NODE_FUNC
