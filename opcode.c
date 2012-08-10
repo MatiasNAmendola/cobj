@@ -22,7 +22,6 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_UNARY_INVERT);
         GIVE_NAME(OP_CMP);
         GIVE_NAME(OP_STORE_NAME);
-        GIVE_NAME(OP_PRINT);
         GIVE_NAME(OP_JMPZ);
         GIVE_NAME(OP_JMP);
         GIVE_NAME(OP_JMPX);

@@ -401,10 +401,6 @@ compiler_visit_node(struct compiler *c, Node *n)
             compiler_visit_node(c, n->nd_node);
         }
         break;
-    case NODE_PRINT:
-        compiler_visit_node(c, n->nd_left);
-        compiler_addop(c, OP_PRINT);
-        break;
     case NODE_RETURN:
         compiler_visit_node(c, n->nd_left);
         compiler_addop(c, OP_RETURN);
@@ -868,8 +864,6 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_STORE_LOCAL:
     case OP_STORE_UPVAL:
     case OP_STORE_NAME:
-        return -1;
-    case OP_PRINT:
         return -1;
     case OP_JMPZ:
         return -1;

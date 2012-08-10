@@ -59,7 +59,6 @@ return_none_node(struct arena *arena)
 %left   '*' '/' '%'
 %left   T_SR T_SL T_POW
 %right  '[' '{'
-%right  T_PRINT
 %left   UNARY_OP
 %nonassoc '.'
 
@@ -350,7 +349,6 @@ simple_stmt:
     |   T_THROW expr {
             $$ = node_list(c->arena, node_new(c->arena, NODE_THROW, $2, 0), NULL);
         }
-    |   T_PRINT expr { Node *t = node_new(c->arena, NODE_PRINT, $2, NULL); $$ = node_list(c->arena, t, NULL); }
     |   expr '(' expr_list ')' {
             $$ = node_new(c->arena, NODE_FUNC_CALL_STMT, NULL, NULL);
             $$->nd_func = $1;

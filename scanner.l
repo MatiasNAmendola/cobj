@@ -261,10 +261,6 @@ ANY_CHAR    = [^];
     return T_END;
 }
 
-<SC_INIT>"puts" {
-    return T_PRINT;
-}
-
 <SC_INIT>"return" {
     return T_RETURN;
 }

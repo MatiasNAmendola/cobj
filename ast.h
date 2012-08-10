@@ -29,7 +29,6 @@ typedef enum {
     NODE_NAME,
     NODE_ASSIGN,
     NODE_ASSIGN_LOCAL,
-    NODE_PRINT,
     NODE_TUPLE,
     NODE_LIST,
     NODE_DICT_BUILD,

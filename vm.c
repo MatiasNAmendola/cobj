@@ -287,11 +287,6 @@ new_frame:                     /* reentry point when function call/return */
             CO_INCREF(x);
             PUSH(x);
             break;
-        case OP_PRINT:
-            x = POP();
-            COObject_Print(x, stdout);
-            CO_DECREF(x);
-            break;
         case OP_BUILD_TUPLE:
             oparg = NEXTARG();
             x = COTuple_New(oparg);
