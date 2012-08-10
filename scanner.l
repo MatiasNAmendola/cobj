@@ -285,8 +285,8 @@ ANY_CHAR    = [^];
     return T_FINALLY;
 }
 
-<SC_INIT>"then" {
-    return T_THEN;
+<SC_INIT>"do" {
+    return T_DO;
 }
 
 <SC_INIT>"None" {

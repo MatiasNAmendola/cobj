@@ -42,7 +42,7 @@ return_none_node(struct arena *arena)
 %token  T_CATCH
 %token  T_FINALLY
 %token  T_END
-%token  T_THEN
+%token  T_DO
 %token  T_BREAK
 %token  T_CONTINUE
 %token  <node> T_NONE
@@ -137,13 +137,13 @@ opt_stmt_terms:
 ;
 
 /*
- * `then` is nessary to distinguish expr with following statements, cuz expr can
- * also be statement. e.g. if `then` is omit, there is reduce/reduce conflict in
+ * `do_or_newline` is nessary to distinguish expr with following statements, cuz expr can
+ * also be statement. e.g. if `do_or_newline` is omit, there is reduce/reduce conflict in
  * stmt: if a - b end.
  */
-then:
+do_or_newline:
         T_NEWLINE
-    |   T_THEN
+    |   T_DO
 ;
 
 funcliteral:
@@ -362,20 +362,20 @@ simple_stmt:
 ;
 
 compound_stmt:
-        T_IF expr then stmt_list if_tail T_END {
+        T_IF expr do_or_newline stmt_list if_tail T_END {
             Node *t = node_new(c->arena, NODE_IF, NULL, NULL);
             t->nd_cond = $2;
             t->nd_condbody = $4;
             t->nd_condelse = $5;
             $$ = node_list(c->arena, t, NULL);
         }
-    |   T_WHILE expr then stmt_list T_END {
+    |   T_WHILE expr do_or_newline stmt_list T_END {
             Node *t = node_new(c->arena, NODE_WHILE, NULL, NULL);
             t->nd_cond = $2;
             t->nd_condbody = $4;
             $$ = node_list(c->arena, t, NULL);
         }
-    |   T_FOR T_NAME T_IN expr then stmt_list T_END {
+    |   T_FOR T_NAME T_IN expr do_or_newline stmt_list T_END {
             Node *t = node_new(c->arena, NODE_FOR, NULL, NULL);
             t->nd_foritem = $2;
             t->nd_forlist = $4;
@@ -411,7 +411,7 @@ opt_finally_block:
 ;
 
 catch_block:
-        T_CATCH expr_list_inline then stmt_list {
+        T_CATCH expr_list_inline do_or_newline stmt_list {
             $$ = node_new(c->arena, NODE_CATCH, NULL, NULL);
             $$->nd_catchname = $2;
             $$->nd_catchbody = $4;
@@ -454,7 +454,7 @@ opt_else:
 
 if_tail:
        opt_else
-    |  T_ELIF expr then stmt_list if_tail {
+    |  T_ELIF expr do_or_newline stmt_list if_tail {
             Node *t = node_new(c->arena, NODE_IF, NULL, NULL);
             t->nd_cond = $2;
             t->nd_condbody = $4;

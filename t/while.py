@@ -25,7 +25,7 @@ test_expect_result(r"""1
 i = 1
 
 while i < 10 
-    if i == 4 then break end
+    if i == 4 do break end
     print(i)
     i += 1
 end
@@ -44,7 +44,7 @@ i = 1
 
 while i < 10 
     i += 1
-    if i == 4 then continue end
+    if i == 4 do continue end
     print(i)
 end
 ''')
