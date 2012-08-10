@@ -6,7 +6,7 @@
 typedef struct _COListIterObject {
     COObject_HEAD;
     long it_index;
-    COListObject *it_seq;   /* Set to NULL when iterator is exhausted. */
+    COListObject *it_seq;       /* Set to NULL when iterator is exhausted. */
 } COListIterObject;
 
 COTypeObject COListIter_Type;

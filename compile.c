@@ -410,13 +410,13 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop(c, OP_RETURN);
         break;
     case NODE_CONST:
-        oparg = compiler_add(c->u->u_consts, n->o);
+        oparg = compiler_add(c->u->u_consts, n->u.o);
         compiler_addop_i(c, OP_LOAD_CONST, oparg);
         break;
     case NODE_BIN:
         compiler_visit_node(c, n->nd_left);
         compiler_visit_node(c, n->nd_right);
-        compiler_addop(c, n->op);
+        compiler_addop(c, n->u.op);
         break;
     case NODE_STORE_SUBSCRIPT:
         compiler_visit_node(c, n->nd_left);
@@ -426,7 +426,7 @@ compiler_visit_node(struct compiler *c, Node *n)
         break;
     case NODE_STORE_DOTSUBSCRIPT:
         compiler_visit_node(c, n->nd_left);
-        oparg = compiler_add(c->u->u_consts, n->nd_middle->o);
+        oparg = compiler_add(c->u->u_consts, n->nd_middle->u.o);
         compiler_addop_i(c, OP_LOAD_CONST, oparg);
         compiler_visit_node(c, n->nd_right);
         compiler_addop(c, OP_STORE_SUBSCRIPT);
@@ -434,22 +434,22 @@ compiler_visit_node(struct compiler *c, Node *n)
     case NODE_LOAD_SUBSCRIPT:
         compiler_visit_node(c, n->nd_left);
         compiler_visit_node(c, n->nd_right);
-        compiler_addop(c, n->op);
+        compiler_addop(c, n->u.op);
         break;
     case NODE_LOAD_DOTSUBSCRIPT:
         compiler_visit_node(c, n->nd_left);
-        oparg = compiler_add(c->u->u_consts, n->nd_right->o);
+        oparg = compiler_add(c->u->u_consts, n->nd_right->u.o);
         compiler_addop_i(c, OP_LOAD_CONST, oparg);
-        compiler_addop(c, n->op);
+        compiler_addop(c, n->u.op);
         break;
     case NODE_CMP:
         compiler_visit_node(c, n->nd_left);
         compiler_visit_node(c, n->nd_right);
-        compiler_addop_i(c, OP_CMP, n->oparg);
+        compiler_addop_i(c, OP_CMP, n->u.oparg);
         break;
     case NODE_UNARY:
         compiler_visit_node(c, n->nd_left);
-        compiler_addop(c, n->op);
+        compiler_addop(c, n->u.op);
         break;
     case NODE_TUPLE:
         compiler_visit_node(c, n->nd_list);
@@ -469,33 +469,33 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop(c, OP_DICT_ADD);
         break;
     case NODE_NAME:
-        if (compiler_is_local(c, n->o)) {
-            oparg = compiler_add(c->u->u_localnames, n->o);
+        if (compiler_is_local(c, n->u.o)) {
+            oparg = compiler_add(c->u->u_localnames, n->u.o);
             compiler_addop_i(c, OP_LOAD_LOCAL, oparg);
-        } else if (compiler_is_upval(c, n->o)) {
-            oparg = compiler_add(c->u->u_upvals, n->o);
+        } else if (compiler_is_upval(c, n->u.o)) {
+            oparg = compiler_add(c->u->u_upvals, n->u.o);
             compiler_addop_i(c, OP_LOAD_UPVAL, oparg);
         } else {
-            oparg = compiler_add(c->u->u_names, n->o);
+            oparg = compiler_add(c->u->u_names, n->u.o);
             compiler_addop_i(c, OP_LOAD_NAME, oparg);
         }
         break;
     case NODE_ASSIGN:
         compiler_visit_node(c, n->nd_right);
-        if (compiler_is_local(c, n->nd_left->o)) {
-            oparg = compiler_add(c->u->u_localnames, n->nd_left->o);
+        if (compiler_is_local(c, n->nd_left->u.o)) {
+            oparg = compiler_add(c->u->u_localnames, n->nd_left->u.o);
             compiler_addop_i(c, OP_STORE_LOCAL, oparg);
-        } else if (compiler_is_upval(c, n->nd_left->o)) {
-            oparg = compiler_add(c->u->u_upvals, n->nd_left->o);
+        } else if (compiler_is_upval(c, n->nd_left->u.o)) {
+            oparg = compiler_add(c->u->u_upvals, n->nd_left->u.o);
             compiler_addop_i(c, OP_STORE_UPVAL, oparg);
         } else {
-            oparg = compiler_add(c->u->u_names, n->nd_left->o);
+            oparg = compiler_add(c->u->u_names, n->nd_left->u.o);
             compiler_addop_i(c, OP_STORE_NAME, oparg);
         }
         break;
     case NODE_ASSIGN_LOCAL:
         compiler_visit_node(c, n->nd_right);
-        oparg = compiler_add(c->u->u_localnames, n->nd_left->o);
+        oparg = compiler_add(c->u->u_localnames, n->nd_left->u.o);
         compiler_addop_i(c, OP_STORE_LOCAL, oparg);
         break;
     case NODE_IF:
@@ -558,7 +558,7 @@ compiler_visit_node(struct compiler *c, Node *n)
             compiler_use_next_block(c, start);
             compiler_addop_j(c, OP_FOR_ITER, cleanup);
 
-            oparg = compiler_add(c->u->u_names, n->nd_foritem->o);
+            oparg = compiler_add(c->u->u_names, n->nd_foritem->u.o);
             compiler_addop_i(c, OP_STORE_NAME, oparg);
 
             compiler_visit_node(c, n->nd_forbody);
@@ -575,7 +575,7 @@ compiler_visit_node(struct compiler *c, Node *n)
         c->u->u_argcount = node_listlen(n->nd_funcargs);
         Node *l = n->nd_funcargs;
         while (l) {
-            oparg = compiler_add(c->u->u_localnames, l->nd_node->o);
+            oparg = compiler_add(c->u->u_localnames, l->nd_node->u.o);
             l = l->nd_next;
         }
         compiler_visit_node(c, n->nd_funcbody);
@@ -592,7 +592,7 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop(c, OP_DECLARE_FUNCTION);
 
         if (n->nd_funcname) {
-            oparg = compiler_add(c->u->u_names, n->nd_funcname->o);
+            oparg = compiler_add(c->u->u_names, n->nd_funcname->u.o);
             compiler_addop_i(c, OP_STORE_NAME, oparg);
         }
         break;

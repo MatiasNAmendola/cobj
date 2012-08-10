@@ -211,16 +211,16 @@ ANY_CHAR    = [^];
     char c = yytext[yyleng];
     yytext[yyleng] = '\0';
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
-    yylval->node->o = COInt_FromString(yytext, NULL, 0);
-    arena_addobject(scanner_globals.arena, yylval->node->o);
+    yylval->node->u.o = COInt_FromString(yytext, NULL, 0);
+    arena_addobject(scanner_globals.arena, yylval->node->u.o);
     yytext[yyleng] = c;
     return T_NUM;
 }
 
 <SC_INIT>FNUM {
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
-    yylval->node->o = COFloat_FromString(yytext);
-    arena_addobject(scanner_globals.arena, yylval->node->o);
+    yylval->node->u.o = COFloat_FromString(yytext);
+    arena_addobject(scanner_globals.arena, yylval->node->u.o);
     return T_FNUM;
 }
 
@@ -291,19 +291,19 @@ ANY_CHAR    = [^];
 
 <SC_INIT>"None" {
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
-    yylval->node->o = CO_None;
+    yylval->node->u.o = CO_None;
     return T_NONE;
 }
 
 <SC_INIT>"True" {
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
-    yylval->node->o = CO_True;
+    yylval->node->u.o = CO_True;
     return T_BOOL;
 }
 
 <SC_INIT>"False" {
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
-    yylval->node->o = CO_False;
+    yylval->node->u.o = CO_False;
     return T_BOOL;
 }
 
@@ -330,9 +330,9 @@ ANY_CHAR    = [^];
         }
     }
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
-    yylval->node->o = COStr_FromStringN(yytext + 1, yyleng - 2);
-    co_scan_doublequoted_string((COStrObject *)yylval->node->o);
-    arena_addobject(scanner_globals.arena, yylval->node->o);
+    yylval->node->u.o = COStr_FromStringN(yytext + 1, yyleng - 2);
+    co_scan_doublequoted_string((COStrObject *)yylval->node->u.o);
+    arena_addobject(scanner_globals.arena, yylval->node->u.o);
     return T_STRING;
 }
 
@@ -350,16 +350,16 @@ ANY_CHAR    = [^];
         }
     } 
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
-    yylval->node->o = COStr_FromStringN(yytext + 1, yyleng -2);
-    co_scan_singlequoted_string((COStrObject *)yylval->node->o);
-    arena_addobject(scanner_globals.arena, yylval->node->o);
+    yylval->node->u.o = COStr_FromStringN(yytext + 1, yyleng -2);
+    co_scan_singlequoted_string((COStrObject *)yylval->node->u.o);
+    arena_addobject(scanner_globals.arena, yylval->node->u.o);
     return T_STRING;
 }
 
 <SC_INIT>NAME {
     yylval->node = node_new(scanner_globals.arena, NODE_NAME, NULL, NULL);
-    yylval->node->o = COStr_FromStringN(yytext, yyleng);
-    arena_addobject(scanner_globals.arena, yylval->node->o);
+    yylval->node->u.o = COStr_FromStringN(yytext, yyleng);
+    arena_addobject(scanner_globals.arena, yylval->node->u.o);
     return T_NAME;
 }
 

@@ -45,9 +45,11 @@ typedef struct _Node {
     Node_Type type;
 
     /* Associated data */
-    unsigned char op;
-    int oparg;
-    COObject *o;
+    union {
+        unsigned char op;
+        int oparg;
+        COObject *o;
+    } u;
 
     struct _Node *n1;
     struct _Node *n2;

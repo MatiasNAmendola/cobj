@@ -5,7 +5,7 @@ static Node *
 return_none_node(struct arena *arena)
 {
     Node *n = node_new(arena, NODE_CONST, NULL, NULL);
-    n->o = CO_None;
+    n->u.o = CO_None;
     return node_new(arena, NODE_RETURN, n, NULL);
 }
 
@@ -158,26 +158,26 @@ expr: /* express something */
     |   T_NUM
     |   T_FNUM
     |    '(' opt_newlines expr opt_newlines ')' { $$ = $3; }
-    |   expr '+' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_ADD; }
-    |   expr '-' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_SUB; }
-    |   expr '*' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_MUL; }
-    |   expr '/' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_DIV; }
-    |   expr '%' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_MOD; }
-    |   expr '<' expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->oparg = Cmp_LT; }
-    |   expr '>' expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->oparg = Cmp_GT; }
-    |   expr T_EQUAL expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->oparg = Cmp_EQ; }
-    |   expr T_NOT_EQUAL expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->oparg =
+    |   expr '+' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_ADD; }
+    |   expr '-' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_SUB; }
+    |   expr '*' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_MUL; }
+    |   expr '/' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_DIV; }
+    |   expr '%' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_MOD; }
+    |   expr '<' expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg = Cmp_LT; }
+    |   expr '>' expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg = Cmp_GT; }
+    |   expr T_EQUAL expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg = Cmp_EQ; }
+    |   expr T_NOT_EQUAL expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg =
     Cmp_NE; }
     |   expr T_SMALLER_OR_EQUAL expr { $$ = node_new(c->arena, NODE_CMP, $1, $3);
-    $$->oparg = Cmp_LE; }
+    $$->u.oparg = Cmp_LE; }
     |   expr T_GREATER_OR_EQUAL expr { $$ = node_new(c->arena, NODE_CMP, $1, $3);
-    $$->oparg = Cmp_GE; }
-    |   expr T_SL expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_SL; }
-    |   expr T_SR expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_SR; }
-    |   expr T_POW expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->op = OP_BINARY_POW; }
-    |   '-' expr %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->op =
+    $$->u.oparg = Cmp_GE; }
+    |   expr T_SL expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_SL; }
+    |   expr T_SR expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_SR; }
+    |   expr T_POW expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_POW; }
+    |   '-' expr %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->u.op =
     OP_UNARY_NEGATE; }
-    |   '~' expr %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->op =
+    |   '~' expr %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->u.op =
     OP_UNARY_INVERT; }
     |  '(' opt_newlines expr opt_newlines ',' opt_newlines ')' { 
             $$ = node_new(c->arena, NODE_TUPLE, NULL, NULL);
@@ -201,10 +201,10 @@ expr: /* express something */
             $$->nd_params = $3;
         }
     |   expr '[' expr ']' {
-            $$ = node_new(c->arena, NODE_LOAD_SUBSCRIPT, $1, $3); $$->op = OP_BINARY_SUBSCRIPT;
+            $$ = node_new(c->arena, NODE_LOAD_SUBSCRIPT, $1, $3); $$->u.op = OP_BINARY_SUBSCRIPT;
         }
     |   expr '.' T_NAME {
-            $$ = node_new(c->arena, NODE_LOAD_DOTSUBSCRIPT, $1, $3); $$->op = OP_BINARY_SUBSCRIPT;
+            $$ = node_new(c->arena, NODE_LOAD_DOTSUBSCRIPT, $1, $3); $$->u.op = OP_BINARY_SUBSCRIPT;
         }
     |   funcliteral opt_param_list stmt_list T_END {
             Node *t = node_new(c->arena, NODE_FUNC, NULL, NULL);
@@ -305,37 +305,37 @@ simple_stmt:
         }
     |   T_NAME T_ADD_ASSIGN expr {
             Node *t;
-            t = node_new(c->arena, NODE_BIN, $1, $3); t->op = OP_BINARY_ADD;
+            t = node_new(c->arena, NODE_BIN, $1, $3); t->u.op = OP_BINARY_ADD;
             $$ = node_list(c->arena, node_new(c->arena, NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_SUB_ASSIGN expr  {
             Node *t;
-            t = node_new(c->arena, NODE_BIN, $1, $3); t->op = OP_BINARY_SUB;
+            t = node_new(c->arena, NODE_BIN, $1, $3); t->u.op = OP_BINARY_SUB;
             $$ = node_list(c->arena, node_new(c->arena, NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_MUL_ASSIGN expr  {
             Node *t;
-            t = node_new(c->arena, NODE_BIN, $1, $3); t->op = OP_BINARY_MUL;
+            t = node_new(c->arena, NODE_BIN, $1, $3); t->u.op = OP_BINARY_MUL;
             $$ = node_list(c->arena, node_new(c->arena, NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_DIV_ASSIGN expr  {
             Node *t;
-            t = node_new(c->arena, NODE_BIN, $1, $3); t->op = OP_BINARY_DIV;
+            t = node_new(c->arena, NODE_BIN, $1, $3); t->u.op = OP_BINARY_DIV;
             $$ = node_list(c->arena, node_new(c->arena, NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_MOD_ASSIGN expr {
             Node *t;
-            t = node_new(c->arena, NODE_BIN, $1, $3); t->op = OP_BINARY_MOD;
+            t = node_new(c->arena, NODE_BIN, $1, $3); t->u.op = OP_BINARY_MOD;
             $$ = node_list(c->arena, node_new(c->arena, NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_SR_ASSIGN expr {
             Node *t;
-            t = node_new(c->arena, NODE_BIN, $1, $3); t->op = OP_BINARY_SR;
+            t = node_new(c->arena, NODE_BIN, $1, $3); t->u.op = OP_BINARY_SR;
             $$ = node_list(c->arena, node_new(c->arena, NODE_ASSIGN, $1, t), NULL);
         }
     |   T_NAME T_SL_ASSIGN expr {
             Node *t;
-            t = node_new(c->arena, NODE_BIN, $1, $3); t->op = OP_BINARY_SL;
+            t = node_new(c->arena, NODE_BIN, $1, $3); t->u.op = OP_BINARY_SL;
             $$ = node_list(c->arena, node_new(c->arena, NODE_ASSIGN, $1, t), NULL);
         }
     |   T_BREAK {

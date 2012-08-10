@@ -276,12 +276,13 @@ COObject_GetIter(COObject *o)
         COErr_BadInternalCall();
         return NULL;
     } else {
-        COObject *res = (*f)(o);
+        COObject *res = (*f) (o);
         return res;
     }
 }
 
-COObject *COObject_GetSelf(COObject *o)
+COObject *
+COObject_GetSelf(COObject *o)
 {
     CO_INCREF(o);
     return o;

@@ -58,16 +58,16 @@ COTypeObject COListIter_Type = {
     0,
     0,
     0,                          /* tp_make */
-    (deallocfunc)listiter_dealloc,  /* tp_dealloc */
-    (reprfunc)listiter_repr,        /* tp_repr */
+    (deallocfunc)listiter_dealloc,      /* tp_dealloc */
+    (reprfunc)listiter_repr,    /* tp_repr */
     0,                          /* tp_print */
     0,                          /* tp_hash */
     0,                          /* tp_compare */
-    (traversefunc)listiter_traverse,        /* tp_traverse */
-    (inquiryfunc)listiter_clear,    /* tp_clear */
+    (traversefunc)listiter_traverse,    /* tp_traverse */
+    (inquiryfunc)listiter_clear,        /* tp_clear */
     0,                          /* tp_call */
-    (getiterfunc)COObject_GetSelf,  /* tp_iter */
-    (iternextfunc)listiter_next,    /* tp_iternext */
+    (getiterfunc)COObject_GetSelf,      /* tp_iter */
+    (iternextfunc)listiter_next,        /* tp_iternext */
     0,                          /* tp_int_interface */
     0,                          /* tp_mapping_interface */
 };
