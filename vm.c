@@ -158,10 +158,21 @@ new_frame:                     /* reentry point when function call/return */
         case OP_BINARY_ADD:
             o1 = POP();
             o2 = TOP();
-            x = COInt_Type.tp_int_interface->int_add(o1, o2);
-            CO_DECREF(o1);
+            if (COStr_Check(o1) && COStr_Check(o2)) {
+                COStr_Concat(&o2, o1);
+                x = o2;
+                goto skip_decref_o2;
+            } else {
+                x = COInt_Type.tp_int_interface->int_add(o1, o2);
+            }
             CO_DECREF(o2);
+skip_decref_o2:
+            CO_DECREF(o1);
             SET_TOP(x);
+            if (!x) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
             break;
         case OP_BINARY_SUB:
             o1 = POP();

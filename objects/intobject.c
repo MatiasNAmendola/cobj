@@ -46,6 +46,17 @@ bits_in_digit(digit d)
     return d_bits;
 }
 
+#define CHECK_BINOP(v, w, op)                                               \
+    do {                                                                    \
+        if (!COInt_Check(v) || !COInt_Check(w)) {                           \
+            COErr_Format(COException_UndefinedError,                        \
+                         "undefined binary operation: %.100s() %s %.100s()",\
+                         ((COObject *)v)->co_type->tp_name, op,             \
+                         ((COObject *)w)->co_type->tp_name);                \
+            return NULL;                                                    \
+        }                                                                   \
+    } while (0)
+
 /*
  * Small integers are preallocated in this array so that they can be shared.
  *
@@ -722,6 +733,7 @@ x_divrem(COIntObject *v1, COIntObject *w1, COIntObject **prem)
 static COIntObject *
 int_add(COIntObject *a, COIntObject *b)
 {
+    CHECK_BINOP(a, b, "+");
     COIntObject *o;
 
     if (ABS(CO_SIZE(a)) <= 1 && ABS(CO_SIZE(b)) <= 1) {
@@ -750,6 +762,7 @@ int_add(COIntObject *a, COIntObject *b)
 static COIntObject *
 int_sub(COIntObject *a, COIntObject *b)
 {
+    CHECK_BINOP(a, b, "-");
     COIntObject *o;
 
     if (ABS(CO_SIZE(a)) <= 1 && ABS(CO_SIZE(b)) <= 1) {
@@ -778,6 +791,7 @@ int_sub(COIntObject *a, COIntObject *b)
 static COIntObject *
 int_mul(COIntObject *a, COIntObject *b)
 {
+    CHECK_BINOP(a, b, "*");
     COIntObject *o;
 
     o = x_mul(a, b);
