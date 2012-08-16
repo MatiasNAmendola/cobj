@@ -384,19 +384,19 @@ COTypeObject COStr_Type = {
     COStr_BASESIZE,
     sizeof(char),
     0,
-    (newfunc)str_new,         /* tp_new               */
-    (deallocfunc)str_dealloc, /* tp_dealloc           */
-    (reprfunc)str_repr,       /* tp_repr              */
-    (printfunc)str_print,     /* tp_print             */
-    (hashfunc)str_hash,       /* tp_hash              */
-    (comparefunc)str_compare, /* tp_compare           */
-    0,                        /* tp_traverse          */
-    0,                        /* tp_clear             */
-    0,                        /* tp_call              */
-    0,                        /* tp_iter              */
-    0,                        /* tp_iternext          */
-    0,                        /* tp_int_interface     */
-    0,                        /* tp_mapping_interface */
+    (newfunc)str_new,           /* tp_new               */
+    (deallocfunc)str_dealloc,   /* tp_dealloc           */
+    (reprfunc)str_repr,         /* tp_repr              */
+    (printfunc)str_print,       /* tp_print             */
+    (hashfunc)str_hash,         /* tp_hash              */
+    (comparefunc)str_compare,   /* tp_compare           */
+    0,                          /* tp_traverse          */
+    0,                          /* tp_clear             */
+    0,                          /* tp_call              */
+    0,                          /* tp_iter              */
+    0,                          /* tp_iternext          */
+    0,                          /* tp_int_interface     */
+    0,                          /* tp_mapping_interface */
 };
 
 char *

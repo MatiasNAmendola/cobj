@@ -44,7 +44,7 @@ COTypeObject COType_Type = {
     sizeof(COTypeObject),
     0,
     0,
-    (newfunc)type_make,        /* tp_new */
+    (newfunc)type_make,         /* tp_new */
     (deallocfunc)type_dealloc,  /* tp_dealloc */
     (reprfunc)type_repr,        /* tp_repr */
     0,                          /* tp_print */
