@@ -1,3 +1,4 @@
+* implement range function and rangeobject
 * error message with location
 * dict as module
 * implement keyword `this` whict is used to refer current context (module/function, etc)
