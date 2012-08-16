@@ -49,7 +49,7 @@ COTypeObject CORange_Type = {
     sizeof(CORangeObject),
     0,
     0,
-    0,                          /* tp_make              */
+    0,                          /* tp_new              */
     (deallocfunc)range_dealloc, /* tp_dealloc           */
     (reprfunc)range_repr,       /* tp_repr              */
     0,                          /* tp_print             */

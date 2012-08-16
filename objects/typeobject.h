@@ -4,7 +4,7 @@
 #include "../object.h"
 
 /* Object Methods */
-typedef COObject *(*makefunc)(COTypeObject *, COObject *);
+typedef COObject *(*newfunc)(COTypeObject *, COObject *);
 typedef void (*deallocfunc) (COObject *);
 typedef COObject *(*reprfunc)(COObject *);
 typedef int (*printfunc) (COObject *, FILE *);
@@ -53,7 +53,7 @@ struct _COTypeObject {
     int tp_flags;               /* Flags to define optional/expanded features */
 
     /* Basic Methods  */
-    makefunc tp_make;
+    newfunc tp_new;
     deallocfunc tp_dealloc;
     reprfunc tp_repr;
     printfunc tp_print;

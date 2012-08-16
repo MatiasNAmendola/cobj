@@ -18,13 +18,13 @@ static COObject *
 type_call(COTypeObject *type, COObject *args)
 {
     COObject *o;
-    if (!type->tp_make) {
+    if (!type->tp_new) {
         COErr_Format(COException_TypeError, "cannot make '%.100s' instance",
                      type->tp_name);
         return NULL;
     }
 
-    o = type->tp_make(type, args);
+    o = type->tp_new(type, args);
     return o;
 }
 
@@ -44,7 +44,7 @@ COTypeObject COType_Type = {
     sizeof(COTypeObject),
     0,
     0,
-    (makefunc)type_make,        /* tp_make */
+    (newfunc)type_make,        /* tp_new */
     (deallocfunc)type_dealloc,  /* tp_dealloc */
     (reprfunc)type_repr,        /* tp_repr */
     0,                          /* tp_print */

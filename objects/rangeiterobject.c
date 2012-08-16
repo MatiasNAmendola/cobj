@@ -14,7 +14,7 @@ COTypeObject CORangeIter_Type = {
     sizeof(CORangeIterObject),
     0,
     0,
-    0,                              /* tp_make              */
+    0,                              /* tp_new              */
     (deallocfunc)COObject_Mem_FREE, /* tp_dealloc           */
     (reprfunc)rangeiter_repr,       /* tp_repr              */
     0,                              /* tp_print             */

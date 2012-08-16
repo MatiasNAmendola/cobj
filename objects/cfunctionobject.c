@@ -20,7 +20,7 @@ COTypeObject COCFunction_Type = {
     sizeof(COCFunctionObject),
     0,
     0,
-    0,                          /* tp_make */
+    0,                          /* tp_new */
     (deallocfunc)cfunction_dealloc,     /* tp_dealloc */
     (reprfunc)cfunction_repr,   /* tp_repr */
     0,                          /* tp_print */

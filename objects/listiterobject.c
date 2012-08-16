@@ -57,7 +57,7 @@ COTypeObject COListIter_Type = {
     sizeof(COListIterObject),
     0,
     0,
-    0,                          /* tp_make */
+    0,                          /* tp_new */
     (deallocfunc)listiter_dealloc,      /* tp_dealloc */
     (reprfunc)listiter_repr,    /* tp_repr */
     0,                          /* tp_print */
