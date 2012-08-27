@@ -58,6 +58,7 @@
 #include "objects/cellobject.h"
 #include "objects/rangeobject.h"
 #include "objects/rangeiterobject.h"
+#include "objects/setobject.h"
 
 #include "argparse/argparse.h"
 #include "linenoise/linenoise.h"
