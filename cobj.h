@@ -1,5 +1,5 @@
-#ifndef CO_H
-#define CO_H
+#ifndef COBJ_H
+#define COBJ_H
 /*
  * Cache for header files for simplicity.
  *
@@ -58,7 +58,7 @@
 #include "objects/cellobject.h"
 #include "objects/rangeobject.h"
 #include "objects/rangeiterobject.h"
-//#include "objects/setobject.h"
+#include "objects/setobject.h"
 
 #include "argparse/argparse.h"
 #include "linenoise/linenoise.h"

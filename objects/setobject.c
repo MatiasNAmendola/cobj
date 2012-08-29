@@ -9,7 +9,6 @@ static COObject *dummy = NULL;
 #define INIT_NONZERO_SET_SLOTS(so) do {                         \
     (so)->table = (so)->smalltable;                             \
     (so)->mask = COSet_MINSIZE - 1;                             \
-    (so)->hash = -1;                                            \
     } while(0)
 
 #define EMPTY_TO_MINSIZE(so) do {                               \

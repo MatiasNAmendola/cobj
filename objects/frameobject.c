@@ -64,6 +64,7 @@ COFrame_Init(void)
         CODict_SetItemString(builtins, "type", (COObject *)&COType_Type);
         CODict_SetItemString(builtins, "str", (COObject *)&COStr_Type);
         CODict_SetItemString(builtins, "range", (COObject *)&CORange_Type);
+        CODict_SetItemString(builtins, "set", (COObject *)&COSet_Type);
     }
     return 0;
 }

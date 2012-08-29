@@ -1,7 +1,7 @@
 #ifndef OBJECTS_SETOBJECT_H
 #define OBJECTS_SETOBJECT_H
 /**
- * Set/Frozenset objects.
+ * Set object.
  */
 
 #include "../object.h"
@@ -32,16 +32,6 @@ typedef struct _COSetObject {
     struct setentry *table;
     struct setentry *(*lookup)(struct _COSetObject *so, COObject *key, long hash);
     struct setentry smalltable[COSet_MINSIZE];
-
-    /*
-     * Invariants of frozensets:
-     *  data is immutable
-     *  hash is the hash of the fronzenset or -1 if not computed yet
-     *
-     * Invariants of sets:
-     *  hash is -1
-     */
-    long hash;  /* only used by fronzeset objects */
 } COSetObject;
 
 COTypeObject COSet_Type;
@@ -54,4 +44,3 @@ COObject *COSet_New(COObject *iterable);
 ssize_t COSet_Size(COObject *this);
 
 #endif
-
