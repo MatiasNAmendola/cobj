@@ -23,7 +23,7 @@ bindir = $(prefix)/bin
 FIND_SOURCE_FILES = find . \( -name .git -type d -prune \) -o \( -name '*.[hc]' -type f -print \)
 
 # recompile all lib objs if any of header file changes, cuz dependencies is hard to maintain!
-LIB_H = $(wildcard *.h) parser.h scanner.h $(wildcard objects/*.h)
+LIB_H = $(wildcard *.h) parser.h scanner.h $(wildcard objects/*.h) argparse/argparse.h
 
 LIB_OBJS += cobj.o
 LIB_OBJS += marshal.o
@@ -72,6 +72,11 @@ $(LIB_OBJS): $(LIB_H)
 
 cobj: $(LIB_OBJS)
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^ $(LIBS)
+
+argparse/argparse.h:
+	@if test ! -f argparse/argparse.c; then \
+		git submodule update --init --recursive; \
+	fi;
 
 parser.h: parser.c
 parser.c: parser.y
