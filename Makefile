@@ -95,7 +95,7 @@ scanner.h: scanner.c
 scanner.c: scanner.l
 	re2c -cbdt scanner.h -o $@ $^
 
-.PHONY: all install uninstall clean test indent tags doc bench
+.PHONY: all install uninstall clean test tags doc version
 
 all:: cobj
 
