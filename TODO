@@ -1,5 +1,6 @@
 Core
 =====
+ * optinal positional argument?
  * dict as module
  * error message with location
  * implement keyword `this` whict is used to refer current context (module/function, etc)
@@ -15,3 +16,4 @@ Unit Test
 Misc
 ====
  * let version be consistent with git version or tag
+ * write a co vim syntax file into misc/co.vim

@@ -1,0 +1,12 @@
+# Borrowed from Programming Lua, 2nd edition, section 16.5
+func newObject(value)
+    return func (action, v)
+        if action == "get" do return value
+        elif action == "set" do value = v
+        end
+    end
+end
+d = newObject(0)
+print(d("get", None)) # TODO, optinal arguments
+d("set", 10)
+print(d("get", None))
