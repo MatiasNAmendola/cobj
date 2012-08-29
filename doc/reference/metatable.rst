@@ -1,0 +1,5 @@
+__new__
+__repr__
+__iter__
+__index__
+__newindex__

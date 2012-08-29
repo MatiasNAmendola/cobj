@@ -16,6 +16,7 @@
     lexical_elements.rst
     constants.rst
     variables.rst
+    metatable.rst
     scoping_rules.rst
     expressions.rst
     visibility_rules.rst
