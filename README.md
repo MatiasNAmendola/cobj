@@ -1,9 +1,9 @@
 This is cobj, an object-oriented program language.
 
+*I wrote this based on many languages (Python, Ruby, PHP, Lua, Go, etc). I also borrowed many lines of code from Python. Many object implementations is based on Python.*
 
 Compile/Install
 ===============
-    Install bison 2.6/re2c first
     $ make
     $ make install
 

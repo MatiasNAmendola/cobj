@@ -3,7 +3,5 @@
 *~
 /tags
 /cobj
-/parser.[ch]
-/scanner.[ch]
 /*.output
 /cobj.dSYM/
