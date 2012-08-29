@@ -71,16 +71,13 @@ LIB_OBJS += argparse/argparse.o
 
 $(LIB_OBJS): $(LIB_H)
 
+version.h: gen-version.sh
+	./gen-version.sh > version.h
+
 cobj: $(LIB_OBJS)
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^ $(LIBS)
 
-cobj.o: version
-cobj.o: EXTRA_CFLAGS = \
-	'-DCOBJ_VERSION="$(COBJ_VERSION)"'
-
-version:
-	@./gen-version.sh > version
--include version
+cobj.o: version.h
 
 argparse/argparse.h:
 	@if test ! -f argparse/argparse.c; then \
@@ -95,7 +92,7 @@ scanner.h: scanner.c
 scanner.c: scanner.l
 	re2c -cbdt scanner.h -o $@ $^
 
-.PHONY: all install uninstall clean test tags doc version
+.PHONY: all install uninstall clean test tags doc
 
 all:: cobj
 
