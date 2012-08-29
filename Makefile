@@ -8,6 +8,7 @@ all::
 CC = gcc
 RM = rm -rf
 
+EXTRA_CFLAGS =  # dynamically added/removed
 CFLAGS = -std=c99 -Wall $(EXTRA_CFLAGS)
 ifdef CO_DEBUG
 	CFLAGS += -DCO_DEBUG -g3
@@ -73,6 +74,14 @@ $(LIB_OBJS): $(LIB_H)
 cobj: $(LIB_OBJS)
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^ $(LIBS)
 
+cobj.o: version
+cobj.o: EXTRA_CFLAGS = \
+	'-DCOBJ_VERSION="$(COBJ_VERSION)"'
+
+version:
+	@./gen-version.sh > version
+-include version
+
 argparse/argparse.h:
 	@if test ! -f argparse/argparse.c; then \
 		git submodule update --init --recursive; \
@@ -114,12 +123,6 @@ doc:
 
 test: all
 	@$(MAKE) -C t/ all
-
-bench:
-	@cd bench; ./bench.sh
-
-indent:
-	@./indent.sh
 
 tags:
 	$(RM) tags

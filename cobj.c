@@ -1,7 +1,7 @@
 #include "cobj.h"
 
 static const char *const usagestr[] = {
-    "co [options] [file] [args]",
+    "cobj [options] [file] [args]",
     NULL,
 };
 
@@ -9,7 +9,7 @@ int
 argparse_showversion(struct argparse *this,
                      const struct argparse_option *option)
 {
-    printf("CObject 0.01\n");
+    printf("cobj %s\n", COBJ_VERSION);
     exit(1);
 }
 

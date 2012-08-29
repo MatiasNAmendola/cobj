@@ -12,9 +12,6 @@ Unit Test
 =========
   Valgrind memeory check.
 
-Namespace
-=========
-Every code block.
-
-Module
-======
+Misc
+====
+ * let version be consistent with git version or tag
