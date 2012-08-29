@@ -14,10 +14,9 @@ rangeiter_next(CORangeIterObject *this)
     if (this->index < this->len)
         /* Cast to unsigned to avoid possible signed overflow in intermediate
          * calculations. */
-        return
-            COInt_FromLong((long)
-                           (this->start +
-                            (unsigned long)(this->index++) * this->step));
+        return COInt_FromLong((long)
+                              (this->start +
+                               (unsigned long)(this->index++) * this->step));
     return NULL;
 }
 

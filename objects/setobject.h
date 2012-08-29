@@ -17,8 +17,8 @@ struct setentry {
 typedef struct _COSetObject {
     COObject_HEAD;
 
-    ssize_t fill;   /* #active + #dummy */
-    ssize_t used;   /* #active */
+    ssize_t fill;               /* #active + #dummy */
+    ssize_t used;               /* #active */
 
     /* The table contains mask +1 slots, and that's a power of 2.
      * We store the mask instead of the size because the mask is more frequently
@@ -30,7 +30,8 @@ typedef struct _COSetObject {
      * memory, and is never NULL.
      */
     struct setentry *table;
-    struct setentry *(*lookup)(struct _COSetObject *so, COObject *key, long hash);
+    struct setentry *(*lookup) (struct _COSetObject * so, COObject *key,
+                                long hash);
     struct setentry smalltable[COSet_MINSIZE];
 } COSetObject;
 

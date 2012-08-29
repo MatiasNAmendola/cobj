@@ -17,29 +17,36 @@ static COObject *dummy = NULL;
     INIT_NONZERO_SET_SLOTS(so);                                 \
     } while(0)
 
-/*static COObject **/
-/*set_repr(COSetObject *this)*/
-/*{*/
-/*if (this->used == 0) {*/
-/*return COStr_FromString("set()");*/
-/*}*/
-/*COObject *s;*/
-/*s = COStr_FromString("set(");*/
-/*int i;*/
-/*for (i = 0; i < this->used; i++) {*/
-/*COObject *co = COSet_GetItem(this, i);*/
-/*if (i != 0)*/
-/*COStr_ConcatAndDel(&s, COStr_FromString(", "));*/
-/*COStr_ConcatAndDel(&s, COObject_Repr(co));*/
-/*}*/
-/*COStr_ConcatAndDel(&s, COStr_FromString(")"));*/
-/*return s;*/
-/*}*/
+static int set_next(COSetObject *so, ssize_t * pos_ptr,
+                    struct setentry **entry_ptr);
+
+static COObject *
+set_repr(COSetObject *this)
+{
+    if (this->used == 0) {
+        return COStr_FromString("set()");
+    }
+    COObject *s;
+    s = COStr_FromString("set(");
+    ssize_t pos = 0;
+    struct setentry *entry;
+    bool first = true;
+    while (set_next(this, &pos, &entry)) {
+        if (first) {
+            first = false;
+        } else {
+            COStr_ConcatAndDel(&s, COStr_FromString(", "));
+        }
+        COStr_ConcatAndDel(&s, COObject_Repr(entry->key));
+    }
+    COStr_ConcatAndDel(&s, COStr_FromString(")"));
+    return s;
+}
 
 static void
 set_dealloc(COSetObject *this)
 {
-
+    COObject_GC_Free(this);
 }
 
 /**
@@ -79,7 +86,7 @@ set_lookkey(COSetObject *so, COObject *key, long hash)
         freeslot = NULL;
     }
 
-    for (perturb = hash; ; perturb >>= PERTURB_SHIFT) {
+    for (perturb = hash;; perturb >>= PERTURB_SHIFT) {
         i = (i << 2) + i + perturb + 1;
         entry = &table[i & mask];
         if (entry->key == NULL) {
@@ -109,13 +116,113 @@ set_lookkey(COSetObject *so, COObject *key, long hash)
 static int
 set_merge(COSetObject *so, COObject *other)
 {
+    COErr_SetString(COException_UndefinedError, "TODO");
+    return 0;
+}
 
+/**
+ * Iterate over a set table. Use like so:
+ *
+ *  ssize_t  pos = 0;
+ *  struct setentry *entry;
+ *  while (set_next(set, &pos, &entry)) {
+ *      // do stuff with pos & entry
+ *  }
+ */
+static int
+set_next(COSetObject *so, ssize_t * pos_ptr, struct setentry **entry_ptr)
+{
+    ssize_t i;
+    ssize_t mask;
+    struct setentry *table;
+
+    table = so->table;
+    mask = so->mask;
+    i = *pos_ptr;
+
+    while (i <= mask && (table[i].key == NULL || table[i].key == dummy))
+        i++;
+
+    *pos_ptr = i + 1;
+
+    if (i > mask)
+        return 0;
+
+    *entry_ptr = &table[i];
+    return 1;
+}
+
+static int
+set_insert_key(COSetObject *so, COObject *key, long hash)
+{
+    struct setentry *entry;
+
+    entry = so->lookup(so, key, hash);
+    if (entry == NULL)
+        return -1;
+    if (entry->key == NULL) {
+        // unused
+        so->fill++;
+        entry->key = key;
+        entry->hash = hash;
+        so->used++;
+    } else if (entry->key == dummy) {
+        // dummy
+        entry->key = key;
+        entry->hash = hash;
+        so->used++;
+        CO_DECREF(dummy);
+    } else {
+        // active
+        CO_DECREF(key);
+    }
+    return 0;
+}
+
+static int
+set_add_key(COSetObject *so, COObject *key)
+{
+    long hash;
+    ssize_t n_used;
+
+    /* at least one empty slot */
+    assert(so->fill <= so->mask);
+    n_used = so->used;
+
+    CO_INCREF(key);
+    hash = COObject_Hash(key);
+    if (set_insert_key(so, key, hash) == -1) {
+        CO_DECREF(key);
+        return -1;
+    }
+
+    /*if (!(so->used > n_used && so->fill * 3 */
     return 0;
 }
 
 static int
 set_update_internal(COSetObject *so, COObject *other)
 {
+    if (COSet_Check(other))
+        return set_merge(so, other);
+
+    COObject *iter;
+    COObject *key;
+
+    iter = COObject_GetIter(other);
+    if (iter == NULL)
+        return -1;
+
+    while ((key = COObject_IterNext(iter)) != NULL) {
+        if (set_add_key(so, key) == -1) {
+            CO_DECREF(iter);
+            CO_DECREF(key);
+            return -1;
+        }
+        CO_DECREF(key);
+    }
+
+    CO_DECREF(iter);
 
     return 0;
 }
@@ -134,7 +241,7 @@ make_new_set(COTypeObject *type, COObject *iterable)
     if (!so)
         return NULL;
 
-    so->table == NULL;
+    memset((so)->smalltable, 0, sizeof((so)->smalltable));
     so->fill = 0;
     so->used = 0;
     INIT_NONZERO_SET_SLOTS(so);
@@ -150,6 +257,15 @@ make_new_set(COTypeObject *type, COObject *iterable)
 
     COObject_GC_TRACK(so);
     return (COObject *)so;
+}
+
+static COObject *
+set_new(COTypeObject *type, COObject *args)
+{
+    COObject *x = NULL;
+    if (!COObject_ParseArgs(args, &x, NULL))
+        return NULL;
+    return make_new_set(type, x);
 }
 
 COObject *
@@ -174,16 +290,16 @@ COTypeObject COSet_Type = {
     sizeof(COSetObject),
     0,
     COType_FLAG_GC,
-    0,                          /* tp_new               */
-    //(deallocfunc)set_dealloc,   /* tp_dealloc           */
-    //(reprfunc)set_repr,         /* tp_repr              */
+    (newfunc)set_new,           /* tp_new               */
+    (deallocfunc)set_dealloc,   /* tp_dealloc           */
+    (reprfunc)set_repr,         /* tp_repr              */
     0,                          /* tp_print             */
     0,                          /* tp_hash              */
     0,                          /* tp_compare           */
-    //(traversefunc)set_traverse, /* tp_traverse          */
-    //(inquiryfunc)set_clear,     /* tp_clear             */
+    0,                          //(traversefunc)set_traverse, /* tp_traverse          */
+    0,                          //(inquiryfunc)set_clear,     /* tp_clear             */
     0,                          /* tp_call              */
-    //(getiterfunc)set_iter,      /* tp_iter              */
+    0,                          //(getiterfunc)set_iter,      /* tp_iter              */
     0,                          /* tp_iternext          */
     0,                          /* tp_int_interface     */
     0,                          /* tp_mapping_interface */

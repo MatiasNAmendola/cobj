@@ -91,13 +91,13 @@ scanner.c: scanner.l
 all:: cobj
 
 install: all
-	install -p -m 755 co $(bindir)
+	install -p -m 755 cobj $(bindir)
 
 uninstall:
-	$(RM) $(bindir)/co
+	$(RM) $(bindir)/cobj
 
 clean:
-	$(RM) co
+	$(RM) cobj
 	# library objects
 	find . -name '*.[oa]' | xargs $(RM)
 	# parser source files

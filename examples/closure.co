@@ -1,5 +1,3 @@
-#!./cobj
-
 last = 0
 newIncrer = func(n)
     return func(i) 

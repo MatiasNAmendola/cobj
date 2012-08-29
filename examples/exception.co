@@ -1,5 +1,3 @@
-#!./cobj
-
 try
     print("no catch and no finally")
 end

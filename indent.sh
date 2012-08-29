@@ -1,7 +1,9 @@
 #!/bin/bash
+# 
+# indent should be gun indent
+#
+INDENT=indent
 OUTSIDE_TYPEDEFS+=FILE
-
-test -e ~/.indent.pro && cp ~/.indent.pro .indent.pro
 
 ## try to find out all typenames defined by 'typedef' of c
 function print_typedef() {
@@ -47,9 +49,9 @@ done
 
 # indent
 lines=0
-for f in $(find . -name "*.[ch]"  |  grep -E -v '^\.\/(argparse|linenoise)'); do
+for f in $(find . -name "*.[ch]"  |  grep -E -v '^\.\/(argparse|linenoise|parser|scanner)'); do
     lines=$(($lines + $(wc $f -l | cut -d ' ' -f 1)))
-    indent $f
+    $INDENT $f
 done
 printf "%d lines code indented.\n" $lines
 
