@@ -31,7 +31,7 @@ Examples
         i += 1
     end
 
-    See more examples under `examples/` folder.
+See more examples under `examples/` folder.
 
 Conventions
 ===========
