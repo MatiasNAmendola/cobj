@@ -2037,7 +2037,7 @@ yyreduce:
   case 70:
 /* Line 1787 of yacc.c  */
 #line 290 "parser.y"
-    { Node *t = node_new(c->arena, NODE_ASSIGN_LOCAL, (yyvsp[(2) - (4)].node), (yyvsp[(4) - (4)].node));printf("OK"); (yyval.node) = node_list(c->arena, t, NULL); }
+    { Node *t = node_new(c->arena, NODE_ASSIGN_LOCAL, (yyvsp[(2) - (4)].node), (yyvsp[(4) - (4)].node)); (yyval.node) = node_list(c->arena, t, NULL); }
     break;
 
   case 71:

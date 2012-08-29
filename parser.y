@@ -1,5 +1,5 @@
 %{
-#include "co.h"
+#include "cobj.h"
 
 static Node *
 return_none_node(struct arena *arena)
@@ -287,7 +287,7 @@ non_empty_assoc_list:
 
 simple_stmt:
         T_NAME '=' expr { Node *t = node_new(c->arena, NODE_ASSIGN, $1, $3); $$ = node_list(c->arena, t, NULL); }
-    |   T_LOCAL T_NAME '=' expr { Node *t = node_new(c->arena, NODE_ASSIGN_LOCAL, $2, $4);printf("OK"); $$ = node_list(c->arena, t, NULL); }
+    |   T_LOCAL T_NAME '=' expr { Node *t = node_new(c->arena, NODE_ASSIGN_LOCAL, $2, $4); $$ = node_list(c->arena, t, NULL); }
     |   expr '[' expr ']' '=' expr {
             Node *t = node_new(c->arena, NODE_STORE_SUBSCRIPT, NULL, NULL);
             t->nd_left = $1;
