@@ -1,4 +1,4 @@
-#include "co.h"
+#include "cobj.h"
 
 /* status code for eval main loop */
 enum status_code {

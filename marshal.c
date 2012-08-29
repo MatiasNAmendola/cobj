@@ -1,4 +1,4 @@
-#include "co.h"
+#include "cobj.h"
 
 typedef struct {
     COObject *objects;          /* index of objects */

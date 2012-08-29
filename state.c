@@ -1,4 +1,4 @@
-#include "co.h"
+#include "cobj.h"
 
 COState *state_current = NULL;
 

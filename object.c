@@ -1,4 +1,4 @@
-#include "co.h"
+#include "cobj.h"
 
 COObject *
 COObject_Repr(COObject *o)

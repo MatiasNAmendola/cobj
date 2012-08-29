@@ -1,4 +1,4 @@
-#include "co.h"
+#include "cobj.h"
 
 #define DEFAULT_INSTR_SIZE      64
 #define DEFAULT_BYTECODE_SIZE   64

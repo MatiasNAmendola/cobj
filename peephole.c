@@ -1,4 +1,4 @@
-#include "co.h"
+#include "cobj.h"
 
 COObject *
 peephole_optimize(COObject *code, COObject *consts, COObject *names)

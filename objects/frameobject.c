@@ -1,4 +1,4 @@
-#include "../co.h"
+#include "../cobj.h"
 
 static COObject *
 frame_repr(COFrameObject *this)

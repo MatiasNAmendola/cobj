@@ -1,4 +1,4 @@
-#include "../co.h"
+#include "../cobj.h"
 
 static COObject *
 exception_repr(COExceptionObject *this)

@@ -1,4 +1,4 @@
-#include "../co.h"
+#include "../cobj.h"
 
 static COObject *False_str = NULL;
 static COObject *True_str = NULL;

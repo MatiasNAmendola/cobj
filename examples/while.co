@@ -1,4 +1,4 @@
-#!./co
+#!./cobj
 i = 1
 
 #while False

@@ -1,4 +1,4 @@
-#include "co.h"
+#include "cobj.h"
 
 char *
 opcode_name(unsigned char opcode)

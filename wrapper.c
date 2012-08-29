@@ -1,7 +1,7 @@
 /*
  * Various trival helper wrappers around standard functions
  */
-#include "co.h"
+#include "cobj.h"
 
 static char bad_path[] = "/bad-path/";
 

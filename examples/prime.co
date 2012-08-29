@@ -15,7 +15,7 @@ end
 
 while i <= maxnum
     if is_prime(i)
-        puts(i)
+        print(i)
     end
     i += 1
 end

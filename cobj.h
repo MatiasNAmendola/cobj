@@ -11,7 +11,7 @@
  *      /      |       \
  *  a.h       b.h      c.h ...
  *    |   \    |       /  |
- *    |  co.h (cached)    |
+ *    |  cobj.h (cached)    |
  *    |   /    |       \  |
  *  a.c       b.c        c.c
  *
@@ -58,7 +58,7 @@
 #include "objects/cellobject.h"
 #include "objects/rangeobject.h"
 #include "objects/rangeiterobject.h"
-#include "objects/setobject.h"
+//#include "objects/setobject.h"
 
 #include "argparse/argparse.h"
 #include "linenoise/linenoise.h"

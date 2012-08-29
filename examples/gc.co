@@ -1,4 +1,4 @@
-#!./co
+#!./cobj
 
 func hello()
     a = [None, [1,2,3]]

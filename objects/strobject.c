@@ -1,4 +1,4 @@
-#include "../co.h"
+#include "../cobj.h"
 
 static COStrObject *null_str = NULL;
 static COStrObject *char_strs[UCHAR_MAX + 1];

@@ -25,7 +25,7 @@ FIND_SOURCE_FILES = find . \( -name .git -type d -prune \) -o \( -name '*.[hc]' 
 # recompile all lib objs if any of header file changes, cuz dependencies is hard to maintain!
 LIB_H = $(wildcard *.h) parser.h scanner.h $(wildcard objects/*.h)
 
-LIB_OBJS += co.o
+LIB_OBJS += cobj.o
 LIB_OBJS += marshal.o
 LIB_OBJS += compile.o
 LIB_OBJS += error.o
@@ -63,14 +63,14 @@ LIB_OBJS += objects/cfunctionobject.o
 LIB_OBJS += objects/cellobject.o
 LIB_OBJS += objects/rangeobject.o
 LIB_OBJS += objects/rangeiterobject.o
-LIB_OBJS += objects/setobject.o
+#LIB_OBJS += objects/setobject.o
 
 LIB_OBJS += linenoise/linenoise.o
 LIB_OBJS += argparse/argparse.o
 
 $(LIB_OBJS): $(LIB_H)
 
-co: $(LIB_OBJS)
+cobj: $(LIB_OBJS)
 	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^ $(LIBS)
 
 parser.h: parser.c
@@ -83,12 +83,12 @@ scanner.c: scanner.l
 
 .PHONY: all install uninstall clean test indent tags doc bench
 
-all:: co 
+all:: cobj
 
 install: all
 	install -p -m 755 co $(bindir)
 
-uninstall: 
+uninstall:
 	$(RM) $(bindir)/co
 
 clean:

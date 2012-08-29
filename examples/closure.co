@@ -1,4 +1,4 @@
-#!./co
+#!./cobj
 
 last = 0
 newIncrer = func(n)

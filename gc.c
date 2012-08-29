@@ -1,4 +1,4 @@
-#include "co.h"
+#include "cobj.h"
 
 static int enabled = 1;         /* GC enabled? */
 static int collecting = 0;      /* GC collecting? */

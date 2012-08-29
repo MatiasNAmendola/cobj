@@ -1,4 +1,4 @@
-#include "../co.h"
+#include "../cobj.h"
 
 #if BUFSIZ < 8192
 # define SMALL_CHUNK 8192

@@ -1,4 +1,4 @@
-#include "../co.h"
+#include "../cobj.h"
 
 /* Object used as dummy key to fill deleted entries. */
 static COObject *dummy = NULL;

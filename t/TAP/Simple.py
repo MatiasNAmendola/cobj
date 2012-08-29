@@ -39,7 +39,7 @@ def isa_ok(object, cls, object_name="the object"):
   return okness
 
 def __get_co_path():
-    return os.path.realpath(__file__ + "../../../../co")
+    return os.path.realpath(__file__ + "../../../../cobj")
 
 def test_expect_result(result, code, comment=None):
     xprocess = subprocess.Popen(__get_co_path(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

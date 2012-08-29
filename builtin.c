@@ -1,4 +1,4 @@
-#include "co.h"
+#include "cobj.h"
 
 static COObject *
 builtin_print(COObject *this, COObject *args)

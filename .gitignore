@@ -1,9 +1,9 @@
 *.[aos]
 *.out
 *~
-tags
-co
-parser.[ch]
-scanner.[ch]
-*.output
-co.dSYM/
+/tags
+/cobj
+/parser.[ch]
+/scanner.[ch]
+/*.output
+/cobj.dSYM/

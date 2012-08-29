@@ -1,4 +1,4 @@
-#include "../co.h"
+#include "../cobj.h"
 
 /*
  * free_list is a singly-linked list of available COIntObjects, linked via abuse

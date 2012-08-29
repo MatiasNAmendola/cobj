@@ -1,4 +1,4 @@
-#include "co.h"
+#include "cobj.h"
 
 static const char *const usagestr[] = {
     "co [options] [file] [args]",

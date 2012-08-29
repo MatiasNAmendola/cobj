@@ -1,4 +1,4 @@
-#include "../co.h"
+#include "../cobj.h"
 
 /* Speed optimization to avoid frequent malloc/free of small tuples. */
 #define COTuple_MAXSAVESIZE 0   // Largest tuple to save on free list.
