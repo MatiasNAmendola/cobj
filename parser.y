@@ -250,7 +250,7 @@ non_empty_expr_list_inline:
 
 expr_list:
         non_empty_expr_list opt_comma { $$ = $1; }
-    |   /* empty */ { $$ = 0; }
+    |   opt_newlines /* empty */ { $$ = 0; }
 ;
 
 non_empty_expr_list:
@@ -273,7 +273,7 @@ expr_list_morethanone:
 
 assoc_list:
         non_empty_assoc_list opt_comma
-    |   /* empty */ { $$ = 0; }
+    |   opt_newlines /* empty */ { $$ = 0; }
 ;
 
 non_empty_assoc_list:

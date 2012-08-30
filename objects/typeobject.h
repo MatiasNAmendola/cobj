@@ -1,5 +1,8 @@
 #ifndef OBJECTS_TYPEOBJECT_H
 #define OBJECTS_TYPEOBJECT_H
+/**
+ * Type object.
+ */
 
 #include "../object.h"
 
@@ -53,21 +56,21 @@ struct _COTypeObject {
     int tp_flags;               /* Flags to define optional/expanded features */
 
     /* Basic Methods  */
-    newfunc tp_new;
-    deallocfunc tp_dealloc;
-    reprfunc tp_repr;
-    printfunc tp_print;
-    hashfunc tp_hash;
-    comparefunc tp_compare;
-    traversefunc tp_traverse;
-    inquiryfunc tp_clear;
-    binaryfunc tp_call;
-    getiterfunc tp_iter;
-    iternextfunc tp_iternext;
+    newfunc tp_new;             /* Create object. */
+    deallocfunc tp_dealloc;     /* Destory object. */
+    reprfunc tp_repr;           /* Represent object. */
+    printfunc tp_print;         /* Print object onto stdout, or any file. */
+    hashfunc tp_hash;           /* Hash object. */
+    comparefunc tp_compare;     /* Compare object. */
+    traversefunc tp_traverse;   /* Traverse object. */
+    inquiryfunc tp_clear;       /* Clear object. */
+    binaryfunc tp_call;         /* Call object. */
+    getiterfunc tp_iter;        /* Get iterator of object. */
+    iternextfunc tp_iternext;   /* Iter to next object. */
 
     /* Interfaces for standard types */
-    COIntInterface *tp_int_interface;
-    COMappingInterface *tp_mapping_interface;
+    COIntInterface *tp_int_interface;           /* Implement int object interface. */
+    COMappingInterface *tp_mapping_interface;   /* Implement map object interface. (dict) */
 };
 
 COTypeObject COType_Type;

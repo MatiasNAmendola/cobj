@@ -22,10 +22,9 @@ list_repr(COObject *this)
 static void
 list_dealloc(COListObject *this)
 {
-    ssize_t len = this->co_size;
     ssize_t i;
-    if (len > 0) {
-        i = len;
+    if (this->co_size > 0) {
+        i = this->co_size;
         while (--i >= 0)
             CO_XDECREF(this->co_item[i]);
     }

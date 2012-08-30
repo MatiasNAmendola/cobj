@@ -29,7 +29,7 @@ type_call(COTypeObject *type, COObject *args)
 }
 
 static COTypeObject *
-type_make(COTypeObject *type, COObject *args)
+type_new(COTypeObject *type, COObject *args)
 {
     COObject *x = NULL;
     if (!COObject_ParseArgs(args, &x, NULL))
@@ -44,19 +44,19 @@ COTypeObject COType_Type = {
     sizeof(COTypeObject),
     0,
     0,
-    (newfunc)type_make,         /* tp_new */
-    (deallocfunc)type_dealloc,  /* tp_dealloc */
-    (reprfunc)type_repr,        /* tp_repr */
-    0,                          /* tp_print */
-    0,                          /* tp_hash */
-    0,                          /* tp_compare */
-    0,                          /* tp_traverse */
-    0,                          /* tp_clear */
-    (binaryfunc)type_call,      /* tp_call */
-    0,                          /* tp_iter */
-    0,                          /* tp_iternext */
-    0,                          /* tp_int_interface */
-    0,                          /* tp_mapping_interface */
+    (newfunc)type_new,         /* tp_new               */
+    (deallocfunc)type_dealloc, /* tp_dealloc           */
+    (reprfunc)type_repr,       /* tp_repr              */
+    0,                         /* tp_print             */
+    0,                         /* tp_hash              */
+    0,                         /* tp_compare           */
+    0,                         /* tp_traverse          */
+    0,                         /* tp_clear             */
+    (binaryfunc)type_call,     /* tp_call              */
+    0,                         /* tp_iter              */
+    0,                         /* tp_iternext          */
+    0,                         /* tp_int_interface     */
+    0,                         /* tp_mapping_interface */
 };
 
 /*

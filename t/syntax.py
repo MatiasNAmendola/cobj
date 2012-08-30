@@ -24,6 +24,17 @@ print([ 1
 , 2
 ,
 ])""", "list span multi lines")
+test_expect_result("""[]
+[]
+[]
+""", """
+print([])
+print([
+])
+print([
+
+])
+""", "empty list")
 
 # tuple literal
 test_expect_result("""(1)

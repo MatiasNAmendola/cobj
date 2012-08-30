@@ -33,3 +33,10 @@ dict.a = 12
 print(dict.a)
 print(dict["a"])
 """)
+
+test_expect_result("""{}
+""", """
+dict = {
+}
+print(dict)
+""", "empty dict")

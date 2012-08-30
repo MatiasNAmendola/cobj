@@ -106,10 +106,6 @@ clean:
 	$(RM) cobj
 	# library objects
 	find . -name '*.[oa]' | xargs $(RM)
-	# parser source files
-	$(RM) parser.[ch]
-	# scan source files
-	$(RM) scanner.[ch]
 	$(RM) *.output
 
 analyzer: parser.h scanner.h
