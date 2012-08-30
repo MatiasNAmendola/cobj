@@ -16,4 +16,3 @@ Unit Test
 Misc
 ====
  * let version be consistent with git version or tag
- * write a co vim syntax file into misc/co.vim
