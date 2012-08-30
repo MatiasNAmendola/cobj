@@ -27,7 +27,7 @@ mksnpath(char *buf, size_t n, const char *fmt, ...)
     len = vsnprintf(buf, n, fmt, args);
     va_end(args);
     if (len >= n) {
-        strlcpy(buf, bad_path, n);
+        strncpy(buf, bad_path, n);
         return buf;
     }
     return cleanup_path(buf);

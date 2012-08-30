@@ -16,7 +16,7 @@ else
 	CFLAGS += -O2
 endif
 
-LDFLAGS =
+LDFLAGS = -lm
 
 prefix = /usr/local
 bindir = $(prefix)/bin

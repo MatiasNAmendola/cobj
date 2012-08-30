@@ -607,7 +607,7 @@ compiler_visit_node(struct compiler *c, Node *n)
         break;
     case NODE_TRY:
         {
-            struct block *body, *end, *handler, *orelse, *finally_end;
+            struct block *body = NULL, *end = NULL, *handler = NULL, *orelse = NULL, *finally_end = NULL;
             body = compiler_new_block(c);
             end = compiler_new_block(c);
             if (n->nd_orelse) {
