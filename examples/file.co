@@ -1,0 +1,9 @@
+f = file("./examples/file.co")
+i = 0
+for l in f
+    if i == 2
+        break
+    end
+    i += 1
+    print(l)
+end

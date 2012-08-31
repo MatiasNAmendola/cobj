@@ -69,7 +69,7 @@ struct _COTypeObject {
     iternextfunc tp_iternext;   /* Iter to next object. */
 
     /* Interfaces for standard types */
-    COIntInterface *tp_int_interface;           /* Implement int object interface. */
+    COIntInterface *tp_int_interface;   /* Implement int object interface. */
     COMappingInterface *tp_mapping_interface;   /* Implement map object interface. (dict) */
 };
 

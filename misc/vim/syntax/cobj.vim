@@ -41,10 +41,12 @@ syn match   cobjNumber
 
 " Builtins Names
 syn keyword cobjBuiltin     False True None
-syn keyword cobjBuiltin     str type int
+syn keyword cobjBuiltin     str type int print file
 
 " Keywords
-syn keyword cobjStatement   return local break continue while for if else do end func
+syn keyword cobjStatement   return local break continue while for in if elif else do end func
+syn keyword cobjStatement   try catch throw finally
+
 
 " Define the default highlighting.
 " For version 5.7 and earlier: only when not done already

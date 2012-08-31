@@ -3,6 +3,6 @@
 #
 # Example:
 #
-#   valgrind --tool=memcheck --suppressions=misc/valgrind.supp ./co -e ''
-#   valgrind --dsymutil=yes --tool=memcheck --suppressions=misc/valgrind.supp ./co -e ''
+#  On MacOSX:
+#   valgrind --tool=memcheck --leak-check=full --dsymutil=yes --suppressions=misc/valgrind.supp ./cobj
 #

@@ -16,3 +16,23 @@
 #};
 
 #instance_a = myclass();
+
+#x:method(y) -> x.method(x, y) # syntactically equal
+#class Complex
+    #real = 0
+    #image = 0
+    #func __add__(self, other)
+    #end
+    #func __sub__(self, other)
+    #end
+#end
+
+
+# prototype-based I prefer
+
+# call object's method
+# 
+# obj.meth != obj[meth], duplicated
+# obj.meth(arg1, arg2, ..., argn) -> obj[meth](obj, arg1, arg2, argn)
+# obj.data
+# foo.bar.data

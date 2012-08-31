@@ -1,0 +1,142 @@
+/*
+ * GNU Indent Profile
+ *
+ * Author: Yecheng Fu <cofyc.jackson@gmail.com>
+ *
+ * Date: Mon May 18 11:55:52 2009 +0800
+ */
+
+-nbad // forces a blank line after every block of declarations
+-bap // forces a blank line after every procedure body
+-l80 // --line-length: maximum line length for non-comment lines
+-br -ce  // braces on if line & cuddle else
+-cdw // cuddle do-while loop
+-di0 // declaration indentation
+-brs // braces on struct decl line
+-i4 // indent level
+-il0 // indent label level
+-bli4 // brace indentation
+-ci4 // continuation indentation
+-ncs // no space after casts
+-npcs // no space after function call names
+-nprs // no space after parenthese
+-nut // no tabs
+-sob // swallow optinal blank lines
+-T Node_Type
+-T Node
+-T gc_head
+-T linenoiseCompletions
+-T RFILE
+-T WFILE
+-T COTypeObject
+-T COObject
+-T COVarObject
+-T COBytesObject
+-T COCapsule_Destructor
+-T COCapsuleObject
+-T COCellObject
+-T COCFunction
+-T COCFunctionObject
+-T COCodeObject
+-T DictBucket
+-T CODictObject
+-T COExceptionObject
+-T COFileObject
+-T COFloatObject
+-T COFrameObject
+-T COFrameBlock
+-T COFunctionObject
+-T digit
+-T sdigit
+-T twodigits
+-T stwodigits
+-T COIntObject
+-T COListIterObject
+-T COListObject
+-T CORangeIterObject
+-T CORangeObject
+-T COSetObject
+-T COStrObject
+-T COTupleObject
+-T newfunc
+-T deallocfunc
+-T reprfunc
+-T printfunc
+-T hashfunc
+-T comparefunc
+-T visitfunc
+-T traversefunc
+-T inquiryfunc
+-T unaryfunc
+-T binaryfunc
+-T ternaryfunc
+-T lenfunc
+-T getiterfunc
+-T iternextfunc
+-T COMappingInterface
+-T COSequenceInterface
+-T COIntInterface
+-T OpCode
+-T YYSTYPE
+-T YYSTYPE
+-T COState
+-T FILE
+-T Node_Type
+-T Node
+-T gc_head
+-T linenoiseCompletions
+-T RFILE
+-T WFILE
+-T COTypeObject
+-T COObject
+-T COVarObject
+-T COBytesObject
+-T COCapsule_Destructor
+-T COCapsuleObject
+-T COCellObject
+-T COCFunction
+-T COCFunctionObject
+-T COCodeObject
+-T DictBucket
+-T CODictObject
+-T COExceptionObject
+-T COFileObject
+-T COFloatObject
+-T COFrameObject
+-T COFrameBlock
+-T COFunctionObject
+-T digit
+-T sdigit
+-T twodigits
+-T stwodigits
+-T COIntObject
+-T COListIterObject
+-T COListObject
+-T CORangeIterObject
+-T CORangeObject
+-T COSetObject
+-T COStrObject
+-T COTupleObject
+-T newfunc
+-T deallocfunc
+-T reprfunc
+-T printfunc
+-T hashfunc
+-T comparefunc
+-T visitfunc
+-T traversefunc
+-T inquiryfunc
+-T unaryfunc
+-T binaryfunc
+-T ternaryfunc
+-T lenfunc
+-T getiterfunc
+-T iternextfunc
+-T COMappingInterface
+-T COSequenceInterface
+-T COIntInterface
+-T OpCode
+-T YYSTYPE
+-T YYSTYPE
+-T COState
+-T FILE

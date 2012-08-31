@@ -5,6 +5,8 @@
 INDENT=indent
 OUTSIDE_TYPEDEFS+=FILE
 
+cp misc/indent.pro .indent.pro
+
 ## try to find out all typenames defined by 'typedef' of c
 function print_typedef() {
     # case 1: typedefs in oneline

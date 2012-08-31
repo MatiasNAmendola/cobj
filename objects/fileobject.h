@@ -12,6 +12,13 @@ typedef struct _COFileObject {
     COObject *f_name;
     COObject *f_mode;
     int (*f_close) (FILE *);
+
+    char *f_buf;                /* Allocated readahead buffer. */
+    char *f_bufend;             /* Points after last occupied position. */
+    char *f_bufptr;             /* Current buffer position. */
+    int f_univ_newline;         /* Handle any newline convention. */
+    int f_newlinetypes;         /* Handle any newline convention. */
+    int f_skipnextif;           /* Skip next \n. */
 } COFileObject;
 
 COTypeObject COFile_Type;

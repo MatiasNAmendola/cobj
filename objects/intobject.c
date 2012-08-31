@@ -387,7 +387,8 @@ int_repr(COIntObject *this)
     do {
         *--p = '0' + rem % 10;
         rem /= 10;
-    } while (rem != 0);
+    }
+    while (rem != 0);
 
     /* and sign */
     if (negative)
@@ -860,8 +861,8 @@ int_divrem(COIntObject *a, COIntObject *b, COIntObject **pdiv,
     }
     // If |a| < |b|, it's simple.
     if (size_a < size_b ||
-        (size_a == size_b
-         && a->co_digit[size_a - 1] < b->co_digit[size_b - 1])) {
+        (size_a == size_b && a->co_digit[size_a - 1] < b->co_digit[size_b - 1]))
+    {
         *pdiv = (COIntObject *)COInt_FromLong(0);
         if (!*pdiv)
             return -1;
