@@ -237,7 +237,7 @@ COTypeObject COFile_Type = {
     0,                          /* tp_call              */
     (getiterfunc)COObject_GetSelf,      /* tp_iter              */
     (iternextfunc)file_iternext,        /* tp_iternext          */
-    0,                          /* tp_int_interface     */
+    0,                          /* tp_arithmetic_interface     */
     0,                          /* tp_mapping_interface */
 };
 
@@ -326,5 +326,6 @@ COFile_Read(COObject *this, int n)
 int
 COFile_WriteString(COObject *this, const char *s)
 {
+    // TODO
     return 0;
 }

@@ -1,19 +1,17 @@
 #!/usr/bin/env python
+# coding: utf-8
 from TAP.Simple import *
 
 plan("no_plan")
 
-test_expect_result(r"""1
+test_expect_result("""1
 2
 3
-4
-a
-b
-c
-""", r'''
-l = [1,2,3,4,"a", "b", "c"]
-
+3
+""", """
+l = [1,2,3,4]
+l[3] = 3
 for i in l
     print(i)
 end
-''')
+""")

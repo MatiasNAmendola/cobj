@@ -1,0 +1,38 @@
+C style guide
+    
+All C code except third-party libraries should be formated by ./indent.sh.
+
+Names
+=====
+    - Use CAPITALIZED_WITH_UNDERSCORES for macros/constants.
+    - Object-oriented style code use:
+        CObject_UppperCameCaseMethod for functions.
+        CObject_DataName for data.
+    - Procedure style code
+        module_method for functions.
+        method_data for data.
+    - Functions start with '_' must be used internally and carefully.
+
+Comments
+========
+    - Line comment
+    /*** First level line comment. ***/
+    /*** ! First level line comment. ***/
+    /* Second level line comment. */
+    /* ! Second level line comment. */
+    // Third level line comment.
+    // ! Third level line comment.
+
+    Note: Line comment can optional end of block line, which starting with `!`,
+    to comment a code block that spans multiple lines.
+
+    - Block comment
+    /**
+     *  <block comment has title>
+     *
+     *  <doc string>
+     */
+
+    /*
+     *  <doc string, block comment without title>
+     */

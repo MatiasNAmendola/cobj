@@ -1,14 +1,50 @@
 Expressions
------------
+===========
 
-Operations
-~~~~~~~~~~
+Operators
+---------
 
-Arithmetic operations
-Order comparisions
-Concatention
-Length operation
-Indexing
+Arithmetic operations::
+    Addition: +
+    Subtraction: -
+    Multiplication: *
+    Division: /
+    Modulo: %
+    Shift Right: >>
+    Shift Left: <<
+    Exponentiation/Pow: **
+    Negative: -
+    Invert: ~
+
+Relational comparisions::
+    ==
+    <
+    >
+    <=
+    >=
+
+Logical operations::
+    and
+    or
+    not
+
+
+Operator Precedence
+-------------------
+
+Function call
+-------------
+
+Object-Oriented call
+--------------------
+
+Object oriented call is also called as messaging call::
+
+    obj:message(arg1, arg2, ..., argn)
+
+Literals
+--------
+
 
 Function Literals
 ~~~~~~~~~~~~~~~~~

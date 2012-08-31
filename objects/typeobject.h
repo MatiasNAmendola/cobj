@@ -22,20 +22,21 @@ typedef COObject *(*ternaryfunc)(COObject *, COObject *, COObject *);
 typedef ssize_t(*lenfunc) (COObject *);
 typedef COObject *(*getiterfunc)(COObject *);
 typedef COObject *(*iternextfunc)(COObject *);
+typedef int (*ternaryintfunc) (COObject *, COObject *, COObject *);
 /* ! Object Methods */
 
 /* Object Interfaces */
 typedef struct {
-    binaryfunc int_add;
-    binaryfunc int_sub;
-    binaryfunc int_mul;
-    binaryfunc int_div;
-    binaryfunc int_mod;
-    binaryfunc int_lshift;
-    binaryfunc int_rshift;
-    unaryfunc int_neg;
-    unaryfunc int_invert;
-} COIntInterface;
+    binaryfunc arith_add;
+    binaryfunc arith_sub;
+    binaryfunc arith_mul;
+    binaryfunc arith_div;
+    binaryfunc arith_mod;
+    binaryfunc arith_lshift;
+    binaryfunc arith_rshift;
+    unaryfunc arith_neg;
+    unaryfunc arith_invert;
+} COAritmeticInterface;
 
 typedef struct {
     lenfunc sq_length;
@@ -45,6 +46,7 @@ typedef struct {
 typedef struct {
     lenfunc mp_length;
     binaryfunc mp_subscript;
+    ternaryintfunc mp_ass_subscript;
 } COMappingInterface;
 /* ! Object Interfaces */
 
@@ -55,7 +57,7 @@ struct _COTypeObject {
     int tp_itemsize;
     int tp_flags;               /* Flags to define optional/expanded features */
 
-    /* Basic Methods  */
+    /* Basic methods.  */
     newfunc tp_new;             /* Create object. */
     deallocfunc tp_dealloc;     /* Destory object. */
     reprfunc tp_repr;           /* Represent object. */
@@ -68,9 +70,10 @@ struct _COTypeObject {
     getiterfunc tp_iter;        /* Get iterator of object. */
     iternextfunc tp_iternext;   /* Iter to next object. */
 
-    /* Interfaces for standard types */
-    COIntInterface *tp_int_interface;   /* Implement int object interface. */
-    COMappingInterface *tp_mapping_interface;   /* Implement map object interface. (dict) */
+    /* Standard interfaces. */
+    COAritmeticInterface *tp_arithmetic_interface;
+    COMappingInterface *tp_mapping_interface;
+    COSequenceInterface *tp_sequence_interface;
 };
 
 COTypeObject COType_Type;

@@ -1047,7 +1047,7 @@ rshift_error:
     return (COObject *)maybe_small_int(x);
 }
 
-static COIntInterface int_interface = {
+static COAritmeticInterface int_interface = {
     (binaryfunc)int_add,
     (binaryfunc)int_sub,
     (binaryfunc)int_mul,
@@ -1175,7 +1175,7 @@ COTypeObject COInt_Type = {
     0,                          /* tp_call */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
-    &int_interface,             /* tp_int_interface */
+    &int_interface,             /* tp_arithmetic_interface */
     0,                          /* tp_mapping_interface */
 };
 

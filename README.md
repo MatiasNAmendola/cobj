@@ -32,15 +32,3 @@ Examples
     end
 
 See more examples under `examples/` folder.
-
-Conventions
-===========
-    - Use CAPITALIZED_WITH_UNDERSCORES for macros/constants.
-    - Object-oriented style code use:
-        CObject_UppperCameCaseMethod for functions.
-        Object_DataName for data.
-    - Procedure style code
-        module_method for functions.
-        method_data for data.
-    - Function start with '_' must be used internally and carefully.
-    - All C code except third-party libraries should be formated by ./indent.sh.

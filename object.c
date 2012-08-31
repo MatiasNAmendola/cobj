@@ -288,3 +288,84 @@ COObject_GetSelf(COObject *o)
     CO_INCREF(o);
     return o;
 }
+
+COObject *
+COObject_GetItem(COObject *o, COObject *key)
+{
+    COMappingInterface *mi;
+    mi = o->co_type->tp_mapping_interface;
+    if (mi && mi->mp_subscript)
+        return mi->mp_subscript(o, key);
+
+    COErr_Format(COException_TypeError,
+                 "'%.200s' object is not subscriptable", CO_TYPE(o)->tp_name);
+    return NULL;
+}
+
+int
+COObject_SetItem(COObject *o, COObject *key, COObject *value)
+{
+    COMappingInterface *mi;
+    mi = o->co_type->tp_mapping_interface;
+    if (mi && mi->mp_ass_subscript)
+        return mi->mp_ass_subscript(o, key, value);
+
+    COErr_Format(COException_TypeError,
+                 "'%.200s' object does not support subscriptable assignment",
+                 CO_TYPE(o)->tp_name);
+    return -1;
+}
+
+/* Arithmetic methods. */
+#define ARITHMETIC_BINARY_FUNC(func, op, op_name)  \
+    COObject * \
+    func(COObject *a, COObject *b) \
+    { \
+        COAritmeticInterface *ai; \
+\
+        if (a->co_type == b->co_type && (ai = a->co_type->tp_arithmetic_interface) != NULL) { \
+            if (ai->op) { \
+                return ai->op(a, b); \
+            } \
+        } \
+\
+        COErr_Format(COException_UndefinedError, \
+                     "undefined arithmetic operation: %.100s() %s %.100s()", \
+                     a->co_type->tp_name, op_name, b->co_type->tp_name); \
+        return NULL; \
+    }
+
+ARITHMETIC_BINARY_FUNC(COArithmetic_Add, arith_add, "+")
+    ARITHMETIC_BINARY_FUNC(COArithmetic_Sub, arith_sub, "-")
+    ARITHMETIC_BINARY_FUNC(COArithmetic_Mul, arith_mul, "*")
+    ARITHMETIC_BINARY_FUNC(COArithmetic_Div, arith_div, "/")
+    ARITHMETIC_BINARY_FUNC(COArithmetic_Mod, arith_mod, "%")
+    ARITHMETIC_BINARY_FUNC(COArithmetic_Lshift, arith_lshift, "<<")
+    ARITHMETIC_BINARY_FUNC(COArithmetic_Rshift, arith_rshift, ">>")
+
+     COObject *COArithmetic_Neg(COObject *o)
+{
+    COAritmeticInterface *ai;
+    ai = o->co_type->tp_arithmetic_interface;
+    if (ai && ai->arith_neg)
+        return ai->arith_neg(o);
+
+    COErr_Format(COException_TypeError,
+                 "bad operand type for unary -: '%.200s'", CO_TYPE(o)->tp_name);
+    return NULL;
+}
+
+COObject *
+COArithmetic_Invert(COObject *o)
+{
+    COAritmeticInterface *ai;
+    ai = o->co_type->tp_arithmetic_interface;
+    if (ai && ai->arith_invert)
+        return ai->arith_invert(o);
+
+    COErr_Format(COException_TypeError,
+                 "bad operand type for unary ~: '%.200s'", CO_TYPE(o)->tp_name);
+    return NULL;
+}
+
+/* ! Arithmetic methods. */

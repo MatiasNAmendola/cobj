@@ -9,7 +9,7 @@ templates_path = ['templates']
 extensions = [ 'sphinx.ext.refcounting', 'sphinx.ext.coverage', 'sphinx.ext.doctest']
 
 # General substitutions
-project = 'The Co Language Documentation'
+project = 'The CObj Language Documentation'
 copyright = 'Yecheng Fu'
 
 # Options for HTML Output
@@ -19,7 +19,7 @@ copyright = 'Yecheng Fu'
 html_theme = "sphinxdoc"
 
 # short title
-html_short_title = "The Co Language Documentation"
+html_short_title = project
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.

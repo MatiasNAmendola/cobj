@@ -163,7 +163,7 @@ new_frame:                     /* reentry point when function call/return */
                 x = o2;
                 goto skip_decref_o2;
             } else {
-                x = COInt_Type.tp_int_interface->int_add(o1, o2);
+                x = COArithmetic_Add(o1, o2);
             }
             CO_DECREF(o2);
 skip_decref_o2:
@@ -177,7 +177,11 @@ skip_decref_o2:
         case OP_BINARY_SUB:
             o1 = POP();
             o2 = TOP();
-            x = COInt_Type.tp_int_interface->int_sub(o2, o1);
+            x = COArithmetic_Sub(o2, o1);
+            if (!x) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
             CO_DECREF(o1);
             CO_DECREF(o2);
             SET_TOP(x);
@@ -185,7 +189,11 @@ skip_decref_o2:
         case OP_BINARY_MUL:
             o1 = POP();
             o2 = TOP();
-            x = COInt_Type.tp_int_interface->int_mul(o2, o1);
+            x = COArithmetic_Mul(o2, o1);
+            if (!x) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
             CO_DECREF(o1);
             CO_DECREF(o2);
             SET_TOP(x);
@@ -193,7 +201,11 @@ skip_decref_o2:
         case OP_BINARY_DIV:
             o1 = POP();
             o2 = TOP();
-            x = COInt_Type.tp_int_interface->int_div(o2, o1);
+            x = COArithmetic_Div(o2, o1);
+            if (!x) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
             CO_DECREF(o1);
             CO_DECREF(o2);
             SET_TOP(x);
@@ -201,7 +213,11 @@ skip_decref_o2:
         case OP_BINARY_MOD:
             o1 = POP();
             o2 = TOP();
-            x = COInt_Type.tp_int_interface->int_mod(o2, o1);
+            x = COArithmetic_Mod(o2, o1);
+            if (!x) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
             CO_DECREF(o1);
             CO_DECREF(o2);
             SET_TOP(x);
@@ -209,7 +225,11 @@ skip_decref_o2:
         case OP_BINARY_SL:
             o1 = POP();
             o2 = TOP();
-            x = COInt_Type.tp_int_interface->int_lshift(o2, o1);
+            x = COArithmetic_Lshift(o2, o1);
+            if (!x) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
             CO_DECREF(o1);
             CO_DECREF(o2);
             SET_TOP(x);
@@ -217,7 +237,11 @@ skip_decref_o2:
         case OP_BINARY_SR:
             o1 = POP();
             o2 = TOP();
-            x = COInt_Type.tp_int_interface->int_rshift(o2, o1);
+            x = COArithmetic_Rshift(o2, o1);
+            if (!x) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
             CO_DECREF(o1);
             CO_DECREF(o2);
             SET_TOP(x);
@@ -225,17 +249,10 @@ skip_decref_o2:
         case OP_BINARY_SUBSCRIPT:
             o1 = POP();
             o2 = TOP();
-            if (!CO_TYPE(o2)->tp_mapping_interface) {
-                COErr_Format(COException_TypeError,
-                             "'%.200s' object is not subscriptable",
-                             CO_TYPE(o2)->tp_name);
+            x = COObject_GetItem(o2, o1);
+            if (!x) {
                 status = STATUS_EXCEPTION;
-            } else {
-                x = CO_TYPE(o2)->tp_mapping_interface->mp_subscript(o2, o1);
-                if (!x) {
-                    status = STATUS_EXCEPTION;
-                    goto fast_end;
-                }
+                goto fast_end;
             }
             CO_DECREF(o1);
             CO_DECREF(o2);
@@ -256,13 +273,21 @@ skip_decref_o2:
             break;
         case OP_UNARY_NEGATE:
             o1 = TOP();
-            x = COInt_Type.tp_int_interface->int_neg(o1);
+            x = COArithmetic_Neg(o1);
+            if (!x) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
             CO_DECREF(o1);
             SET_TOP(x);
             break;
         case OP_UNARY_INVERT:
             o1 = TOP();
-            x = COInt_Type.tp_int_interface->int_invert(o1);
+            x = COArithmetic_Invert(o1);
+            if (!x) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
             CO_DECREF(o1);
             SET_TOP(x);
             break;
@@ -526,12 +551,9 @@ skip_decref_o2:
             o2 = SECOND();
             o3 = THIRD();
             STACK_ADJ(-3);
-            if (COList_Check(o3)) {
-                err = COList_SetItem(o3, COInt_AsSsize_t(o2), o1);
-            } else if (CODict_Check(o3)) {
-                CODict_SetItem(o3, o2, o1);
-            } else {
-                error("wrong store subscript");
+            if (COObject_SetItem(o3, o2, o1) != 0) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
             }
             CO_DECREF(o1);
             CO_DECREF(o2);
@@ -546,7 +568,7 @@ skip_decref_o2:
         case OP_FOR_ITER:
             oparg = NEXTARG();
             o1 = TOP();
-            x = (*o1->co_type->tp_iternext) (o1);
+            x = COObject_IterNext(o1);
             if (x) {
                 PUSH(x);
                 break;

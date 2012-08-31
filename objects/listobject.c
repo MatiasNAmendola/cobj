@@ -113,9 +113,19 @@ list_iter(COObject *seq)
     return (COObject *)it;
 }
 
+static int
+list_ass_subscript(COObject *this, COObject *index, COObject *value)
+{
+    if (value == NULL)
+        return COList_DelItem(this, COInt_AsSsize_t(index));
+    else
+        return COList_SetItem(this, COInt_AsSsize_t(index), value);
+}
+
 static COMappingInterface mapping_interface = {
     (lenfunc)COList_Size,
     (binaryfunc)list_subscript,
+    (ternaryintfunc)list_ass_subscript,
 };
 
 COTypeObject COList_Type = {
@@ -135,7 +145,7 @@ COTypeObject COList_Type = {
     0,                          /* tp_call */
     (getiterfunc)list_iter,     /* tp_iter */
     0,                          /* tp_iternext */
-    0,                          /* tp_int_interface */
+    0,                          /* tp_arithmetic_interface */
     &mapping_interface,         /* tp_mapping_interface */
 };
 

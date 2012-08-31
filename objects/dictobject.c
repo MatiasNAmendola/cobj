@@ -133,9 +133,19 @@ dict_subscript(CODictObject *this, COObject *index)
     return x;
 }
 
+static int
+dict_ass_sub(CODictObject *this, COObject *key, COObject *value)
+{
+    if (value == NULL)
+        return CODict_DelItem((COObject *)this, key);
+    else
+        return CODict_SetItem((COObject *)this, key, value);
+}
+
 static COMappingInterface mapping_interface = {
     (lenfunc)CODict_Size,
     (binaryfunc)dict_subscript,
+    (ternaryintfunc)dict_ass_sub,
 };
 
 COTypeObject CODict_Type = {
@@ -155,7 +165,7 @@ COTypeObject CODict_Type = {
     0,                          /* tp_call */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
-    0,                          /* tp_int_interface */
+    0,                          /* tp_arithmetic_interface */
     &mapping_interface,         /* tp_mapping_interface */
 };
 

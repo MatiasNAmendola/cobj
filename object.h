@@ -150,11 +150,21 @@ COObject *COObject_Str(COObject *o);
 COObject *COObject_Call(COObject *func, COObject *args);
 COObject *COObject_GetIter(COObject *o);
 COObject *COObject_GetSelf(COObject *o);
+COObject *COObject_GetItem(COObject *o, COObject *key);
+int COObject_SetItem(COObject *o, COObject *key, COObject *value);
+COObject *COArithmetic_Add(COObject *a, COObject *b);
+COObject *COArithmetic_Sub(COObject *a, COObject *b);
+COObject *COArithmetic_Mul(COObject *a, COObject *b);
+COObject *COArithmetic_Div(COObject *a, COObject *b);
+COObject *COArithmetic_Mod(COObject *a, COObject *b);
+COObject *COArithmetic_Lshift(COObject *a, COObject *b);
+COObject *COArithmetic_Rshift(COObject *a, COObject *b);
+COObject *COArithmetic_Neg(COObject *o);
+COObject *COArithmetic_Invert(COObject *o);
 
 #define CO_RETURN_NONE return CO_INCREF(CO_None), CO_None
 
-/* Macro to help write tp_traverse functions.
- */
+/* Macro to help write tp_traverse functions. */
 #define CO_VISIT(o)                                     \
     do {                                                \
         if (o) {                                        \

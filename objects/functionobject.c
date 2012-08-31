@@ -35,7 +35,7 @@ COTypeObject COFunction_Type = {
     0,                          /* tp_call */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
-    0,                          /* tp_int_interface */
+    0,                          /* tp_arithmetic_interface */
     0,                          /* tp_mapping_interface */
 };
 
