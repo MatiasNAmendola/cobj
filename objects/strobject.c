@@ -378,25 +378,37 @@ str_new(COTypeObject *type, COObject *args)
     return COObject_Str(x);
 }
 
+static COAritmeticInterface arithmetic_interface = {
+    (binaryfunc)str_concat,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+};
+
 COTypeObject COStr_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "str",
     COStr_BASESIZE,
     sizeof(char),
     0,
-    (newfunc)str_new,           /* tp_new               */
-    (deallocfunc)str_dealloc,   /* tp_dealloc           */
-    (reprfunc)str_repr,         /* tp_repr              */
-    (printfunc)str_print,       /* tp_print             */
-    (hashfunc)str_hash,         /* tp_hash              */
-    (comparefunc)str_compare,   /* tp_compare           */
-    0,                          /* tp_traverse          */
-    0,                          /* tp_clear             */
-    0,                          /* tp_call              */
-    0,                          /* tp_iter              */
-    0,                          /* tp_iternext          */
-    0,                          /* tp_arithmetic_interface     */
-    0,                          /* tp_mapping_interface */
+    (newfunc)str_new,           /* tp_new                  */
+    (deallocfunc)str_dealloc,   /* tp_dealloc              */
+    (reprfunc)str_repr,         /* tp_repr                 */
+    (printfunc)str_print,       /* tp_print                */
+    (hashfunc)str_hash,         /* tp_hash                 */
+    (comparefunc)str_compare,   /* tp_compare              */
+    0,                          /* tp_traverse             */
+    0,                          /* tp_clear                */
+    0,                          /* tp_call                 */
+    0,                          /* tp_iter                 */
+    0,                          /* tp_iternext             */
+    &arithmetic_interface,      /* tp_arithmetic_interface */
+    0,                          /* tp_mapping_interface    */
 };
 
 char *
