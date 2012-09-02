@@ -32,7 +32,11 @@
 
 # call object's method
 # 
-# obj.meth != obj[meth], duplicated
-# obj.meth(arg1, arg2, ..., argn) -> obj[meth](obj, arg1, arg2, argn)
-# obj.data
-# foo.bar.data
+# obj.attr = obj[attr_name] # attr_name is a name which is string object has value "attr"
+# obj->meth(arg1, arg2, ..., argn) -> obj.meth(obj, arg1, arg2, ..., argn)
+# obj::meth(arg1, arg2, ..., argn)
+# obj.data: access obj's data
+# obj.meth: ascess obj's meth
+# foo.bar.data: access foo's bar, then access bar's data
+# foo.bar->meth
+# foo.bar::meth

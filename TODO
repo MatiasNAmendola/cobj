@@ -1,5 +1,7 @@
 Core
-=====
+====
+ * object-oriented call, obj::meth(arg1, arg2, ..., argn)
+ * multiple assginment, a, b, c = sequence_object(list/tuple, etc)
  * optinal positional argument?
  * dict as module
  * error message with location
@@ -15,4 +17,4 @@ Unit Test
 
 Misc
 ====
- * let version be consistent with git version or tag
+  Write docs.

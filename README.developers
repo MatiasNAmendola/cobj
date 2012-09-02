@@ -16,14 +16,14 @@ Names
 Comments
 ========
     - Line comment
-    /*** First level line comment. ***/
-    /*** ! First level line comment. ***/
-    /* Second level line comment. */
-    /* ! Second level line comment. */
-    // Third level line comment.
-    // ! Third level line comment.
+    /*** 1st level line comment. ***/
+    /*** ! 1st level line comment. ***/
+    /* 2nd level line comment. */
+    /* ! 2nd level line comment. */
+    // 3rd level line comment.
+    // ! 3rd level line comment.
 
-    Note: Line comment can optional end of block line, which starting with `!`,
+    Note: Line comment can have a end of block line, which has same contents but preceded by `!`
     to comment a code block that spans multiple lines.
 
     - Block comment
