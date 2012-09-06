@@ -1,7 +1,7 @@
 Visibility Rules
------------
+----------------
 
-CO is a lexically scoped language. The scope of a local variable begins at the first statement after its declaration and lasts until the last non-void statement of the innermost block that includes the declaration. Consider the following example:::
+CObj is a lexically scoped language. The scope of a local variable begins at the first statement after its declaration and lasts until the last non-void statement of the innermost block that includes the declaration. Consider the following example:::
 
     x = 10              # global variable
     i = 0

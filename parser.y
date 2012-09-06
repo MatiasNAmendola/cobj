@@ -68,7 +68,7 @@ return_none_node(struct arena *arena)
 %type <node> expr_list non_empty_expr_list expr_list_inline non_empty_expr_list_inline
 %type <node> expr_list_morethanone
 %type <node> assoc_list non_empty_assoc_list
-%type <node> opt_param_list name_list non_empty_name_list
+%type <node> opt_param_list param_list non_empty_param_list
 %type <node> catch_block
 %type <node> catch_list opt_catch_list opt_finally_block
 
@@ -427,20 +427,20 @@ opt_catch_list:
 ;
 
 opt_param_list:
-        '(' name_list ')' { $$ = $2; }
+        '(' param_list ')' { $$ = $2; }
     |   %prec NotParen /* empty */ { $$ = 0; }
 ;
 
-name_list:
-        non_empty_name_list
+param_list:
+        non_empty_param_list
     |   /* empty */ { $$ = 0; }
 ;
 
-non_empty_name_list:
+non_empty_param_list:
         T_NAME {
             $$ = node_list(c->arena, $1, NULL);
         }
-    |   non_empty_name_list ',' T_NAME {
+    |   non_empty_param_list ',' T_NAME {
             $$ = node_listappend(c->arena, $1, $3);
         }
 ;

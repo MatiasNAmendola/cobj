@@ -580,8 +580,8 @@ static const char *const yytname[] =
   "non_empty_expr_list_inline", "expr_list", "non_empty_expr_list",
   "expr_list_morethanone", "assoc_list", "non_empty_assoc_list",
   "simple_stmt", "compound_stmt", "opt_finally_block", "catch_block",
-  "catch_list", "opt_catch_list", "opt_param_list", "name_list",
-  "non_empty_name_list", "opt_else", "if_tail", YY_NULL
+  "catch_list", "opt_catch_list", "opt_param_list", "param_list",
+  "non_empty_param_list", "opt_else", "if_tail", YY_NULL
 };
 #endif
 

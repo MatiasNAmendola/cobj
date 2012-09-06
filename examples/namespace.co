@@ -1,0 +1,18 @@
+# Namespace. (draft only)
+#
+# names:
+#
+# foo
+# foo.bar
+# foo.bar.baz
+#
+# name can be global (default) or local
+#
+# name can refers to any object
+#
+# print(foo.bar) what happens here is:
+# 
+# load object named 'foo'
+# index bar from foo object to load object
+# print this object
+#

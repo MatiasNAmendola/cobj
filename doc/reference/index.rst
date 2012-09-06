@@ -15,7 +15,7 @@
     notation.rst
     lexical_elements.rst
     variables.rst
-    expressions.rst
     visibility_rules.rst
+    expressions.rst
     errors.rst
     grammar.rst

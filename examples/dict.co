@@ -1,3 +1,4 @@
+# Dictinary object.
 dict = {
     "a": 10
 }

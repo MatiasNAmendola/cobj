@@ -36,3 +36,13 @@ Comments
     /*
      *  <doc string, block comment without title>
      */
+
+Conventions
+===========
+    For less memory usage...
+
+    Parameter names:
+
+        a, b, c, d, e, f, g
+        this, that, other
+        x, y 

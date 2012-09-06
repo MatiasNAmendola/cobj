@@ -30,6 +30,26 @@ code_hash(COCodeObject *co)
     return h;
 }
 
+static COObject *
+code_compare(COCodeObject *this, COCodeObject *that, int op)
+{
+    COObject *x;
+
+    if (op != Cmp_EQ && op != Cmp_NE) {
+        COErr_Format(COException_UndefinedError, "");
+        return NULL;
+    }
+
+    if (this == that) {
+        x = CO_True;
+    } else {
+        x = CO_False;
+    }
+
+    CO_INCREF(x);
+    return x;
+}
+
 static void
 code_dealloc(COCodeObject *this)
 {
@@ -51,7 +71,7 @@ COTypeObject COCode_Type = {
     (reprfunc)code_repr,        /* tp_repr */
     0,                          /* tp_print */
     (hashfunc)code_hash,        /* tp_hash */
-    0,                          /* tp_compare */
+    (comparefunc)code_compare,  /* tp_compare */
     0,                          /* tp_traverse */
     0,                          /* tp_clear */
     0,                          /* tp_call */

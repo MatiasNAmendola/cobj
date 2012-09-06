@@ -1,4 +1,7 @@
 # Class examples. (draft only)
+#
+# Declaring a class creates a type object.
+# 
 
 #myclass = func() {
     #name = "no name yet!"; # private
@@ -27,8 +30,6 @@
     #end
 #end
 
-
-# prototype-based I prefer
 
 # call object's method
 # 

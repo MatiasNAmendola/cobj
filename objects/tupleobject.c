@@ -34,15 +34,15 @@ tuple_repr(COTupleObject *this)
 static long
 tuple_hash(COTupleObject *this)
 {
-    long x, y;
+    long x = 0L, y = 0L;
     ssize_t len;
-    COObject **p;
-    x = 0x345678L;
     len = CO_SIZE(this);
-    p = this->co_item;
+    COObject **p = this->co_item;
     while (--len >= 0) {
         y = COObject_Hash(*p++);
-        x = (x ^ y) * len;
+        if (y == -1)
+            return -1;
+        x = (x ^ y) * (len + 1);
     }
     return x;
 }
