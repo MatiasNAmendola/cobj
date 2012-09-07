@@ -11,6 +11,7 @@
     :maxdepth: 2
     :numbered:
 
+    introduction.rst
     concepts.rst
     notation.rst
     lexical_elements.rst
