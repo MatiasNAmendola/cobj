@@ -206,6 +206,19 @@ expr: /* express something */
     |   expr '.' T_NAME {
             $$ = node_new(c->arena, NODE_LOAD_DOTSUBSCRIPT, $1, $3); $$->u.op = OP_BINARY_SUBSCRIPT;
         }
+    |   T_NAME ':' T_NAME '(' expr_list ')' {
+            Node *f = node_new(c->arena, NODE_LOAD_DOTSUBSCRIPT, $1, $3); 
+            f->u.op = OP_BINARY_SUBSCRIPT;
+            $$ = node_new(c->arena, NODE_FUNC_CALL, NULL, NULL);
+            $$->nd_func = f;
+            Node *p;
+            if ($5) {
+                p = node_listprepend(c->arena, $5, $1);
+            } else {
+                p = $1;
+            }
+            $$->nd_params = p;
+        }   
     |   funcliteral opt_param_list stmt_list T_END {
             Node *t = node_new(c->arena, NODE_FUNC, NULL, NULL);
             t->nd_funcname = 0;

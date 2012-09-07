@@ -4,13 +4,16 @@
 # 
 o = {
     "data" => "A data string",
-    "foo" => func(self) return self.data end
+    "balance" => 10,
+    "foo" => func(self) return self.data end,
+    "draw" => func(self, a) self.balance = self.balance + a; return self.balance end
 }
 print(o["data"])
 print(o.data)
-print(o["foo"]())
+print(o["foo"](o))
 print(o.foo(o))
-#print(o:foo())
+print(o:foo())
+print(o:draw(10))
 
 #myclass = func() {
     #name = "no name yet!"; # private

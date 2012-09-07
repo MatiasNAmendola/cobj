@@ -126,8 +126,9 @@ typedef struct _Node {
 
 Node *node_new(struct arena *arena, Node_Type type, Node *nleft, Node *nright);
 Node *node_list(struct arena *arena, Node *n, ...);
-Node *node_listconcat(Node *a, Node *b);
+Node *node_listprepend(struct arena *arena, Node *l, Node *n);
 Node *node_listappend(struct arena *arena, Node *l, Node *n);
+Node *node_listconcat(Node *a, Node *b);
 int node_listlen(Node *l);
 const char *node_type(Node_Type type);
 

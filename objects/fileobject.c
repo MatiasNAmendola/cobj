@@ -18,7 +18,7 @@ file_repr(COFileObject *this)
 static void
 file_dealloc(COFileObject *this)
 {
-    this->f_close(this->f_fp);
+    fclose(this->f_fp);
     CO_XDECREF(this->f_name);
     CO_XDECREF(this->f_mode);
     COObject_Mem_FREE(this);
@@ -259,7 +259,6 @@ COFile_FromFile(FILE *fp, char *name, char *mode, int (*close) (FILE *))
     f->f_fp = fp;
     f->f_name = f_name;
     f->f_mode = f_mode;
-    f->f_close = close;
     return (COObject *)f;
 }
 

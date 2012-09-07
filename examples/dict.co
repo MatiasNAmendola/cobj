@@ -1,6 +1,6 @@
 # Dictinary object.
 dict = {
-    "a": 10
+    "a" => 10
 }
 print(dict.a)
 print(dict["a"])

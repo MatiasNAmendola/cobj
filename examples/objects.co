@@ -37,5 +37,5 @@ print([ 1
 
 # Dict
 print({
-    "a": "a string member",
+    "a" => "a string member",
 })

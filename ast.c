@@ -46,9 +46,12 @@ node_list(struct arena *arena, Node *n, ...)
     return l;
 }
 
-/*
- * Append a node into list.
- */
+Node *
+node_listprepend(struct arena *arena, Node *l, Node *n)
+{
+    return node_listconcat(node_list(arena, n, NULL), l);
+}
+
 Node *
 node_listappend(struct arena *arena, Node *l, Node *n)
 {
