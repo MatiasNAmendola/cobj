@@ -14,7 +14,7 @@ COObject_Dump(COObject *o)
     if (o == NULL) {
         fprintf(stderr, "NULL\n");
     } else {
-        fprintf(stderr, "object(%p):\n", o);
+        fprintf(stderr, "object(%p):\n", (void*)o);
         fprintf(stderr, "    type: %s\n",
                 CO_TYPE(o) == NULL ? "NULL" : CO_TYPE(o)->tp_name);
         fprintf(stderr, "    refcnt: %d\n", o->co_refcnt);
@@ -89,7 +89,7 @@ COObject_Print(COObject *o, FILE *fp)
         return 0;
     }
     if (CO_REFCNT(o) <= 0) {
-        fprintf(fp, "<refcnt %ld at %p>", (long)CO_REFCNT(o), o);
+        fprintf(fp, "<refcnt %ld at %p>", (long)CO_REFCNT(o), (void*)o);
         return 0;
     } else if (CO_TYPE(o)->tp_print == NULL) {
         COObject *s = CO_TYPE(o)->tp_repr(o);
@@ -202,7 +202,7 @@ _CO_NegativeRefCnt(const char *fname, int lineno, COObject *co)
     char buf[256];
     snprintf(buf, sizeof(buf),
              "%s:%i object at %p has negative ref count: %d", fname, lineno,
-             co, co->co_refcnt);
+             (void*)co, co->co_refcnt);
     fprintf(stderr, "%s\n", buf);
     exit(-1);
 }

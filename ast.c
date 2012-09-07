@@ -26,7 +26,7 @@ node_list(struct arena *arena, Node *n, ...)
 
     va_start(params, n);
 
-    Node *l;
+    Node *l = NULL;
 
     if (n) {
         l = node_new(arena, NODE_TREE, NULL, NULL);

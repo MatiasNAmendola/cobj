@@ -48,7 +48,7 @@
     { 1, type_ref }
 
 // initial segment of every variable-size object
-#define COVarObject_HEAD COVarObject co_base;
+#define COVarObject_HEAD COVarObject co_base
 #define COVarObject_HEAD_INIT(type_ref, size) \
     { COObject_HEAD_INIT(type_ref), size }
 
