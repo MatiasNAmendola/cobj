@@ -75,22 +75,23 @@ extern int codebug;
      T_NAME = 284,
      T_NOT_EQUAL = 285,
      T_EQUAL = 286,
-     T_MOD_ASSIGN = 287,
-     T_DIV_ASSIGN = 288,
-     T_MUL_ASSIGN = 289,
-     T_SUB_ASSIGN = 290,
-     T_ADD_ASSIGN = 291,
-     T_SR_ASSIGN = 292,
-     T_SL_ASSIGN = 293,
-     T_GREATER_OR_EQUAL = 294,
-     T_SMALLER_OR_EQUAL = 295,
-     T_POW = 296,
-     T_SL = 297,
-     T_SR = 298,
-     UNARY_OP = 299,
-     NotName = 300,
-     NotParen = 301,
-     PreferToRightParen = 302
+     T_MAPPING = 287,
+     T_MOD_ASSIGN = 288,
+     T_DIV_ASSIGN = 289,
+     T_MUL_ASSIGN = 290,
+     T_SUB_ASSIGN = 291,
+     T_ADD_ASSIGN = 292,
+     T_SR_ASSIGN = 293,
+     T_SL_ASSIGN = 294,
+     T_GREATER_OR_EQUAL = 295,
+     T_SMALLER_OR_EQUAL = 296,
+     T_POW = 297,
+     T_SL = 298,
+     T_SR = 299,
+     UNARY_OP = 300,
+     NotName = 301,
+     NotParen = 302,
+     PreferToRightParen = 303
    };
 #endif
 
@@ -105,7 +106,7 @@ typedef union YYSTYPE
 
 
 /* Line 2049 of yacc.c  */
-#line 109 "parser.h"
+#line 110 "parser.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

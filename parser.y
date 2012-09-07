@@ -52,6 +52,7 @@ return_none_node(struct arena *arena)
 %token  <node> T_STRING
 %token  <node> T_NAME
 %nonassoc T_EQUAL T_NOT_EQUAL
+%nonassoc T_MAPPING
 %token T_MOD_ASSIGN T_DIV_ASSIGN T_MUL_ASSIGN T_SUB_ASSIGN T_ADD_ASSIGN T_SR_ASSIGN T_SL_ASSIGN
 %nonassoc '<' '>' T_SMALLER_OR_EQUAL T_GREATER_OR_EQUAL
 %left   ','
@@ -277,10 +278,10 @@ assoc_list:
 ;
 
 non_empty_assoc_list:
-        opt_newlines expr ':' expr opt_newlines {
+        opt_newlines expr T_MAPPING expr opt_newlines {
             $$ = node_list(c->arena, node_new(c->arena, NODE_DICT_ADD, $2, $4), NULL);
         }
-    |   non_empty_assoc_list ',' opt_newlines expr ':' expr opt_newlines {
+    |   non_empty_assoc_list ',' opt_newlines expr T_MAPPING expr opt_newlines {
             $$ = node_listappend(c->arena, $1, node_new(c->arena, NODE_DICT_ADD, $4, $6));
         }
 ;
