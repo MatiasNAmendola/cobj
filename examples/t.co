@@ -1,9 +1,0 @@
-a = "outside a"
-str = "outside str"
-func hello(str)
-    print(str)
-    str = "changed"
-    print(str)
-end
-
-hello(a)

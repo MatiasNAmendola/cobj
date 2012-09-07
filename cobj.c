@@ -58,6 +58,7 @@ eval_wrapper(COObject *func)
             return NULL;
         }
     }
+    CO_DECREF(globals);
     return ret;
 }
 

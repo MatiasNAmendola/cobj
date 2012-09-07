@@ -11,7 +11,6 @@ typedef struct _COFileObject {
     FILE *f_fp;
     COObject *f_name;
     COObject *f_mode;
-    int (*f_close) (FILE *);
 
     char *f_buf;                /* Allocated readahead buffer. */
     char *f_bufend;             /* Points after last occupied position. */

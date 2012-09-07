@@ -7,8 +7,8 @@ plan("no_plan")
 test_expect_result("""a
 """, """
 d = {
-    "string": "a",
-    10: "10",
+    "string" => "a",
+    10 => "10",
 }
 print(d["string"])
 #print(d.string)
@@ -22,7 +22,7 @@ test_expect_result("""10
 12
 """, """
 dict = {
-    "a": 10
+    "a" => 10
 }
 print(dict.a)
 print(dict["a"])

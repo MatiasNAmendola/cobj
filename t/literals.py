@@ -53,7 +53,7 @@ test_expect_result(""" span
 ''')
 test_expect_result("", """
 d = {
-    'key': 'value',
-    'c': 'test',
-    0: "test integer",
+    'key' => 'value',
+    'c' => 'test',
+    0 => "test integer",
 }""")

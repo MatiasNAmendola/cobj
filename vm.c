@@ -105,7 +105,6 @@ vm_eval(COObject *func, COObject *globals)
     COObject *names;
     COObject *consts;
     COObject *localnames;
-    COObject *funcargs = COList_New(0);
 
     COObject **fastlocals;
     COObject **stack_top;       /* Stack top, points to next free slot in stack */
@@ -133,23 +132,7 @@ new_frame:                     /* reentry point when function call/return */
     fastlocals = TS(frame)->f_extraplus;
 
     /* Parse arguments. */
-    if (COList_GET_SIZE(funcargs)) {
-        // check arguments count
-        if (code->co_argcount != COList_GET_SIZE(funcargs)) {
-            COErr_Format(COException_ValueError,
-                         "takes exactly %d arguments (%d given)",
-                         code->co_argcount, COList_Size(funcargs));
-            status = STATUS_EXCEPTION;
-            goto fast_end;
-        }
-        size_t n = COList_Size(funcargs);
-        for (int i = 0; i < n; i++) {
-            x = COList_GetItem(funcargs, 0);
-            CO_INCREF(x);
-            SETLOCAL(n - i - 1, x);
-            COList_DelItem(funcargs, 0);
-        }
-    }
+    // check arguments count
 
     for (;;) {
         opcode = NEXTOP();
@@ -248,6 +231,7 @@ new_frame:                     /* reentry point when function call/return */
             }
             CO_DECREF(o1);
             CO_DECREF(o2);
+            CO_INCREF(x);
             SET_TOP(x);
             break;
         case OP_CMP:
@@ -437,18 +421,32 @@ new_frame:                     /* reentry point when function call/return */
                 CO_DECREF(args);
                 PUSH(x);
             } else if (COFunction_Check(o1)) {
-                ssize_t i = CO_SIZE(args);
-                while (--i >= 0) {
-                    COList_Append(funcargs, COTuple_GET_ITEM(args, i));
-                }
-                CO_DECREF(args);
+                // Store frame.
                 TS(frame)->f_stacktop = stack_top;
                 TS(frame)->f_lasti = (int)(next_code - first_code);
+
+                // Set up new frame.
                 TS(frame) =
                     (COFrameObject *)COFrame_New((COObject *)TS(frame), o1,
                                                  globals);
-                CO_DECREF(o1);
+
                 func = o1;
+                code = ((COFunctionObject *)func)->func_code;
+                if (code->co_argcount != COList_GET_SIZE(args)) {
+                    COErr_Format(COException_ValueError,
+                                 "takes exactly %d arguments (%d given)",
+                                 code->co_argcount, COList_GET_SIZE(args));
+                    status = STATUS_EXCEPTION;
+                    goto fast_end;
+                }
+                for (int i = 0; i < COList_GET_SIZE(args); i++) {
+                    x = COTuple_GET_ITEM(args, i);
+                    CO_INCREF(x);
+                    TS(frame)->f_extraplus[i] = x;
+                }
+                CO_DECREF(args);
+
+                CO_DECREF(o1);
                 goto new_frame;
             } else {
                 x = COObject_Call(o1, args);
