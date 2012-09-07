@@ -9,7 +9,7 @@ CC = gcc
 RM = rm -rf
 
 EXTRA_CFLAGS =  # dynamically added/removed
-CFLAGS = -std=c99 -Wall $(EXTRA_CFLAGS)
+CFLAGS = -std=c99 -pedantic -Wall $(EXTRA_CFLAGS)
 ifdef CO_DEBUG
 	CFLAGS += -DCO_DEBUG -g3
 else
@@ -69,6 +69,9 @@ LIB_OBJS += objects/setobject.o
 LIB_OBJS += linenoise/linenoise.o
 LIB_OBJS += argparse/argparse.o
 
+linenoise/linenoise.o:
+	make -C linenoise linenoise.o
+
 $(LIB_OBJS): $(LIB_H)
 
 version.h: gen-version.sh
@@ -79,7 +82,7 @@ cobj: $(LIB_OBJS)
 
 cobj.o: version.h
 
-argparse/argparse.h:
+argparse/argparse.h linenoise/linenoise.h:
 	@if test ! -f argparse/argparse.c; then \
 		git submodule update --init --recursive; \
 	fi;
@@ -104,7 +107,6 @@ uninstall:
 
 clean:
 	$(RM) cobj
-	# library objects
 	find . -name '*.[oa]' | xargs $(RM)
 	$(RM) *.output
 

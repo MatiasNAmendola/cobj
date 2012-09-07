@@ -113,12 +113,11 @@ vm_eval(COObject *func, COObject *globals)
     unsigned char *next_code;
     unsigned char *first_code;
     unsigned char opcode;       /* Current opcode */
-    int oparg;                  /* Current opcode argument, if any */
-    COObject *x;                /* Result object -- NULL if error */
-    COObject *o1, *o2, *o3;     /* Temporary objects popped of stack */
-    int status;                 /* VM status */
-    int err;                    /* C function error code */
-    status = STATUS_NONE;
+    int oparg = 0;                  /* Current opcode argument, if any */
+    COObject *x = NULL;                /* Result object -- NULL if error */
+    COObject *o1 = NULL, *o2 = NULL, *o3 = NULL;     /* Temporary objects popped of stack */
+    int status = STATUS_NONE;                 /* VM status */
+    int err = 0;                    /* C function error code */
 
     TS(frame) =
         (COFrameObject *)COFrame_New((COObject *)TS(frame), func, globals);

@@ -131,7 +131,7 @@ universal_newline_fread(char *buf, size_t n, FILE *stream, COFileObject *f)
  * MemoryError if buffsize bytes cannot be allocated.
  */
 static int
-readahead(COFileObject *f, int bufsize)
+__readahead(COFileObject *f, int bufsize)
 {
     ssize_t chunksize;
     if (f->f_buf != NULL) {
@@ -172,7 +172,7 @@ readahead_get_line_skip(COFileObject *f, int skip, int bufsize)
     ssize_t len;
 
     if (f->f_buf == NULL)
-        if (readahead(f, bufsize) < 0)
+        if (__readahead(f, bufsize) < 0)
             return NULL;
 
     len = f->f_bufend - f->f_bufptr;
