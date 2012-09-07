@@ -359,6 +359,10 @@ ANY_CHAR    = [^];
     return T_NAME;
 }
 
+<SC_INIT>"=>" {
+    return T_MAPPING;
+}
+
 <SC_INIT>"<<" {
     return T_SL;
 }

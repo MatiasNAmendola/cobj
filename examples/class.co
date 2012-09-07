@@ -2,6 +2,15 @@
 #
 # Declaring a class creates a type object.
 # 
+o = {
+    "data" => "A data string",
+    "foo" => func(self) return self.data end
+}
+print(o["data"])
+print(o.data)
+print(o["foo"]())
+print(o.foo(o))
+#print(o:foo())
 
 #myclass = func() {
     #name = "no name yet!"; # private
