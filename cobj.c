@@ -46,11 +46,12 @@ cli_completion(const char *buf, linenoiseCompletions *lc)
 }
 
 COObject *
-eval_wrapper(COObject *func)
+eval_wrapper(COObject *code)
 {
     COObject *ret;
 
     COObject *globals = CODict_New();
+    COObject *func = COFunction_New(code);
     ret = vm_eval(func, globals);
     if (!ret) {
         if (COErr_Occurred()) {
@@ -58,6 +59,7 @@ eval_wrapper(COObject *func)
             return NULL;
         }
     }
+    CO_DECREF(func);
     CO_DECREF(globals);
     return ret;
 }
@@ -72,12 +74,10 @@ run_file(FILE *fp, const char *filename)
     COObject *source = COFile_Read(f, -1);
     scanner_setcode(COBytes_AsString(source));
     COObject *code = compile(arena);
-    COObject *func = COFunction_New(code);
-    ret = eval_wrapper(func);
+    ret = eval_wrapper(code);
     CO_DECREF(source);
     CO_DECREF(f);
     CO_DECREF(code);
-    CO_DECREF(func);
     COState_DeleteCurrent();
     arena_free(arena);
     return ret ? 1 : 0;
@@ -160,7 +160,7 @@ main(int argc, const char **argv)
                 scanner_setcode(eval);
                 COObject *code = compile(arena);
                 COObject *func = COFunction_New(code);
-                ret = vm_eval(func, globals);
+                ret = vm_eval(code, globals);
                 if (!ret) {
                     if (COErr_Occurred()) {
                         COErr_Print();

@@ -6,7 +6,7 @@ func newObject(value)
         end
     end
 end
-d = newObject(0)
-print(d("get", None)) # TODO, optinal arguments
-d("set", 10)
-print(d("get", None))
+d = newObject(10)
+print(d("get"):
+d("set", 20)
+print(d("get"))
