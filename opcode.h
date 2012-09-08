@@ -21,7 +21,7 @@ typedef enum {
     OP_JMPZ,
     OP_JMP,
     OP_JMPX,
-    OP_DECLARE_FUNCTION,
+    OP_MAKE_FUNCTION,
     OP_RETURN,
     OP_CALL_FUNCTION,
     OP_SETUP_TRY,

@@ -570,22 +570,44 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_use_new_block(c);
         c->u->u_argcount = node_listlen(n->nd_funcargs);
         Node *l = n->nd_funcargs;
+        Node *default_exprs = NULL; 
+        bool already_has_optional_args = false;
         while (l) {
-            oparg = compiler_add(c->u->u_localnames, l->nd_node->u.o);
+            if (l->nd_node->type == NODE_BIN) {
+                already_has_optional_args = true;
+                if (!default_exprs) {
+                    default_exprs = node_list(c->arena, l->nd_node->nd_right, NULL);
+                    oparg = compiler_add(c->u->u_localnames, l->nd_node->nd_left->u.o);
+                } else {
+                    default_exprs = node_listappend(c->arena, default_exprs, l->nd_node);
+                    oparg = compiler_add(c->u->u_localnames, l->nd_node->nd_left->u.o);
+                }
+            } else {
+                if (already_has_optional_args) {
+                    error("positional arguments cannot follow optional arguments");
+                }
+                oparg = compiler_add(c->u->u_localnames, l->nd_node->u.o);
+            }
             l = l->nd_next;
         }
         compiler_visit_node(c, n->nd_funcbody);
         COObject *co = assemble(c);
 #ifdef CO_DEBUG
-        printf("begin function\n");
+        printf("begin code\n");
         dump_code(co);
-        printf("end function\n");
+        printf("end code\n");
 #endif
         compiler_exit_scope(c);
+        int default_argcount = node_listlen(default_exprs);
+        l = default_exprs;
+        while (l) {
+            compiler_visit_node(c, l->nd_node);
+            l = l->nd_next;
+        }
         oparg = compiler_add(c->u->u_consts, co);
         CO_DECREF(co);
         compiler_addop_i(c, OP_LOAD_CONST, oparg);
-        compiler_addop(c, OP_DECLARE_FUNCTION);
+        compiler_addop_i(c, OP_MAKE_FUNCTION, default_argcount);
 
         if (n->nd_funcname) {
             oparg = compiler_add(c->u->u_names, n->nd_funcname->u.o);
@@ -871,7 +893,7 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_JMP:
     case OP_JMPX:
         return 0;
-    case OP_DECLARE_FUNCTION:
+    case OP_MAKE_FUNCTION:
         return 0;
     case OP_RETURN:
         return -1;
@@ -1083,6 +1105,10 @@ dump_code(COObject *code)
         opcode = NEXTOP();
         printf("%ld.\t%s", bytecode - start - 1, opcode_name(opcode));
         switch (opcode) {
+        case OP_MAKE_FUNCTION:
+            oparg = NEXTARG();
+            printf("\t\t%d", oparg);
+            break;
         case OP_LOAD_LOCAL:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);

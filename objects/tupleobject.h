@@ -25,6 +25,7 @@ int COTuple_SetItem(COObject *this, ssize_t index, COObject *item);
 COObject *COTuple_GetSlice(COObject *this, int ilow, int ihigh);
 
 /* Macros, trading safety for speed */
+#define COTuple_GET_SIZE(co)        CO_SIZE(co)
 #define COTuple_GET_ITEM(co, i)     (((COTupleObject *)(co))->co_item[i])
 // this *only* to be used to fill in brand new tuples 
 #define COTuple_SET_ITEM(co, i, v)  (((COTupleObject *)(co))->co_item[i] = v)

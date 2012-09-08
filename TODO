@@ -17,6 +17,11 @@ Unit Test
   Valgrind memeory check.
   - leak a lot of memory when exception occurs
 
+Module
+======
+  gc like Python's gc
+  test like perl6's Test
+
 Misc
 ====
   Write docs.

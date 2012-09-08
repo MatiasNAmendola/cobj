@@ -45,7 +45,7 @@ vm_cmp(int op, COObject *o1, COObject *o2)
             assert(0);
         }
         int i = 0;
-        for (; i < COTuple_Size(o1); i++) {
+        for (; i < COTuple_GET_SIZE(o1); i++) {
             if (COObject_CompareBool(COTuple_GET_ITEM(o1, i), o2, Cmp_EQ)) {
                 x = CO_True;
                 CO_INCREF(x);
@@ -381,16 +381,29 @@ new_frame:                     /* reentry point when function call/return */
             oparg = NEXTARG();
             JUMPTO(oparg);
             break;
-        case OP_DECLARE_FUNCTION:
+        case OP_MAKE_FUNCTION:
+            oparg = NEXTARG();
             o1 = POP();
-            x = COFunction_New(o1);
             COCodeObject *c = (COCodeObject *)o1;
+            x = COFunction_New((COObject *)c);
+            // defaults
+            COObject *defaults = NULL;
+            if (oparg > 0) {
+                defaults = COTuple_New(oparg);
+                int i = oparg;
+                while (i--) {
+                    COTuple_SetItem(defaults, oparg - (i + 1), POP());
+                }
+            }
+            // load code object
+            ((COFunctionObject *)x)->func_defaults = defaults;
+            // upvalues
             for (int i = 0; i < CO_SIZE(c->co_upvals); i++) {
                 COObject *name = COTuple_GET_ITEM(c->co_upvals, i);
                 COObject *upvalue = COObject_get(name);
                 if (!upvalue) {
                     // local variables 
-                    for (int j = 0; j < COTuple_Size(localnames); j++) {
+                    for (int j = 0; j < COTuple_GET_SIZE(localnames); j++) {
                         if (COObject_CompareBool
                             (COTuple_GET_ITEM(localnames, j), name, Cmp_EQ)) {
                             upvalue = GETLOCAL(j);
@@ -414,6 +427,9 @@ new_frame:                     /* reentry point when function call/return */
                 CO_DECREF(o2);
             }
 
+            /* Always dispath CFunction first, because these are presumed to be
+             * the most frequently called objects.
+             */
             if (COCFunction_Check(o1)) {
                 COCFunction cfunc = COCFunction_GET_FUNCTION(o1);
                 x = cfunc(NULL, args);
@@ -421,6 +437,12 @@ new_frame:                     /* reentry point when function call/return */
                 CO_DECREF(args);
                 PUSH(x);
             } else if (COFunction_Check(o1)) {
+                // Load defaults arguments
+                COObject *defaults = ((COFunctionObject *)o1)->func_defaults;
+                int defaults_argcount = 0;
+                if (defaults) {
+                    defaults_argcount = COTuple_GET_SIZE(defaults);
+                }
                 // Store frame.
                 TS(frame)->f_stacktop = stack_top;
                 TS(frame)->f_lasti = (int)(next_code - first_code);
@@ -430,19 +452,38 @@ new_frame:                     /* reentry point when function call/return */
                     (COFrameObject *)COFrame_New((COObject *)TS(frame), o1,
                                                  globals);
 
-                func = o1;
-                code = ((COFunctionObject *)func)->func_code;
-                if (code->co_argcount != COList_GET_SIZE(args)) {
+                code = ((COFunctionObject *)o1)->func_code;
+                if (defaults_argcount == 0 && COTuple_GET_SIZE(args) != code->co_argcount) {
                     COErr_Format(COException_ValueError,
                                  "takes exactly %d arguments (%d given)",
                                  code->co_argcount, COList_GET_SIZE(args));
+                } else if (COTuple_GET_SIZE(args) < code->co_argcount - defaults_argcount) {
+                    COErr_Format(COException_ValueError,
+                                 "takes at least %d arguments (%d given)",
+                                 code->co_argcount - defaults_argcount, COList_GET_SIZE(args));
                     status = STATUS_EXCEPTION;
+                } else if (COTuple_GET_SIZE(args) > code->co_argcount) {
+                    COErr_Format(COException_ValueError,
+                                 "takes at most %d arguments (%d given)",
+                                 code->co_argcount - defaults_argcount, COList_GET_SIZE(args));
+                    status = STATUS_EXCEPTION;
+                }
+                if (status != STATUS_NONE) {
                     goto fast_end;
                 }
-                for (int i = 0; i < COList_GET_SIZE(args); i++) {
+                int i = 0;
+                int j = 0;
+                for (; i < COList_GET_SIZE(args); i++) {
                     x = COTuple_GET_ITEM(args, i);
                     CO_INCREF(x);
                     TS(frame)->f_extraplus[i] = x;
+                }
+                j = i;
+                i = 0;
+                for (; i < defaults_argcount; i++) {
+                    x = COTuple_GET_ITEM(defaults, i);
+                    CO_INCREF(x);
+                    TS(frame)->f_extraplus[j + i] = x;
                 }
                 CO_DECREF(args);
 

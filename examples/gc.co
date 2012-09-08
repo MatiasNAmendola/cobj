@@ -5,9 +5,9 @@ func hello()
     d = [c]
     e = [d]
     a[0] = e
-    print(gc_collect())
+    print(gc.collect())
 end
 
-print(gc_collect())
+print(gc.collect())
 hello()
-print(gc_collect())
+print(gc.collect())

@@ -326,6 +326,7 @@ CODict_New(void)
     memset(tmp, 0, (dict->nTableMask + 1) * sizeof(DictBucket *));
     dict->arBuckets = tmp;
 
+    COObject_GC_TRACK(dict);
     return (COObject *)dict;
 }
 

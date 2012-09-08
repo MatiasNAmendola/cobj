@@ -119,3 +119,15 @@ func sum(a, b, c)
 end
 print(sum(1, 2, 3))
 """)
+
+test_expect_result("""a
+None
+a
+b
+""", """
+func foo(a, b=None)
+    print(a)
+    print(b)
+end
+foo("a")
+foo("a", "b")""", "optional arguments")
