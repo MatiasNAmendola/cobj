@@ -552,13 +552,13 @@ static const yytype_uint16 yyrline[] =
      156,   157,   158,   159,   160,   161,   162,   163,   164,   165,
      166,   167,   168,   169,   171,   173,   175,   176,   177,   178,
      180,   182,   186,   190,   194,   198,   203,   206,   209,   222,
-     237,   238,   242,   243,   247,   248,   252,   253,   257,   260,
-     266,   267,   271,   274,   280,   283,   289,   290,   294,   297,
-     303,   304,   305,   312,   319,   324,   329,   334,   339,   344,
-     349,   354,   357,   360,   363,   366,   372,   373,   377,   384,
-     390,   397,   410,   421,   422,   426,   434,   435,   439,   440,
-     444,   445,   449,   450,   454,   455,   461,   464,   470,   471,
-     475,   476
+     236,   237,   241,   242,   246,   247,   251,   252,   256,   259,
+     265,   266,   270,   273,   279,   282,   288,   289,   293,   296,
+     302,   303,   304,   311,   318,   323,   328,   333,   338,   343,
+     348,   353,   356,   359,   362,   365,   371,   372,   376,   383,
+     389,   396,   409,   420,   421,   425,   433,   434,   438,   439,
+     443,   444,   448,   449,   453,   454,   460,   463,   469,   470,
+     474,   475
 };
 #endif
 
@@ -1943,7 +1943,6 @@ yyreduce:
 #line 222 "parser.y"
     {
             Node *t = node_new(c->arena, NODE_FUNC, NULL, NULL);
-            t->nd_funcname = 0;
             t->nd_funcargs = (yyvsp[(2) - (4)].node);
             t->nd_funcbody = (yyvsp[(3) - (4)].node);
             if (t->nd_funcbody) {
@@ -1957,13 +1956,13 @@ yyreduce:
 
   case 57:
 /* Line 1787 of yacc.c  */
-#line 253 "parser.y"
+#line 252 "parser.y"
     { (yyval.node) = 0; }
     break;
 
   case 58:
 /* Line 1787 of yacc.c  */
-#line 257 "parser.y"
+#line 256 "parser.y"
     {
             (yyval.node) = node_list(c->arena, (yyvsp[(1) - (1)].node), NULL);
         }
@@ -1971,7 +1970,7 @@ yyreduce:
 
   case 59:
 /* Line 1787 of yacc.c  */
-#line 260 "parser.y"
+#line 259 "parser.y"
     {
             (yyval.node) = node_listappend(c->arena, (yyvsp[(1) - (3)].node), (yyvsp[(3) - (3)].node));
         }
@@ -1979,19 +1978,19 @@ yyreduce:
 
   case 60:
 /* Line 1787 of yacc.c  */
-#line 266 "parser.y"
+#line 265 "parser.y"
     { (yyval.node) = (yyvsp[(1) - (2)].node); }
     break;
 
   case 61:
 /* Line 1787 of yacc.c  */
-#line 267 "parser.y"
+#line 266 "parser.y"
     { (yyval.node) = 0; }
     break;
 
   case 62:
 /* Line 1787 of yacc.c  */
-#line 271 "parser.y"
+#line 270 "parser.y"
     {
             (yyval.node) = node_list(c->arena, (yyvsp[(2) - (3)].node), NULL);
         }
@@ -1999,7 +1998,7 @@ yyreduce:
 
   case 63:
 /* Line 1787 of yacc.c  */
-#line 274 "parser.y"
+#line 273 "parser.y"
     {
             (yyval.node) = node_listappend(c->arena, (yyvsp[(1) - (5)].node), (yyvsp[(4) - (5)].node));
         }
@@ -2007,7 +2006,7 @@ yyreduce:
 
   case 64:
 /* Line 1787 of yacc.c  */
-#line 280 "parser.y"
+#line 279 "parser.y"
     {
             (yyval.node) = node_list(c->arena, (yyvsp[(2) - (7)].node), (yyvsp[(6) - (7)].node), NULL);
         }
@@ -2015,7 +2014,7 @@ yyreduce:
 
   case 65:
 /* Line 1787 of yacc.c  */
-#line 283 "parser.y"
+#line 282 "parser.y"
     {
             (yyval.node) = node_listappend(c->arena, (yyvsp[(1) - (5)].node), (yyvsp[(4) - (5)].node));
         }
@@ -2023,13 +2022,13 @@ yyreduce:
 
   case 67:
 /* Line 1787 of yacc.c  */
-#line 290 "parser.y"
+#line 289 "parser.y"
     { (yyval.node) = 0; }
     break;
 
   case 68:
 /* Line 1787 of yacc.c  */
-#line 294 "parser.y"
+#line 293 "parser.y"
     {
             (yyval.node) = node_list(c->arena, node_new(c->arena, NODE_DICT_ADD, (yyvsp[(2) - (5)].node), (yyvsp[(4) - (5)].node)), NULL);
         }
@@ -2037,7 +2036,7 @@ yyreduce:
 
   case 69:
 /* Line 1787 of yacc.c  */
-#line 297 "parser.y"
+#line 296 "parser.y"
     {
             (yyval.node) = node_listappend(c->arena, (yyvsp[(1) - (7)].node), node_new(c->arena, NODE_DICT_ADD, (yyvsp[(4) - (7)].node), (yyvsp[(6) - (7)].node)));
         }
@@ -2045,19 +2044,19 @@ yyreduce:
 
   case 70:
 /* Line 1787 of yacc.c  */
-#line 303 "parser.y"
+#line 302 "parser.y"
     { Node *t = node_new(c->arena, NODE_ASSIGN, (yyvsp[(1) - (3)].node), (yyvsp[(3) - (3)].node)); (yyval.node) = node_list(c->arena, t, NULL); }
     break;
 
   case 71:
 /* Line 1787 of yacc.c  */
-#line 304 "parser.y"
+#line 303 "parser.y"
     { Node *t = node_new(c->arena, NODE_ASSIGN_LOCAL, (yyvsp[(2) - (4)].node), (yyvsp[(4) - (4)].node)); (yyval.node) = node_list(c->arena, t, NULL); }
     break;
 
   case 72:
 /* Line 1787 of yacc.c  */
-#line 305 "parser.y"
+#line 304 "parser.y"
     {
             Node *t = node_new(c->arena, NODE_STORE_SUBSCRIPT, NULL, NULL);
             t->nd_left = (yyvsp[(1) - (6)].node);
@@ -2069,7 +2068,7 @@ yyreduce:
 
   case 73:
 /* Line 1787 of yacc.c  */
-#line 312 "parser.y"
+#line 311 "parser.y"
     {
             Node *t = node_new(c->arena, NODE_STORE_DOTSUBSCRIPT, NULL, NULL);
             t->nd_left = (yyvsp[(1) - (5)].node);
@@ -2081,7 +2080,7 @@ yyreduce:
 
   case 74:
 /* Line 1787 of yacc.c  */
-#line 319 "parser.y"
+#line 318 "parser.y"
     {
             Node *t;
             t = node_new(c->arena, NODE_BIN, (yyvsp[(1) - (3)].node), (yyvsp[(3) - (3)].node)); t->u.op = OP_BINARY_ADD;
@@ -2091,7 +2090,7 @@ yyreduce:
 
   case 75:
 /* Line 1787 of yacc.c  */
-#line 324 "parser.y"
+#line 323 "parser.y"
     {
             Node *t;
             t = node_new(c->arena, NODE_BIN, (yyvsp[(1) - (3)].node), (yyvsp[(3) - (3)].node)); t->u.op = OP_BINARY_SUB;
@@ -2101,7 +2100,7 @@ yyreduce:
 
   case 76:
 /* Line 1787 of yacc.c  */
-#line 329 "parser.y"
+#line 328 "parser.y"
     {
             Node *t;
             t = node_new(c->arena, NODE_BIN, (yyvsp[(1) - (3)].node), (yyvsp[(3) - (3)].node)); t->u.op = OP_BINARY_MUL;
@@ -2111,7 +2110,7 @@ yyreduce:
 
   case 77:
 /* Line 1787 of yacc.c  */
-#line 334 "parser.y"
+#line 333 "parser.y"
     {
             Node *t;
             t = node_new(c->arena, NODE_BIN, (yyvsp[(1) - (3)].node), (yyvsp[(3) - (3)].node)); t->u.op = OP_BINARY_DIV;
@@ -2121,7 +2120,7 @@ yyreduce:
 
   case 78:
 /* Line 1787 of yacc.c  */
-#line 339 "parser.y"
+#line 338 "parser.y"
     {
             Node *t;
             t = node_new(c->arena, NODE_BIN, (yyvsp[(1) - (3)].node), (yyvsp[(3) - (3)].node)); t->u.op = OP_BINARY_MOD;
@@ -2131,7 +2130,7 @@ yyreduce:
 
   case 79:
 /* Line 1787 of yacc.c  */
-#line 344 "parser.y"
+#line 343 "parser.y"
     {
             Node *t;
             t = node_new(c->arena, NODE_BIN, (yyvsp[(1) - (3)].node), (yyvsp[(3) - (3)].node)); t->u.op = OP_BINARY_SR;
@@ -2141,7 +2140,7 @@ yyreduce:
 
   case 80:
 /* Line 1787 of yacc.c  */
-#line 349 "parser.y"
+#line 348 "parser.y"
     {
             Node *t;
             t = node_new(c->arena, NODE_BIN, (yyvsp[(1) - (3)].node), (yyvsp[(3) - (3)].node)); t->u.op = OP_BINARY_SL;
@@ -2151,7 +2150,7 @@ yyreduce:
 
   case 81:
 /* Line 1787 of yacc.c  */
-#line 354 "parser.y"
+#line 353 "parser.y"
     {
             (yyval.node) = node_list(c->arena, node_new(c->arena, NODE_BREAK, 0, 0), NULL);
         }
@@ -2159,7 +2158,7 @@ yyreduce:
 
   case 82:
 /* Line 1787 of yacc.c  */
-#line 357 "parser.y"
+#line 356 "parser.y"
     {
             (yyval.node) = node_list(c->arena, node_new(c->arena, NODE_CONTINUE, 0, 0), NULL);
         }
@@ -2167,7 +2166,7 @@ yyreduce:
 
   case 83:
 /* Line 1787 of yacc.c  */
-#line 360 "parser.y"
+#line 359 "parser.y"
     {
             (yyval.node) = node_list(c->arena, node_new(c->arena, NODE_THROW, 0, 0), NULL);
         }
@@ -2175,7 +2174,7 @@ yyreduce:
 
   case 84:
 /* Line 1787 of yacc.c  */
-#line 363 "parser.y"
+#line 362 "parser.y"
     {
             (yyval.node) = node_list(c->arena, node_new(c->arena, NODE_THROW, (yyvsp[(2) - (2)].node), 0), NULL);
         }
@@ -2183,7 +2182,7 @@ yyreduce:
 
   case 85:
 /* Line 1787 of yacc.c  */
-#line 366 "parser.y"
+#line 365 "parser.y"
     {
             (yyval.node) = node_new(c->arena, NODE_FUNC_CALL_STMT, NULL, NULL);
             (yyval.node)->nd_func = (yyvsp[(1) - (4)].node);
@@ -2194,19 +2193,19 @@ yyreduce:
 
   case 86:
 /* Line 1787 of yacc.c  */
-#line 372 "parser.y"
+#line 371 "parser.y"
     { (yyval.node) = node_list(c->arena, return_none_node(c->arena), NULL); }
     break;
 
   case 87:
 /* Line 1787 of yacc.c  */
-#line 373 "parser.y"
+#line 372 "parser.y"
     { (yyval.node) = node_list(c->arena, node_new(c->arena, NODE_RETURN, (yyvsp[(2) - (2)].node), NULL), NULL); }
     break;
 
   case 88:
 /* Line 1787 of yacc.c  */
-#line 377 "parser.y"
+#line 376 "parser.y"
     {
             Node *t = node_new(c->arena, NODE_IF, NULL, NULL);
             t->nd_cond = (yyvsp[(2) - (6)].node);
@@ -2218,7 +2217,7 @@ yyreduce:
 
   case 89:
 /* Line 1787 of yacc.c  */
-#line 384 "parser.y"
+#line 383 "parser.y"
     {
             Node *t = node_new(c->arena, NODE_WHILE, NULL, NULL);
             t->nd_cond = (yyvsp[(2) - (5)].node);
@@ -2229,7 +2228,7 @@ yyreduce:
 
   case 90:
 /* Line 1787 of yacc.c  */
-#line 390 "parser.y"
+#line 389 "parser.y"
     {
             Node *t = node_new(c->arena, NODE_FOR, NULL, NULL);
             t->nd_foritem = (yyvsp[(2) - (7)].node);
@@ -2241,10 +2240,9 @@ yyreduce:
 
   case 91:
 /* Line 1787 of yacc.c  */
-#line 397 "parser.y"
+#line 396 "parser.y"
     {
             Node *t = node_new(c->arena, NODE_FUNC, NULL, NULL);
-            t->nd_funcname = (yyvsp[(2) - (5)].node);
             t->nd_funcargs = (yyvsp[(3) - (5)].node);
             t->nd_funcbody = (yyvsp[(4) - (5)].node);
             if (t->nd_funcbody) {
@@ -2253,13 +2251,14 @@ yyreduce:
                 t->nd_funcbody = node_list(c->arena, return_none_node(c->arena),
                 NULL);
             }
-            (yyval.node) = node_list(c->arena, t, NULL);
+
+            (yyval.node) = node_list(c->arena, node_new(c->arena, NODE_ASSIGN, (yyvsp[(2) - (5)].node), t), NULL);
         }
     break;
 
   case 92:
 /* Line 1787 of yacc.c  */
-#line 410 "parser.y"
+#line 409 "parser.y"
     {
             Node *t = node_new(c->arena, NODE_TRY, NULL, NULL);
             t->nd_trybody = (yyvsp[(2) - (6)].node);
@@ -2272,19 +2271,19 @@ yyreduce:
 
   case 93:
 /* Line 1787 of yacc.c  */
-#line 421 "parser.y"
+#line 420 "parser.y"
     { (yyval.node) = (yyvsp[(2) - (2)].node); }
     break;
 
   case 94:
 /* Line 1787 of yacc.c  */
-#line 422 "parser.y"
+#line 421 "parser.y"
     { (yyval.node) = 0; }
     break;
 
   case 95:
 /* Line 1787 of yacc.c  */
-#line 426 "parser.y"
+#line 425 "parser.y"
     {
             (yyval.node) = node_new(c->arena, NODE_CATCH, NULL, NULL);
             (yyval.node)->nd_catchname = (yyvsp[(2) - (4)].node);
@@ -2294,43 +2293,43 @@ yyreduce:
 
   case 96:
 /* Line 1787 of yacc.c  */
-#line 434 "parser.y"
+#line 433 "parser.y"
     { (yyval.node) = node_list(c->arena, (yyvsp[(1) - (1)].node), NULL); }
     break;
 
   case 97:
 /* Line 1787 of yacc.c  */
-#line 435 "parser.y"
+#line 434 "parser.y"
     { (yyval.node) = node_listappend(c->arena, (yyvsp[(1) - (2)].node), (yyvsp[(2) - (2)].node)); }
     break;
 
   case 99:
 /* Line 1787 of yacc.c  */
-#line 440 "parser.y"
+#line 439 "parser.y"
     { (yyval.node) = 0; }
     break;
 
   case 100:
 /* Line 1787 of yacc.c  */
-#line 444 "parser.y"
+#line 443 "parser.y"
     { (yyval.node) = (yyvsp[(2) - (3)].node); }
     break;
 
   case 101:
 /* Line 1787 of yacc.c  */
-#line 445 "parser.y"
+#line 444 "parser.y"
     { (yyval.node) = 0; }
     break;
 
   case 103:
 /* Line 1787 of yacc.c  */
-#line 450 "parser.y"
+#line 449 "parser.y"
     { (yyval.node) = 0; }
     break;
 
   case 105:
 /* Line 1787 of yacc.c  */
-#line 455 "parser.y"
+#line 454 "parser.y"
     {
             (yyval.node) = node_new(c->arena, NODE_BIN, (yyvsp[(1) - (3)].node), (yyvsp[(3) - (3)].node));
         }
@@ -2338,7 +2337,7 @@ yyreduce:
 
   case 106:
 /* Line 1787 of yacc.c  */
-#line 461 "parser.y"
+#line 460 "parser.y"
     {
             (yyval.node) = node_list(c->arena, (yyvsp[(1) - (1)].node), NULL);
         }
@@ -2346,7 +2345,7 @@ yyreduce:
 
   case 107:
 /* Line 1787 of yacc.c  */
-#line 464 "parser.y"
+#line 463 "parser.y"
     {
             (yyval.node) = node_listappend(c->arena, (yyvsp[(1) - (3)].node), (yyvsp[(3) - (3)].node));
         }
@@ -2354,19 +2353,19 @@ yyreduce:
 
   case 108:
 /* Line 1787 of yacc.c  */
-#line 470 "parser.y"
+#line 469 "parser.y"
     { (yyval.node) = 0; }
     break;
 
   case 109:
 /* Line 1787 of yacc.c  */
-#line 471 "parser.y"
+#line 470 "parser.y"
     { (yyval.node) = (yyvsp[(2) - (2)].node); }
     break;
 
   case 111:
 /* Line 1787 of yacc.c  */
-#line 476 "parser.y"
+#line 475 "parser.y"
     {
             Node *t = node_new(c->arena, NODE_IF, NULL, NULL);
             t->nd_cond = (yyvsp[(2) - (5)].node);
@@ -2378,7 +2377,7 @@ yyreduce:
 
 
 /* Line 1787 of yacc.c  */
-#line 2382 "parser.c"
+#line 2381 "parser.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2608,5 +2607,5 @@ yyreturn:
 
 
 /* Line 2048 of yacc.c  */
-#line 485 "parser.y"
+#line 484 "parser.y"
 

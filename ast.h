@@ -106,9 +106,8 @@ typedef struct _Node {
 /*
  * NODE_FUNC
  */
-#define nd_funcname n1
-#define nd_funcargs n2
-#define nd_funcbody n3
+#define nd_funcargs n1
+#define nd_funcbody n2
 
 /*
  * NODE_TRY

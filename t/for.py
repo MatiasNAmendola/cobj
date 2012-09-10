@@ -6,14 +6,20 @@ plan("no_plan")
 test_expect_result(r"""1
 2
 3
-4
+a
+b
+c
 a
 b
 c
 """, r'''
-l = [1,2,3,4,"a", "b", "c"]
-
-for i in l
+for i in [1,2,3]
     print(i)
 end
-''')
+for i in ['a', 'b', 'c']
+    print(i)
+end
+for k in {"a" => 1, "b" => 2, "c" => 3}
+    print(k)
+end
+''', "iterator")

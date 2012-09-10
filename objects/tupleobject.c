@@ -82,25 +82,43 @@ tuple_traverse(COTupleObject *this, visitfunc visit, void *arg)
     return 0;
 }
 
+static COObject *
+tuple_iter(COObject *seq)
+{
+    COTupleIterObject *it;
+    if (!COTuple_Check(seq)) {
+        COErr_BadInternalCall();
+        return NULL;
+    }
+    it = COObject_GC_NEW(COTupleIterObject, &COTupleIter_Type);
+    if (!it)
+        return NULL;
+    it->it_index = 0;
+    CO_INCREF(seq);
+    it->it_seq = (COTupleObject *)seq;
+    COObject_GC_TRACK(it);
+    return (COObject *)it;
+}
+
 COTypeObject COTuple_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "tuple",
     sizeof(COTupleObject) - sizeof(COObject *),
     sizeof(COObject *),
     COType_FLAG_GC,
-    0,                          /* tp_new */
-    (deallocfunc)tuple_dealloc, /* tp_dealloc */
-    (reprfunc)tuple_repr,       /* tp_repr */
-    0,                          /* tp_print */
-    (hashfunc)tuple_hash,       /* tp_hash */
-    0,                          /* tp_compare */
-    (traversefunc)tuple_traverse,       /* tp_traverse */
-    0,                          /* tp_clear */
-    0,                          /* tp_call */
-    0,                          /* tp_iter */
-    0,                          /* tp_iternext */
-    0,                          /* tp_arithmetic_interface */
-    0,                          /* tp_mapping_interface */
+    0,                            /* tp_new                  */
+    (deallocfunc)tuple_dealloc,   /* tp_dealloc              */
+    (reprfunc)tuple_repr,         /* tp_repr                 */
+    0,                            /* tp_print                */
+    (hashfunc)tuple_hash,         /* tp_hash                 */
+    0,                            /* tp_compare              */
+    (traversefunc)tuple_traverse, /* tp_traverse             */
+    0,                            /* tp_clear                */
+    0,                            /* tp_call                 */
+    (getiterfunc)tuple_iter,      /* tp_iter                 */
+    0,                            /* tp_iternext             */
+    0,                            /* tp_arithmetic_interface */
+    0,                            /* tp_mapping_interface    */
 };
 
 static COObject *

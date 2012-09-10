@@ -1,14 +1,18 @@
-func fibo(n)
+# func fibo(n) is same as following line
+# but cannot be wrote as 'local fibo = func(n)' which made fibo a local name,
+# but fibo in function body need refers fibo, that should be a global name
+fibo = func(n)
+    local ok = func()
+        print("OK")
+    end
+    ok()
     if n == 0 do return 0 end
     if n == 1 do return 1 end
     return fibo(n - 1) + fibo(n - 2)
 end
 
-print(fibo(0))
-#print fibo(1)
-#print fibo(10);
-#i = 0
-#while i < 10
-    #print(fibo(i))
-    #i += 1
-#end
+i = 0
+while i < 10
+    print(fibo(i))
+    i += 1
+end

@@ -221,7 +221,6 @@ expr: /* express something */
         }   
     |   funcliteral opt_param_list stmt_list T_END {
             Node *t = node_new(c->arena, NODE_FUNC, NULL, NULL);
-            t->nd_funcname = 0;
             t->nd_funcargs = $2;
             t->nd_funcbody = $3;
             if (t->nd_funcbody) {
@@ -396,7 +395,6 @@ compound_stmt:
         }
     |   T_FUNC T_NAME opt_param_list stmt_list T_END {
             Node *t = node_new(c->arena, NODE_FUNC, NULL, NULL);
-            t->nd_funcname = $2;
             t->nd_funcargs = $3;
             t->nd_funcbody = $4;
             if (t->nd_funcbody) {
@@ -405,7 +403,8 @@ compound_stmt:
                 t->nd_funcbody = node_list(c->arena, return_none_node(c->arena),
                 NULL);
             }
-            $$ = node_list(c->arena, t, NULL);
+
+            $$ = node_list(c->arena, node_new(c->arena, NODE_ASSIGN, $2, t), NULL);
         }
     |   T_TRY stmt_list opt_catch_list opt_else opt_finally_block T_END {
             Node *t = node_new(c->arena, NODE_TRY, NULL, NULL);

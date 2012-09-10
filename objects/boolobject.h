@@ -2,6 +2,7 @@
 #define OBJECTS_BOOLOBJECT_H
 
 #include "../object.h"
+#include "intobject.h"
 
 COIntObject _CO_False, _CO_True;        // Don't use these directly, use following two.
 #define CO_False ((COObject *)&_CO_False)

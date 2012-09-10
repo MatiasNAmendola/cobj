@@ -1,7 +1,9 @@
+#!/usr/bin/env cobj
+
 maxnum = 100000
 i = 2
 
-func is_prime(n)
+local is_prime = func(n)
     local j = 2
     while j * j < n + 1
         if n % j == 0
@@ -11,7 +13,6 @@ func is_prime(n)
     end
     return True
 end
-
 
 while i <= maxnum
     if is_prime(i)

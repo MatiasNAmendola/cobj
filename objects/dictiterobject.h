@@ -2,6 +2,7 @@
 #define OBJECTS_DICTITEROBJECT_H
 
 #include "../object.h"
+#include "dictobject.h"
 
 typedef struct _CODictIterObject {
     COObject_HEAD;

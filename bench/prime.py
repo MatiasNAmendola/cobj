@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 maxnum = 100000
 i = 2
 

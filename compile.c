@@ -615,11 +615,6 @@ compiler_visit_node(struct compiler *c, Node *n)
         CO_DECREF(co);
         compiler_addop_i(c, OP_LOAD_CONST, oparg);
         compiler_addop_i(c, OP_MAKE_FUNCTION, default_argcount);
-
-        if (n->nd_funcname) {
-            oparg = compiler_add(c->u->u_names, n->nd_funcname->u.o);
-            compiler_addop_i(c, OP_STORE_NAME, oparg);
-        }
         break;
     case NODE_FUNC_CALL:
         compiler_visit_node(c, n->nd_params);
