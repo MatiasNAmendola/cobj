@@ -24,10 +24,15 @@ frame_dealloc(COFrameObject *this)
 
     CO_XDECREF(this->f_prev);
     CO_XDECREF(this->f_func);
+    CO_XDECREF(this->f_code);
     CO_XDECREF(this->f_globals);
     CO_XDECREF(this->f_builtins);
 
-    COObject_Mem_FREE(this);
+    COCodeObject *co = (COCodeObject *)this->f_code;
+    if (co->co_zombieframe == NULL)
+        co->co_zombieframe = this;
+    else
+        COObject_Mem_FREE(this);
 }
 
 COTypeObject COFrame_Type = {
@@ -55,6 +60,33 @@ COTypeObject COFrame_Type = {
 
 static COObject *builtins = NULL;
 
+/*
+ * Performance improvements:
+ *
+ * Method 1:
+ * Codeobject has a same size of frame. We can hold a single "zombie" frame on
+ * each code object. This retains the allocated and initialized frame object
+ * from first call for that code object. This saves a malloc/free calls when has
+ * a lot of sequential call/return pairs, like:
+ *
+ *  for i in range(1, 100)
+ *      foo(i)
+ *  end
+ *
+ * In zombie mode, no field of COFrameObject holds a reference, but the
+ * following fields are still valid:
+ *  * co_type
+ *  * co_size
+ *  * f_code
+ *  * f_extraplus does not require re-allocation
+ *
+ * Method 2:
+ *   TODO maitains a free list of stack frames
+ */
+#ifdef CO_DEBUG
+static int reused = 0;
+#endif
+
 int
 COFrame_Init(void)
 {
@@ -67,6 +99,9 @@ COFrame_Init(void)
 void
 COFrame_Fini(void)
 {
+#if CO_DEBUG
+    printf("reused: %d\n", reused);
+#endif
     CO_XDECREF(builtins);
 }
 
@@ -75,12 +110,27 @@ COFrame_New(COObject *prev, COObject *func, COObject *globals)
 {
     COCodeObject *code = (COCodeObject *)((COFunctionObject *)
                                           func)->func_code;
+    int i;
     ssize_t extras, nlocals;
     nlocals = COTuple_Size(code->co_localnames);
     extras = nlocals + code->co_stacksize;
-    COFrameObject *f = COVarObject_NEW(COFrameObject, &COFrame_Type,
+    COFrameObject *f;
+    if (code->co_zombieframe) {
+#if CO_DEBUG
+        reused++;
+#endif
+        f = code->co_zombieframe;
+        CO_REFCNT(f) = 1;
+        code->co_zombieframe = NULL;
+
+        CO_INCREF(code);
+    } else {
+        f = COVarObject_NEW(COFrameObject, &COFrame_Type,
                                        extras);
-    int i;
+
+        f->f_code = (COObject *)code;
+        CO_INCREF(code);
+    }
 
     f->f_lasti = 0;
     f->f_prev = prev;
@@ -90,7 +140,6 @@ COFrame_New(COObject *prev, COObject *func, COObject *globals)
 
     f->f_globals = globals;
     CO_XINCREF(globals);
-
     f->f_builtins = builtins;
     CO_INCREF(builtins);
 

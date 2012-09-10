@@ -57,6 +57,8 @@ code_dealloc(COCodeObject *this)
     CO_DECREF(this->co_code);
     CO_DECREF(this->co_consts);
     CO_DECREF(this->co_names);
+    if (this->co_zombieframe)
+        COObject_Mem_FREE(this->co_zombieframe);
     COObject_Mem_FREE(this);
 }
 
@@ -103,6 +105,7 @@ COCode_New(COObject *name, COObject *code, COObject *consts,
     co->co_localnames = localnames;
     co->co_argcount = argcount;
     co->co_stacksize = stacksize;
+    co->co_zombieframe = NULL;
 
     return (COObject *)co;
 }

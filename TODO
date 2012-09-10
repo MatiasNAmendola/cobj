@@ -7,6 +7,11 @@ Core
 Object Model
 ============
 
+
+Performance
+===========
+ * frameobject freelist
+
 Tests
 =====
   * unit tests with valgrind memory leak check

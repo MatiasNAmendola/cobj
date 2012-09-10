@@ -16,6 +16,7 @@ typedef struct _COCodeObject {
     COObject *co_upvals;        /* tuple, upval names */
     int co_argcount;            /* arguments count */
     int co_stacksize;           /* stack size needed */
+    void *co_zombieframe;       /* for opimization only */
 } COCodeObject;
 
 COTypeObject COCode_Type;
