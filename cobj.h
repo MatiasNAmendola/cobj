@@ -34,7 +34,6 @@
 #include "state.h"
 #include "peephole.h"
 #include "arena.h"
-#include "builtin.h"
 #include "object.h"
 #include "objects/typeobject.h"
 #include "objects/intobject.h"
@@ -59,6 +58,7 @@
 #include "objects/rangeobject.h"
 #include "objects/rangeiterobject.h"
 #include "objects/setobject.h"
+#include "module.h"
 
 #include "argparse/argparse.h"
 #include "linenoise/linenoise.h"

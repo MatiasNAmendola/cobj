@@ -112,11 +112,11 @@ vm_eval(COObject *func, COObject *globals)
     unsigned char *next_code;
     unsigned char *first_code;
     unsigned char opcode;       /* Current opcode */
-    int oparg = 0;                  /* Current opcode argument, if any */
-    COObject *x = NULL;                /* Result object -- NULL if error */
-    COObject *o1 = NULL, *o2 = NULL, *o3 = NULL;     /* Temporary objects popped of stack */
-    int status = STATUS_NONE;                 /* VM status */
-    int err = 0;                    /* C function error code */
+    int oparg = 0;              /* Current opcode argument, if any */
+    COObject *x = NULL;         /* Result object -- NULL if error */
+    COObject *o1 = NULL, *o2 = NULL, *o3 = NULL;        /* Temporary objects popped of stack */
+    int status = STATUS_NONE;   /* VM status */
+    int err = 0;                /* C function error code */
 
     TS(frame) =
         (COFrameObject *)COFrame_New((COObject *)TS(frame), func, globals);
@@ -128,7 +128,8 @@ new_frame:                     /* reentry point when function call/return */
     names = ((COCodeObject *)code)->co_names;
     localnames = ((COCodeObject *)code)->co_localnames;
     consts = ((COCodeObject *)code)->co_consts;
-    first_code = (unsigned char *)COBytes_AsString(((COCodeObject *)code)->co_code);
+    first_code =
+        (unsigned char *)COBytes_AsString(((COCodeObject *)code)->co_code);
     next_code = first_code + TS(frame)->f_lasti;
     fastlocals = TS(frame)->f_extraplus;
 
@@ -454,19 +455,27 @@ new_frame:                     /* reentry point when function call/return */
                                                  globals);
 
                 code = ((COFunctionObject *)o1)->func_code;
-                if (defaults_argcount == 0 && COTuple_GET_SIZE(args) != ((COCodeObject *)code)->co_argcount) {
+                if (defaults_argcount == 0
+                    && COTuple_GET_SIZE(args) !=
+                    ((COCodeObject *)code)->co_argcount) {
                     COErr_Format(COException_ValueError,
                                  "takes exactly %d arguments (%d given)",
-                                 ((COCodeObject *)code)->co_argcount, COList_GET_SIZE(args));
-                } else if (COTuple_GET_SIZE(args) < ((COCodeObject *)code)->co_argcount - defaults_argcount) {
+                                 ((COCodeObject *)code)->co_argcount,
+                                 COList_GET_SIZE(args));
+                } else if (COTuple_GET_SIZE(args) <
+                           ((COCodeObject *)code)->co_argcount -
+                           defaults_argcount) {
                     COErr_Format(COException_ValueError,
                                  "takes at least %d arguments (%d given)",
-                                 ((COCodeObject *)code)->co_argcount - defaults_argcount, COList_GET_SIZE(args));
+                                 ((COCodeObject *)code)->co_argcount -
+                                 defaults_argcount, COList_GET_SIZE(args));
                     status = STATUS_EXCEPTION;
-                } else if (COTuple_GET_SIZE(args) > ((COCodeObject *)code)->co_argcount) {
+                } else if (COTuple_GET_SIZE(args) >
+                           ((COCodeObject *)code)->co_argcount) {
                     COErr_Format(COException_ValueError,
                                  "takes at most %d arguments (%d given)",
-                                 ((COCodeObject *)code)->co_argcount - defaults_argcount, COList_GET_SIZE(args));
+                                 ((COCodeObject *)code)->co_argcount -
+                                 defaults_argcount, COList_GET_SIZE(args));
                     status = STATUS_EXCEPTION;
                 }
                 if (status != STATUS_NONE) {

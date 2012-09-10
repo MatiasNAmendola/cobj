@@ -570,21 +570,28 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_use_new_block(c);
         c->u->u_argcount = node_listlen(n->nd_funcargs);
         Node *l = n->nd_funcargs;
-        Node *default_exprs = NULL; 
+        Node *default_exprs = NULL;
         bool already_has_optional_args = false;
         while (l) {
             if (l->nd_node->type == NODE_BIN) {
                 already_has_optional_args = true;
                 if (!default_exprs) {
-                    default_exprs = node_list(c->arena, l->nd_node->nd_right, NULL);
-                    oparg = compiler_add(c->u->u_localnames, l->nd_node->nd_left->u.o);
+                    default_exprs =
+                        node_list(c->arena, l->nd_node->nd_right, NULL);
+                    oparg =
+                        compiler_add(c->u->u_localnames,
+                                     l->nd_node->nd_left->u.o);
                 } else {
-                    default_exprs = node_listappend(c->arena, default_exprs, l->nd_node);
-                    oparg = compiler_add(c->u->u_localnames, l->nd_node->nd_left->u.o);
+                    default_exprs =
+                        node_listappend(c->arena, default_exprs, l->nd_node);
+                    oparg =
+                        compiler_add(c->u->u_localnames,
+                                     l->nd_node->nd_left->u.o);
                 }
             } else {
                 if (already_has_optional_args) {
-                    error("positional arguments cannot follow optional arguments");
+                    error
+                        ("positional arguments cannot follow optional arguments");
                 }
                 oparg = compiler_add(c->u->u_localnames, l->nd_node->u.o);
             }

@@ -25,7 +25,7 @@ list_dealloc(COListObject *this)
     ssize_t i;
     if (this->co_size > 0) {
         i = this->co_size;
-        while (--i >= 0) 
+        while (--i >= 0)
             CO_DECREF(this->co_item[i]);
     }
     COObject_Mem_FREE(this->co_item);

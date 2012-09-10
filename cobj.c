@@ -91,10 +91,8 @@ run_string(const char *str)
     scanner_init(arena);
     scanner_setcode((char *)str);
     COObject *code = compile(arena);
-    COObject *func = COFunction_New(code);
-    ret = eval_wrapper(func);
+    ret = eval_wrapper(code);
     CO_DECREF(code);
-    CO_DECREF(func);
     COState_DeleteCurrent();
     arena_free(arena);
     return ret ? 1 : 0;

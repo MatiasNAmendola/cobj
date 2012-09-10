@@ -41,7 +41,6 @@ LIB_OBJS += ast.o
 LIB_OBJS += opcode.o
 LIB_OBJS += peephole.o
 LIB_OBJS += arena.o
-LIB_OBJS += builtin.o
 LIB_OBJS += gc.o
 LIB_OBJS += objects/typeobject.o
 LIB_OBJS += objects/boolobject.o
@@ -65,6 +64,9 @@ LIB_OBJS += objects/cellobject.o
 LIB_OBJS += objects/rangeobject.o
 LIB_OBJS += objects/rangeiterobject.o
 LIB_OBJS += objects/setobject.o
+LIB_OBJS += module.o
+LIB_OBJS += modules/base.o
+LIB_OBJS += modules/gc.o
 
 LIB_OBJS += linenoise/linenoise.o
 LIB_OBJS += argparse/argparse.o

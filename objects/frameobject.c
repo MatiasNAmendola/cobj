@@ -57,16 +57,7 @@ int
 COFrame_Init(void)
 {
     if (builtins == NULL) {
-        builtins = CODict_New();
-        COObject *gc = CODict_New();
-        CODict_SetItemString(gc, "collect", (COObject *)&_CO_Builtin_gc_collect);
-        CODict_SetItemString(builtins, "gc", gc);
-        CODict_SetItemString(builtins, "print", (COObject *)&_CO_Builtin_print);
-        CODict_SetItemString(builtins, "type", (COObject *)&COType_Type);
-        CODict_SetItemString(builtins, "str", (COObject *)&COStr_Type);
-        CODict_SetItemString(builtins, "range", (COObject *)&CORange_Type);
-        CODict_SetItemString(builtins, "set", (COObject *)&COSet_Type);
-        CODict_SetItemString(builtins, "file", (COObject *)&COFile_Type);
+        builtins = module_init_builtins();
     }
     return 0;
 }
