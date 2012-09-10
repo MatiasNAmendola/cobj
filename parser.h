@@ -73,25 +73,27 @@ extern int codebug;
      T_FNUM = 282,
      T_STRING = 283,
      T_NAME = 284,
-     T_NOT_EQUAL = 285,
-     T_EQUAL = 286,
-     T_MAPPING = 287,
-     T_MOD_ASSIGN = 288,
-     T_DIV_ASSIGN = 289,
-     T_MUL_ASSIGN = 290,
-     T_SUB_ASSIGN = 291,
-     T_ADD_ASSIGN = 292,
-     T_SR_ASSIGN = 293,
-     T_SL_ASSIGN = 294,
-     T_GREATER_OR_EQUAL = 295,
-     T_SMALLER_OR_EQUAL = 296,
-     T_POW = 297,
-     T_SL = 298,
-     T_SR = 299,
-     UNARY_OP = 300,
-     NotName = 301,
-     NotParen = 302,
-     PreferToRightParen = 303
+     T_NOT = 285,
+     T_IS = 286,
+     T_NOT_EQUAL = 287,
+     T_EQUAL = 288,
+     T_MAPPING = 289,
+     T_MOD_ASSIGN = 290,
+     T_DIV_ASSIGN = 291,
+     T_MUL_ASSIGN = 292,
+     T_SUB_ASSIGN = 293,
+     T_ADD_ASSIGN = 294,
+     T_SR_ASSIGN = 295,
+     T_SL_ASSIGN = 296,
+     T_GREATER_OR_EQUAL = 297,
+     T_SMALLER_OR_EQUAL = 298,
+     T_POW = 299,
+     T_SL = 300,
+     T_SR = 301,
+     UNARY_OP = 302,
+     NotName = 303,
+     NotParen = 304,
+     PreferToRightParen = 305
    };
 #endif
 
@@ -106,7 +108,7 @@ typedef union YYSTYPE
 
 
 /* Line 2049 of yacc.c  */
-#line 110 "parser.h"
+#line 112 "parser.h"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

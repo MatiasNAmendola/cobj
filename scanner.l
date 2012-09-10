@@ -256,6 +256,13 @@ ANY_CHAR    = [^];
     return T_IN;
 }
 
+<SC_INIT>"is" {
+    return T_IS;
+}
+
+<SC_INIT>"not" {
+    return T_NOT;
+}
 
 <SC_INIT>"end" {
     return T_END;

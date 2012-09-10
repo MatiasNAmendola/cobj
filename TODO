@@ -6,10 +6,6 @@ Core
 
 Object Model
 ============
- * sequence methods, support
-    tuple
-    list
-    str
 
 Tests
 =====

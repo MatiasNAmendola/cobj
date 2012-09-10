@@ -122,6 +122,20 @@ list_ass_subscript(COObject *this, COObject *index, COObject *value)
         return COList_SetItem(this, COInt_AsSsize_t(index), value);
 }
 
+static int
+list_contains(COListObject *this, COObject *a)
+{
+    ssize_t i;
+    int cmp;
+    for (i = 0, cmp = 0; cmp == 0 && i < CO_SIZE(this); i++)
+        cmp = COObject_CompareBool(a, COList_GET_ITEM(this, i), Cmp_EQ);
+    return cmp;
+}
+
+static COSequenceInterface sequence_interface = {
+    (binaryintfunc)list_contains,
+};
+
 static COMappingInterface mapping_interface = {
     (binaryfunc)list_subscript,
     (ternaryintfunc)list_ass_subscript,
@@ -147,6 +161,7 @@ COTypeObject COList_Type = {
     (lenfunc)COList_Size,        /* tp_len                  */
     0,                           /* tp_arithmetic_interface */
     &mapping_interface,          /* tp_mapping_interface    */
+    &sequence_interface,         /* tp_sequence_interface */
 };
 
 /*

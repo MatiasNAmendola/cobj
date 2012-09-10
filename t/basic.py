@@ -46,3 +46,10 @@ test_expect_result("8\n", "print((1 + 2 + 3 + 4 + 7) - 9)", "parenthesized expre
 test_expect_result("9\n", "print(1 + 64 / 8)", "precedence & association 1")
 test_expect_result("10\n", "print(18 - 1 * 8)", "precedence & association 2")
 test_expect_result("11\n", "print((25 - 1 - 1) % 12)", "precedence & association 3")
+
+
+# 'in', 'not in', 'is', 'is not'
+test_expect_result("True\n", "print(1 in (1,2,3))")
+test_expect_result("True\n", "print(1 not in (2,3))")
+test_expect_result("True\n", "print(builtins.str is str)")
+test_expect_result("True\n", "print(builtins.str is not print)")

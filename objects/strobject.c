@@ -410,6 +410,7 @@ COTypeObject COStr_Type = {
     0,                          /* tp_len */
     &arithmetic_interface,      /* tp_arithmetic_interface */
     0,                          /* tp_mapping_interface    */
+    0,                          /* tp_sequence_interface */
 };
 
 char *

@@ -89,6 +89,7 @@ COTypeObject COBytes_Type = {
     0,                          /* tp_len */
     0,                          /* tp_arithmetic_interface */
     0,                          /* tp_mapping_interface */
+    0,                          /* tp_sequence_interface */
 };
 
 char *

@@ -100,6 +100,20 @@ tuple_iter(COObject *seq)
     return (COObject *)it;
 }
 
+static int
+tuple_contains(COTupleObject *this, COObject *a)
+{
+    ssize_t i;
+    int cmp;
+    for (i = 0, cmp = 0; cmp == 0 && i < CO_SIZE(this); i++)
+        cmp = COObject_CompareBool(a, COTuple_GET_ITEM(this, i), Cmp_EQ);
+    return cmp;
+}
+
+static COSequenceInterface sequence_interface = {
+    (binaryintfunc)tuple_contains,
+};
+
 COTypeObject COTuple_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "tuple",
@@ -120,6 +134,7 @@ COTypeObject COTuple_Type = {
     (lenfunc)COTuple_Size,        /* tp_len */
     0,                            /* tp_arithmetic_interface */
     0,                            /* tp_mapping_interface    */
+    &sequence_interface,      /* tp_sequence_interface */
 };
 
 static COObject *

@@ -186,6 +186,7 @@ COTypeObject CODict_Type = {
     (lenfunc)CODict_Size,        /* tp_len */
     0,                           /* tp_arithmetic_interface */
     &mapping_interface,          /* tp_mapping_interface    */
+    0,                          /* tp_sequence_interface */
 };
 
 int

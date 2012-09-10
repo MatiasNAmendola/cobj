@@ -29,8 +29,26 @@ vm_getglobal(COObject *name)
 static inline COObject *
 vm_cmp(int op, COObject *o1, COObject *o2)
 {
+    int ret = 0;
     COObject *x;
     switch (op) {
+    case Cmp_IS:
+        ret = (o1 == o2);
+        break;
+    case Cmp_IS_NOT:
+        ret = (o1 != o2);
+        break;
+    case Cmp_IN:
+        ret = COSequence_Contains(o1, o2);
+        if (ret < 0)
+            return NULL;
+        break;
+    case Cmp_NOT_IN:
+        ret = COSequence_Contains(o1, o2);
+        if (ret < 0)
+            return NULL;
+        ret = !ret;
+        break;
     case Cmp_EXC_MATCH:
         if (!COTuple_Check(o1)) {
             assert(0);
@@ -40,19 +58,18 @@ vm_cmp(int op, COObject *o1, COObject *o2)
             if (COObject_CompareBool(COTuple_GET_ITEM(o1, i), o2, Cmp_EQ)) {
                 x = CO_True;
                 CO_INCREF(x);
-                goto end;
+                return x;
             }
         }
         x = CO_False;
         CO_INCREF(x);
-        goto end;
-        break;
+        return x;
     default:
-        x = COObject_Compare(o2, o1, op);
-        break;
+        return COObject_Compare(o2, o1, op);
     }
 
-end:
+    x = ret ? CO_True : CO_False;
+    CO_INCREF(x);
     return x;
 }
 

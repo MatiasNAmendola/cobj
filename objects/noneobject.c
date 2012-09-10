@@ -26,6 +26,7 @@ COTypeObject CONone_Type = {
     0,                          /* tp_len */
     0,                          /* tp_arithmetic_interface */
     0,                          /* tp_mapping_interface */
+    0,                          /* tp_sequence_interface */
 };
 
 COObject _CO_None = COObject_HEAD_INIT(&CONone_Type);

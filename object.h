@@ -152,6 +152,8 @@ COObject *COObject_GetIter(COObject *o);
 COObject *COObject_GetSelf(COObject *o);
 ssize_t COObject_Length(COObject *o);
 
+int COSequence_Contains(COObject *seq, COObject *o);
+
 COObject *COMapping_GetItem(COObject *o, COObject *key);
 int COMapping_SetItem(COObject *o, COObject *key, COObject *value);
 

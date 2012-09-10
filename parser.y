@@ -51,7 +51,7 @@ return_none_node(struct arena *arena)
 %token  <node> T_FNUM
 %token  <node> T_STRING
 %token  <node> T_NAME
-%nonassoc T_EQUAL T_NOT_EQUAL
+%nonassoc T_EQUAL T_NOT_EQUAL T_IS T_IN T_NOT
 %nonassoc T_MAPPING
 %token T_MOD_ASSIGN T_DIV_ASSIGN T_MUL_ASSIGN T_SUB_ASSIGN T_ADD_ASSIGN T_SR_ASSIGN T_SL_ASSIGN
 %nonassoc '<' '>' T_SMALLER_OR_EQUAL T_GREATER_OR_EQUAL
@@ -163,6 +163,7 @@ expr: /* express something */
     |   expr '*' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_MUL; }
     |   expr '/' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_DIV; }
     |   expr '%' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_MOD; }
+
     |   expr '<' expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg = Cmp_LT; }
     |   expr '>' expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg = Cmp_GT; }
     |   expr T_EQUAL expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg = Cmp_EQ; }
@@ -172,6 +173,11 @@ expr: /* express something */
     $$->u.oparg = Cmp_LE; }
     |   expr T_GREATER_OR_EQUAL expr { $$ = node_new(c->arena, NODE_CMP, $1, $3);
     $$->u.oparg = Cmp_GE; }
+    |   expr T_IN expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg = Cmp_IN; }
+    |   expr T_NOT T_IN expr { $$ = node_new(c->arena, NODE_CMP, $1, $4); $$->u.oparg = Cmp_NOT_IN; }
+    |   expr T_IS expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg = Cmp_IS; }
+    |   expr T_IS T_NOT expr { $$ = node_new(c->arena, NODE_CMP, $1, $4); $$->u.oparg = Cmp_IS_NOT; }
+
     |   expr T_SL expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_SL; }
     |   expr T_SR expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_SR; }
     |   expr T_POW expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_POW; }

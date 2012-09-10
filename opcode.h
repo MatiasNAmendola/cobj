@@ -53,7 +53,7 @@ typedef enum {
 } OpCode;
 
 /* OP_CMP's opargs */
-enum Cmp_OpArg {
+enum {
     Cmp_LT = 0,
     Cmp_LE = 1,
     Cmp_EQ = 2,
@@ -61,6 +61,10 @@ enum Cmp_OpArg {
     Cmp_GT = 4,
     Cmp_GE = 5,
     Cmp_EXC_MATCH = 6,
+    Cmp_IN = 7,
+    Cmp_NOT_IN = 8,
+    Cmp_IS = 9,
+    Cmp_IS_NOT = 10,
 };
 
 char *opcode_name(unsigned char opcode);

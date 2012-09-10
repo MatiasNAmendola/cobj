@@ -22,6 +22,7 @@ typedef COObject *(*ternaryfunc)(COObject *, COObject *, COObject *);
 typedef ssize_t(*lenfunc) (COObject *);
 typedef COObject *(*getiterfunc)(COObject *);
 typedef COObject *(*iternextfunc)(COObject *);
+typedef int (*binaryintfunc) (COObject *, COObject *);
 typedef int (*ternaryintfunc) (COObject *, COObject *, COObject *);
 /* ! Object Methods */
 
@@ -39,7 +40,7 @@ typedef struct {
 } COAritmeticInterface;
 
 typedef struct {
-    binaryfunc sq_concat;
+    binaryintfunc sq_contains;
 } COSequenceInterface;
 
 typedef struct {

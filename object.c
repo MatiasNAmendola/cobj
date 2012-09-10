@@ -305,6 +305,25 @@ COObject_Length(COObject *o)
     return 0;
 }
 
+/* Sequence Methods. */
+
+/*
+ * Returns 1 or 0 on success, -1 on failure.
+ */
+int
+COSequence_Contains(COObject *seq, COObject *o)
+{
+    COSequenceInterface *si = CO_TYPE(seq)->tp_sequence_interface;
+    if (si && si->sq_contains)
+        return si->sq_contains(seq, o);
+
+    COErr_Format(COException_TypeError,
+                 "'%.200s' object does not support `in` operator", CO_TYPE(seq)->tp_name);
+    return -1;
+}
+
+/* ! Sequence Methods. */
+
 /* Mapping Methods. */
 
 COObject *
