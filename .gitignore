@@ -6,3 +6,5 @@
 /*.output
 /cobj.dSYM/
 /version.h
+/parser.[ch]
+/scanner.[ch]

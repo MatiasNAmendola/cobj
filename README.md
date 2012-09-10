@@ -4,7 +4,8 @@ This is cobj, an object-oriented program language.
 
 Compile/Install
 ===============
-    $ make
+    # install bison/re2c first
+    $ make  
     $ make install
 
 Examples
