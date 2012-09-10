@@ -218,7 +218,7 @@ new_frame:                     /* reentry point when function call/return */
         case OP_BINARY_SUBSCRIPT:
             o1 = POP();
             o2 = TOP();
-            x = COObject_GetItem(o2, o1);
+            x = COMapping_GetItem(o2, o1);
             if (!x) {
                 status = STATUS_EXCEPTION;
                 goto fast_end;
@@ -427,6 +427,10 @@ new_frame:                     /* reentry point when function call/return */
             if (COCFunction_Check(o1)) {
                 COCFunction cfunc = COCFunction_GET_FUNCTION(o1);
                 x = cfunc(NULL, args);
+                if (COErr_Occurred()) {
+                    status = STATUS_EXCEPTION;
+                    goto fast_end;
+                }
                 CO_DECREF(o1);
                 CO_DECREF(args);
                 PUSH(x);
@@ -584,7 +588,7 @@ new_frame:                     /* reentry point when function call/return */
             o2 = SECOND();
             o3 = THIRD();
             STACK_ADJ(-3);
-            if (COObject_SetItem(o3, o2, o1) != 0) {
+            if (COMapping_SetItem(o3, o2, o1) != 0) {
                 status = STATUS_EXCEPTION;
                 goto fast_end;
             }

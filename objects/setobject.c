@@ -301,6 +301,7 @@ COTypeObject COSet_Type = {
     0,                          /* tp_call              */
     0,                          //(getiterfunc)set_iter,      /* tp_iter              */
     0,                          /* tp_iternext          */
+    0,                          /* tp_len */
     0,                          /* tp_arithmetic_interface     */
     0,                          /* tp_mapping_interface */
 };

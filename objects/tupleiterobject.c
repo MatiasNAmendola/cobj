@@ -68,6 +68,7 @@ COTypeObject COTupleIter_Type = {
     0,                                /* tp_call                 */
     (getiterfunc)COObject_GetSelf,    /* tp_iter                 */
     (iternextfunc)tupleiter_next,     /* tp_iternext             */
+    0,                          /* tp_len */
     0,                                /* tp_arithmetic_interface */
     0,                                /* tp_mapping_interface    */
 };

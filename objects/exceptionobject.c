@@ -30,6 +30,7 @@ COTypeObject COException_Type = {
     0,                          /* tp_call */
     0,                          /* tp_iter */
     0,                          /* tp_iternext */
+    0,                          /* tp_len */
     0,                          /* tp_arithmetic_interface */
     0,                          /* tp_mapping_interface */
 };
@@ -52,6 +53,9 @@ COObject *COException = (COObject *)&COException_Type;
         0,                                  /* tp_traverse */           \
         0,                                  /* tp_clear */              \
         0,                                  /* tp_call */               \
+        0,                                  /* tp_iter */               \
+        0,                                  /* tp_iternext */           \
+        0,                                  /* tp_len */                \
         0,                                  /* tp_arithmetic_interface */      \
         0,                                  /* tp_mapping_interface */  \
     };                                                      \

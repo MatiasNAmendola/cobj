@@ -162,7 +162,6 @@ dict_iter(COObject *this)
 }
 
 static COMappingInterface mapping_interface = {
-    (lenfunc)CODict_Size,
     (binaryfunc)dict_subscript,
     (ternaryintfunc)dict_ass_sub,
 };
@@ -184,6 +183,7 @@ COTypeObject CODict_Type = {
     0,                           /* tp_call                 */
     (getiterfunc)dict_iter,      /* tp_iter                 */
     0,                           /* tp_iternext             */
+    (lenfunc)CODict_Size,        /* tp_len */
     0,                           /* tp_arithmetic_interface */
     &mapping_interface,          /* tp_mapping_interface    */
 };
@@ -205,18 +205,24 @@ _dict_rehash(CODictObject *this)
     return 0;
 }
 
+/*
+ * Returns 0 on success, -1 on failure.
+ */
 static int
 _dict_do_resize(CODictObject *this)
 {
     DictBucket **t;
 
-    if (((this->nTableMask + 1) << 1) > 0) {    // double the table size
+    if (((this->nTableMask + 1) << 1) > 0) {
+        // double the table size
         t = (DictBucket **)COObject_Mem_REALLOC(this->arBuckets,
                                                 ((this->nTableMask +
                                                   1) << 1) *
                                                 sizeof(DictBucket *));
+        if (!t)
+            return -1;
         this->arBuckets = t;
-        this->nTableMask = this->nTableMask << 1;
+        this->nTableMask = ((this->nTableMask + 1) << 1) - 1;
         _dict_rehash(this);
         return 0;
     }

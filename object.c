@@ -289,8 +289,26 @@ COObject_GetSelf(COObject *o)
     return o;
 }
 
+/*
+ * Get length of given object.
+ */
+ssize_t
+COObject_Length(COObject *o)
+{
+    lenfunc len = CO_TYPE(o)->tp_len;
+    if (len) {
+        return len(o);
+    }
+
+    COErr_Format(COException_TypeError,
+                 "'%.200s' object does not implement __len__", CO_TYPE(o)->tp_name);
+    return 0;
+}
+
+/* Mapping Methods. */
+
 COObject *
-COObject_GetItem(COObject *o, COObject *key)
+COMapping_GetItem(COObject *o, COObject *key)
 {
     COMappingInterface *mi;
     mi = o->co_type->tp_mapping_interface;
@@ -303,7 +321,7 @@ COObject_GetItem(COObject *o, COObject *key)
 }
 
 int
-COObject_SetItem(COObject *o, COObject *key, COObject *value)
+COMapping_SetItem(COObject *o, COObject *key, COObject *value)
 {
     COMappingInterface *mi;
     mi = o->co_type->tp_mapping_interface;
@@ -315,6 +333,8 @@ COObject_SetItem(COObject *o, COObject *key, COObject *value)
                  CO_TYPE(o)->tp_name);
     return -1;
 }
+
+/* ! Mapping Methods. */
 
 /* Arithmetic methods. */
 #define ARITHMETIC_BINARY_FUNC(func, op, op_name)  \

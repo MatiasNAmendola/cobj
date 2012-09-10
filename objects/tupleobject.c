@@ -117,6 +117,7 @@ COTypeObject COTuple_Type = {
     0,                            /* tp_call                 */
     (getiterfunc)tuple_iter,      /* tp_iter                 */
     0,                            /* tp_iternext             */
+    (lenfunc)COTuple_Size,        /* tp_len */
     0,                            /* tp_arithmetic_interface */
     0,                            /* tp_mapping_interface    */
 };

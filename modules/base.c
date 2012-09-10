@@ -1,5 +1,13 @@
 #include "../cobj.h"
 
+#define BUILTIN_FUNC(func) \
+    COCFunctionObject _builtin_##func = { \
+        COObject_HEAD_INIT(&COCFunction_Type), \
+        #func, \
+        builtin_##func \
+    }
+
+
 static COObject *
 builtin_print(COObject *this, COObject *args)
 {
@@ -16,18 +24,32 @@ builtin_print(COObject *this, COObject *args)
     CO_RETURN_NONE;
 }
 
-COCFunctionObject _CO_Builtin_print = {
-    COObject_HEAD_INIT(&COCFunction_Type),
-    "print",
-    builtin_print,
-};
 
+static COObject *
+builtin_len(COObject *this, COObject *args)
+{
+    // TODO check args
+    if (COTuple_Size(args) != 1) {
+        COErr_BadInternalCall();
+        return NULL;
+    }
+    COObject *o = COTuple_GET_ITEM(args, 0);
+    ssize_t s = COObject_Length(o);
+    if (COErr_Occurred()) {
+        return NULL;
+    }
+    return COInt_FromLong((long)s);
+}
+
+BUILTIN_FUNC(print);
+BUILTIN_FUNC(len);
 
 COObject *
 module_base_init(void)
 {
     COObject *base = CODict_New();
-    CODict_SetItemString(base, "print", (COObject *)&_CO_Builtin_print);
+    CODict_SetItemString(base, "print", (COObject *)&_builtin_print);
+    CODict_SetItemString(base, "len", (COObject *)&_builtin_len);
     CODict_SetItemString(base, "type", (COObject *)&COType_Type);
     CODict_SetItemString(base, "str", (COObject *)&COStr_Type);
     CODict_SetItemString(base, "range", (COObject *)&CORange_Type);

@@ -39,12 +39,10 @@ typedef struct {
 } COAritmeticInterface;
 
 typedef struct {
-    lenfunc sq_length;
     binaryfunc sq_concat;
 } COSequenceInterface;
 
 typedef struct {
-    lenfunc mp_length;
     binaryfunc mp_subscript;
     ternaryintfunc mp_ass_subscript;
 } COMappingInterface;
@@ -69,6 +67,7 @@ struct _COTypeObject {
     binaryfunc tp_call;         /* Call object. */
     getiterfunc tp_iter;        /* Get iterator of object. */
     iternextfunc tp_iternext;   /* Iter to next object. */
+    lenfunc tp_len;             /* Get length of object. */
 
     /* Standard interfaces. */
     COAritmeticInterface *tp_arithmetic_interface;

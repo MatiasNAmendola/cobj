@@ -150,8 +150,11 @@ COObject *COObject_Str(COObject *o);
 COObject *COObject_Call(COObject *func, COObject *args);
 COObject *COObject_GetIter(COObject *o);
 COObject *COObject_GetSelf(COObject *o);
-COObject *COObject_GetItem(COObject *o, COObject *key);
-int COObject_SetItem(COObject *o, COObject *key, COObject *value);
+ssize_t COObject_Length(COObject *o);
+
+COObject *COMapping_GetItem(COObject *o, COObject *key);
+int COMapping_SetItem(COObject *o, COObject *key, COObject *value);
+
 COObject *COArithmetic_Add(COObject *a, COObject *b);
 COObject *COArithmetic_Sub(COObject *a, COObject *b);
 COObject *COArithmetic_Mul(COObject *a, COObject *b);

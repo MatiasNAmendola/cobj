@@ -55,6 +55,7 @@ COTypeObject COType_Type = {
     (binaryfunc)type_call,      /* tp_call              */
     0,                          /* tp_iter              */
     0,                          /* tp_iternext          */
+    0,                          /* tp_len */
     0,                          /* tp_arithmetic_interface     */
     0,                          /* tp_mapping_interface */
 };
