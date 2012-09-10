@@ -8,12 +8,8 @@ enum status_code {
     STATUS_CONTINUE = 0x0004,
 };
 
-/* Forward declarations */
-COObject *COObject_get(COObject *co);
-int COObject_put(COObject *name, COObject *co);
-
 COObject *
-COObject_get(COObject *name)
+vm_getglobal(COObject *name)
 {
     COObject *co;
 
@@ -29,11 +25,6 @@ COObject_get(COObject *name)
     return NULL;
 }
 
-int
-COObject_set(COObject *name, COObject *co)
-{
-    return CODict_SetItem(TS(frame)->f_globals, name, co);
-}
 
 static inline COObject *
 vm_cmp(int op, COObject *o1, COObject *o2)
@@ -76,6 +67,7 @@ vm_eval(COObject *func, COObject *globals)
 #define NEXTOP()        (*next_code++)
 #define NEXTARG()       (next_code += 2, (next_code[-1]<<8) + next_code[-2])
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
+#define SETGLOBAL(n, v) CODict_SetItem(TS(frame)->f_globals, n, v)
 #define GETLOCAL(i)     (fastlocals[i])
 #define SETLOCAL(i, v)                  \
     do {                                \
@@ -278,7 +270,7 @@ new_frame:                     /* reentry point when function call/return */
         case OP_LOAD_NAME:
             oparg = NEXTARG();
             o1 = GETITEM(names, oparg);
-            x = COObject_get(o1);
+            x = vm_getglobal(o1);
             if (!x) {
                 COErr_Format(COException_NameError, "name '%s' is not defined",
                              COStr_AsString(o1));
@@ -344,7 +336,7 @@ new_frame:                     /* reentry point when function call/return */
             oparg = NEXTARG();
             o1 = GETITEM(names, oparg);
             o2 = POP();
-            COObject_set(o1, o2);
+            SETGLOBAL(o1, o2);
             CO_DECREF(o2);
             break;
         case OP_STORE_UPVAL:
@@ -402,7 +394,7 @@ new_frame:                     /* reentry point when function call/return */
             // upvalues
             for (int i = 0; i < CO_SIZE(c->co_upvals); i++) {
                 COObject *name = COTuple_GET_ITEM(c->co_upvals, i);
-                COObject *upvalue = COObject_get(name);
+                COObject *upvalue = vm_getglobal(name);
                 if (!upvalue) {
                     // local variables 
                     for (int j = 0; j < COTuple_GET_SIZE(localnames); j++) {
