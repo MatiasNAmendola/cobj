@@ -1,0 +1,19 @@
+#
+# builtin names:
+# builtin
+# gc
+# print
+# this
+# ...
+
+# builtins refers to dictinary of buitlin names:
+for k in builtins do
+   print("builtin: " + k)
+end
+
+#
+# `this` name refers to current context
+# for k in this do
+#   print(k)
+# end
+#

@@ -142,6 +142,25 @@ dict_ass_sub(CODictObject *this, COObject *key, COObject *value)
         return CODict_SetItem((COObject *)this, key, value);
 }
 
+static COObject *
+dict_iter(COObject *this)
+{
+    CODictIterObject *it;
+    if (!CODict_Check(this)) {
+        COErr_BadInternalCall();
+        return NULL;
+    }
+    it = COObject_GC_NEW(CODictIterObject, &CODictIter_Type);
+    if (!it)
+        return NULL;
+    it->key = NULL;
+    it->val = NULL;
+    CO_INCREF(this);
+    it->it_dict = (CODictObject *)this;
+    COObject_GC_TRACK(it);
+    return (COObject *)it;
+}
+
 static COMappingInterface mapping_interface = {
     (lenfunc)CODict_Size,
     (binaryfunc)dict_subscript,
@@ -154,19 +173,19 @@ COTypeObject CODict_Type = {
     sizeof(CODictObject),
     0,
     COType_FLAG_GC,
-    0,                          /* tp_new */
-    (deallocfunc)dict_dealloc,  /* tp_dealloc */
-    (reprfunc)dict_repr,        /* tp_repr */
-    0,                          /* tp_print */
-    0,                          /* tp_hash */
-    0,                          /* tp_compare */
-    (traversefunc)dict_traverse,        /* tp_traverse */
-    (inquiryfunc)dict_clear,    /* tp_clear */
-    0,                          /* tp_call */
-    0,                          /* tp_iter */
-    0,                          /* tp_iternext */
-    0,                          /* tp_arithmetic_interface */
-    &mapping_interface,         /* tp_mapping_interface */
+    0,                           /* tp_new                  */
+    (deallocfunc)dict_dealloc,   /* tp_dealloc              */
+    (reprfunc)dict_repr,         /* tp_repr                 */
+    0,                           /* tp_print                */
+    0,                           /* tp_hash                 */
+    0,                           /* tp_compare              */
+    (traversefunc)dict_traverse, /* tp_traverse             */
+    (inquiryfunc)dict_clear,     /* tp_clear                */
+    0,                           /* tp_call                 */
+    (getiterfunc)dict_iter,      /* tp_iter                 */
+    0,                           /* tp_iternext             */
+    0,                           /* tp_arithmetic_interface */
+    &mapping_interface,          /* tp_mapping_interface    */
 };
 
 int

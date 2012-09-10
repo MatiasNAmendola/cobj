@@ -1,8 +1,8 @@
 #include "cobj.h"
 
 const struct module_entry module_table[] = {
-    {"base", module_base_init},
-    {"gc", module_gc_init},
+    {"base", module_base_init, IMPORT_ALL},
+    {"gc", module_gc_init, IMPORT_DEFAULT},
 
     /* sentinel */
     {0, 0},
@@ -11,18 +11,25 @@ const struct module_entry module_table[] = {
 COObject *
 module_init_builtins(void)
 {
+    /**
+     * import * from base
+     * import gc
+     */
     COObject *builtins = CODict_New();
-    const struct module_entry *m;
-    for (m = module_table; m->initfunc; m++) {
-        CODict_SetItemString(builtins, m->name, m->initfunc());
-    }
-    COObject *base = CODict_GetItemString(builtins, "base");
-    if (base) {
-        COObject *key;
-        COObject *val;
-        while (CODict_Next(base, &key, &val) == 0) {
-            CODict_SetItem(builtins, key, val);
+    COObject *m = NULL;
+    const struct module_entry *mt;
+    for (mt = module_table; mt->initfunc; mt++) {
+        m = mt->initfunc();
+        if (mt->flag & IMPORT_ALL) {
+            COObject *key;
+            COObject *val;
+            while (CODict_Next(m, &key, &val) == 0) {
+                CODict_SetItem(builtins, key, val);
+            }
+        } else {
+            CODict_SetItemString(builtins, mt->name, m);
         }
     }
+    CODict_SetItemString(builtins, "builtins",  builtins);
     return builtins;
 }

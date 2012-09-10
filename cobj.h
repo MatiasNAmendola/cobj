@@ -48,6 +48,7 @@
 #include "objects/tupleobject.h"
 #include "objects/frameobject.h"
 #include "objects/dictobject.h"
+#include "objects/dictiterobject.h"
 #include "objects/codeobject.h"
 #include "objects/bytesobject.h"
 #include "objects/fileobject.h"

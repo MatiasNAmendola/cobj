@@ -64,6 +64,7 @@ LIB_OBJS += objects/cellobject.o
 LIB_OBJS += objects/rangeobject.o
 LIB_OBJS += objects/rangeiterobject.o
 LIB_OBJS += objects/setobject.o
+LIB_OBJS += objects/dictiterobject.o
 LIB_OBJS += module.o
 LIB_OBJS += modules/base.o
 LIB_OBJS += modules/gc.o

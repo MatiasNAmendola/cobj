@@ -49,6 +49,7 @@ typedef enum {
     OP_STORE_LOCAL,
     OP_GET_ITER,
     OP_FOR_ITER,
+    OP_IMPORT_NAME,
 } OpCode;
 
 /* OP_CMP's opargs */

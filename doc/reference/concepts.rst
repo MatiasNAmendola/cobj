@@ -8,3 +8,7 @@ COObject is a dynamically typed language. This means that variables do not have 
 All values in COObject are first-class values (including types). This means that all values can be stored in variables, passed as arguments to other functions, and returned as results.
 
 Basic types include, None, Boolean, Int, String, Function, Tuple, etc. None is the type of the value None, whose main property is to be different from any other value; it usually represents the absence of other values.
+
+Builtin names
+~~~~~~~~~~~~~~
+Builtin names are preloaded names in startup. You don't need `import` them. 
