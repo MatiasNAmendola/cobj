@@ -133,6 +133,7 @@ list_contains(COListObject *this, COObject *a)
 }
 
 static COSequenceInterface sequence_interface = {
+    (lenfunc)COList_Size,
     (binaryintfunc)list_contains,
 };
 
@@ -158,7 +159,6 @@ COTypeObject COList_Type = {
     0,                           /* tp_call                 */
     (getiterfunc)list_iter,      /* tp_iter                 */
     0,                           /* tp_iternext             */
-    (lenfunc)COList_Size,        /* tp_len                  */
     0,                           /* tp_arithmetic_interface */
     &mapping_interface,          /* tp_mapping_interface    */
     &sequence_interface,         /* tp_sequence_interface */

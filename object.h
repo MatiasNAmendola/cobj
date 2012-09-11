@@ -107,6 +107,18 @@ void _CO_NegativeRefCnt(const char *fname, int lineno, COObject *co);
         }                                           \
     } while (0);
 
+#define CO_RETURN_NONE return CO_INCREF(CO_None), CO_None
+
+/* Macro to help write tp_traverse functions. */
+#define CO_VISIT(o)                                     \
+    do {                                                \
+        if (o) {                                        \
+            int ret = visit((COObject *)(o), arg);      \
+            if (ret)                                    \
+                return ret;                             \
+        }                                               \
+    } while (0);
+
 /* COObject_VAR_SIZE returns the number of bytes allocated for a variable-size
  * object with n items. The value is rounded up to the closest multiple of
  * sizeof(void *), in order to ensure that pointer fields at the end of the
@@ -150,8 +162,8 @@ COObject *COObject_Str(COObject *o);
 COObject *COObject_Call(COObject *func, COObject *args);
 COObject *COObject_GetIter(COObject *o);
 COObject *COObject_GetSelf(COObject *o);
-ssize_t COObject_Length(COObject *o);
 
+ssize_t COSequence_Length(COObject *o);
 int COSequence_Contains(COObject *seq, COObject *o);
 
 COObject *COMapping_GetItem(COObject *o, COObject *key);
@@ -166,17 +178,5 @@ COObject *COArithmetic_Lshift(COObject *a, COObject *b);
 COObject *COArithmetic_Rshift(COObject *a, COObject *b);
 COObject *COArithmetic_Neg(COObject *o);
 COObject *COArithmetic_Invert(COObject *o);
-
-#define CO_RETURN_NONE return CO_INCREF(CO_None), CO_None
-
-/* Macro to help write tp_traverse functions. */
-#define CO_VISIT(o)                                     \
-    do {                                                \
-        if (o) {                                        \
-            int ret = visit((COObject *)(o), arg);      \
-            if (ret)                                    \
-                return ret;                             \
-        }                                               \
-    } while (0);
 
 #endif

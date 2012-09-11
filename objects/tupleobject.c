@@ -111,6 +111,7 @@ tuple_contains(COTupleObject *this, COObject *a)
 }
 
 static COSequenceInterface sequence_interface = {
+    (lenfunc)COTuple_Size,
     (binaryintfunc)tuple_contains,
 };
 
@@ -131,7 +132,6 @@ COTypeObject COTuple_Type = {
     0,                            /* tp_call                 */
     (getiterfunc)tuple_iter,      /* tp_iter                 */
     0,                            /* tp_iternext             */
-    (lenfunc)COTuple_Size,        /* tp_len */
     0,                            /* tp_arithmetic_interface */
     0,                            /* tp_mapping_interface    */
     &sequence_interface,      /* tp_sequence_interface */

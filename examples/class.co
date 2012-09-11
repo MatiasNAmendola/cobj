@@ -1,56 +1,18 @@
 # Class examples. (draft only)
-#
-# Declaring a class creates a type object.
-# 
-o = {
-    "data" => "A data string",
-    "balance" => 10,
-    "foo" => func(self) return self.data end,
-    "draw" => func(self, a) self.balance = self.balance + a; return self.balance end
-}
-print(o["data"])
-print(o.data)
-print(o["foo"](o))
-print(o.foo(o))
-print(o:foo())
-print(o:draw(10))
 
-file("./.gitignore")
-#myclass = func() {
-    #name = "no name yet!"; # private
-    #return func() {
-        ## public methods
-        #this.get_name = func() {
-            #return name;
-        #}
-        #this.set_name = func(n) {
-            #name = n;
-        #}
-        ## public attributes
-        #this.version = 0.1;
-    #};
-#};
+# call a method function
+f = file(".gitignore")
+print(f.read())
 
-#instance_a = myclass();
-
-#x:method(y) -> x.method(x, y) # syntactically equal
 #class Complex
     #real = 0
     #image = 0
     #func __add__(self, other)
+        #self.real += other.real
+        #self.image += other.image
     #end
     #func __sub__(self, other)
+        #self.real -= other.real
+        #self.image -= other.image
     #end
 #end
-
-
-# call object's method
-# 
-# obj.attr = obj[attr_name] # attr_name is a name which is string object has value "attr"
-# obj->meth(arg1, arg2, ..., argn) -> obj.meth(obj, arg1, arg2, ..., argn)
-# obj::meth(arg1, arg2, ..., argn)
-# obj.data: access obj's data
-# obj.meth: ascess obj's meth
-# foo.bar.data: access foo's bar, then access bar's data
-# foo.bar->meth
-# foo.bar::meth

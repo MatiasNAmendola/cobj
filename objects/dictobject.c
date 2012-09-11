@@ -183,7 +183,6 @@ COTypeObject CODict_Type = {
     0,                           /* tp_call                 */
     (getiterfunc)dict_iter,      /* tp_iter                 */
     0,                           /* tp_iternext             */
-    (lenfunc)CODict_Size,        /* tp_len */
     0,                           /* tp_arithmetic_interface */
     &mapping_interface,          /* tp_mapping_interface    */
     0,                          /* tp_sequence_interface */

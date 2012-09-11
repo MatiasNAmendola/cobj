@@ -289,23 +289,22 @@ COObject_GetSelf(COObject *o)
     return o;
 }
 
+/* Sequence Methods. */
+
 /*
  * Get length of given object.
  */
 ssize_t
-COObject_Length(COObject *o)
+COSequence_Length(COObject *seq)
 {
-    lenfunc len = CO_TYPE(o)->tp_len;
-    if (len) {
-        return len(o);
-    }
+    COSequenceInterface *si = CO_TYPE(seq)->tp_sequence_interface;
+    if (si && si->sq_length)
+        return si->sq_length(seq);
 
     COErr_Format(COException_TypeError,
-                 "'%.200s' object does not implement __len__", CO_TYPE(o)->tp_name);
+                 "'%.200s' object does not implement __len__", CO_TYPE(seq)->tp_name);
     return 0;
 }
-
-/* Sequence Methods. */
 
 /*
  * Returns 1 or 0 on success, -1 on failure.

@@ -34,7 +34,7 @@ builtin_len(COObject *this, COObject *args)
         return NULL;
     }
     COObject *o = COTuple_GET_ITEM(args, 0);
-    ssize_t s = COObject_Length(o);
+    ssize_t s = COSequence_Length(o);
     if (COErr_Occurred()) {
         return NULL;
     }

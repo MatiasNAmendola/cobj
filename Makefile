@@ -18,8 +18,8 @@ endif
 
 LDFLAGS = -lm
 
-prefix = /usr/local
-bindir = $(prefix)/bin
+PREFIX = /usr/local
+BINDIR = $(PREFIX)/bin
 
 FIND_SOURCE_FILES = find . \( -name .git -type d -prune \) -o \( -name '*.[hc]' -type f -print \)
 
@@ -80,10 +80,10 @@ scanner.c: scanner.l
 all:: cobj
 
 install: all
-	install -p -m 755 cobj $(bindir)
+	install -p -m 755 cobj $(BINDIR)
 
 uninstall:
-	$(RM) $(bindir)/cobj
+	$(RM) $(BINDIR)/cobj
 
 clean:
 	$(RM) cobj
@@ -97,7 +97,7 @@ doc:
 	$(MAKE) -C doc/ html
 
 test: all
-	@$(MAKE) -C t/ all
+	$(MAKE) -C t/ all
 
 tags:
 	$(RM) tags

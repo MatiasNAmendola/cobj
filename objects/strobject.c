@@ -378,6 +378,29 @@ str_new(COTypeObject *type, COObject *args)
     return COObject_Str(x);
 }
 
+static ssize_t
+str_len(COStrObject *this)
+{
+    return CO_SIZE(this);
+}
+
+static int
+str_contains(COStrObject *this, COObject *o)
+{
+    if (!COStr_Check(o) || CO_SIZE(o) != 1) {
+        COErr_SetString(COException_TypeError, "arg must be one-char str");
+        return -1;
+    }
+    const unsigned char c = *COStr_AS_STRING(o);
+    
+    return memchr(COStr_AS_STRING(this), (int)c, CO_SIZE(this)) != NULL;
+}
+
+static COSequenceInterface sequence_interface = {
+    (lenfunc)str_len,
+    (binaryintfunc)str_contains,
+};
+
 static COAritmeticInterface arithmetic_interface = {
     (binaryfunc)str_concat,
     0,
@@ -396,21 +419,20 @@ COTypeObject COStr_Type = {
     COStr_BASESIZE,
     sizeof(char),
     0,
-    (newfunc)str_new,           /* tp_new                  */
-    (deallocfunc)str_dealloc,   /* tp_dealloc              */
-    (reprfunc)str_repr,         /* tp_repr                 */
-    (printfunc)str_print,       /* tp_print                */
-    (hashfunc)str_hash,         /* tp_hash                 */
-    (comparefunc)str_compare,   /* tp_compare              */
-    0,                          /* tp_traverse             */
-    0,                          /* tp_clear                */
-    0,                          /* tp_call                 */
-    0,                          /* tp_iter                 */
-    0,                          /* tp_iternext             */
-    0,                          /* tp_len */
-    &arithmetic_interface,      /* tp_arithmetic_interface */
-    0,                          /* tp_mapping_interface    */
-    0,                          /* tp_sequence_interface */
+    (newfunc)str_new,         /* tp_new                  */
+    (deallocfunc)str_dealloc, /* tp_dealloc              */
+    (reprfunc)str_repr,       /* tp_repr                 */
+    (printfunc)str_print,     /* tp_print                */
+    (hashfunc)str_hash,       /* tp_hash                 */
+    (comparefunc)str_compare, /* tp_compare              */
+    0,                        /* tp_traverse             */
+    0,                        /* tp_clear                */
+    0,                        /* tp_call                 */
+    0,                        /* tp_iter                 */
+    0,                        /* tp_iternext             */
+    &arithmetic_interface,    /* tp_arithmetic_interface */
+    0,                        /* tp_mapping_interface    */
+    &sequence_interface,      /* tp_sequence_interface   */
 };
 
 char *

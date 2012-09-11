@@ -44,20 +44,20 @@ COTypeObject COType_Type = {
     sizeof(COTypeObject),
     0,
     0,
-    (newfunc)type_new,          /* tp_new               */
-    (deallocfunc)type_dealloc,  /* tp_dealloc           */
-    (reprfunc)type_repr,        /* tp_repr              */
-    0,                          /* tp_print             */
-    0,                          /* tp_hash              */
-    0,                          /* tp_compare           */
-    0,                          /* tp_traverse          */
-    0,                          /* tp_clear             */
-    (binaryfunc)type_call,      /* tp_call              */
-    0,                          /* tp_iter              */
-    0,                          /* tp_iternext          */
-    0,                          /* tp_len */
-    0,                          /* tp_arithmetic_interface     */
-    0,                          /* tp_mapping_interface */
+    (newfunc)type_new,         /* tp_new                  */
+    (deallocfunc)type_dealloc, /* tp_dealloc              */
+    (reprfunc)type_repr,       /* tp_repr                 */
+    0,                         /* tp_print                */
+    0,                         /* tp_hash                 */
+    0,                         /* tp_compare              */
+    0,                         /* tp_traverse             */
+    0,                         /* tp_clear                */
+    (binaryfunc)type_call,     /* tp_call                 */
+    0,                         /* tp_iter                 */
+    0,                         /* tp_iternext             */
+    0,                         /* tp_arithmetic_interface */
+    0,                         /* tp_mapping_interface    */
+    0,                         /* tp_sequence_interface   */
 };
 
 /*
