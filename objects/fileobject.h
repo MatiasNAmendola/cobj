@@ -24,8 +24,7 @@ COTypeObject COFile_Type;
 
 #define COFile_Check(co) (CO_TYPE(co) == &COFile_Type)
 
-COObject *COFile_FromFile(FILE *fp, char *name, char *mode,
-                          int (*close) (FILE *));
+COObject *COFile_FromFile(FILE *fp, COObject *name, COObject *mode);
 FILE *COFile_AsFile(COObject *this);
 COObject *COFile_GetLine(COObject *this);
 COObject *COFile_Read(COObject *this, int n);

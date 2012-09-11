@@ -6,6 +6,7 @@ Core
 
 Object Model
 ============
+ * meta mechanism
 
 
 Performance
@@ -15,3 +16,6 @@ Performance
 Tests
 =====
   * unit tests with valgrind memory leak check
+
+Bugs
+====

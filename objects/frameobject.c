@@ -123,13 +123,10 @@ COFrame_New(COObject *prev, COObject *func, COObject *globals)
         CO_REFCNT(f) = 1;
         code->co_zombieframe = NULL;
 
-        CO_INCREF(code);
     } else {
         f = COVarObject_NEW(COFrameObject, &COFrame_Type,
                                        extras);
 
-        f->f_code = (COObject *)code;
-        CO_INCREF(code);
     }
 
     f->f_lasti = 0;
@@ -137,6 +134,8 @@ COFrame_New(COObject *prev, COObject *func, COObject *globals)
     CO_XINCREF(prev);
     f->f_func = func;
     CO_XINCREF(func);
+    f->f_code = (COObject *)code;
+    CO_INCREF(code);
 
     f->f_globals = globals;
     CO_XINCREF(globals);

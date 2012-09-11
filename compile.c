@@ -265,7 +265,7 @@ compiler_next_instr(struct compiler *c, struct block *b)
         if (!b->b_instr) {
             return -1;
         }
-        memset(b->b_instr + oldsize, 0, newsize - oldsize);
+        memset((char*)b->b_instr + oldsize, 0, newsize - oldsize);
     }
     return b->b_iused++;
 }

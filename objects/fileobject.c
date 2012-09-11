@@ -11,45 +11,36 @@
 static COObject *
 file_repr(COFileObject *this)
 {
-    return COStr_FromFormat("<file '%s', at %p>",
-                            COStr_AS_STRING(this->f_name), this);
+    return COStr_FromFormat("<file '%s', mode '%s', at %p>",
+                            COStr_AS_STRING(this->f_name), COStr_AsString(this->f_mode), this);
 }
 
 static void
 file_dealloc(COFileObject *this)
 {
     fclose(this->f_fp);
-    CO_XDECREF(this->f_name);
-    CO_XDECREF(this->f_mode);
+    CO_DECREF(this->f_name);
+    CO_DECREF(this->f_mode);
     COObject_Mem_FREE(this);
 }
 
-static COFileObject *
+static COObject *
 file_new(COTypeObject *type, COObject *args)
 {
     COObject *name = NULL;
     if (!COObject_ParseArgs(args, &name, NULL))
         return NULL;
 
-    COFileObject *f = NULL;
-    f = COObject_NEW(COFileObject, &COFile_Type);
-    if (!f)
-        return NULL;
-    f->f_name = name;
-
-    f->f_fp = fopen(COStr_AsString(name), "r");
-    if (f->f_fp == NULL) {
+    const char *mode = "r";
+    FILE *fp = fopen(COStr_AsString(name), mode);
+    if (!fp) {
         COErr_SetString(COException_SystemError, "Failed to open file");
         return NULL;
     }
+    COObject *f_mode = COStr_FromString(mode);
 
-    f->f_buf = NULL;
-    f->f_bufend = NULL;
-    f->f_bufptr = NULL;
-    f->f_univ_newline = 0;
-    f->f_newlinetypes = NEWLINE_UNKNOWN;
-    f->f_skipnextif = 0;
-
+    COObject *f = COFile_FromFile(fp, name, f_mode);
+    CO_DECREF(f_mode);
     return f;
 }
 
@@ -244,23 +235,29 @@ COTypeObject COFile_Type = {
 };
 
 COObject *
-COFile_FromFile(FILE *fp, char *name, char *mode, int (*close) (FILE *))
+COFile_FromFile(FILE *fp, COObject *name, COObject *mode)
 {
     COFileObject *f = COObject_NEW(COFileObject, &COFile_Type);
     if (f == NULL) {
         return NULL;
     }
-    COObject *f_name = COStr_FromString(name);
-    if (f_name == NULL) {
+    if (name == NULL) {
         return NULL;
     }
-    COObject *f_mode = COStr_FromString(mode);
-    if (f_mode == NULL) {
+    if (mode == NULL) {
         return NULL;
     }
     f->f_fp = fp;
-    f->f_name = f_name;
-    f->f_mode = f_mode;
+    f->f_name = name;
+    CO_INCREF(name);
+    f->f_mode = mode;
+    CO_INCREF(mode);
+    f->f_buf = NULL;
+    f->f_bufend = NULL;
+    f->f_bufptr = NULL;
+    f->f_univ_newline = 0;
+    f->f_newlinetypes = NEWLINE_UNKNOWN;
+    f->f_skipnextif = 0;
     return (COObject *)f;
 }
 

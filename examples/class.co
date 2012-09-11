@@ -15,6 +15,7 @@ print(o.foo(o))
 print(o:foo())
 print(o:draw(10))
 
+file("./.gitignore")
 #myclass = func() {
     #name = "no name yet!"; # private
     #return func() {

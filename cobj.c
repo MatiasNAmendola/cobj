@@ -70,8 +70,15 @@ run_file(FILE *fp, const char *filename)
     COObject *ret;
     struct arena *arena = arena_new();
     scanner_init(arena);
-    COObject *f = COFile_FromFile(fp, (char *)filename, "r", fclose);
+
+    COObject *f_filename = COStr_FromString(filename);
+    COObject *mode = COStr_FromString("r");
+    COObject *f = COFile_FromFile(fp, f_filename, mode);
+    CO_DECREF(f_filename);
+    CO_DECREF(mode);
+
     COObject *source = COFile_Read(f, -1);
+
     scanner_setcode(COBytes_AsString(source));
     COObject *code = compile(arena);
     ret = eval_wrapper(code);
