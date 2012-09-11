@@ -1,7 +1,9 @@
 #ifndef OBJECTS_CELLOBJECT_H
 #define OBJECTS_CELLOBJECT_H
 /**
- * Cell object interface
+ * Cell object.
+ *
+ * This object is used to implement variables referenced by multiple scopes.
  */
 
 #include "../object.h"

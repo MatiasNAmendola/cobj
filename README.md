@@ -1,6 +1,4 @@
-This is cobj, an object-oriented program language.
-
-*I wrote this based on many languages (Python, Ruby, PHP, Lua, Go, etc). It's only for learning purpose now.*
+This is cobj, an general-purpose program language.
 
 Compile/Install
 ===============

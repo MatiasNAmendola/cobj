@@ -1,13 +1,26 @@
-last = 0
+local base = 10
 newIncrer = func(n)
     return func(i) 
         n = n + i
-        last = n
-        return n
+        return func(j)
+            n = n + j + base
+            return n
+        end
     end
 end
 
 f = newIncrer(10)
+f = f(1)
 print(f(1))
 print(f(1))
-print(last)
+
+#local base = 10
+#newIncrer = func(n)
+    #return func(i)
+        #n = n + base + i
+        #return n
+    #end
+#end
+#f = newIncrer(10)
+#print(f(1))
+#print(f(2))

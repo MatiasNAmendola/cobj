@@ -413,11 +413,29 @@ new_frame:                     /* reentry point when function call/return */
                 COObject *name = COTuple_GET_ITEM(c->co_upvals, i);
                 COObject *upvalue = vm_getglobal(name);
                 if (!upvalue) {
-                    // local variables 
-                    for (int j = 0; j < COTuple_GET_SIZE(localnames); j++) {
-                        if (COObject_CompareBool
-                            (COTuple_GET_ITEM(localnames, j), name, Cmp_EQ)) {
-                            upvalue = GETLOCAL(j);
+                    // find in current & preivous stacks
+                    COFrameObject *frame = TS(frame);
+                    do {
+                        COObject *mylocalnames = ((COCodeObject *)frame->f_code)->co_localnames;
+                        for (int j = 0; j < COTuple_GET_SIZE(mylocalnames); j++) {
+                            if (COObject_CompareBool
+                                (COTuple_GET_ITEM(mylocalnames, j), name, Cmp_EQ)) {
+                                upvalue = frame->f_extraplus[j];
+                                break;
+                            }
+                        }
+                        frame = (COFrameObject *)frame->f_prev;
+                    } while (frame);
+                    // find in upvalues
+                    if (!upvalue) {
+                        for (int j = 0; j < COTuple_GET_SIZE(((COCodeObject *)code)->co_upvals); j++) {
+
+                            if (COObject_CompareBool
+                                    (COTuple_GET_ITEM(((COCodeObject *)code)->co_upvals, j), name, Cmp_EQ)) {
+                                COObject *cell = COTuple_GET_ITEM(((COFunctionObject *)func)->func_upvalues, j);
+                                upvalue = COCell_Get(cell);
+                                break;
+                            }
                         }
                     }
                 }
