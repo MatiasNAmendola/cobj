@@ -15,6 +15,8 @@ function_dealloc(COFunctionObject *this)
 {
     CO_DECREF(this->func_name);
     CO_DECREF(this->func_code);
+    CO_XDECREF(this->func_defaults);
+    CO_XDECREF(this->func_upvalues);
     COObject_Mem_FREE(this);
 }
 
@@ -24,20 +26,20 @@ COTypeObject COFunction_Type = {
     sizeof(COFunctionObject),
     0,
     0,
-    0,                          /* tp_new */
-    (deallocfunc)function_dealloc,      /* tp_dealloc */
-    (reprfunc)function_repr,    /* tp_repr */
-    0,                          /* tp_print */
-    0,                          /* tp_hash */
-    0,                          /* tp_compare */
-    0,                          /* tp_traverse */
-    0,                          /* tp_clear */
-    0,                          /* tp_call */
-    0,                          /* tp_iter */
-    0,                          /* tp_iternext */
-    0,                          /* tp_arithmetic_interface */
-    0,                          /* tp_mapping_interface */
-    0,                          /* tp_sequence_interface */
+    0,                             /* tp_new                  */
+    (deallocfunc)function_dealloc, /* tp_dealloc              */
+    (reprfunc)function_repr,       /* tp_repr                 */
+    0,                             /* tp_print                */
+    0,                             /* tp_hash                 */
+    0,                             /* tp_compare              */
+    0,                             /* tp_traverse             */
+    0,                             /* tp_clear                */
+    0,                             /* tp_call                 */
+    0,                             /* tp_iter                 */
+    0,                             /* tp_iternext             */
+    0,                             /* tp_arithmetic_interface */
+    0,                             /* tp_mapping_interface    */
+    0,                             /* tp_sequence_interface   */
 };
 
 COObject *
@@ -52,8 +54,13 @@ COFunction_New(COObject *func_code)
     CO_XINCREF(func_name);
     func->func_code = func_code;
     CO_XINCREF(func_code);
-    func->func_upvalues =
-        COTuple_New(COTuple_Size(((COCodeObject *)func_code)->co_upvals));
+    
+    func->func_defaults = NULL;
+    ssize_t nupvals = COTuple_GET_SIZE(((COCodeObject *)func_code)->co_upvals);
+    func->func_upvalues = NULL;
+    if (nupvals) {
+        func->func_upvalues = COTuple_New(nupvals);
+    }
     return (COObject *)func;
 }
 

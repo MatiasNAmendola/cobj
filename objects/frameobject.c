@@ -111,7 +111,7 @@ COFrame_New(COObject *prev, COObject *func, COObject *globals)
                                           func)->func_code;
     int i;
     ssize_t extras, nlocals;
-    nlocals = COTuple_Size(code->co_localnames);
+    nlocals = COTuple_GET_SIZE(code->co_localnames);
     extras = nlocals + code->co_stacksize;
     COFrameObject *f;
     if (code->co_zombieframe) {

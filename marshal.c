@@ -134,7 +134,7 @@ w_object(COObject *co, WFILE *p)
         w_object((COObject *)NULL, p);
     } else if (COTuple_Check(co)) {
         w_byte(TYPE_TUPLE, p);
-        size_t n = COTuple_Size(co);
+        size_t n = COTuple_GET_SIZE(co);
         w_int64((long)n, p);
         for (int i = 0; i < n; i++) {
             w_object(COTuple_GetItem(co, i), p);

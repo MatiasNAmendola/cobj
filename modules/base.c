@@ -13,7 +13,7 @@ builtin_print(COObject *this, COObject *args)
 {
     int i;
     if (args) {
-        for (i = 0; i < COTuple_Size(args); i++) {
+        for (i = 0; i < COTuple_GET_SIZE(args); i++) {
             if (i > 0)
                 printf(" ");
             COObject_Print(COTuple_GET_ITEM(args, i), stdout);
@@ -29,7 +29,7 @@ static COObject *
 builtin_len(COObject *this, COObject *args)
 {
     // TODO check args
-    if (COTuple_Size(args) != 1) {
+    if (COTuple_GET_SIZE(args) != 1) {
         COErr_BadInternalCall();
         return NULL;
     }

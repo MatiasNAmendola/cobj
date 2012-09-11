@@ -18,7 +18,7 @@ typedef struct _COFunctionObject {
     COObject *func_name;
     COObject *func_code;        /* code object */
     COObject *func_defaults;    /* NULL or a tuple */
-    COObject *func_upvalues;    /* tuple of upvalue cell objects */
+    COObject *func_upvalues;    /* NULL or a tuple of upvalues */
 } COFunctionObject;
 
 COTypeObject COFunction_Type;

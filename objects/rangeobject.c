@@ -121,9 +121,9 @@ range_new(COTypeObject *type, COObject *args)
     CORangeObject *obj;
     COObject *start = NULL, *stop = NULL, *step = NULL;
 
-    if (COTuple_Size(args) < 1) {
+    if (COTuple_GET_SIZE(args) < 1) {
         goto err;
-    } else if (COTuple_Size(args) == 1) {
+    } else if (COTuple_GET_SIZE(args) == 1) {
         if (!COObject_ParseArgs(args, &stop, NULL))
             return NULL;
         start = COInt_FromLong(0);
@@ -134,7 +134,7 @@ range_new(COTypeObject *type, COObject *args)
         if (!step) {
             goto err;
         }
-    } else if (COTuple_Size(args) == 2 || COTuple_Size(args) == 3) {
+    } else if (COTuple_GET_SIZE(args) == 2 || COTuple_GET_SIZE(args) == 3) {
         if (!COObject_ParseArgs(args, &start, &stop, &step, NULL))
             return NULL;
         if (!step) {

@@ -301,8 +301,7 @@ new_frame:                     /* reentry point when function call/return */
             oparg = NEXTARG();
             o1 = COTuple_GET_ITEM(((COFunctionObject *)func)->func_upvalues,
                                   oparg);
-            o2 = COCell_Get(o1);
-            PUSH(o2);
+            PUSH(o1);
             break;
         case OP_LOAD_CONST:
             oparg = NEXTARG();
@@ -358,11 +357,9 @@ new_frame:                     /* reentry point when function call/return */
             break;
         case OP_STORE_UPVAL:
             oparg = NEXTARG();
-            o1 = COTuple_GET_ITEM(((COFunctionObject *)func)->func_upvalues,
-                                  oparg);
             o2 = POP();
-            COCell_Set(o1, o2);
-            CO_DECREF(o2);
+            COTuple_SET_ITEM(((COFunctionObject *)func)->func_upvalues,
+                                  oparg, o2);
             break;
         case OP_STORE_LOCAL:
             oparg = NEXTARG();
@@ -432,16 +429,13 @@ new_frame:                     /* reentry point when function call/return */
 
                             if (COObject_CompareBool
                                     (COTuple_GET_ITEM(((COCodeObject *)code)->co_upvals, j), name, Cmp_EQ)) {
-                                COObject *cell = COTuple_GET_ITEM(((COFunctionObject *)func)->func_upvalues, j);
-                                upvalue = COCell_Get(cell);
+                                upvalue = COTuple_GET_ITEM(((COFunctionObject *)func)->func_upvalues, j);
                                 break;
                             }
                         }
                     }
                 }
-                COObject *cell = COCell_New(upvalue);
-                COTuple_SET_ITEM(((COFunctionObject *)x)->func_upvalues, i,
-                                 cell);
+                COTuple_SET_ITEM(((COFunctionObject *)x)->func_upvalues, i, upvalue);
             }
             CO_DECREF(o1);
             PUSH(x);
