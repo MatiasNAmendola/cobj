@@ -22,6 +22,7 @@ typedef enum {
     OP_JMP,
     OP_JMPX,
     OP_MAKE_FUNCTION,
+    OP_MAKE_CLASS,
     OP_RETURN,
     OP_CALL_FUNCTION,
     OP_SETUP_TRY,

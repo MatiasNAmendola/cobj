@@ -565,56 +565,74 @@ compiler_visit_node(struct compiler *c, Node *n)
             compiler_use_next_block(c, end);
         }
         break;
+    case NODE_CLASS:
+        {
+            compiler_enter_scope(c);
+            compiler_use_new_block(c);
+            compiler_visit_node(c, n->nd_classbody);
+            COObject *co = assemble(c);
+            compiler_exit_scope(c);
+            compiler_addop_o(c, OP_LOAD_CONST, c->u->u_consts,
+                             n->nd_classname->u.o);
+            oparg = compiler_add(c->u->u_consts, co);
+            CO_DECREF(co);
+            compiler_addop_i(c, OP_LOAD_CONST, oparg);
+            compiler_addop(c, OP_MAKE_CLASS);
+        }
+        break;
     case NODE_FUNC:
-        compiler_enter_scope(c);
-        compiler_use_new_block(c);
-        c->u->u_argcount = node_listlen(n->nd_funcargs);
-        Node *l = n->nd_funcargs;
-        Node *default_exprs = NULL;
-        bool already_has_optional_args = false;
-        while (l) {
-            if (l->nd_node->type == NODE_BIN) {
-                already_has_optional_args = true;
-                if (!default_exprs) {
-                    default_exprs =
-                        node_list(c->arena, l->nd_node->nd_right, NULL);
-                    oparg =
-                        compiler_add(c->u->u_localnames,
-                                     l->nd_node->nd_left->u.o);
+        {
+            compiler_enter_scope(c);
+            compiler_use_new_block(c);
+            c->u->u_argcount = node_listlen(n->nd_funcargs);
+            Node *l = n->nd_funcargs;
+            Node *default_exprs = NULL;
+            bool already_has_optional_args = false;
+            while (l) {
+                if (l->nd_node->type == NODE_BIN) {
+                    already_has_optional_args = true;
+                    if (!default_exprs) {
+                        default_exprs =
+                            node_list(c->arena, l->nd_node->nd_right, NULL);
+                        oparg =
+                            compiler_add(c->u->u_localnames,
+                                         l->nd_node->nd_left->u.o);
+                    } else {
+                        default_exprs =
+                            node_listappend(c->arena, default_exprs,
+                                            l->nd_node);
+                        oparg =
+                            compiler_add(c->u->u_localnames,
+                                         l->nd_node->nd_left->u.o);
+                    }
                 } else {
-                    default_exprs =
-                        node_listappend(c->arena, default_exprs, l->nd_node);
-                    oparg =
-                        compiler_add(c->u->u_localnames,
-                                     l->nd_node->nd_left->u.o);
+                    if (already_has_optional_args) {
+                        error
+                            ("positional arguments cannot follow optional arguments");
+                    }
+                    oparg = compiler_add(c->u->u_localnames, l->nd_node->u.o);
                 }
-            } else {
-                if (already_has_optional_args) {
-                    error
-                        ("positional arguments cannot follow optional arguments");
-                }
-                oparg = compiler_add(c->u->u_localnames, l->nd_node->u.o);
+                l = l->nd_next;
             }
-            l = l->nd_next;
-        }
-        compiler_visit_node(c, n->nd_funcbody);
-        COObject *co = assemble(c);
+            compiler_visit_node(c, n->nd_funcbody);
+            COObject *co = assemble(c);
 #ifdef CO_DEBUG
-        printf("begin code\n");
-        dump_code(co);
-        printf("end code\n");
+            printf("begin code\n");
+            dump_code(co);
+            printf("end code\n");
 #endif
-        compiler_exit_scope(c);
-        int default_argcount = node_listlen(default_exprs);
-        l = default_exprs;
-        while (l) {
-            compiler_visit_node(c, l->nd_node);
-            l = l->nd_next;
+            compiler_exit_scope(c);
+            int default_argcount = node_listlen(default_exprs);
+            l = default_exprs;
+            while (l) {
+                compiler_visit_node(c, l->nd_node);
+                l = l->nd_next;
+            }
+            oparg = compiler_add(c->u->u_consts, co);
+            CO_DECREF(co);
+            compiler_addop_i(c, OP_LOAD_CONST, oparg);
+            compiler_addop_i(c, OP_MAKE_FUNCTION, default_argcount);
         }
-        oparg = compiler_add(c->u->u_consts, co);
-        CO_DECREF(co);
-        compiler_addop_i(c, OP_LOAD_CONST, oparg);
-        compiler_addop_i(c, OP_MAKE_FUNCTION, default_argcount);
         break;
     case NODE_FUNC_CALL:
         compiler_visit_node(c, n->nd_params);
@@ -898,6 +916,8 @@ opcode_stack_effect(int opcode, int oparg)
         return 0;
     case OP_MAKE_FUNCTION:
         return 0;
+    case OP_MAKE_CLASS:
+        return -1;
     case OP_RETURN:
         return -1;
     case OP_CALL_FUNCTION:
@@ -1185,7 +1205,7 @@ dump_code(COObject *code)
 #endif
 
 int
-colex(YYSTYPE * colval)
+colex(YYSTYPE *colval)
 {
     int retval;
 

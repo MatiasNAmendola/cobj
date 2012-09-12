@@ -4,7 +4,7 @@ static COObject *
 type_repr(COTypeObject *this)
 {
     COObject *s;
-    s = COStr_FromFormat("<type '%s'>", this->tp_name);
+    s = COStr_FromFormat("<class '%s'>", this->tp_name);
     return s;
 }
 
@@ -31,11 +31,29 @@ type_call(COTypeObject *type, COObject *args)
 static COTypeObject *
 type_new(COTypeObject *type, COObject *args)
 {
-    COObject *x = NULL;
-    if (!COObject_ParseArgs(args, &x, NULL))
+    COTypeObject *x = NULL;
+
+    if (COTuple_GET_SIZE(args) == 1) {
+        if (!COObject_ParseArgs(args, &x, NULL))
+            return NULL;
+        x = CO_TYPE(x);
+        CO_INCREF(x);
+        return x;
+    }
+
+    /* Check arguments: (code, name) */
+    COObject *code;
+    COObject *name;
+    if (!COObject_ParseArgs(args, &code, &name, NULL))
         return NULL;
-    CO_INCREF(CO_TYPE(x));
-    return CO_TYPE(x);
+
+    x = COObject_NEW(COTypeObject, type);
+    if (!x)
+        return NULL;
+
+    x->tp_name = COStr_AsString(name);
+
+    return x;
 }
 
 COTypeObject COType_Type = {
@@ -98,9 +116,9 @@ COType_Ready(COObject *_this)
     return 0;
 }
 
-/*
- * If object should never be deallocated, use this.
- */
+ /*
+  * If object should never be deallocated, use this.
+  */
 void
 default_dealloc(COObject *this)
 {

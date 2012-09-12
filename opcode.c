@@ -26,6 +26,7 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_JMP);
         GIVE_NAME(OP_JMPX);
         GIVE_NAME(OP_MAKE_FUNCTION);
+        GIVE_NAME(OP_MAKE_CLASS);
         GIVE_NAME(OP_RETURN);
         GIVE_NAME(OP_CALL_FUNCTION);
         GIVE_NAME(OP_SETUP_TRY);

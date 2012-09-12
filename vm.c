@@ -425,16 +425,16 @@ new_frame:                     /* reentry point when function call/return */
                     if (!upvalue) {
                         for (int j = 0;
                              j <
-                             COTuple_GET_SIZE(((COCodeObject *)code)->
-                                              co_upvals); j++) {
+                             COTuple_GET_SIZE(((COCodeObject *)
+                                               code)->co_upvals); j++) {
 
                             if (COObject_CompareBool
                                 (COTuple_GET_ITEM
                                  (((COCodeObject *)code)->co_upvals, j), name,
                                  Cmp_EQ)) {
-                                upvalue =
-                                    COTuple_GET_ITEM(((COFunctionObject *)
-                                                      func)->func_upvalues, j);
+                                upvalue = COTuple_GET_ITEM(((COFunctionObject *)
+                                                            func)->
+                                                           func_upvalues, j);
                                 break;
                             }
                         }
@@ -661,6 +661,17 @@ new_frame:                     /* reentry point when function call/return */
             CO_DECREF(o2);
             CO_INCREF(x);
             SET_TOP(x);
+            break;
+        case OP_MAKE_CLASS:
+            {
+                o1 = POP();
+                o2 = TOP();
+                COObject *args = COTuple_Pack(2, o1, o2);
+                x = COObject_Call(&COType_Type, args);
+                CO_DECREF(o1);
+                CO_DECREF(o2);
+                SET_TOP(x);
+            }
             break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);

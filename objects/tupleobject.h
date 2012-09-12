@@ -23,6 +23,7 @@ ssize_t COTuple_Size(COObject *this);
 COObject *COTuple_GetItem(COObject *this, ssize_t index);
 int COTuple_SetItem(COObject *this, ssize_t index, COObject *item);
 COObject *COTuple_GetSlice(COObject *this, int ilow, int ihigh);
+COObject *COTuple_Pack(ssize_t n, ...);
 
 /* Macros, trading safety for speed */
 #define COTuple_GET_SIZE(co)        CO_SIZE(co)

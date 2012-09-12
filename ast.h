@@ -22,6 +22,7 @@ typedef enum {
     NODE_WHILE,
     NODE_FOR,
     NODE_FUNC,
+    NODE_CLASS,
     NODE_FUNC_CALL,
     NODE_FUNC_CALL_STMT,
     NODE_RETURN,
@@ -108,6 +109,12 @@ typedef struct _Node {
  */
 #define nd_funcargs n1
 #define nd_funcbody n2
+
+/*
+ * NODE_CLASS
+ */
+#define nd_classname n1
+#define nd_classbody n2
 
 /*
  * NODE_TRY

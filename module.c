@@ -3,6 +3,7 @@
 const struct module_entry module_table[] = {
     {"base", module_base_init, IMPORT_ALL},
     {"gc", module_gc_init, IMPORT_DEFAULT},
+    {"io", module_io_init, IMPORT_DEFAULT},
 
     /* sentinel */
     {0, 0},

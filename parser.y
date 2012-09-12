@@ -28,6 +28,7 @@ return_none_node(struct arena *arena)
  */
 %token  T_IF T_ELIF T_ELSE
 %token  T_FUNC
+%token  T_CLASS
 %token  T_LOCAL
 %token  T_RETURN
 %token  T_WHILE
@@ -434,6 +435,12 @@ compound_stmt:
             t->nd_orelse = $4;
             t->nd_finally = $5;
             $$ = node_list(c->arena, t, NULL);
+        }
+    |   T_CLASS T_NAME stmt_list T_END {
+            Node *t = node_new(c->arena, NODE_CLASS, NULL, NULL);
+            t->nd_classname = $2;
+            t->nd_classbody = $3;
+            $$ = node_list(c->arena, node_new(c->arena, NODE_ASSIGN, $2, t), NULL);
         }
 ;
 

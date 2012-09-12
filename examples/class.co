@@ -1,21 +1,25 @@
 # Class examples. (draft only)
 
 # call a method function
-f = file(".gitignore")
-print(f.read)
-print(f.read(f))
-print(f:read())
+#f = file(".gitignore")
+#print(f.read)
+#print(f.read(f))
+#print(f:read())
 
-10:bit_length() 
-#class Complex
+#10:bit_length() 
+
+class Complex
     #real = 0
     #image = 0
+    #func __init__(self, real=0, image=0)
+        #self.real = real
+        #self.image = image
+    #end
     #func __add__(self, other)
-        #self.real += other.real
-        #self.image += other.image
+        #r = Complex()
+        #r.real = self.real + other.real
+        #r.image = self.real + other.image
+        #return r
     #end
-    #func __sub__(self, other)
-        #self.real -= other.real
-        #self.image -= other.image
-    #end
-#end
+end
+print(Complex)

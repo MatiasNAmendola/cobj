@@ -259,3 +259,32 @@ COTuple_GetSlice(COObject *this, int ilow, int ihigh)
 {
     return tuple_slice((COTupleObject *)this, ilow, ihigh);
 }
+
+COObject *
+COTuple_Pack(ssize_t n, ...)
+{
+    ssize_t i;
+    COObject *o;
+    COObject *result;
+    COObject **items;
+
+    va_list vargs;
+
+    va_start(vargs, n);
+
+    result = COTuple_New(n);
+    if (!result) {
+        va_end(vargs);
+        return NULL;
+    }
+
+    items = ((COTupleObject *)result)->co_item;
+    for (i = 0; i < n; i++) {
+        o = va_arg(vargs, COObject *);
+        CO_INCREF(o);
+        items[i] = o;
+    }
+
+    va_end(vargs);
+    return result;
+}

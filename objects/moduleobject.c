@@ -7,7 +7,7 @@ module_repr(COModuleObject *this)
     COObject *name = COObject_GetAttrString((COObject *)this, "__name__");
     if (!name)
         return NULL;
-    s = COStr_FromFormat("<module %s>", COStr_AS_STRING(name));
+    s = COStr_FromFormat("<module '%s'>", COStr_AS_STRING(name));
     return s;
 }
 
