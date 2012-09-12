@@ -57,18 +57,18 @@ COTypeObject COTupleIter_Type = {
     sizeof(COTupleIterObject),
     0,
     0,
-    0,                                /* tp_new                  */
-    (deallocfunc)tupleiter_dealloc,   /* tp_dealloc              */
-    (reprfunc)tupleiter_repr,         /* tp_repr                 */
-    0,                                /* tp_print                */
-    0,                                /* tp_hash                 */
-    0,                                /* tp_compare              */
-    (traversefunc)tupleiter_traverse, /* tp_traverse             */
-    (inquiryfunc)tupleiter_clear,     /* tp_clear                */
-    0,                                /* tp_call                 */
-    (getiterfunc)COObject_GetSelf,    /* tp_iter                 */
-    (iternextfunc)tupleiter_next,     /* tp_iternext             */
-    0,                                /* tp_arithmetic_interface */
-    0,                                /* tp_mapping_interface    */
+    0,                          /* tp_new                  */
+    (deallocfunc)tupleiter_dealloc,     /* tp_dealloc              */
+    (reprfunc)tupleiter_repr,   /* tp_repr                 */
+    0,                          /* tp_print                */
+    0,                          /* tp_hash                 */
+    0,                          /* tp_compare              */
+    (traversefunc)tupleiter_traverse,   /* tp_traverse             */
+    (inquiryfunc)tupleiter_clear,       /* tp_clear                */
+    0,                          /* tp_call                 */
+    (getiterfunc)COObject_GetSelf,      /* tp_iter                 */
+    (iternextfunc)tupleiter_next,       /* tp_iternext             */
+    0,                          /* tp_arithmetic_interface */
+    0,                          /* tp_mapping_interface    */
     0,                          /* tp_sequence_interface */
 };

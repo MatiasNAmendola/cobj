@@ -121,20 +121,20 @@ COTypeObject COTuple_Type = {
     sizeof(COTupleObject) - sizeof(COObject *),
     sizeof(COObject *),
     COType_FLAG_GC,
-    0,                            /* tp_new                  */
-    (deallocfunc)tuple_dealloc,   /* tp_dealloc              */
-    (reprfunc)tuple_repr,         /* tp_repr                 */
-    0,                            /* tp_print                */
-    (hashfunc)tuple_hash,         /* tp_hash                 */
-    0,                            /* tp_compare              */
-    (traversefunc)tuple_traverse, /* tp_traverse             */
-    0,                            /* tp_clear                */
-    0,                            /* tp_call                 */
-    (getiterfunc)tuple_iter,      /* tp_iter                 */
-    0,                            /* tp_iternext             */
-    0,                            /* tp_arithmetic_interface */
-    0,                            /* tp_mapping_interface    */
-    &sequence_interface,      /* tp_sequence_interface */
+    0,                          /* tp_new                  */
+    (deallocfunc)tuple_dealloc, /* tp_dealloc              */
+    (reprfunc)tuple_repr,       /* tp_repr                 */
+    0,                          /* tp_print                */
+    (hashfunc)tuple_hash,       /* tp_hash                 */
+    0,                          /* tp_compare              */
+    (traversefunc)tuple_traverse,       /* tp_traverse             */
+    0,                          /* tp_clear                */
+    0,                          /* tp_call                 */
+    (getiterfunc)tuple_iter,    /* tp_iter                 */
+    0,                          /* tp_iternext             */
+    0,                          /* tp_arithmetic_interface */
+    0,                          /* tp_mapping_interface    */
+    &sequence_interface,        /* tp_sequence_interface */
 };
 
 static COObject *

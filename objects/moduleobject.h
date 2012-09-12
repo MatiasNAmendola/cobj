@@ -15,6 +15,6 @@ COTypeObject COModule_Type;
 
 #define COModule_Check(co) (CO_TYPE(co) == &COModule_Type)
 
-COObject * COModule_New(COObject *name);
+COObject *COModule_New(COObject *name);
 COObject *COModule_GetDict(COObject *this);
 #endif

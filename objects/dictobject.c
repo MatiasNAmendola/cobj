@@ -172,19 +172,19 @@ COTypeObject CODict_Type = {
     sizeof(CODictObject),
     0,
     COType_FLAG_GC,
-    0,                           /* tp_new                  */
-    (deallocfunc)dict_dealloc,   /* tp_dealloc              */
-    (reprfunc)dict_repr,         /* tp_repr                 */
-    0,                           /* tp_print                */
-    0,                           /* tp_hash                 */
-    0,                           /* tp_compare              */
-    (traversefunc)dict_traverse, /* tp_traverse             */
-    (inquiryfunc)dict_clear,     /* tp_clear                */
-    0,                           /* tp_call                 */
-    (getiterfunc)dict_iter,      /* tp_iter                 */
-    0,                           /* tp_iternext             */
-    0,                           /* tp_arithmetic_interface */
-    &mapping_interface,          /* tp_mapping_interface    */
+    0,                          /* tp_new                  */
+    (deallocfunc)dict_dealloc,  /* tp_dealloc              */
+    (reprfunc)dict_repr,        /* tp_repr                 */
+    0,                          /* tp_print                */
+    0,                          /* tp_hash                 */
+    0,                          /* tp_compare              */
+    (traversefunc)dict_traverse,        /* tp_traverse             */
+    (inquiryfunc)dict_clear,    /* tp_clear                */
+    0,                          /* tp_call                 */
+    (getiterfunc)dict_iter,     /* tp_iter                 */
+    0,                          /* tp_iternext             */
+    0,                          /* tp_arithmetic_interface */
+    &mapping_interface,         /* tp_mapping_interface    */
     0,                          /* tp_sequence_interface */
 };
 

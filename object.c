@@ -298,7 +298,6 @@ COObject_GetAttrString(COObject *o, const char *name)
     return v;
 }
 
-
 /* Helper to get a pointer to an object's __dict__ slot, if any */
 COObject *
 _COObject_GetDict(COObject *o)
@@ -318,7 +317,8 @@ COObject_GetAttr(COObject *o, COObject *attr)
 {
     if (!COStr_Check(attr)) {
         COErr_Format(COException_TypeError,
-                 "attribute name must be string, not '%.200s'", CO_TYPE(attr)->tp_name);
+                     "attribute name must be string, not '%.200s'",
+                     CO_TYPE(attr)->tp_name);
         return NULL;
     }
 
@@ -349,7 +349,8 @@ COObject_GetAttr(COObject *o, COObject *attr)
     }
 
     COErr_Format(COException_AttributeError,
-             "'%.200s' object has no attribute '%s'", CO_TYPE(o)->tp_name, COStr_AS_STRING(attr));
+                 "'%.200s' object has no attribute '%s'", CO_TYPE(o)->tp_name,
+                 COStr_AS_STRING(attr));
 
 done:
     return res;
@@ -368,7 +369,8 @@ COSequence_Length(COObject *seq)
         return si->sq_length(seq);
 
     COErr_Format(COException_TypeError,
-                 "'%.200s' object does not implement __len__", CO_TYPE(seq)->tp_name);
+                 "'%.200s' object does not implement __len__",
+                 CO_TYPE(seq)->tp_name);
     return 0;
 }
 
@@ -383,7 +385,8 @@ COSequence_Contains(COObject *seq, COObject *o)
         return si->sq_contains(seq, o);
 
     COErr_Format(COException_TypeError,
-                 "'%.200s' object does not support `in` operator", CO_TYPE(seq)->tp_name);
+                 "'%.200s' object does not support `in` operator",
+                 CO_TYPE(seq)->tp_name);
     return -1;
 }
 

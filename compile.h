@@ -30,8 +30,8 @@ struct compiler {
 int coerror(struct compiler *c, const char *err, ...);
 
 // scanner
-int colex(YYSTYPE *colval);
-int scanner_lex(YYSTYPE *yylval);
+int colex(YYSTYPE * colval);
+int scanner_lex(YYSTYPE * yylval);
 void scanner_init(struct arena *arena);
 int scanner_setcode(char *code);
 

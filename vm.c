@@ -25,7 +25,6 @@ vm_getglobal(COObject *name)
     return NULL;
 }
 
-
 static inline COObject *
 vm_cmp(int op, COObject *o1, COObject *o2)
 {
@@ -141,9 +140,6 @@ new_frame:                     /* reentry point when function call/return */
         (unsigned char *)COBytes_AsString(((COCodeObject *)code)->co_code);
     next_code = first_code + TS(frame)->f_lasti;
     fastlocals = TS(frame)->f_extraplus;
-
-    /* Parse arguments. */
-    // check arguments count
 
     for (;;) {
         opcode = NEXTOP();
@@ -359,7 +355,7 @@ new_frame:                     /* reentry point when function call/return */
             oparg = NEXTARG();
             o2 = POP();
             COTuple_SET_ITEM(((COFunctionObject *)func)->func_upvalues,
-                                  oparg, o2);
+                             oparg, o2);
             break;
         case OP_STORE_LOCAL:
             oparg = NEXTARG();
@@ -413,10 +409,12 @@ new_frame:                     /* reentry point when function call/return */
                     // find in current & preivous stacks
                     COFrameObject *frame = TS(frame);
                     do {
-                        COObject *mylocalnames = ((COCodeObject *)frame->f_code)->co_localnames;
+                        COObject *mylocalnames =
+                            ((COCodeObject *)frame->f_code)->co_localnames;
                         for (int j = 0; j < COTuple_GET_SIZE(mylocalnames); j++) {
                             if (COObject_CompareBool
-                                (COTuple_GET_ITEM(mylocalnames, j), name, Cmp_EQ)) {
+                                (COTuple_GET_ITEM(mylocalnames, j), name,
+                                 Cmp_EQ)) {
                                 upvalue = frame->f_extraplus[j];
                                 break;
                             }
@@ -425,17 +423,25 @@ new_frame:                     /* reentry point when function call/return */
                     } while (frame);
                     // find in upvalues
                     if (!upvalue) {
-                        for (int j = 0; j < COTuple_GET_SIZE(((COCodeObject *)code)->co_upvals); j++) {
+                        for (int j = 0;
+                             j <
+                             COTuple_GET_SIZE(((COCodeObject *)code)->
+                                              co_upvals); j++) {
 
                             if (COObject_CompareBool
-                                    (COTuple_GET_ITEM(((COCodeObject *)code)->co_upvals, j), name, Cmp_EQ)) {
-                                upvalue = COTuple_GET_ITEM(((COFunctionObject *)func)->func_upvalues, j);
+                                (COTuple_GET_ITEM
+                                 (((COCodeObject *)code)->co_upvals, j), name,
+                                 Cmp_EQ)) {
+                                upvalue =
+                                    COTuple_GET_ITEM(((COFunctionObject *)
+                                                      func)->func_upvalues, j);
                                 break;
                             }
                         }
                     }
                 }
-                COTuple_SET_ITEM(((COFunctionObject *)x)->func_upvalues, i, upvalue);
+                COTuple_SET_ITEM(((COFunctionObject *)x)->func_upvalues, i,
+                                 upvalue);
             }
             CO_DECREF(o1);
             PUSH(x);

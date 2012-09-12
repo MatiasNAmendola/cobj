@@ -1177,7 +1177,7 @@ int_bit_length(COObject *args)
     }
     msd_bits += (long)BitLengthTable[msd];
 
-    if (ndigits <= SSIZE_MAX/COInt_SHIFT)
+    if (ndigits <= SSIZE_MAX / COInt_SHIFT)
         return COInt_FromSsize_t((ndigits - 1) * COInt_SHIFT + msd_bits);
 
     /* expression below may overflow, calc it using COInts instead */
@@ -1599,10 +1599,10 @@ COInt_FromSsize_t(ssize_t ival)
 
     if (ival < 0) {
         /* avoid signed overflow */
-        abs_ival = (size_t)(-1 - ival) + 1;
+        abs_ival = (size_t) (-1 - ival) + 1;
         sign = -1;
     } else {
-        abs_ival = (size_t)ival;
+        abs_ival = (size_t) ival;
     }
 
     t = abs_ival;

@@ -12,7 +12,8 @@ static COObject *
 file_repr(COFileObject *this)
 {
     return COStr_FromFormat("<file '%s', mode '%s', at %p>",
-                            COStr_AS_STRING(this->f_name), COStr_AsString(this->f_mode), this);
+                            COStr_AS_STRING(this->f_name),
+                            COStr_AsString(this->f_mode), this);
 }
 
 static void

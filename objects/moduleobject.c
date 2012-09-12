@@ -38,20 +38,20 @@ COTypeObject COModule_Type = {
     sizeof(COModuleObject),
     0,
     COType_FLAG_GC,
-    0,                             /* tp_new                  */
-    (deallocfunc)module_dealloc,   /* tp_dealloc              */
-    (reprfunc)module_repr,         /* tp_repr                 */
-    0,                             /* tp_print                */
-    0,                             /* tp_hash                 */
-    0,                             /* tp_compare              */
-    (traversefunc)module_traverse, /* tp_traverse             */
-    (inquiryfunc)module_clear,     /* tp_clear                */
-    0,                             /* tp_call                 */
-    0,                             /* tp_iter                 */
-    0,                             /* tp_iternext             */
-    0,                             /* tp_arithmetic_interface */
-    0,                             /* tp_mapping_interface    */
-    0,                             /* tp_sequence_interface   */
+    0,                          /* tp_new                  */
+    (deallocfunc)module_dealloc,        /* tp_dealloc              */
+    (reprfunc)module_repr,      /* tp_repr                 */
+    0,                          /* tp_print                */
+    0,                          /* tp_hash                 */
+    0,                          /* tp_compare              */
+    (traversefunc)module_traverse,      /* tp_traverse             */
+    (inquiryfunc)module_clear,  /* tp_clear                */
+    0,                          /* tp_call                 */
+    0,                          /* tp_iter                 */
+    0,                          /* tp_iternext             */
+    0,                          /* tp_arithmetic_interface */
+    0,                          /* tp_mapping_interface    */
+    0,                          /* tp_sequence_interface   */
     0,
     offsetof(COModuleObject, md_dict),
     0,
@@ -78,7 +78,6 @@ fail:
     CO_DECREF(this);
     return NULL;
 }
-
 
 COObject *
 COModule_GetDict(COObject *this)

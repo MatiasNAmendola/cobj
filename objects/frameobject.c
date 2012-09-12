@@ -123,8 +123,7 @@ COFrame_New(COObject *prev, COObject *func, COObject *globals)
         code->co_zombieframe = NULL;
 
     } else {
-        f = COVarObject_NEW(COFrameObject, &COFrame_Type,
-                                       extras);
+        f = COVarObject_NEW(COFrameObject, &COFrame_Type, extras);
 
     }
 

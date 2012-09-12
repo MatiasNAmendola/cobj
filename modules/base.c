@@ -30,7 +30,6 @@ base_print(COObject *args)
     CO_RETURN_NONE;
 }
 
-
 static COObject *
 base_len(COObject *args)
 {

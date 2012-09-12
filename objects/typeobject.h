@@ -54,7 +54,7 @@ typedef struct {
 
 typedef struct _COMethodDef {
     const char *m_name;
-    COCFunction m_func; /* The C Function that implements it. */
+    COCFunction m_func;         /* The C Function that implements it. */
     int m_flags;
 } COMethodDef;
 

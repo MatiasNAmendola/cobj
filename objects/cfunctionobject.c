@@ -39,7 +39,8 @@ COTypeObject COCFunction_Type = {
 COObject *
 COCFunction_New(const char *name, COCFunction func)
 {
-    COCFunctionObject *this = COObject_NEW(COCFunctionObject, &COCFunction_Type);
+    COCFunctionObject *this =
+        COObject_NEW(COCFunctionObject, &COCFunction_Type);
     if (!this)
         return NULL;
 

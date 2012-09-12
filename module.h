@@ -9,7 +9,7 @@
 
 struct module_entry {
     char *name;
-    COObject *(*initfunc)(void);
+    COObject *(*initfunc) (void);
     int flag;
 };
 

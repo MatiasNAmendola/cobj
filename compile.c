@@ -265,7 +265,7 @@ compiler_next_instr(struct compiler *c, struct block *b)
         if (!b->b_instr) {
             return -1;
         }
-        memset((char*)b->b_instr + oldsize, 0, newsize - oldsize);
+        memset((char *)b->b_instr + oldsize, 0, newsize - oldsize);
     }
     return b->b_iused++;
 }
@@ -1185,7 +1185,7 @@ dump_code(COObject *code)
 #endif
 
 int
-colex(YYSTYPE *colval)
+colex(YYSTYPE * colval)
 {
     int retval;
 
