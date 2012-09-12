@@ -1,7 +1,7 @@
-#ifndef OBJECTS_ExceptionOBJECT_H
-#define OBJECTS_ExceptionOBJECT_H
+#ifndef OBJECTS_EXCEPTIONOBJECT_H
+#define OBJECTS_EXCEPTIONOBJECT_H
 /**
- * Exception object type.
+ * Exception object.
  */
 
 #include "../object.h"
@@ -16,7 +16,7 @@ COTypeObject COException_Type;
 #define COException_Check(co) (CO_TYPE(co) == &COException_Type)
 
 /* Predefined exceptions
- * 
+ *
  * Hierarchy:
  *  Exception
  *    - SystemError
@@ -28,6 +28,7 @@ COTypeObject COException_Type;
  *    - UndefinedError
  *    - IndexError
  *    - KeyError
+ *    - AttributeError
  */
 COObject *COException;
 COObject *COException_SystemError;
@@ -39,5 +40,6 @@ COObject *COException_MemoryError;
 COObject *COException_UndefinedError;
 COObject *COException_IndexError;
 COObject *COException_KeyError;
+COObject *COException_AttributeError;
 
 #endif

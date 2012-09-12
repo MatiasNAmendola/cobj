@@ -35,3 +35,16 @@ COTypeObject COCFunction_Type = {
     0,                          /* tp_mapping_interface */
     0,                          /* tp_sequence_interface */
 };
+
+COObject *
+COCFunction_New(const char *name, COCFunction func)
+{
+    COCFunctionObject *this = COObject_NEW(COCFunctionObject, &COCFunction_Type);
+    if (!this)
+        return NULL;
+
+    this->c_name = name;
+    this->c_func = func;
+
+    return (COObject *)this;
+}

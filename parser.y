@@ -210,11 +210,12 @@ expr: /* express something */
             $$ = node_new(c->arena, NODE_LOAD_SUBSCRIPT, $1, $3); $$->u.op = OP_BINARY_SUBSCRIPT;
         }
     |   expr '.' T_NAME {
-            $$ = node_new(c->arena, NODE_LOAD_DOTSUBSCRIPT, $1, $3); $$->u.op = OP_BINARY_SUBSCRIPT;
+            $$ = node_new(c->arena, NODE_LOAD_DOTSUBSCRIPT, $1, $3); $$->u.op =
+            OP_GET_ATTR;
         }
     |   T_NAME ':' T_NAME '(' expr_list ')' {
             Node *f = node_new(c->arena, NODE_LOAD_DOTSUBSCRIPT, $1, $3); 
-            f->u.op = OP_BINARY_SUBSCRIPT;
+            f->u.op = OP_GET_ATTR;
             $$ = node_new(c->arena, NODE_FUNC_CALL, NULL, NULL);
             $$->nd_func = f;
             Node *p;

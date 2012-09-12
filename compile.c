@@ -880,6 +880,7 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_BINARY_SL:
     case OP_BINARY_SR:
     case OP_BINARY_SUBSCRIPT:
+    case OP_GET_ATTR:
         return -1;
     case OP_CMP:
         return -1;

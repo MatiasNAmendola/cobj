@@ -51,6 +51,8 @@
 #include "objects/intobject.h"
 #include "objects/listiterobject.h"
 #include "objects/listobject.h"
+#include "objects/methodobject.h"
+#include "objects/moduleobject.h"
 #include "objects/noneobject.h"
 #include "objects/rangeiterobject.h"
 #include "objects/rangeobject.h"

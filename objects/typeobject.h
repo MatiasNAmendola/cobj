@@ -50,6 +50,21 @@ typedef struct {
 } COMappingInterface;
 /* ! Object Interfaces */
 
+/* Structures used to define methods and members of object in C. */
+
+typedef struct _COMethodDef {
+    const char *m_name;
+    COCFunction m_func; /* The C Function that implements it. */
+    int m_flags;
+} COMethodDef;
+
+typedef struct _COMemberDef {
+    const char *m_name;
+    int m_type;
+    int m_offset;
+    int m_flags;
+} COMemberDef;
+
 struct _COTypeObject {
     COObject_HEAD;
     char *tp_name;              /* For printing */
@@ -74,15 +89,24 @@ struct _COTypeObject {
     COAritmeticInterface *tp_arithmetic_interface;
     COMappingInterface *tp_mapping_interface;
     COSequenceInterface *tp_sequence_interface;
+
+    /* Object-Oriented Stuff. */
+    COObject *tp_dict;
+    int tp_dictoffset;
+    COMethodDef *tp_methods;
+    COMemberDef *tp_members;
 };
 
 COTypeObject COType_Type;
 
 #define COType_Check(co) (CO_TYPE(co) == &COType_Type)
 
-#define COType_FLAG_GC  (1<<0)
-#define COType_HasFeature(t, f) (((t)->tp_flags & (f)) != 0)
+#define COType_FLAG_GC  (1L<<0)
+#define COType_FLAG_READY    (1L<<1)
 
+#define COType_HasFeature(t, f) ((((COTypeObject *)t)->tp_flags & (f)) != 0)
+
+int COType_Ready(COObject *);
 void default_dealloc(COObject *this);
 
 #endif

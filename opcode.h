@@ -50,6 +50,9 @@ typedef enum {
     OP_GET_ITER,
     OP_FOR_ITER,
     OP_IMPORT_NAME,
+    OP_GET_ATTR,
+    OP_SET_ATTR,
+    OP_DEL_ATTR,
 } OpCode;
 
 /* OP_CMP's opargs */

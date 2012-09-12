@@ -22,4 +22,6 @@ COTypeObject COCFunction_Type;
 #define COCFunction_GET_FUNCTION(func) \
     (((COCFunctionObject *)func)->c_func)
 
+COObject *COCFunction_New(const char *name, COCFunction func);
+
 #endif

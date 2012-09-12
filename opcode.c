@@ -53,7 +53,10 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_STORE_LOCAL);
         GIVE_NAME(OP_GET_ITER);
         GIVE_NAME(OP_FOR_ITER);
+        GIVE_NAME(OP_GET_ATTR);
+        GIVE_NAME(OP_SET_ATTR);
+        GIVE_NAME(OP_DEL_ATTR);
     }
-    error("unknow opcode: %d\n", opcode);
+    error("unknown opcode: %d\n", opcode);
     return NULL;
 }

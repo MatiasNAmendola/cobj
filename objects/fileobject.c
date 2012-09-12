@@ -44,6 +44,19 @@ file_new(COTypeObject *type, COObject *args)
     return f;
 }
 
+static COObject *
+file_read(COObject *args)
+{
+    COObject_Dump(args);
+    CO_RETURN_NONE;
+    /*return COFile_Read((COObject *)this, -1);*/
+}
+
+static COMethodDef file_methods[] = {
+    {"read", (COCFunction)file_read, 0},
+    {NULL, NULL}
+};
+
 static void
 drop_readahead(COFileObject *f)
 {
@@ -231,6 +244,10 @@ COTypeObject COFile_Type = {
     0,                          /* tp_arithmetic_interface     */
     0,                          /* tp_mapping_interface */
     0,                          /* tp_sequence_interface */
+    0,
+    0,
+    file_methods,
+    0,
 };
 
 COObject *

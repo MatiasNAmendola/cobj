@@ -289,6 +289,37 @@ COObject_GetSelf(COObject *o)
     return o;
 }
 
+COObject *
+COObject_GetAttr(COObject *o, COObject *attr)
+{
+    if (!COStr_Check(attr)) {
+        COErr_Format(COException_TypeError,
+                 "attribute name must be string, not '%.200s'", CO_TYPE(attr)->tp_name);
+        return NULL;
+    }
+
+    COObject *res = NULL;
+    COTypeObject *tp = CO_TYPE(o);
+    COObject *dict = tp->tp_dict;
+
+    if (!dict) {
+        if (COType_Ready((COObject *)tp) < 0)
+            goto done;
+        dict = tp->tp_dict;
+    }
+
+    res = CODict_GetItem(dict, attr);
+    if (res) {
+        goto done;
+    }
+
+    COErr_Format(COException_AttributeError,
+             "'%.200s' object has no attribute '%s'", CO_TYPE(o)->tp_name, COStr_AS_STRING(attr));
+
+done:
+    return res;
+}
+
 /* Sequence Methods. */
 
 /*

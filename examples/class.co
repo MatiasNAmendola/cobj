@@ -2,7 +2,7 @@
 
 # call a method function
 f = file(".gitignore")
-print(f.read())
+print(f:read())
 
 #class Complex
     #real = 0

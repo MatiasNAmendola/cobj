@@ -15,9 +15,10 @@
  * zero there are no references to the object left and it can be removed from
  * the heap.
  *
- * An object has a 'type' that determines what it represents and what kind of
- * data it contains. An object's type is fixed when it's created. Types
- * themselves are represented as objects, and type's 'type' is type object.
+ * An object has a 'type' that determines what kind of data it contains and what
+ * operations can be performaned on. An object's type is fixed in its life.
+ * Types themselves are represented as objects, and type's 'type' is
+ * type object.
  *
  * Objects do not float around in memory; once allocated an object keeps the
  * same size and address (internally, object may be reallocaed before it's used
@@ -162,6 +163,8 @@ COObject *COObject_Str(COObject *o);
 COObject *COObject_Call(COObject *func, COObject *args);
 COObject *COObject_GetIter(COObject *o);
 COObject *COObject_GetSelf(COObject *o);
+COObject *COObject_GetAttr(COObject *o, COObject *attr);
+COObject *COObject_SetAttr(COObject *o, COObject *attr, COObject *v);
 
 ssize_t COSequence_Length(COObject *o);
 int COSequence_Contains(COObject *seq, COObject *o);

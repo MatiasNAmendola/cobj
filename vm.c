@@ -450,6 +450,14 @@ new_frame:                     /* reentry point when function call/return */
                 CO_DECREF(o2);
             }
 
+            COObject *pfunc;
+            if (COMethod_Check(o1)) {
+                pfunc = o1;
+                o1 = COMethod_GET_FUNCTION(o1);
+                CO_INCREF(o1);
+                CO_DECREF(pfunc);
+            }
+
             /* Always dispath CFunction first, because these are presumed to be
              * the most frequently called objects.
              */
@@ -642,6 +650,19 @@ new_frame:                     /* reentry point when function call/return */
             o1 = POP();
             CO_DECREF(o1);
             JUMPTO(oparg);
+            break;
+        case OP_GET_ATTR:
+            o1 = POP();
+            o2 = TOP();
+            x = COObject_GetAttr(o2, o1);
+            if (!x) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            CO_INCREF(x);
+            SET_TOP(x);
             break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);
