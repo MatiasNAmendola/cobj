@@ -39,6 +39,7 @@ COTypeObject COModule_Type = {
     0,
     COType_FLAG_GC,
     0,                          /* tp_new                  */
+    0,                          /* tp_init */
     (deallocfunc)module_dealloc,        /* tp_dealloc              */
     (reprfunc)module_repr,      /* tp_repr                 */
     0,                          /* tp_print                */

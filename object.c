@@ -356,6 +356,24 @@ done:
     return res;
 }
 
+int
+COObject_SetAttr(COObject *o, COObject *attr, COObject *v)
+{
+    int err;
+    COObject *dict;
+    dict = _COObject_GetDict(o);
+    if (dict) {
+        err = CODict_SetItem(dict, attr, v);
+        return err;
+    }
+
+    COErr_Format(COException_AttributeError,
+                 "'%.200s' object has no attribute '%s'", CO_TYPE(o)->tp_name,
+                 COStr_AS_STRING(attr));
+
+    return -1;
+}
+
 /* Sequence Methods. */
 
 /*

@@ -662,12 +662,25 @@ new_frame:                     /* reentry point when function call/return */
             CO_INCREF(x);
             SET_TOP(x);
             break;
+        case OP_SET_ATTR:
+            o1 = TOP();
+            o2 = SECOND();
+            o3 = THIRD();
+            STACK_ADJ(-3);
+            if (COObject_SetAttr(o3, o2, o1) != 0) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            CO_DECREF(o3);
+            break;
         case OP_MAKE_CLASS:
             {
                 o1 = POP();
                 o2 = TOP();
                 COObject *args = COTuple_Pack(2, o1, o2);
-                x = COObject_Call(&COType_Type, args);
+                x = COObject_Call((COObject *)&COType_Type, args);
                 CO_DECREF(o1);
                 CO_DECREF(o2);
                 SET_TOP(x);

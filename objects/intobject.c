@@ -1224,6 +1224,7 @@ COTypeObject COInt_Type = {
     sizeof(digit),
     0,
     0,                          /* tp_new */
+    0,                          /* tp_init */
     (deallocfunc)int_dealloc,   /* tp_dealloc */
     (reprfunc)int_repr,         /* tp_repr */
     0,                          /* tp_print */

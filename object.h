@@ -165,7 +165,7 @@ COObject *COObject_GetIter(COObject *o);
 COObject *COObject_GetSelf(COObject *o);
 COObject *COObject_GetAttrString(COObject *o, const char *name);
 COObject *COObject_GetAttr(COObject *o, COObject *attr);
-COObject *COObject_SetAttr(COObject *o, COObject *attr, COObject *v);
+int COObject_SetAttr(COObject *o, COObject *attr, COObject *v);
 
 ssize_t COSequence_Length(COObject *o);
 int COSequence_Contains(COObject *seq, COObject *o);

@@ -69,6 +69,7 @@ COTypeObject COCode_Type = {
     0,
     0,
     0,                          /* tp_new */
+    0,                          /* tp_init */
     (deallocfunc)code_dealloc,  /* tp_dealloc */
     (reprfunc)code_repr,        /* tp_repr */
     0,                          /* tp_print */

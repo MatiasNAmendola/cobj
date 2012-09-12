@@ -167,6 +167,7 @@ COTypeObject CORange_Type = {
     0,
     0,
     (newfunc)range_new,         /* tp_new     */
+    0,                          /* tp_init */
     (deallocfunc)range_dealloc, /* tp_dealloc */
     (reprfunc)range_repr,       /* tp_repr    */
     0,                          /* tp_print   */

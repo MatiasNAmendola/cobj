@@ -291,6 +291,7 @@ COTypeObject COSet_Type = {
     0,
     COType_FLAG_GC,
     (newfunc)set_new,           /* tp_new               */
+    0,                          /* tp_init */
     (deallocfunc)set_dealloc,   /* tp_dealloc           */
     (reprfunc)set_repr,         /* tp_repr              */
     0,                          /* tp_print             */

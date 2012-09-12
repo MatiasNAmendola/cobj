@@ -425,7 +425,7 @@ compiler_visit_node(struct compiler *c, Node *n)
         oparg = compiler_add(c->u->u_consts, n->nd_middle->u.o);
         compiler_addop_i(c, OP_LOAD_CONST, oparg);
         compiler_visit_node(c, n->nd_right);
-        compiler_addop(c, OP_STORE_SUBSCRIPT);
+        compiler_addop(c, OP_SET_ATTR);
         break;
     case NODE_LOAD_SUBSCRIPT:
         compiler_visit_node(c, n->nd_left);
@@ -951,6 +951,7 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_END_FINALLY:
         return -1;
     case OP_STORE_SUBSCRIPT:
+    case OP_SET_ATTR:
         return -3;
     case OP_GET_ITER:
         return 0;

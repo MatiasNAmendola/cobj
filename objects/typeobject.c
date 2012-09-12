@@ -9,9 +9,17 @@ type_repr(COTypeObject *this)
 }
 
 static void
-type_dealloc(COTypeObject *this)
+type_dealloc(COTypeObject *type)
 {
-    COObject_Mem_FREE(this);
+    /* Only heap-allocated type objects will be allocated. */
+    assert(type->tp_flags & COType_FLAG_HEAP);
+
+    CO_XDECREF(type->tp_dict);
+
+    COHeapTypeObject *htp = (COHeapTypeObject *)type;
+    CO_XDECREF(htp->ht_name);
+
+    COObject_Mem_FREE(type);
 }
 
 static COObject *
@@ -28,15 +36,15 @@ type_call(COTypeObject *type, COObject *args)
     return o;
 }
 
-static COTypeObject *
+static COObject *
 type_new(COTypeObject *type, COObject *args)
 {
-    COTypeObject *x = NULL;
+    COObject *x = NULL;
 
     if (COTuple_GET_SIZE(args) == 1) {
         if (!COObject_ParseArgs(args, &x, NULL))
             return NULL;
-        x = CO_TYPE(x);
+        x = (COObject *)CO_TYPE(x);
         CO_INCREF(x);
         return x;
     }
@@ -47,13 +55,19 @@ type_new(COTypeObject *type, COObject *args)
     if (!COObject_ParseArgs(args, &code, &name, NULL))
         return NULL;
 
-    x = COObject_NEW(COTypeObject, type);
-    if (!x)
+    COHeapTypeObject *htp = COObject_NEW(COHeapTypeObject, type);
+    if (!htp)
         return NULL;
 
-    x->tp_name = COStr_AsString(name);
+    CO_INCREF(name);
+    htp->ht_name = name;
 
-    return x;
+    COTypeObject *tp = (COTypeObject *)htp;
+    tp->tp_flags = COType_FLAG_DEFAULT | COType_FLAG_HEAP;
+    tp->tp_name = COStr_AS_STRING(name);
+    tp->tp_dict = CODict_New();
+
+    return (COObject *)htp;
 }
 
 COTypeObject COType_Type = {
@@ -63,6 +77,7 @@ COTypeObject COType_Type = {
     0,
     0,
     (newfunc)type_new,          /* tp_new                  */
+    0,                          /* tp_init */
     (deallocfunc)type_dealloc,  /* tp_dealloc              */
     (reprfunc)type_repr,        /* tp_repr                 */
     0,                          /* tp_print                */

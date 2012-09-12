@@ -58,6 +58,7 @@ COTypeObject COListIter_Type = {
     0,
     0,
     0,                          /* tp_new */
+    0,                          /* tp_init */
     (deallocfunc)listiter_dealloc,      /* tp_dealloc */
     (reprfunc)listiter_repr,    /* tp_repr */
     0,                          /* tp_print */
