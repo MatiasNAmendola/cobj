@@ -1158,6 +1158,65 @@ int_dealloc(COIntObject *this)
     free_list = this;
 }
 
+static COObject *
+int_bit_length(COObject *args)
+{
+    COIntObject *this = (COIntObject *)COTuple_GET_ITEM(args, 0);
+    COIntObject *result, *x, *y;
+    ssize_t ndigits, msd_bits = 0;
+    digit msd;
+
+    ndigits = ABS(CO_SIZE(this));
+    if (ndigits == 0)
+        return COInt_FromLong(0);
+
+    msd = this->co_digit[ndigits - 1];
+    while (msd >= 32) {
+        msd_bits += 6;
+        msd >>= 6;
+    }
+    msd_bits += (long)BitLengthTable[msd];
+
+    if (ndigits <= SSIZE_MAX/COInt_SHIFT)
+        return COInt_FromSsize_t((ndigits - 1) * COInt_SHIFT + msd_bits);
+
+    /* expression below may overflow, calc it using COInts instead */
+    result = (COIntObject *)COInt_FromSsize_t(ndigits - 1);
+    if (!result)
+        return NULL;
+    x = (COIntObject *)COInt_FromLong(COInt_SHIFT);
+    if (!x)
+        goto error;
+    y = (COIntObject *)int_mul(result, x);
+    CO_DECREF(x);
+    if (!y)
+        goto error;
+    CO_DECREF(result);
+    result = y;
+
+    x = (COIntObject *)COInt_FromLong((long)msd_bits);
+    if (!x)
+        goto error;
+
+    y = (COIntObject *)int_add(result, x);
+    CO_DECREF(x);
+    if (!y)
+        goto error;
+    CO_DECREF(result);
+    result = y;
+
+    return (COObject *)result;
+
+error:
+    CO_DECREF(result);
+    return NULL;
+}
+
+static COMethodDef int_methods[] = {
+    {"bit_length", (COCFunction)int_bit_length, 0},
+    {NULL, NULL}
+};
+
 COTypeObject COInt_Type = {
     COObject_HEAD_INIT(&COType_Type),
     "int",
@@ -1178,6 +1237,10 @@ COTypeObject COInt_Type = {
     &arithmetic_interface,      /* tp_arithmetic_interface */
     0,                          /* tp_mapping_interface */
     0,                          /* tp_sequence_interface */
+    0,
+    0,
+    int_methods,
+    0,
 };
 
 int
@@ -1468,7 +1531,7 @@ on_error:
 }
 
 /*
- * Create a new int object from a C long int
+ * Create a new int object from a C long int.
  */
 COObject *
 COInt_FromLong(long ival)
@@ -1518,4 +1581,78 @@ COInt_FromLong(long ival)
     }
 
     return (COObject *)o;
+}
+
+/*
+ * Create a new int object from a C ssize_t.
+ */
+COObject *
+COInt_FromSsize_t(ssize_t ival)
+{
+    COIntObject *v;
+    size_t abs_ival;
+    size_t t;
+    int ndigits = 0;
+    int sign = 1;
+
+    CHECK_SMALL_INT(ival);
+
+    if (ival < 0) {
+        /* avoid signed overflow */
+        abs_ival = (size_t)(-1 - ival) + 1;
+        sign = -1;
+    } else {
+        abs_ival = (size_t)ival;
+    }
+
+    t = abs_ival;
+    while (t) {
+        ++ndigits;
+        t >>= COInt_SHIFT;
+    }
+
+    v = _COInt_New(ndigits);
+    if (v) {
+        digit *p = v->co_digit;
+        CO_SIZE(v) = ndigits * sign;
+        t = abs_ival;
+        while (t) {
+            *p++ = (digit)(t & COInt_MASK);
+            t >>= COInt_SHIFT;
+        }
+    }
+
+    return (COObject *)v;
+}
+
+/*
+ * Create a new int object from a C size_t.
+ */
+COObject *
+COInt_FromSize_t(size_t ival)
+{
+    COIntObject *v;
+    size_t t;
+    int ndigits = 0;
+
+    if (ival < COInt_BASE)
+        return COInt_FromLong((long)ival);
+
+    t = ival;
+    while (t) {
+        ++ndigits;
+        t >>= COInt_SHIFT;
+    }
+
+    v = _COInt_New(ndigits);
+    if (v) {
+        digit *p = v->co_digit;
+        CO_SIZE(v) = ndigits;
+        while (ival) {
+            *p++ = (digit)(ival & COInt_MASK);
+            ival >>= COInt_SHIFT;
+        }
+    }
+
+    return (COObject *)v;
 }

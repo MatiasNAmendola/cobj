@@ -15,6 +15,6 @@ struct module_entry {
 
 COObject *module_base_init(void);
 COObject *module_gc_init(void);
-COObject *module_init_builtins(void);
+COObject *module_init(void);
 
 #endif

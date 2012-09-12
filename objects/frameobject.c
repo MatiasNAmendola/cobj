@@ -90,7 +90,7 @@ int
 COFrame_Init(void)
 {
     if (builtins == NULL) {
-        builtins = module_init_builtins();
+        builtins = module_init();
     }
     return 0;
 }

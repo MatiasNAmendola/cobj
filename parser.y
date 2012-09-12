@@ -61,7 +61,7 @@ return_none_node(struct arena *arena)
 %left   T_SR T_SL T_POW
 %right  '[' '{'
 %left   UNARY_OP
-%nonassoc '.'
+%nonassoc '.' ':'
 
 %type <node> expr
 %type <node> stmt stmt_list start open_stmt_list
@@ -213,7 +213,7 @@ expr: /* express something */
             $$ = node_new(c->arena, NODE_LOAD_DOTSUBSCRIPT, $1, $3); $$->u.op =
             OP_GET_ATTR;
         }
-    |   T_NAME ':' T_NAME '(' expr_list ')' {
+    |   expr ':' T_NAME '(' expr_list ')' {
             Node *f = node_new(c->arena, NODE_LOAD_DOTSUBSCRIPT, $1, $3); 
             f->u.op = OP_GET_ATTR;
             $$ = node_new(c->arena, NODE_FUNC_CALL, NULL, NULL);
@@ -375,6 +375,20 @@ simple_stmt:
             $$->nd_params = $3;
             $$ = node_list(c->arena, $$, NULL); 
         }
+    |   expr ':' T_NAME '(' expr_list ')' {
+            Node *f = node_new(c->arena, NODE_LOAD_DOTSUBSCRIPT, $1, $3); 
+            f->u.op = OP_GET_ATTR;
+            $$ = node_new(c->arena, NODE_FUNC_CALL, NULL, NULL);
+            $$->nd_func = f;
+            Node *p;
+            if ($5) {
+                p = node_listprepend(c->arena, $5, $1);
+            } else {
+                p = $1;
+            }
+            $$->nd_params = p;
+            $$ = node_list(c->arena, $$, NULL); 
+        }   
     |   T_RETURN { $$ = node_list(c->arena, return_none_node(c->arena), NULL); }
     |   T_RETURN expr { $$ = node_list(c->arena, node_new(c->arena, NODE_RETURN, $2, NULL), NULL); }
 ;

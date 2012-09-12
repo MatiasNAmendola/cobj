@@ -163,6 +163,7 @@ COObject *COObject_Str(COObject *o);
 COObject *COObject_Call(COObject *func, COObject *args);
 COObject *COObject_GetIter(COObject *o);
 COObject *COObject_GetSelf(COObject *o);
+COObject *COObject_GetAttrString(COObject *o, const char *name);
 COObject *COObject_GetAttr(COObject *o, COObject *attr);
 COObject *COObject_SetAttr(COObject *o, COObject *attr, COObject *v);
 

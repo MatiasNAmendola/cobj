@@ -6,7 +6,7 @@
 
 #include "../object.h"
 
-typedef COObject *(*COCFunction)(COObject *, COObject *);
+typedef COObject *(*COCFunction)(COObject *);
 
 typedef struct _COCFunctionObject {
     COObject_HEAD;

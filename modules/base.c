@@ -1,22 +1,28 @@
 #include "../cobj.h"
+/**
+ * Base module.
+ *
+ * Basic functions that do misc things.
+ */
 
-#define BUILTIN_FUNC(func) \
-    COCFunctionObject _builtin_##func = { \
+#define BASE_FUNC(func) \
+    COCFunctionObject _base_##func = { \
         COObject_HEAD_INIT(&COCFunction_Type), \
         #func, \
-        builtin_##func \
+        base_##func \
     }
 
-
 static COObject *
-builtin_print(COObject *this, COObject *args)
+base_print(COObject *args)
 {
     int i;
     if (args) {
         for (i = 0; i < COTuple_GET_SIZE(args); i++) {
             if (i > 0)
                 printf(" ");
-            COObject_Print(COTuple_GET_ITEM(args, i), stdout);
+            if (COObject_Print(COTuple_GET_ITEM(args, i), stdout) != 0) {
+                return NULL;
+            }
         }
     }
     printf("\n");
@@ -26,9 +32,8 @@ builtin_print(COObject *this, COObject *args)
 
 
 static COObject *
-builtin_len(COObject *this, COObject *args)
+base_len(COObject *args)
 {
-    // TODO check args
     if (COTuple_GET_SIZE(args) != 1) {
         COErr_BadInternalCall();
         return NULL;
@@ -41,19 +46,24 @@ builtin_len(COObject *this, COObject *args)
     return COInt_FromLong((long)s);
 }
 
-BUILTIN_FUNC(print);
-BUILTIN_FUNC(len);
+BASE_FUNC(print);
+BASE_FUNC(len);
 
 COObject *
 module_base_init(void)
 {
-    COObject *base = CODict_New();
-    CODict_SetItemString(base, "print", (COObject *)&_builtin_print);
-    CODict_SetItemString(base, "len", (COObject *)&_builtin_len);
-    CODict_SetItemString(base, "type", (COObject *)&COType_Type);
-    CODict_SetItemString(base, "str", (COObject *)&COStr_Type);
-    CODict_SetItemString(base, "range", (COObject *)&CORange_Type);
-    CODict_SetItemString(base, "set", (COObject *)&COSet_Type);
-    CODict_SetItemString(base, "file", (COObject *)&COFile_Type);
+    COObject *name = COStr_FromString("base");
+    COObject *base = COModule_New(name);
+    CO_DECREF(name);
+    COObject *dict = COModule_GetDict(base);
+
+    CODict_SetItemString(dict, "print", (COObject *)&_base_print);
+    CODict_SetItemString(dict, "len", (COObject *)&_base_len);
+    CODict_SetItemString(dict, "type", (COObject *)&COType_Type);
+    CODict_SetItemString(dict, "str", (COObject *)&COStr_Type);
+    CODict_SetItemString(dict, "range", (COObject *)&CORange_Type);
+    CODict_SetItemString(dict, "set", (COObject *)&COSet_Type);
+    CODict_SetItemString(dict, "file", (COObject *)&COFile_Type);
+
     return base;
 }

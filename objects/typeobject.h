@@ -92,7 +92,7 @@ struct _COTypeObject {
 
     /* Object-Oriented Stuff. */
     COObject *tp_dict;
-    int tp_dictoffset;
+    ssize_t tp_dictoffset;
     COMethodDef *tp_methods;
     COMemberDef *tp_members;
 };

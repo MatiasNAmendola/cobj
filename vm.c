@@ -450,20 +450,12 @@ new_frame:                     /* reentry point when function call/return */
                 CO_DECREF(o2);
             }
 
-            COObject *pfunc;
-            if (COMethod_Check(o1)) {
-                pfunc = o1;
-                o1 = COMethod_GET_FUNCTION(o1);
-                CO_INCREF(o1);
-                CO_DECREF(pfunc);
-            }
-
             /* Always dispath CFunction first, because these are presumed to be
              * the most frequently called objects.
              */
             if (COCFunction_Check(o1)) {
                 COCFunction cfunc = COCFunction_GET_FUNCTION(o1);
-                x = cfunc(NULL, args);
+                x = cfunc(args);
                 if (COErr_Occurred()) {
                     status = STATUS_EXCEPTION;
                     goto fast_end;

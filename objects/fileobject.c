@@ -47,9 +47,8 @@ file_new(COTypeObject *type, COObject *args)
 static COObject *
 file_read(COObject *args)
 {
-    COObject_Dump(args);
-    CO_RETURN_NONE;
-    /*return COFile_Read((COObject *)this, -1);*/
+    COObject *this = COTuple_GET_ITEM(args, 0);
+    return COFile_Read((COObject *)this, -1);
 }
 
 static COMethodDef file_methods[] = {
@@ -334,6 +333,7 @@ COFile_Read(COObject *this, int n)
     }
     o_start[bytesread] = '\0';
 
+    COBytes_Resize(o, bytesread);
     return o;
 }
 

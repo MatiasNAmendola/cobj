@@ -290,6 +290,30 @@ COObject_GetSelf(COObject *o)
 }
 
 COObject *
+COObject_GetAttrString(COObject *o, const char *name)
+{
+    COObject *attr_name = COStr_FromString(name);
+    COObject *v = COObject_GetAttr(o, attr_name);
+    CO_DECREF(attr_name);
+    return v;
+}
+
+
+/* Helper to get a pointer to an object's __dict__ slot, if any */
+COObject *
+_COObject_GetDict(COObject *o)
+{
+    ssize_t dictoffset;
+    COTypeObject *tp = CO_TYPE(o);
+
+    dictoffset = tp->tp_dictoffset;
+    if (dictoffset == 0)
+        return NULL;
+
+    return *(COObject **)((char *)o + dictoffset);
+}
+
+COObject *
 COObject_GetAttr(COObject *o, COObject *attr)
 {
     if (!COStr_Check(attr)) {
@@ -300,17 +324,28 @@ COObject_GetAttr(COObject *o, COObject *attr)
 
     COObject *res = NULL;
     COTypeObject *tp = CO_TYPE(o);
-    COObject *dict = tp->tp_dict;
+    COObject *dict = NULL;
 
-    if (!dict) {
+    if (!tp->tp_dict) {
         if (COType_Ready((COObject *)tp) < 0)
             goto done;
-        dict = tp->tp_dict;
     }
 
-    res = CODict_GetItem(dict, attr);
-    if (res) {
-        goto done;
+    dict = _COObject_GetDict(o);
+    if (dict) {
+        res = CODict_GetItem(dict, attr);
+        if (res) {
+            CO_INCREF(res);
+            goto done;
+        }
+    }
+
+    if (tp->tp_dict) {
+        res = CODict_GetItem(tp->tp_dict, attr);
+        if (res) {
+            CO_INCREF(res);
+            goto done;
+        }
     }
 
     COErr_Format(COException_AttributeError,

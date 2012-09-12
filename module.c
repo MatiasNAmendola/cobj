@@ -9,7 +9,7 @@ const struct module_entry module_table[] = {
 };
 
 COObject *
-module_init_builtins(void)
+module_init(void)
 {
     /**
      * import * from base
@@ -21,15 +21,15 @@ module_init_builtins(void)
     for (mt = module_table; mt->initfunc; mt++) {
         m = mt->initfunc();
         if (mt->flag & IMPORT_ALL) {
+            COObject *dict = COModule_GetDict(m);
             COObject *key;
             COObject *val;
-            while (CODict_Next(m, &key, &val) == 0) {
+            while (CODict_Next(dict, &key, &val) == 0) {
                 CODict_SetItem(builtins, key, val);
             }
         } else {
             CODict_SetItemString(builtins, mt->name, m);
         }
     }
-    CODict_SetItemString(builtins, "builtins",  builtins);
     return builtins;
 }

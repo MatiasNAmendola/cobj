@@ -4,10 +4,12 @@ Features
 
 Garbage Collection
 
-Closures
+Lexical scoping, Closures
 
 Object Oriented
 
 Modules
 
-Lexical Scoping
+Coroutine (Lua/Go like)
+
+Concurrent 

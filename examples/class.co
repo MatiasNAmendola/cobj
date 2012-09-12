@@ -2,8 +2,11 @@
 
 # call a method function
 f = file(".gitignore")
+print(f.read)
+print(f.read(f))
 print(f:read())
 
+10:bit_length() 
 #class Complex
     #real = 0
     #image = 0

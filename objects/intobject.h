@@ -3,6 +3,8 @@
 /**
  * Integer object type (Arbitrary Precision/Big Number)
  *
+ * !!! This is imeplementation of Python3 LongObject.
+ *
  * @link http://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic
  */
 
@@ -52,5 +54,7 @@ COObject *COInt_FromString(char *s, char **pend, int base);
 COObject *COInt_FromLong(long ival);
 long COInt_AsLong(COObject *o);
 ssize_t COInt_AsSsize_t(COObject *o);
+COObject *COInt_FromSsize_t(ssize_t ival);
+COObject *COInt_FromSize_t(size_t ival);
 
 #endif
