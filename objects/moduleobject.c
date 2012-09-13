@@ -33,7 +33,7 @@ module_clear(COModuleObject *this)
 }
 
 COTypeObject COModule_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "module",
     sizeof(COModuleObject),
     0,

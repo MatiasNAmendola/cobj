@@ -36,7 +36,7 @@ frame_dealloc(COFrameObject *this)
 }
 
 COTypeObject COFrame_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "frame",
     sizeof(COFrameObject),
     sizeof(COObject *),

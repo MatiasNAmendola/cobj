@@ -116,7 +116,7 @@ static COSequenceInterface sequence_interface = {
 };
 
 COTypeObject COTuple_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "tuple",
     sizeof(COTupleObject) - sizeof(COObject *),
     sizeof(COObject *),

@@ -7,7 +7,7 @@ none_repr(COObject *o)
 }
 
 COTypeObject CONone_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "None",
     sizeof(long),
     0,

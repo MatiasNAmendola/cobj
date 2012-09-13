@@ -52,7 +52,7 @@ listiter_next(COListIterObject *it)
 }
 
 COTypeObject COListIter_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "listiter",
     sizeof(COListIterObject),
     0,

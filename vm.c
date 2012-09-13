@@ -534,6 +534,10 @@ new_frame:                     /* reentry point when function call/return */
                 x = COObject_Call(o1, args);
                 CO_DECREF(args);
                 CO_DECREF(o1);
+                if (!x) {
+                    status = STATUS_EXCEPTION;
+                    goto fast_end;
+                }
                 PUSH(x);
             }
             break;

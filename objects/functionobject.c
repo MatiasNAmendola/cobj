@@ -21,7 +21,7 @@ function_dealloc(COFunctionObject *this)
 }
 
 COTypeObject COFunction_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "function",
     sizeof(COFunctionObject),
     0,

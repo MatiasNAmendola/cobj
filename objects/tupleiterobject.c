@@ -52,7 +52,7 @@ tupleiter_next(COTupleIterObject *it)
 }
 
 COTypeObject COTupleIter_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "tupleiter",
     sizeof(COTupleIterObject),
     0,

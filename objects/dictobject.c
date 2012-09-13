@@ -167,7 +167,7 @@ static COMappingInterface mapping_interface = {
 };
 
 COTypeObject CODict_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "dict",
     sizeof(CODictObject),
     0,

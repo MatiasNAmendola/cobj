@@ -15,6 +15,7 @@ type_dealloc(COTypeObject *type)
     assert(type->tp_flags & COType_FLAG_HEAP);
 
     CO_XDECREF(type->tp_dict);
+    CO_XDECREF(type->tp_base);
 
     COHeapTypeObject *htp = (COHeapTypeObject *)type;
     CO_XDECREF(htp->ht_name);
@@ -32,7 +33,7 @@ type_call(COTypeObject *type, COObject *args)
         return NULL;
     }
 
-    o = type->tp_new(type, args);
+    o = type->tp_new((COObject *)type, args);
     return o;
 }
 
@@ -55,9 +56,13 @@ type_new(COTypeObject *type, COObject *args)
     if (!COObject_ParseArgs(args, &code, &name, NULL))
         return NULL;
 
-    COHeapTypeObject *htp = COObject_NEW(COHeapTypeObject, type);
-    if (!htp)
-        return NULL;
+    const ssize_t size = COObject_VAR_SIZE(type, 0);
+    COHeapTypeObject *htp = (COHeapTypeObject *)COObject_Mem_MALLOC(size);
+    if (htp == NULL)
+        return COErr_NoMemory();
+
+    memset(htp, 0, size);
+    COVarObject_INIT(htp, type, 0);
 
     CO_INCREF(name);
     htp->ht_name = name;
@@ -67,14 +72,30 @@ type_new(COTypeObject *type, COObject *args)
     tp->tp_name = COStr_AS_STRING(name);
     tp->tp_dict = CODict_New();
 
-    return (COObject *)htp;
+    // base type (now defaults to COObject_Type)
+    COTypeObject *base = &COObject_Type;
+    tp->tp_base = base;
+
+    // add dict
+    tp->tp_dictoffset = base->tp_basicsize;
+    tp->tp_basicsize = base->tp_basicsize;
+    tp->tp_basicsize += sizeof(COObject *);
+
+    /* Initialize the rest. */
+    if (COType_Ready((COObject *)tp) < 0)
+        goto error;
+
+    return (COObject *)tp;
+
+error:
+    return NULL;
 }
 
 COTypeObject COType_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "type",
     sizeof(COTypeObject),
-    0,
+    sizeof(COHeapTypeObject),
     0,
     (newfunc)type_new,          /* tp_new                  */
     0,                          /* tp_init */
@@ -93,8 +114,76 @@ COTypeObject COType_Type = {
     0,                          /* tp_sequence_interface   */
     0,                          /* tp_dict */
     offsetof(COTypeObject, tp_dict),    /* tp_dictoffset */
+    0,                           /* tp_base                 */
+    0,                           /* tp_methods              */
+    0,                           /* tp_members              */
+};
+
+static COObject *
+object_new(COTypeObject *type, COObject *args)
+{
+    COObject *obj;
+    const ssize_t size = COObject_VAR_SIZE(type, 0);
+
+    obj = (COObject *)COObject_Mem_MALLOC(size);
+    if (obj == NULL)
+        return COErr_NoMemory();
+
+    memset(obj, 0, size);
+
+    if (type->tp_flags & COType_FLAG_HEAP)
+        CO_INCREF(type);
+
+    COVarObject_INIT(obj, type, 0);
+
+    return obj;
+}
+
+static void
+object_dealloc(COObject *this)
+{
+    COObject_Mem_FREE(this);
+}
+
+static COObject *
+object_repr(COObject *this)
+{
+    return COStr_FromString("<class>");
+}
+
+static int
+object_init(COObject *this, COObject *args)
+{
+    return 0;
+}
+
+// The most base type object.
+COTypeObject COObject_Type = {
+    COVarObject_HEAD_INIT(&COType_Type, 0),
+    "object",
+    sizeof(COObject),
     0,
     0,
+    (newfunc)object_new,         /* tp_new                  */
+    (initfunc)object_init,       /* tp_init                 */
+    (deallocfunc)object_dealloc, /* tp_dealloc              */
+    (reprfunc)object_repr,       /* tp_repr                 */
+    0,                           /* tp_print                */
+    0,                           /* tp_hash                 */
+    0,                           /* tp_compare              */
+    0,                           /* tp_traverse             */
+    0,                           /* tp_clear                */
+    0,                           /* tp_call                 */
+    0,                           /* tp_iter                 */
+    0,                           /* tp_iternext             */
+    0,                           /* tp_arithmetic_interface */
+    0,                           /* tp_mapping_interface    */
+    0,                           /* tp_sequence_interface   */
+    0,                           /* tp_dict                 */
+    0,                           /* tp_dictoffset           */
+    0,                           /* tp_base                 */
+    0,                           /* tp_methods              */
+    0,                           /* tp_members              */
 };
 
 static int
@@ -104,6 +193,7 @@ add_methods(COTypeObject *type, COMethodDef *methods)
     for (; methods->m_name != NULL; methods++) {
         COObject *func = COCFunction_New(methods->m_name, methods->m_func);
         CODict_SetItemString(dict, methods->m_name, func);
+        CO_DECREF(func);
     }
 
     return 0;
@@ -117,18 +207,51 @@ COType_Ready(COObject *_this)
         return 0;
     }
 
-    this->tp_flags |= COType_FLAG_READY;
+    // Initialize tp_base (defaults to COObject_Type).
+    COTypeObject *base = this->tp_base;
+    if (base == NULL && this != &COObject_Type) {
+        base = this->tp_base = &COObject_Type;
+        CO_INCREF(base);
+    }
 
+    // Initialize the base class.
+    if (base) {
+        // COObject_Type don't has base type
+        if (COType_Ready((COObject *)base) < 0) {
+            goto error;
+        }
+    }
+
+    // Initialize from base
+#define COPYVAL(SLOT) \
+        if (this->SLOT == 0) this->SLOT = base->SLOT
+    if (base) {
+        COPYVAL(tp_new);
+        COPYVAL(tp_basicsize);
+        COPYVAL(tp_itemsize);
+        COPYVAL(tp_dictoffset);
+        COPYVAL(tp_repr);
+        COPYVAL(tp_print);
+        COPYVAL(tp_dealloc);
+    }
+
+    // Initialize tp_dict.
     COObject *dict = this->tp_dict;
     if (!dict) {
         dict = CODict_New();
         this->tp_dict = dict;
     }
 
+    // Attributes.
     if (this->tp_methods)
         add_methods(this, this->tp_methods);
 
+    // All done.
+    this->tp_flags |= COType_FLAG_READY;
     return 0;
+
+error:
+    return -1;
 }
 
  /*

@@ -56,13 +56,14 @@ module_base_init(void)
     CO_DECREF(name);
     COObject *dict = COModule_GetDict(base);
 
-    CODict_SetItemString(dict, "print", (COObject *)&_base_print);
+    CODict_SetItemString(dict, "file", (COObject *)&COFile_Type);
     CODict_SetItemString(dict, "len", (COObject *)&_base_len);
-    CODict_SetItemString(dict, "type", (COObject *)&COType_Type);
-    CODict_SetItemString(dict, "str", (COObject *)&COStr_Type);
+    CODict_SetItemString(dict, "object", (COObject *)&COObject_Type);
+    CODict_SetItemString(dict, "print", (COObject *)&_base_print);
     CODict_SetItemString(dict, "range", (COObject *)&CORange_Type);
     CODict_SetItemString(dict, "set", (COObject *)&COSet_Type);
-    CODict_SetItemString(dict, "file", (COObject *)&COFile_Type);
+    CODict_SetItemString(dict, "str", (COObject *)&COStr_Type);
+    CODict_SetItemString(dict, "type", (COObject *)&COType_Type);
 
     return base;
 }

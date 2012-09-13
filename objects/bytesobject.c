@@ -70,7 +70,7 @@ bytes_dealloc(COBytesObject *this)
 }
 
 COTypeObject COBytes_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "bytes",
     sizeof(COBytesObject),
     0,

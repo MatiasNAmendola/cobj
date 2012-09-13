@@ -143,7 +143,7 @@ static COMappingInterface mapping_interface = {
 };
 
 COTypeObject COList_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "list",
     sizeof(COListObject),
     0,

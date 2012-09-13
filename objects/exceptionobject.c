@@ -14,7 +14,7 @@ exception_dealloc(COExceptionObject *this)
 }
 
 COTypeObject COException_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "Exception",
     sizeof(COExceptionObject),
     0,
@@ -40,7 +40,7 @@ COObject *COException = (COObject *)&COException_Type;
 
 #define SimpleExtendsException(EXCBASE, EXCNAME)            \
     COTypeObject _COException_ ## EXCNAME = {               \
-        COObject_HEAD_INIT(&COType_Type),                   \
+        COVarObject_HEAD_INIT(&COType_Type, 0),                   \
         # EXCNAME,                                          \
         sizeof(COExceptionObject),                          \
         0,                                                  \

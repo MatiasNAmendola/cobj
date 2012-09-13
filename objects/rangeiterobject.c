@@ -21,7 +21,7 @@ rangeiter_next(CORangeIterObject *this)
 }
 
 COTypeObject CORangeIter_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "rangeiter",
     sizeof(CORangeIterObject),
     0,

@@ -161,7 +161,7 @@ err:
 }
 
 COTypeObject CORange_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "range",
     sizeof(CORangeObject),
     0,

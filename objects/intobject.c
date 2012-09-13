@@ -1218,7 +1218,7 @@ static COMethodDef int_methods[] = {
 };
 
 COTypeObject COInt_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "int",
     offsetof(COIntObject, co_digit),
     sizeof(digit),
@@ -1238,10 +1238,11 @@ COTypeObject COInt_Type = {
     &arithmetic_interface,      /* tp_arithmetic_interface */
     0,                          /* tp_mapping_interface */
     0,                          /* tp_sequence_interface */
-    0,
-    0,
-    int_methods,
-    0,
+    0,                          /* tp_dict */
+    0,                          /* tp_dictoffset */
+    0,                          /* tp_base */
+    int_methods,                /* tp_methods */
+    0,                          /* tp_members */
 };
 
 int

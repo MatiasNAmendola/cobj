@@ -106,7 +106,7 @@ COObject_Print(COObject *o, FILE *fp)
 
 /*
  * COObject Compare
- * 
+ *
  * Every object's type have a tp_compare function slot, it's not NULL, it
  * gets called with two objects and Cmp_Op, and should return an object as follows:
  *  - NULL if an exception occurred
@@ -298,9 +298,10 @@ COObject_GetAttrString(COObject *o, const char *name)
     return v;
 }
 
-/* Helper to get a pointer to an object's __dict__ slot, if any */
-COObject *
-_COObject_GetDict(COObject *o)
+/* Helper to get a pointer to an object's __dict__ slot, if any. */
+
+COObject **
+_COObject_GetDictPtr(COObject *o)
 {
     ssize_t dictoffset;
     COTypeObject *tp = CO_TYPE(o);
@@ -309,7 +310,7 @@ _COObject_GetDict(COObject *o)
     if (dictoffset == 0)
         return NULL;
 
-    return *(COObject **)((char *)o + dictoffset);
+    return (COObject **)((char *)o + dictoffset);
 }
 
 COObject *
@@ -324,15 +325,19 @@ COObject_GetAttr(COObject *o, COObject *attr)
 
     COObject *res = NULL;
     COTypeObject *tp = CO_TYPE(o);
-    COObject *dict = NULL;
+    COObject **dictptr;
+    COObject *dict;
 
     if (!tp->tp_dict) {
         if (COType_Ready((COObject *)tp) < 0)
             goto done;
     }
 
-    dict = _COObject_GetDict(o);
-    if (dict) {
+    dictptr = _COObject_GetDictPtr(o);
+    if (dictptr) {
+        dict = *dictptr;
+        if (!dict)
+            goto done;
         res = CODict_GetItem(dict, attr);
         if (res) {
             CO_INCREF(res);
@@ -360,10 +365,22 @@ int
 COObject_SetAttr(COObject *o, COObject *attr, COObject *v)
 {
     int err;
+    COObject **dictptr;
     COObject *dict;
-    dict = _COObject_GetDict(o);
-    if (dict) {
-        err = CODict_SetItem(dict, attr, v);
+    dictptr = _COObject_GetDictPtr(o);
+    if (dictptr) {
+        dict = *dictptr;
+        if (!dict) {
+            dict = CODict_New();
+            *dictptr = dict;
+            if (!dict)
+                return -1;
+        }
+        if (v == NULL) {
+            err = CODict_DelItem(dict, attr);
+        } else {
+            err = CODict_SetItem(dict, attr, v);
+        }
         return err;
     }
 

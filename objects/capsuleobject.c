@@ -18,7 +18,7 @@ capsule_dealloc(COCapsuleObject *this)
 }
 
 COTypeObject COCapsule_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "capsule",
     sizeof(COCapsuleObject),
     0,

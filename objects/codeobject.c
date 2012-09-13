@@ -63,7 +63,7 @@ code_dealloc(COCodeObject *this)
 }
 
 COTypeObject COCode_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "code",
     sizeof(COCodeObject),
     0,

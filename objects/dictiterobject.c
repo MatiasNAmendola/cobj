@@ -43,7 +43,7 @@ dictiter_next(CODictIterObject *it)
 }
 
 COTypeObject CODictIter_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "dictiter",
     sizeof(CODictIterObject),
     0,

@@ -19,7 +19,7 @@ bool_repr(COObject *this)
 }
 
 COTypeObject COBool_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "bool",
     sizeof(long),
     0,

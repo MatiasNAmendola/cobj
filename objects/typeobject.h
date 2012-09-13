@@ -67,7 +67,7 @@ typedef struct _COMemberDef {
 } COMemberDef;
 
 struct _COTypeObject {
-    COObject_HEAD;
+    COVarObject_HEAD;
     char *tp_name;
     int tp_basicsize;           /* Following two are for allocation */
     int tp_itemsize;
@@ -95,11 +95,13 @@ struct _COTypeObject {
     /* Object-Oriented Stuff. */
     COObject *tp_dict;
     ssize_t tp_dictoffset;
+    COTypeObject *tp_base;
     COMethodDef *tp_methods;
     COMemberDef *tp_members;
 };
 
 COTypeObject COType_Type;
+COTypeObject COObject_Type;
 
 /* The *real* layout of a type object when allocated on the heap.
  *

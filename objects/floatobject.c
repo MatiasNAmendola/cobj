@@ -15,7 +15,7 @@ float_dealloc(COFloatObject *this)
 }
 
 COTypeObject COFloat_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "float",
     sizeof(COFloatObject),
     0,

@@ -285,7 +285,7 @@ COSet_Size(COObject *this)
 }
 
 COTypeObject COSet_Type = {
-    COObject_HEAD_INIT(&COType_Type),
+    COVarObject_HEAD_INIT(&COType_Type, 0),
     "set",
     sizeof(COSetObject),
     0,

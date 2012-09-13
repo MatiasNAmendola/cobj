@@ -22,9 +22,12 @@ class Complex
         #return r
     #end
 end
+
 Complex.real = 10
 Complex.image = 10
-c1 = Complex()
+c = Complex()
+c.myname = "asf"
+print(c.myname)
 #Complex.__print__ = func (self)
         #print("real: " + str(self.real) + " image: " + str(self.image))
     #end
