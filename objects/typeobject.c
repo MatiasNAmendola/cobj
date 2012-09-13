@@ -94,8 +94,8 @@ error:
 COTypeObject COType_Type = {
     COVarObject_HEAD_INIT(&COType_Type, 0),
     "type",
-    sizeof(COTypeObject),
     sizeof(COHeapTypeObject),
+    0,
     0,
     (newfunc)type_new,          /* tp_new                  */
     0,                          /* tp_init */
@@ -142,6 +142,12 @@ object_new(COTypeObject *type, COObject *args)
 static void
 object_dealloc(COObject *this)
 {
+    COTypeObject *type, *base;
+    /* Extract the type; we expect it to be a heap type */
+    type = CO_TYPE(this);
+    assert(type->tp_flags & COType_FLAG_HEAP);
+
+    CO_DECREF(type);
     COObject_Mem_FREE(this);
 }
 

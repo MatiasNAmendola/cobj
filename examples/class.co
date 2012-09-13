@@ -26,8 +26,8 @@ end
 Complex.real = 10
 Complex.image = 10
 c = Complex()
-c.myname = "asf"
-print(c.myname)
+#c.myname = "asf"
+#print(c.myname)
 #Complex.__print__ = func (self)
         #print("real: " + str(self.real) + " image: " + str(self.image))
     #end
