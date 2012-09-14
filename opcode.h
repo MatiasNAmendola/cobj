@@ -3,7 +3,7 @@
 
 /* Instruction opcodes */
 
-typedef enum {
+enum {
     OP_NOP,
     OP_BINARY_ADD,
     OP_BINARY_SUB,
@@ -50,13 +50,15 @@ typedef enum {
     OP_STORE_LOCAL,
     OP_GET_ITER,
     OP_FOR_ITER,
-    OP_IMPORT_NAME,
     OP_GET_ATTR,
     OP_SET_ATTR,
     OP_DEL_ATTR,
-} OpCode;
+    OP_IMPORT_NAME,
+    OP_IMPORT_FROM,
+};
 
 /* OP_CMP's opargs */
+
 enum {
     Cmp_LT = 0,
     Cmp_LE = 1,
@@ -72,4 +74,5 @@ enum {
 };
 
 char *opcode_name(unsigned char opcode);
+
 #endif

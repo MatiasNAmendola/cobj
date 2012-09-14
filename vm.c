@@ -695,6 +695,16 @@ new_frame:                     /* reentry point when function call/return */
                 SET_TOP(x);
             }
             break;
+        case OP_IMPORT_NAME:
+            oparg = NEXTARG();
+            // TODO
+            assert(0);
+            break;
+        case OP_IMPORT_FROM:
+            oparg = NEXTARG();
+            // TODO
+            assert(0);
+            break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);
         }

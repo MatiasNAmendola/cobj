@@ -297,6 +297,18 @@ ANY_CHAR    = [^];
     return T_DO;
 }
 
+<SC_INIT>"import" {
+    return T_IMPORT;
+}
+
+<SC_INIT>"from" {
+    return T_FROM;
+}
+
+<SC_INIT>"as" {
+    return T_AS;
+}
+
 <SC_INIT>"None" {
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
     yylval->node->u.o = CO_None;

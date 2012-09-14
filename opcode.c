@@ -57,6 +57,8 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_GET_ATTR);
         GIVE_NAME(OP_SET_ATTR);
         GIVE_NAME(OP_DEL_ATTR);
+        GIVE_NAME(OP_IMPORT_NAME);
+        GIVE_NAME(OP_IMPORT_FROM);
     }
     error("unknown opcode: %d\n", opcode);
     return NULL;

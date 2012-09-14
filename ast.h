@@ -39,6 +39,7 @@ typedef enum {
     NODE_BREAK,
     NODE_CONTINUE,
     NODE_THROW,
+    NODE_IMPORT,
 } Node_Type;
 
 typedef struct _Node {
@@ -57,7 +58,7 @@ typedef struct _Node {
     struct _Node *n4;
 } Node;
 
-/* 
+/*
  * NODE_TREE
  */
 #define nd_node n1
@@ -129,6 +130,17 @@ typedef struct _Node {
  */
 #define nd_catchname    n1
 #define nd_catchbody    n2
+
+/*
+ * NODE_IMPORT
+ */
+#define nd_fromname   n1
+#define nd_importlist n2
+
+/*
+ * NODE_NAME
+ */
+#define nd_alias n1
 
 Node *node_new(struct arena *arena, Node_Type type, Node *nleft, Node *nright);
 Node *node_list(struct arena *arena, Node *n, ...);

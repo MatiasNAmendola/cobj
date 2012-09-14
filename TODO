@@ -1,9 +1,9 @@
 Core
 ====
+ * import syntax
  * multiple assginment, a, b, c = sequence_object(list/tuple, etc)
  * turn lexer/parser error into Exception?
  * hand-written lexer?
- * import syntax
  * implement `this` as keyword or a special name?
 
 Performance

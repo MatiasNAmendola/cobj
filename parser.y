@@ -26,6 +26,9 @@ return_none_node(struct arena *arena)
  * which they are declared, from lower to higher.
  * See http://www.gnu.org/software/bison/manual/bison.html#Decl-Summary.
  */
+%token  T_IMPORT
+%token  T_FROM
+%token  T_AS
 %token  T_IF T_ELIF T_ELSE
 %token  T_FUNC
 %token  T_CLASS
@@ -73,6 +76,7 @@ return_none_node(struct arena *arena)
 %type <node> opt_param_list param_list non_empty_param_list param
 %type <node> catch_block
 %type <node> catch_list opt_catch_list opt_finally_block
+%type <node> name non_empty_name_list
 
 /*
  * Manual override of shift/reduce conflicts.
@@ -164,7 +168,6 @@ expr: /* express something */
     |   expr '*' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_MUL; }
     |   expr '/' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_DIV; }
     |   expr '%' expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_MOD; }
-
     |   expr '<' expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg = Cmp_LT; }
     |   expr '>' expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg = Cmp_GT; }
     |   expr T_EQUAL expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg = Cmp_EQ; }
@@ -306,6 +309,23 @@ non_empty_assoc_list:
         }
 ;
 
+name:
+       T_NAME
+    |  T_NAME T_AS T_NAME {
+            $1->nd_alias = $3;
+            $$ = $1;
+       }
+;
+
+non_empty_name_list:
+       name {
+           $$ = node_list(c->arena, $1, NULL);
+       }
+    |  non_empty_param_list ',' name {
+            $$ = node_listappend(c->arena, $1, $3);
+       }
+;
+
 simple_stmt:
         T_NAME '=' expr { Node *t = node_new(c->arena, NODE_ASSIGN, $1, $3); $$ = node_list(c->arena, t, NULL); }
     |   T_LOCAL T_NAME '=' expr { Node *t = node_new(c->arena, NODE_ASSIGN_LOCAL, $2, $4); $$ = node_list(c->arena, t, NULL); }
@@ -390,6 +410,18 @@ simple_stmt:
             $$->nd_params = p;
             $$ = node_list(c->arena, $$, NULL); 
         }   
+    |   T_IMPORT non_empty_name_list {
+            $$ = node_new(c->arena, NODE_IMPORT, NULL, NULL);
+            $$->nd_fromname = 0;
+            $$->nd_importlist = $2;
+            $$ = node_list(c->arena, $$, NULL); 
+        }
+    |   T_FROM T_NAME T_IMPORT non_empty_name_list {
+            $$ = node_new(c->arena, NODE_IMPORT, NULL, NULL);
+            $$->nd_fromname = $2;
+            $$->nd_importlist = $4;
+            $$ = node_list(c->arena, $$, NULL); 
+        }
     |   T_RETURN { $$ = node_list(c->arena, return_none_node(c->arena), NULL); }
     |   T_RETURN expr { $$ = node_list(c->arena, node_new(c->arena, NODE_RETURN, $2, NULL), NULL); }
 ;

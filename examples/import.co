@@ -1,0 +1,4 @@
+#import gc, io
+from gc import gc_collect
+#import gc as g
+#print(gc_collect())
