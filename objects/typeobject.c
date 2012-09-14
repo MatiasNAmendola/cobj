@@ -34,6 +34,14 @@ type_call(COTypeObject *type, COObject *args)
     }
 
     o = type->tp_new((COObject *)type, args);
+
+    if (o) {
+        type = CO_TYPE(o);
+        if (type->tp_init && type->tp_init(o, args) < 0) {
+            CO_DECREF(o);
+            o = NULL;
+        }
+    }
     return o;
 }
 
@@ -56,7 +64,7 @@ type_new(COTypeObject *type, COObject *args)
     if (!COObject_ParseArgs(args, &code, &name, NULL))
         return NULL;
 
-    const ssize_t size = COObject_VAR_SIZE(type, 0);
+    const ssize_t size = COVarObject_SIZE(type, 0);
     COHeapTypeObject *htp = (COHeapTypeObject *)COObject_Mem_MALLOC(size);
     if (htp == NULL)
         return COErr_NoMemory();
@@ -123,7 +131,7 @@ static COObject *
 object_new(COTypeObject *type, COObject *args)
 {
     COObject *obj;
-    const ssize_t size = COObject_VAR_SIZE(type, 0);
+    const ssize_t size = COVarObject_SIZE(type, 0);
 
     obj = (COObject *)COObject_Mem_MALLOC(size);
     if (obj == NULL)
@@ -142,7 +150,8 @@ object_new(COTypeObject *type, COObject *args)
 static void
 object_dealloc(COObject *this)
 {
-    COTypeObject *type, *base;
+    COTypeObject *type;
+
     /* Extract the type; we expect it to be a heap type */
     type = CO_TYPE(this);
     assert(type->tp_flags & COType_FLAG_HEAP);
@@ -193,7 +202,7 @@ COTypeObject COObject_Type = {
 };
 
 static int
-add_methods(COTypeObject *type, COMethodDef *methods)
+_add_methods(COTypeObject *type, COMethodDef *methods)
 {
     COObject *dict = type->tp_dict;
     for (; methods->m_name != NULL; methods++) {
@@ -233,6 +242,7 @@ COType_Ready(COObject *_this)
         if (this->SLOT == 0) this->SLOT = base->SLOT
     if (base) {
         COPYVAL(tp_new);
+        COPYVAL(tp_init);
         COPYVAL(tp_basicsize);
         COPYVAL(tp_itemsize);
         COPYVAL(tp_dictoffset);
@@ -250,7 +260,7 @@ COType_Ready(COObject *_this)
 
     // Attributes.
     if (this->tp_methods)
-        add_methods(this, this->tp_methods);
+        _add_methods(this, this->tp_methods);
 
     // All done.
     this->tp_flags |= COType_FLAG_READY;
@@ -258,15 +268,4 @@ COType_Ready(COObject *_this)
 
 error:
     return -1;
-}
-
- /*
-  * If object should never be deallocated, use this.
-  */
-void
-default_dealloc(COObject *this)
-{
-    fprintf(stderr, "deallocated, object is:\n");
-    COObject_Dump(this);
-    exit(0);
 }

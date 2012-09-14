@@ -120,7 +120,7 @@ void _CO_NegativeRefCnt(const char *fname, int lineno, COObject *co);
         }                                               \
     } while (0);
 
-/* COObject_VAR_SIZE returns the number of bytes allocated for a variable-size
+/* COVarObject_SIZE returns the number of bytes allocated for a variable-size
  * object with n items. The value is rounded up to the closest multiple of
  * sizeof(void *), in order to ensure that pointer fields at the end of the
  * object are correctly aligned for the platform.
@@ -128,7 +128,7 @@ void _CO_NegativeRefCnt(const char *fname, int lineno, COObject *co);
  * Note that there is no memory wastage in doing this, as malloc has to return
  * (at worst) pointer-aligned memory anyway.
  */
-#define COObject_VAR_SIZE(typeobj, n)       \
+#define COVarObject_SIZE(typeobj, n)       \
     (size_t) (                              \
         ( (typeobj)->tp_basicsize +         \
           (n) * (typeobj)->tp_itemsize  +   \

@@ -73,7 +73,7 @@ COObject *
 COVarObject_New(COTypeObject *tp, ssize_t n)
 {
     COVarObject *o;
-    const size_t size = COObject_VAR_SIZE(tp, n);
+    const size_t size = COVarObject_SIZE(tp, n);
     o = (COVarObject *)COObject_Mem_MALLOC(size);
     if (o == NULL) {
         return COErr_NoMemory();
@@ -316,6 +316,11 @@ _COObject_GetDictPtr(COObject *o)
 COObject *
 COObject_GetAttr(COObject *o, COObject *attr)
 {
+    COObject *res = NULL;
+    COTypeObject *tp = CO_TYPE(o);
+    COObject **dictptr;
+    COObject *dict;
+
     if (!COStr_Check(attr)) {
         COErr_Format(COException_TypeError,
                      "attribute name must be string, not '%.200s'",
@@ -323,25 +328,21 @@ COObject_GetAttr(COObject *o, COObject *attr)
         return NULL;
     }
 
-    COObject *res = NULL;
-    COTypeObject *tp = CO_TYPE(o);
-    COObject **dictptr;
-    COObject *dict;
-
+    // for static allocated Type objects, such as COInt_Type, etc
     if (!tp->tp_dict) {
-        if (COType_Ready((COObject *)tp) < 0)
-            goto done;
+       if (COType_Ready((COObject *)tp) < 0)
+           return NULL;
     }
 
     dictptr = _COObject_GetDictPtr(o);
     if (dictptr) {
         dict = *dictptr;
-        if (!dict)
-            goto done;
-        res = CODict_GetItem(dict, attr);
-        if (res) {
-            CO_INCREF(res);
-            goto done;
+        if (dict) {
+            res = CODict_GetItem(dict, attr);
+            if (res) {
+                CO_INCREF(res);
+                return res;
+            }
         }
     }
 
@@ -349,7 +350,7 @@ COObject_GetAttr(COObject *o, COObject *attr)
         res = CODict_GetItem(tp->tp_dict, attr);
         if (res) {
             CO_INCREF(res);
-            goto done;
+            return res;
         }
     }
 
@@ -357,8 +358,7 @@ COObject_GetAttr(COObject *o, COObject *attr)
                  "'%.200s' object has no attribute '%s'", CO_TYPE(o)->tp_name,
                  COStr_AS_STRING(attr));
 
-done:
-    return res;
+    return NULL;
 }
 
 int

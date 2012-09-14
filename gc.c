@@ -406,7 +406,7 @@ COObject_GC_New(COTypeObject *tp)
 COVarObject *
 COVarObject_GC_New(COTypeObject *tp, ssize_t nitems)
 {
-    const size_t size = COObject_VAR_SIZE(tp, nitems);
+    const size_t size = COVarObject_SIZE(tp, nitems);
     COVarObject *o = (COVarObject *)COObject_GC_Malloc(size);
     if (o)
         o = COVarObject_INIT(o, tp, nitems);

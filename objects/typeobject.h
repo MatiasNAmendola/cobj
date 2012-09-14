@@ -8,7 +8,7 @@
 
 /* Object Methods */
 typedef COObject *(*newfunc)(COObject *, COObject *);
-typedef int (*initfunc)(COObject *, COObject *, COObject *);
+typedef int (*initfunc)(COObject *, COObject *);
 typedef void (*deallocfunc) (COObject *);
 typedef COObject *(*reprfunc)(COObject *);
 typedef int (*printfunc) (COObject *, FILE *);
@@ -124,6 +124,5 @@ typedef struct _COHeapTypeObject {
 #define COType_HasFeature(t, f) ((((COTypeObject *)t)->tp_flags & (f)) != 0)
 
 int COType_Ready(COObject *);
-void default_dealloc(COObject *this);
 
 #endif

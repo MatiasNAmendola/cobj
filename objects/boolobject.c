@@ -26,7 +26,7 @@ COTypeObject COBool_Type = {
     0,
     0,                          /* tp_new */
     0,                          /* tp_init */
-    default_dealloc,            /* tp_dealloc */
+    0,                          /* tp_dealloc */
     bool_repr,                  /* tp_repr */
     0,                          /* tp_print */
     0,                          /* tp_hash */
