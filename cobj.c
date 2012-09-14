@@ -165,7 +165,7 @@ main(int argc, const char **argv)
                 scanner_setcode(eval);
                 COObject *code = compile(arena);
                 COObject *func = COFunction_New(code);
-                ret = vm_eval(code, globals);
+                ret = vm_eval(func, globals);
                 if (!ret) {
                     if (COErr_Occurred()) {
                         COErr_Print();
