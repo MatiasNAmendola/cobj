@@ -9,27 +9,14 @@
 #10:bit_length() 
 
 class Complex
-    #real = 0
-    #image = 0
-    #func __init__(self, real=0, image=0)
-        #self.real = real
-        #self.image = image
-    #end
-    #func __add__(self, other)
-        #r = Complex()
-        #r.real = self.real + other.real
-        #r.image = self.real + other.image
-        #return r
-    #end
-end
-
-Complex.real = 10
-Complex.image = 10
-Complex.add = func(self, other)
-    local c = Complex()
-    c.real = self.real + other.real
-    c.image = self.image + other.image
-    return c
+    real = 10
+    image = 10
+    func add(self, other)
+        local c = Complex()
+        c.real = self.real + other.real
+        c.image = self.image + other.image
+        return c
+    end
 end
 
 c1 = Complex()

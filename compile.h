@@ -35,4 +35,8 @@ int scanner_lex(YYSTYPE *yylval);
 void scanner_init(struct arena *arena);
 int scanner_setcode(char *code);
 
+#ifdef CO_DEBUG
+void dump_code(COObject *code);
+#endif
+
 #endif

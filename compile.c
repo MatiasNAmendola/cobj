@@ -67,9 +67,6 @@ struct assembler {
 /* Forward declarations */
 static int compiler_visit_node(struct compiler *c, Node *n);
 static COObject *assemble(struct compiler *c);
-#ifdef CO_DEBUG
-static void dump_code(COObject *code);
-#endif
 
 static struct block *
 compiler_new_block(struct compiler *c)
@@ -577,6 +574,7 @@ compiler_visit_node(struct compiler *c, Node *n)
             oparg = compiler_add(c->u->u_consts, co);
             CO_DECREF(co);
             compiler_addop_i(c, OP_LOAD_CONST, oparg);
+            compiler_addop_i(c, OP_MAKE_FUNCTION, 0);
             compiler_addop(c, OP_MAKE_CLASS);
         }
         break;
@@ -1110,7 +1108,7 @@ assemble(struct compiler *c)
 }
 
 #ifdef CO_DEBUG
-static void
+void
 dump_code(COObject *code)
 {
 #define NEXTOP()    (*bytecode++)

@@ -20,27 +20,35 @@ function_dealloc(COFunctionObject *this)
     COObject_Mem_FREE(this);
 }
 
+static COObject *
+function_call(COFunctionObject *this, COObject *args)
+{
+    COObject *dict = COTuple_GET_ITEM(args, 0);
+    vm_eval((COObject *)this, dict);
+    return dict;
+}
+
 COTypeObject COFunction_Type = {
     COVarObject_HEAD_INIT(&COType_Type, 0),
     "function",
     sizeof(COFunctionObject),
     0,
     0,
-    0,                          /* tp_new                  */
-    0,                          /* tp_init */
-    (deallocfunc)function_dealloc,      /* tp_dealloc              */
-    (reprfunc)function_repr,    /* tp_repr                 */
-    0,                          /* tp_print                */
-    0,                          /* tp_hash                 */
-    0,                          /* tp_compare              */
-    0,                          /* tp_traverse             */
-    0,                          /* tp_clear                */
-    0,                          /* tp_call                 */
-    0,                          /* tp_iter                 */
-    0,                          /* tp_iternext             */
-    0,                          /* tp_arithmetic_interface */
-    0,                          /* tp_mapping_interface    */
-    0,                          /* tp_sequence_interface   */
+    0,                             /* tp_new                  */
+    0,                             /* tp_init                 */
+    (deallocfunc)function_dealloc, /* tp_dealloc              */
+    (reprfunc)function_repr,       /* tp_repr                 */
+    0,                             /* tp_print                */
+    0,                             /* tp_hash                 */
+    0,                             /* tp_compare              */
+    0,                             /* tp_traverse             */
+    0,                             /* tp_clear                */
+    (binaryfunc)function_call,     /* tp_call                 */
+    0,                             /* tp_iter                 */
+    0,                             /* tp_iternext             */
+    0,                             /* tp_arithmetic_interface */
+    0,                             /* tp_mapping_interface    */
+    0,                             /* tp_sequence_interface   */
 };
 
 COObject *

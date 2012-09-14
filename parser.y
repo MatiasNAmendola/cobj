@@ -440,6 +440,11 @@ compound_stmt:
             Node *t = node_new(c->arena, NODE_CLASS, NULL, NULL);
             t->nd_classname = $2;
             t->nd_classbody = $3;
+            if (t->nd_classbody) {
+                t->nd_classbody = node_listappend(c->arena, t->nd_classbody, return_none_node(c->arena));
+            } else {
+                t->nd_classbody = node_list(c->arena, return_none_node(c->arena), NULL);
+            }
             $$ = node_list(c->arena, node_new(c->arena, NODE_ASSIGN, $2, t), NULL);
         }
 ;

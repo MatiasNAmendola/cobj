@@ -8,8 +8,6 @@
 #include "objects/frameobject.h"
 
 typedef struct _COState {
-    COFrameObject *frame;
-
     COObject *curexc_type;
     COObject *curexc_value;
     COObject *curexc_traceback;

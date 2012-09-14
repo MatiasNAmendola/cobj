@@ -50,6 +50,8 @@ type_new(COTypeObject *type, COObject *args)
 {
     COObject *x = NULL;
 
+    assert(args != NULL && COTuple_Check(args));
+
     if (COTuple_GET_SIZE(args) == 1) {
         if (!COObject_ParseArgs(args, &x, NULL))
             return NULL;
@@ -58,10 +60,10 @@ type_new(COTypeObject *type, COObject *args)
         return x;
     }
 
-    /* Check arguments: (code, name) */
-    COObject *code;
+    /* Check arguments: (name, dict) */
     COObject *name;
-    if (!COObject_ParseArgs(args, &code, &name, NULL))
+    COObject *dict;
+    if (!COObject_ParseArgs(args, &name, &dict, NULL))
         return NULL;
 
     const ssize_t size = COVarObject_SIZE(type, 0);
@@ -88,6 +90,7 @@ type_new(COTypeObject *type, COObject *args)
     tp->tp_dictoffset = base->tp_basicsize;
     tp->tp_basicsize = base->tp_basicsize;
     tp->tp_basicsize += sizeof(COObject *);
+    tp->tp_dict = dict;
 
     /* Initialize the rest. */
     if (COType_Ready((COObject *)tp) < 0)

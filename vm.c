@@ -9,16 +9,16 @@ enum status_code {
 };
 
 COObject *
-vm_getglobal(COObject *name)
+vm_getglobal(COFrameObject *frame, COObject *name)
 {
     COObject *co;
 
-    co = CODict_GetItem(TS(frame)->f_globals, name);
+    co = CODict_GetItem(frame->f_globals, name);
     if (co) {
         return co;
     }
     // at last
-    co = CODict_GetItem(TS(frame)->f_builtins, name);
+    co = CODict_GetItem(frame->f_builtins, name);
     if (co) {
         return co;
     }
@@ -83,7 +83,7 @@ vm_eval(COObject *func, COObject *globals)
 #define NEXTOP()        (*next_code++)
 #define NEXTARG()       (next_code += 2, (next_code[-1]<<8) + next_code[-2])
 #define GETITEM(v, i)   COTuple_GET_ITEM((COTupleObject *)(v), i)
-#define SETGLOBAL(n, v) CODict_SetItem(TS(frame)->f_globals, n, v)
+#define SETGLOBAL(n, v) CODict_SetItem(frame->f_globals, n, v)
 #define GETLOCAL(i)     (fastlocals[i])
 #define SETLOCAL(i, v)                  \
     do {                                \
@@ -100,7 +100,7 @@ vm_eval(COObject *func, COObject *globals)
 #define FOURTH()        (stack_top[-4])
 #define PEEK(n)         (stack_top[-(n)])
 #define STACK_ADJ(n)    (stack_top += n)
-#define STACK_LEVEL()   ((int)(stack_top - TS(frame)->f_stack))
+#define STACK_LEVEL()   ((int)(stack_top - frame->f_stack))
 #define UNWIND_BLOCK(b) \
     do { \
         while (STACK_LEVEL() > (b)->fb_level) { \
@@ -126,20 +126,19 @@ vm_eval(COObject *func, COObject *globals)
     int status = STATUS_NONE;   /* VM status */
     int err = 0;                /* C function error code */
 
-    TS(frame) =
-        (COFrameObject *)COFrame_New((COObject *)TS(frame), func, globals);
+    COFrameObject *frame = (COFrameObject *)COFrame_New(NULL, func, globals);
 
 new_frame:                     /* reentry point when function call/return */
-    func = TS(frame)->f_func;
+    func = frame->f_func;
     code = ((COFunctionObject *)func)->func_code;
-    stack_top = TS(frame)->f_stacktop;
+    stack_top = frame->f_stacktop;
     names = ((COCodeObject *)code)->co_names;
     localnames = ((COCodeObject *)code)->co_localnames;
     consts = ((COCodeObject *)code)->co_consts;
     first_code =
         (unsigned char *)COBytes_AsString(((COCodeObject *)code)->co_code);
-    next_code = first_code + TS(frame)->f_lasti;
-    fastlocals = TS(frame)->f_extraplus;
+    next_code = first_code + frame->f_lasti;
+    fastlocals = frame->f_extraplus;
 
     for (;;) {
         opcode = NEXTOP();
@@ -283,7 +282,7 @@ new_frame:                     /* reentry point when function call/return */
         case OP_LOAD_NAME:
             oparg = NEXTARG();
             o1 = GETITEM(names, oparg);
-            x = vm_getglobal(o1);
+            x = vm_getglobal(frame, o1);
             if (!x) {
                 COErr_Format(COException_NameError, "name '%s' is not defined",
                              COStr_AsString(o1));
@@ -404,23 +403,23 @@ new_frame:                     /* reentry point when function call/return */
             // upvalues
             for (int i = 0; i < CO_SIZE(c->co_upvals); i++) {
                 COObject *name = COTuple_GET_ITEM(c->co_upvals, i);
-                COObject *upvalue = vm_getglobal(name);
+                COObject *upvalue = vm_getglobal(frame, name);
                 if (!upvalue) {
                     // find in current & preivous stacks
-                    COFrameObject *frame = TS(frame);
+                    COFrameObject *currentframe = frame;
                     do {
                         COObject *mylocalnames =
-                            ((COCodeObject *)frame->f_code)->co_localnames;
+                            ((COCodeObject *)currentframe->f_code)->co_localnames;
                         for (int j = 0; j < COTuple_GET_SIZE(mylocalnames); j++) {
                             if (COObject_CompareBool
                                 (COTuple_GET_ITEM(mylocalnames, j), name,
                                  Cmp_EQ)) {
-                                upvalue = frame->f_extraplus[j];
+                                upvalue = currentframe->f_extraplus[j];
                                 break;
                             }
                         }
-                        frame = (COFrameObject *)frame->f_prev;
-                    } while (frame);
+                        currentframe = (COFrameObject *)currentframe->f_prev;
+                    } while (currentframe);
                     // find in upvalues
                     if (!upvalue) {
                         for (int j = 0;
@@ -477,12 +476,12 @@ new_frame:                     /* reentry point when function call/return */
                     defaults_argcount = COTuple_GET_SIZE(defaults);
                 }
                 // Store frame.
-                TS(frame)->f_stacktop = stack_top;
-                TS(frame)->f_lasti = (int)(next_code - first_code);
+                frame->f_stacktop = stack_top;
+                frame->f_lasti = (int)(next_code - first_code);
 
                 // Set up new frame.
-                TS(frame) =
-                    (COFrameObject *)COFrame_New((COObject *)TS(frame), o1,
+                frame =
+                    (COFrameObject *)COFrame_New((COObject *)frame, o1,
                                                  globals);
 
                 code = ((COFunctionObject *)o1)->func_code;
@@ -517,14 +516,14 @@ new_frame:                     /* reentry point when function call/return */
                 for (; i < COList_GET_SIZE(args); i++) {
                     x = COTuple_GET_ITEM(args, i);
                     CO_INCREF(x);
-                    TS(frame)->f_extraplus[i] = x;
+                    frame->f_extraplus[i] = x;
                 }
                 j = i;
                 i = 0;
                 for (; i < defaults_argcount; i++) {
                     x = COTuple_GET_ITEM(defaults, i);
                     CO_INCREF(x);
-                    TS(frame)->f_extraplus[j + i] = x;
+                    frame->f_extraplus[j + i] = x;
                 }
                 CO_DECREF(args);
 
@@ -543,36 +542,36 @@ new_frame:                     /* reentry point when function call/return */
             break;
         case OP_RETURN:
             o1 = POP();
-            TS(frame)->f_stacktop = stack_top;
-            TS(frame)->f_lasti = (int)(next_code - first_code);
-            COFrameObject *old_frame = (COFrameObject *)TS(frame);
-            TS(frame) = (COFrameObject *)old_frame->f_prev;
+            frame->f_stacktop = stack_top;
+            frame->f_lasti = (int)(next_code - first_code);
+            COFrameObject *old_frame = (COFrameObject *)frame;
+            frame = (COFrameObject *)old_frame->f_prev;
             CO_DECREF(old_frame);
-            if (!TS(frame)) {
+            if (!frame) {
                 CO_DECREF(o1);
                 goto vm_exit;
             }
             // init function return
-            *(TS(frame)->f_stacktop++) = o1;
+            *(frame->f_stacktop++) = o1;
             goto new_frame;
             break;
         case OP_SETUP_LOOP:
             oparg = NEXTARG();
-            COFrameBlock_Setup(TS(frame), opcode, oparg, STACK_LEVEL());
+            COFrameBlock_Setup(frame, opcode, oparg, STACK_LEVEL());
             break;
         case OP_SETUP_TRY:
             oparg = NEXTARG();
-            COFrameBlock_Setup(TS(frame), opcode, oparg, STACK_LEVEL());
+            COFrameBlock_Setup(frame, opcode, oparg, STACK_LEVEL());
             break;
         case OP_POP_BLOCK:
             {
-                COFrameBlock *fb = COFrameBlock_Pop(TS(frame));
+                COFrameBlock *fb = COFrameBlock_Pop(frame);
                 UNWIND_BLOCK(fb);
             }
             break;
         case OP_POP_TRY:
             {
-                COFrameBlock *fb = COFrameBlock_Pop(TS(frame));
+                COFrameBlock *fb = COFrameBlock_Pop(frame);
                 UNWIND_BLOCK(fb);
             }
             break;
@@ -612,7 +611,7 @@ new_frame:                     /* reentry point when function call/return */
             break;
         case OP_SETUP_FINALLY:
             oparg = NEXTARG();
-            COFrameBlock_Setup(TS(frame), opcode, oparg, STACK_LEVEL());
+            COFrameBlock_Setup(frame, opcode, oparg, STACK_LEVEL());
             break;
         case OP_END_FINALLY:
             o1 = POP();
@@ -683,7 +682,13 @@ new_frame:                     /* reentry point when function call/return */
             {
                 o1 = POP();
                 o2 = TOP();
-                COObject *args = COTuple_Pack(2, o1, o2);
+                COObject *dict = CODict_New();
+                x = COObject_Call(o1, COTuple_Pack(1, dict));
+                if (!x) {
+                    status = STATUS_EXCEPTION;
+                    goto fast_end;
+                }
+                COObject *args = COTuple_Pack(2, o2, dict);
                 x = COObject_Call((COObject *)&COType_Type, args);
                 CO_DECREF(o1);
                 CO_DECREF(o2);
@@ -696,15 +701,15 @@ new_frame:                     /* reentry point when function call/return */
 
 fast_end:
 
-        while (status != STATUS_NONE && TS(frame)->f_iblock > 0) {
+        while (status != STATUS_NONE && frame->f_iblock > 0) {
             COFrameBlock *fb =
-                &TS(frame)->f_blockstack[TS(frame)->f_iblock - 1];
+                &frame->f_blockstack[frame->f_iblock - 1];
             if (fb->fb_type == OP_SETUP_LOOP && status == STATUS_CONTINUE) {
                 status = STATUS_NONE;
                 JUMPTO(oparg);
                 break;
             }
-            TS(frame)->f_iblock--;
+            frame->f_iblock--;
             UNWIND_BLOCK(fb);
             if (fb->fb_type == OP_SETUP_LOOP && status == STATUS_BREAK) {
                 status = STATUS_NONE;
@@ -730,10 +735,10 @@ fast_end:
 vm_exit:
 
     /* Clear frame stack. */
-    while (TS(frame)) {
-        COFrameObject *tmp_frame = (COFrameObject *)TS(frame)->f_prev;
-        CO_DECREF(TS(frame));
-        TS(frame) = tmp_frame;
+    while (frame) {
+        COFrameObject *tmp_frame = (COFrameObject *)frame->f_prev;
+        CO_DECREF(frame);
+        frame = tmp_frame;
     }
 
     return x;

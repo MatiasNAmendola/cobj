@@ -354,9 +354,15 @@ COObject_GetAttr(COObject *o, COObject *attr)
         }
     }
 
-    COErr_Format(COException_AttributeError,
-                 "'%.200s' object has no attribute '%s'", CO_TYPE(o)->tp_name,
-                 COStr_AS_STRING(attr));
+    if (COType_Check(o)) {
+        COErr_Format(COException_AttributeError,
+                     "'%.200s' object '%.200s' has no attribute '%s'", CO_TYPE(o)->tp_name, ((COTypeObject *)o)->tp_name,
+                     COStr_AS_STRING(attr));
+    } else {
+        COErr_Format(COException_AttributeError,
+                     "'%.200s' object has no attribute '%s'", CO_TYPE(o)->tp_name,
+                     COStr_AS_STRING(attr));
+    }
 
     return NULL;
 }
