@@ -74,7 +74,7 @@ struct _COTypeObject {
     int tp_flags;               /* Flags to define optional/expanded features */
 
     /* Basic methods.  */
-    newfunc tp_new;             /* Create object. */
+    newfunc tp_alloc;             /* Create object. */
     initfunc tp_init;           /* Initiate object. */
     deallocfunc tp_dealloc;     /* Destory object. */
     reprfunc tp_repr;           /* Represent object. */
@@ -105,7 +105,7 @@ COTypeObject COObject_Type;
 
 /* The *real* layout of a type object when allocated on the heap.
  *
- * Why:
+ * Reasons:
  *  When allocated on heap, we need to manage referencens between type object
  *  with its slots objects, like tp_name string from string object, etc.
  */

@@ -1223,7 +1223,7 @@ COTypeObject COInt_Type = {
     offsetof(COIntObject, co_digit),
     sizeof(digit),
     0,
-    0,                          /* tp_new */
+    0,                          /* tp_alloc */
     0,                          /* tp_init */
     (deallocfunc)int_dealloc,   /* tp_dealloc */
     (reprfunc)int_repr,         /* tp_repr */

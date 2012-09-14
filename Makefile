@@ -23,7 +23,7 @@ BINDIR = $(PREFIX)/bin
 
 FIND_SOURCE_FILES = find . \( -name .git -type d -prune \) -o \( -name '*.[hc]' -type f -print \)
 
-# recompile all lib objs if any of header file changes, cuz dependencies is hard to maintain!
+# Recompile all lib objs if any of header file changes, cuz dependencies is hard to maintain!
 LIB_H = $(wildcard *.h) parser.h scanner.h $(wildcard objects/*.h) argparse/argparse.h
 
 LIB_OBJS += cobj.o
@@ -50,7 +50,10 @@ LIB_OBJS += linenoise/linenoise.o
 LIB_OBJS += argparse/argparse.o
 
 linenoise/linenoise.o:
-	make -C linenoise linenoise.o
+	@make -C linenoise linenoise.o
+
+argparse/argparse.o:
+	@make -C argparse argparse.o
 
 $(LIB_OBJS): $(LIB_H)
 

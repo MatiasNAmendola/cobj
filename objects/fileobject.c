@@ -230,7 +230,7 @@ COTypeObject COFile_Type = {
     sizeof(COFileObject),
     0,
     0,
-    (newfunc)file_new,             /* tp_new                  */
+    (newfunc)file_new,             /* tp_alloc                  */
     0,                             /* tp_init                 */
     (deallocfunc)file_dealloc,     /* tp_dealloc              */
     (reprfunc)file_repr,           /* tp_repr                 */

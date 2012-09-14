@@ -41,7 +41,7 @@ COTypeObject COFrame_Type = {
     sizeof(COFrameObject),
     sizeof(COObject *),
     0,
-    0,                          /* tp_new */
+    0,                          /* tp_alloc */
     0,                          /* tp_init */
     (deallocfunc)frame_dealloc, /* tp_dealloc */
     (reprfunc)frame_repr,       /* tp_repr */

@@ -172,7 +172,7 @@ COTypeObject CODict_Type = {
     sizeof(CODictObject),
     0,
     COType_FLAG_GC,
-    0,                          /* tp_new                  */
+    0,                          /* tp_alloc                  */
     0,                          /* tp_init */
     (deallocfunc)dict_dealloc,  /* tp_dealloc              */
     (reprfunc)dict_repr,        /* tp_repr                 */

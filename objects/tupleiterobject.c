@@ -57,7 +57,7 @@ COTypeObject COTupleIter_Type = {
     sizeof(COTupleIterObject),
     0,
     0,
-    0,                          /* tp_new                  */
+    0,                          /* tp_alloc                  */
     0,                          /* tp_init */
     (deallocfunc)tupleiter_dealloc,     /* tp_dealloc              */
     (reprfunc)tupleiter_repr,   /* tp_repr                 */

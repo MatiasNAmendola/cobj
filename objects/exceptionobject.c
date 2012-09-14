@@ -19,7 +19,7 @@ COTypeObject COException_Type = {
     sizeof(COExceptionObject),
     0,
     0,
-    0,                          /* tp_new                  */
+    0,                          /* tp_alloc                  */
     0,                          /* tp_init */
     (deallocfunc)exception_dealloc,     /* tp_dealloc              */
     (reprfunc)exception_repr,   /* tp_repr                 */
@@ -45,7 +45,7 @@ COObject *COException = (COObject *)&COException_Type;
         sizeof(COExceptionObject),                          \
         0,                                                  \
         0,                                                  \
-        0,                                  /* tp_new */                \
+        0,                                  /* tp_alloc */                \
         0,                                  /* tp_init */               \
         (deallocfunc)exception_dealloc,     /* tp_dealloc */            \
         (reprfunc)exception_repr,           /* tp_repr */               \

@@ -419,7 +419,7 @@ COTypeObject COStr_Type = {
     COStr_BASESIZE,
     sizeof(char),
     0,
-    (newfunc)str_new,           /* tp_new                  */
+    (newfunc)str_new,           /* tp_alloc                  */
     0,                          /* tp_init */
     (deallocfunc)str_dealloc,   /* tp_dealloc              */
     (reprfunc)str_repr,         /* tp_repr                 */

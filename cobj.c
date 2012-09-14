@@ -14,8 +14,6 @@ argparse_showversion(struct argparse *this,
     exit(1);
 }
 
-int verbose = 0;
-int flag_compile = 0;
 char *eval = NULL;
 
 void
@@ -113,9 +111,6 @@ main(int argc, const char **argv)
         OPT_HELP(),
         OPT_BOOLEAN('v', "version", NULL, "print the version number and exit",
                     argparse_showversion),
-        OPT_BOOLEAN('V', "verbose", &verbose,
-                    "show runtime info, can be supplied multiple times to increase verbosity",
-                    NULL),
         OPT_STRING('e', "eval", &eval, "code passed as string", NULL),
         OPT_END(),
     };

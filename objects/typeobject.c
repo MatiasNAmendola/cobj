@@ -27,13 +27,13 @@ static COObject *
 type_call(COTypeObject *type, COObject *args)
 {
     COObject *o;
-    if (!type->tp_new) {
+    if (!type->tp_alloc) {
         COErr_Format(COException_TypeError, "cannot make '%.100s' instance",
                      type->tp_name);
         return NULL;
     }
 
-    o = type->tp_new((COObject *)type, args);
+    o = type->tp_alloc((COObject *)type, args);
 
     if (o) {
         type = CO_TYPE(o);
@@ -108,7 +108,7 @@ COTypeObject COType_Type = {
     sizeof(COHeapTypeObject),
     0,
     0,
-    (newfunc)type_new,          /* tp_new                  */
+    (newfunc)type_new,          /* tp_alloc                  */
     0,                          /* tp_init */
     (deallocfunc)type_dealloc,  /* tp_dealloc              */
     (reprfunc)type_repr,        /* tp_repr                 */
@@ -182,7 +182,7 @@ COTypeObject COObject_Type = {
     sizeof(COObject),
     0,
     0,
-    (newfunc)object_new,         /* tp_new                  */
+    (newfunc)object_new,         /* tp_alloc                  */
     (initfunc)object_init,       /* tp_init                 */
     (deallocfunc)object_dealloc, /* tp_dealloc              */
     (reprfunc)object_repr,       /* tp_repr                 */
@@ -244,7 +244,7 @@ COType_Ready(COObject *_this)
 #define COPYVAL(SLOT) \
         if (this->SLOT == 0) this->SLOT = base->SLOT
     if (base) {
-        COPYVAL(tp_new);
+        COPYVAL(tp_alloc);
         COPYVAL(tp_init);
         COPYVAL(tp_basicsize);
         COPYVAL(tp_itemsize);

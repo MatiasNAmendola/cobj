@@ -20,7 +20,7 @@ COTypeObject COFloat_Type = {
     sizeof(COFloatObject),
     0,
     0,
-    0,                          /* tp_new */
+    0,                          /* tp_alloc */
     0,                          /* tp_init */
     (deallocfunc)float_dealloc, /* tp_dealloc */
     (reprfunc)float_repr,       /* tp_repr */
