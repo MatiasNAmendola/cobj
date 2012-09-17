@@ -17,5 +17,6 @@ COObject *module_base_init(void);
 COObject *module_gc_init(void);
 COObject *module_io_init(void);
 COObject *module_init(void);
+COObject *module_import(COObject *name);
 
 #endif

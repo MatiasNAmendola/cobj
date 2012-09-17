@@ -1,4 +1,11 @@
-#import gc, io
-from gc import gc_collect
-#import gc as g
-#print(gc_collect())
+#import module
+#print(module.a)
+
+import module as c
+print(c.a)
+
+#from module import a
+#print(a)
+
+#from module import a as b
+#print(b)

@@ -11,6 +11,10 @@
 class Complex
     real = 10
     image = 10
+    func __init__(self, real, image)
+        self.real = real
+        self.image = image
+    end
     func add(self, other)
         local c = Complex()
         c.real = self.real + other.real

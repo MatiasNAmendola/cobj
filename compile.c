@@ -759,8 +759,8 @@ compiler_visit_node(struct compiler *c, Node *n)
                 compiler_addop_i(c, OP_IMPORT_FROM, oparg);
                 if (l->nd_node->nd_alias) {
                     oparg = compiler_add(c->u->u_names, l->nd_node->nd_alias->u.o);
-                    compiler_addop_i(c, OP_STORE_NAME, oparg);
                 }
+                compiler_addop_i(c, OP_STORE_NAME, oparg);
                 l = l->nd_next;
             }
 
@@ -772,8 +772,8 @@ compiler_visit_node(struct compiler *c, Node *n)
                 compiler_addop_i(c, OP_IMPORT_NAME, oparg);
                 if (l->nd_node->nd_alias) {
                     oparg = compiler_add(c->u->u_names, l->nd_node->nd_alias->u.o);
-                    compiler_addop_i(c, OP_STORE_NAME, oparg);
                 }
+                compiler_addop_i(c, OP_STORE_NAME, oparg);
                 l = l->nd_next;
             }
         }

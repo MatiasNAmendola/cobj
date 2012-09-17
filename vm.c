@@ -697,13 +697,20 @@ new_frame:                     /* reentry point when function call/return */
             break;
         case OP_IMPORT_NAME:
             oparg = NEXTARG();
-            // TODO
-            assert(0);
+            o1 = GETITEM(names, oparg);
+            o2 = module_import(o1);
+            if (!o2) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
+            PUSH(o2);
             break;
         case OP_IMPORT_FROM:
             oparg = NEXTARG();
-            // TODO
-            assert(0);
+            o1 = TOP();
+            o2 = GETITEM(names, oparg);
+            o2 = COObject_GetAttr(o1, o2);
+            PUSH(o2);
             break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);

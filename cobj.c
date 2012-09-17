@@ -44,11 +44,10 @@ cli_completion(const char *buf, linenoiseCompletions *lc)
 }
 
 COObject *
-eval_wrapper(COObject *code)
+eval_wrapper(COObject *code, COObject *globals)
 {
     COObject *ret;
 
-    COObject *globals = CODict_New();
     COObject *func = COFunction_New(code);
     ret = vm_eval(func, globals);
     if (!ret) {
@@ -63,7 +62,7 @@ eval_wrapper(COObject *code)
 }
 
 int
-run_file(FILE *fp, const char *filename)
+run_file(FILE *fp, const char *filename, COObject *globals)
 {
     COObject *ret;
     struct arena *arena = arena_new();
@@ -79,7 +78,7 @@ run_file(FILE *fp, const char *filename)
 
     scanner_setcode(COBytes_AsString(source));
     COObject *code = compile(arena);
-    ret = eval_wrapper(code);
+    ret = eval_wrapper(code, globals);
     CO_DECREF(source);
     CO_DECREF(f);
     CO_DECREF(code);
@@ -89,14 +88,14 @@ run_file(FILE *fp, const char *filename)
 }
 
 int
-run_string(const char *str)
+run_string(const char *str, COObject *globals)
 {
     COObject *ret;
     struct arena *arena = arena_new();
     scanner_init(arena);
     scanner_setcode((char *)str);
     COObject *code = compile(arena);
-    ret = eval_wrapper(code);
+    ret = eval_wrapper(code, globals);
     CO_DECREF(code);
     COState_DeleteCurrent();
     arena_free(arena);
@@ -122,11 +121,12 @@ main(int argc, const char **argv)
     COFrame_Init();
     COObject_GC_Init();
     state_current = COState_New();
+    COObject *globals = CODict_New();
 
     /* Run */
     int ret = 0;
     if (eval) {
-        ret = run_string(eval);
+        ret = run_string(eval, globals);
     } else {
         FILE *f = stdin;
         const char *f_name = "<stdin>";
@@ -179,7 +179,7 @@ main(int argc, const char **argv)
             }
             arena_free(arena);
         } else {
-            ret = run_file(f, f_name);
+            ret = run_file(f, f_name, globals);
         }
     }
 
