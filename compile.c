@@ -491,6 +491,17 @@ compiler_visit_node(struct compiler *c, Node *n)
         oparg = compiler_add(c->u->u_localnames, n->nd_left->u.o);
         compiler_addop_i(c, OP_STORE_LOCAL, oparg);
         break;
+    case NODE_ASSIGN_MULTI:
+        compiler_visit_node(c, n->nd_right);
+        oparg = node_listlen(n->nd_left);
+        compiler_addop_i(c, OP_UNPACK_SEQUENCE, oparg);
+        Node *l = n->nd_left;
+        while (l) {
+            oparg = compiler_add(c->u->u_names, l->nd_node->u.o);
+            compiler_addop_i(c, OP_STORE_NAME, oparg);
+            l = l->nd_next;
+        }
+        break;
     case NODE_IF:
         {
             struct block *ifelse, *ifend;
@@ -758,20 +769,22 @@ compiler_visit_node(struct compiler *c, Node *n)
                 oparg = compiler_add(c->u->u_names, l->nd_node->u.o);
                 compiler_addop_i(c, OP_IMPORT_FROM, oparg);
                 if (l->nd_node->nd_alias) {
-                    oparg = compiler_add(c->u->u_names, l->nd_node->nd_alias->u.o);
+                    oparg =
+                        compiler_add(c->u->u_names, l->nd_node->nd_alias->u.o);
                 }
                 compiler_addop_i(c, OP_STORE_NAME, oparg);
                 l = l->nd_next;
             }
 
-            compiler_addop(c, OP_POP_TOP); // POP imported module
+            compiler_addop(c, OP_POP_TOP);      // POP imported module
         } else {
             Node *l = n->nd_importlist;
             while (l) {
                 oparg = compiler_add(c->u->u_names, l->nd_node->u.o);
                 compiler_addop_i(c, OP_IMPORT_NAME, oparg);
                 if (l->nd_node->nd_alias) {
-                    oparg = compiler_add(c->u->u_names, l->nd_node->nd_alias->u.o);
+                    oparg =
+                        compiler_add(c->u->u_names, l->nd_node->nd_alias->u.o);
                 }
                 compiler_addop_i(c, OP_STORE_NAME, oparg);
                 l = l->nd_next;
@@ -988,6 +1001,8 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_IMPORT_FROM:
     case OP_IMPORT_NAME:
         return 1;
+    case OP_UNPACK_SEQUENCE:
+        return oparg - 1;
     default:
         error("opcode_stack_effect error, opcode: %d\n", opcode);
     }
@@ -1229,6 +1244,7 @@ dump_code(COObject *code)
         case OP_BUILD_LIST:
         case OP_DICT_BUILD:
         case OP_FOR_ITER:
+        case OP_UNPACK_SEQUENCE:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             break;

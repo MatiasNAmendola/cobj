@@ -8,7 +8,7 @@
 
 /* Object Methods */
 typedef COObject *(*newfunc)(COObject *, COObject *);
-typedef int (*initfunc)(COObject *, COObject *);
+typedef int (*initfunc) (COObject *, COObject *);
 typedef void (*deallocfunc) (COObject *);
 typedef COObject *(*reprfunc)(COObject *);
 typedef int (*printfunc) (COObject *, FILE *);
@@ -74,7 +74,7 @@ struct _COTypeObject {
     int tp_flags;               /* Flags to define optional/expanded features */
 
     /* Basic methods.  */
-    newfunc tp_alloc;             /* Create object. */
+    newfunc tp_alloc;           /* Create object. */
     initfunc tp_init;           /* Initiate object. */
     deallocfunc tp_dealloc;     /* Destory object. */
     reprfunc tp_repr;           /* Represent object. */

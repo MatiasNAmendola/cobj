@@ -230,26 +230,26 @@ COTypeObject COFile_Type = {
     sizeof(COFileObject),
     0,
     0,
-    (newfunc)file_new,             /* tp_alloc                  */
-    0,                             /* tp_init                 */
-    (deallocfunc)file_dealloc,     /* tp_dealloc              */
-    (reprfunc)file_repr,           /* tp_repr                 */
-    0,                             /* tp_print                */
-    0,                             /* tp_hash                 */
-    0,                             /* tp_compare              */
-    0,                             /* tp_traverse             */
-    0,                             /* tp_clear                */
-    0,                             /* tp_call                 */
-    (getiterfunc)COObject_GetSelf, /* tp_iter                 */
-    (iternextfunc)file_iternext,   /* tp_iternext             */
-    0,                             /* tp_arithmetic_interface */
-    0,                             /* tp_mapping_interface    */
-    0,                             /* tp_sequence_interface   */
-    0,                             /* tp_dict                 */
-    0,                             /* tp_dictoffset           */
-    0,                             /* tp_base                 */
-    file_methods,                  /* tp_methods              */
-    0,                             /* tp_members              */
+    (newfunc)file_new,          /* tp_alloc                  */
+    0,                          /* tp_init                 */
+    (deallocfunc)file_dealloc,  /* tp_dealloc              */
+    (reprfunc)file_repr,        /* tp_repr                 */
+    0,                          /* tp_print                */
+    0,                          /* tp_hash                 */
+    0,                          /* tp_compare              */
+    0,                          /* tp_traverse             */
+    0,                          /* tp_clear                */
+    0,                          /* tp_call                 */
+    (getiterfunc)COObject_GetSelf,      /* tp_iter                 */
+    (iternextfunc)file_iternext,        /* tp_iternext             */
+    0,                          /* tp_arithmetic_interface */
+    0,                          /* tp_mapping_interface    */
+    0,                          /* tp_sequence_interface   */
+    0,                          /* tp_dict                 */
+    0,                          /* tp_dictoffset           */
+    0,                          /* tp_base                 */
+    file_methods,               /* tp_methods              */
+    0,                          /* tp_members              */
 };
 
 COObject *

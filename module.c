@@ -20,7 +20,7 @@ module_init(void)
     COObject *m = NULL;
     const struct module_entry *mt;
     for (mt = module_table; mt->initfunc; mt++) {
-        m = mt->initfunc();
+        m = mt->initfunc ();
         if (mt->flag & IMPORT_ALL) {
             COObject *dict = COModule_GetDict(m);
             COObject *key;

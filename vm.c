@@ -73,6 +73,54 @@ vm_cmp(int op, COObject *o1, COObject *o2)
 }
 
 /*
+ * Iterates v argcnt times and stores the results on the stack.
+ */
+static bool
+vm_unpack_iterable(COObject *v, int argcnt, COObject **sp)
+{
+    int i = 0;
+    COObject *iter;
+    COObject *w;
+
+    iter = COObject_GetIter(v);
+    if (!iter)
+        goto error;
+
+    for (; i < argcnt; i++) {
+        w = COObject_IterNext(iter);
+        if (!w) {
+            if (!COErr_Occurred()) {
+                COErr_Format(COException_ValueError,
+                             "need more than %d values to unpack", i,
+                             i == 1 ? "" : "s");
+            }
+            goto error;
+        }
+        *--sp = w;
+    }
+
+    // Check if we have exhansted the iterator now.
+    w = COObject_IterNext(iter);
+    if (!w) {
+        if (COErr_Occurred())
+            goto error;
+        CO_DECREF(iter);
+        return true;
+    }
+
+    CO_DECREF(w);
+    COErr_Format(COException_ValueError,
+                 "too many values to unpack (expected %d)", argcnt);
+    goto error;
+
+error:
+    for (; i > 0; i--, sp++)
+        CO_DECREF(*sp);
+    CO_XDECREF(iter);
+    return false;
+}
+
+/*
  * Evaluate a function object into a object.
  */
 COObject *
@@ -409,7 +457,8 @@ new_frame:                     /* reentry point when function call/return */
                     COFrameObject *currentframe = frame;
                     do {
                         COObject *mylocalnames =
-                            ((COCodeObject *)currentframe->f_code)->co_localnames;
+                            ((COCodeObject *)currentframe->
+                             f_code)->co_localnames;
                         for (int j = 0; j < COTuple_GET_SIZE(mylocalnames); j++) {
                             if (COObject_CompareBool
                                 (COTuple_GET_ITEM(mylocalnames, j), name,
@@ -422,10 +471,9 @@ new_frame:                     /* reentry point when function call/return */
                     } while (currentframe);
                     // find in upvalues
                     if (!upvalue) {
-                        for (int j = 0;
-                             j <
-                             COTuple_GET_SIZE(((COCodeObject *)
-                                               code)->co_upvals); j++) {
+                        for (int j = 0; j < COTuple_GET_SIZE(((COCodeObject *)
+                                                              code)->co_upvals);
+                             j++) {
 
                             if (COObject_CompareBool
                                 (COTuple_GET_ITEM
@@ -712,6 +760,32 @@ new_frame:                     /* reentry point when function call/return */
             o2 = COObject_GetAttr(o1, o2);
             PUSH(o2);
             break;
+        case OP_UNPACK_SEQUENCE:
+            oparg = NEXTARG();
+            o1 = POP();
+            if (COTuple_Check(o1) && COTuple_GET_SIZE(o1) == oparg) {
+                COObject **items = ((COTupleObject *)o1)->co_item;
+                while (oparg--) {
+                    o2 = items[oparg];
+                    CO_INCREF(o2);
+                    PUSH(o2);
+                }
+                CO_DECREF(o1);
+            } else if (COList_Check(o1) && COList_GET_SIZE(o1) == oparg) {
+                COObject **items = ((COListObject *)o1)->co_item;
+                while (oparg--) {
+                    o2 = items[oparg];
+                    CO_INCREF(o2);
+                    PUSH(o2);
+                }
+                CO_DECREF(o1);
+            } else if (vm_unpack_iterable(o1, oparg, stack_top + oparg)) {
+                STACK_ADJ(oparg);
+            } else {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
+            break;
         default:
             error("unknown handle for opcode(%ld)\n", opcode);
         }
@@ -719,8 +793,7 @@ new_frame:                     /* reentry point when function call/return */
 fast_end:
 
         while (status != STATUS_NONE && frame->f_iblock > 0) {
-            COFrameBlock *fb =
-                &frame->f_blockstack[frame->f_iblock - 1];
+            COFrameBlock *fb = &frame->f_blockstack[frame->f_iblock - 1];
             if (fb->fb_type == OP_SETUP_LOOP && status == STATUS_CONTINUE) {
                 status = STATUS_NONE;
                 JUMPTO(oparg);

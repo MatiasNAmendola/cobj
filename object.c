@@ -227,7 +227,12 @@ COObject_ParseArgs(COObject *args, ...)
         o = va_arg(va, COObject **);
         if (!o)
             break;
-        *o = COTuple_GET_ITEM(args, i);
+        if (i >= COTuple_GET_SIZE(args)) {
+            *o = NULL;
+            break;
+        } else {
+            *o = COTuple_GET_ITEM(args, i);
+        }
         i++;
     }
 
@@ -327,11 +332,10 @@ COObject_GetAttr(COObject *o, COObject *attr)
                      CO_TYPE(attr)->tp_name);
         return NULL;
     }
-
     // for static allocated Type objects, such as COInt_Type, etc
     if (!tp->tp_dict) {
-       if (COType_Ready((COObject *)tp) < 0)
-           return NULL;
+        if (COType_Ready((COObject *)tp) < 0)
+            return NULL;
     }
 
     dictptr = _COObject_GetDictPtr(o);
@@ -356,12 +360,13 @@ COObject_GetAttr(COObject *o, COObject *attr)
 
     if (COType_Check(o)) {
         COErr_Format(COException_AttributeError,
-                     "'%.200s' object '%.200s' has no attribute '%s'", CO_TYPE(o)->tp_name, ((COTypeObject *)o)->tp_name,
+                     "'%.200s' object '%.200s' has no attribute '%s'",
+                     CO_TYPE(o)->tp_name, ((COTypeObject *)o)->tp_name,
                      COStr_AS_STRING(attr));
     } else {
         COErr_Format(COException_AttributeError,
-                     "'%.200s' object has no attribute '%s'", CO_TYPE(o)->tp_name,
-                     COStr_AS_STRING(attr));
+                     "'%.200s' object has no attribute '%s'",
+                     CO_TYPE(o)->tp_name, COStr_AS_STRING(attr));
     }
 
     return NULL;

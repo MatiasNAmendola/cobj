@@ -125,9 +125,9 @@ COTypeObject COType_Type = {
     0,                          /* tp_sequence_interface   */
     0,                          /* tp_dict */
     offsetof(COTypeObject, tp_dict),    /* tp_dictoffset */
-    0,                           /* tp_base                 */
-    0,                           /* tp_methods              */
-    0,                           /* tp_members              */
+    0,                          /* tp_base                 */
+    0,                          /* tp_methods              */
+    0,                          /* tp_members              */
 };
 
 static COObject *
@@ -182,26 +182,26 @@ COTypeObject COObject_Type = {
     sizeof(COObject),
     0,
     0,
-    (newfunc)object_new,         /* tp_alloc                  */
-    (initfunc)object_init,       /* tp_init                 */
-    (deallocfunc)object_dealloc, /* tp_dealloc              */
-    (reprfunc)object_repr,       /* tp_repr                 */
-    0,                           /* tp_print                */
-    0,                           /* tp_hash                 */
-    0,                           /* tp_compare              */
-    0,                           /* tp_traverse             */
-    0,                           /* tp_clear                */
-    0,                           /* tp_call                 */
-    0,                           /* tp_iter                 */
-    0,                           /* tp_iternext             */
-    0,                           /* tp_arithmetic_interface */
-    0,                           /* tp_mapping_interface    */
-    0,                           /* tp_sequence_interface   */
-    0,                           /* tp_dict                 */
-    0,                           /* tp_dictoffset           */
-    0,                           /* tp_base                 */
-    0,                           /* tp_methods              */
-    0,                           /* tp_members              */
+    (newfunc)object_new,        /* tp_alloc                  */
+    (initfunc)object_init,      /* tp_init                 */
+    (deallocfunc)object_dealloc,        /* tp_dealloc              */
+    (reprfunc)object_repr,      /* tp_repr                 */
+    0,                          /* tp_print                */
+    0,                          /* tp_hash                 */
+    0,                          /* tp_compare              */
+    0,                          /* tp_traverse             */
+    0,                          /* tp_clear                */
+    0,                          /* tp_call                 */
+    0,                          /* tp_iter                 */
+    0,                          /* tp_iternext             */
+    0,                          /* tp_arithmetic_interface */
+    0,                          /* tp_mapping_interface    */
+    0,                          /* tp_sequence_interface   */
+    0,                          /* tp_dict                 */
+    0,                          /* tp_dictoffset           */
+    0,                          /* tp_base                 */
+    0,                          /* tp_methods              */
+    0,                          /* tp_members              */
 };
 
 static int
@@ -224,14 +224,12 @@ COType_Ready(COObject *_this)
     if (COType_HasFeature(this, COType_FLAG_READY)) {
         return 0;
     }
-
     // Initialize tp_base (defaults to COObject_Type).
     COTypeObject *base = this->tp_base;
     if (base == NULL && this != &COObject_Type) {
         base = this->tp_base = &COObject_Type;
         CO_INCREF(base);
     }
-
     // Initialize the base class.
     if (base) {
         // COObject_Type don't has base type
@@ -239,7 +237,6 @@ COType_Ready(COObject *_this)
             goto error;
         }
     }
-
     // Initialize from base
 #define COPYVAL(SLOT) \
         if (this->SLOT == 0) this->SLOT = base->SLOT
@@ -253,14 +250,12 @@ COType_Ready(COObject *_this)
         COPYVAL(tp_print);
         COPYVAL(tp_dealloc);
     }
-
     // Initialize tp_dict.
     COObject *dict = this->tp_dict;
     if (!dict) {
         dict = CODict_New();
         this->tp_dict = dict;
     }
-
     // Attributes.
     if (this->tp_methods)
         _add_methods(this, this->tp_methods);

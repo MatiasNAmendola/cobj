@@ -55,6 +55,7 @@ enum {
     OP_DEL_ATTR,
     OP_IMPORT_NAME,
     OP_IMPORT_FROM,
+    OP_UNPACK_SEQUENCE,
 };
 
 /* OP_CMP's opargs */

@@ -34,21 +34,21 @@ COTypeObject COFunction_Type = {
     sizeof(COFunctionObject),
     0,
     0,
-    0,                             /* tp_alloc                  */
-    0,                             /* tp_init                 */
-    (deallocfunc)function_dealloc, /* tp_dealloc              */
-    (reprfunc)function_repr,       /* tp_repr                 */
-    0,                             /* tp_print                */
-    0,                             /* tp_hash                 */
-    0,                             /* tp_compare              */
-    0,                             /* tp_traverse             */
-    0,                             /* tp_clear                */
-    (binaryfunc)function_call,     /* tp_call                 */
-    0,                             /* tp_iter                 */
-    0,                             /* tp_iternext             */
-    0,                             /* tp_arithmetic_interface */
-    0,                             /* tp_mapping_interface    */
-    0,                             /* tp_sequence_interface   */
+    0,                          /* tp_alloc                  */
+    0,                          /* tp_init                 */
+    (deallocfunc)function_dealloc,      /* tp_dealloc              */
+    (reprfunc)function_repr,    /* tp_repr                 */
+    0,                          /* tp_print                */
+    0,                          /* tp_hash                 */
+    0,                          /* tp_compare              */
+    0,                          /* tp_traverse             */
+    0,                          /* tp_clear                */
+    (binaryfunc)function_call,  /* tp_call                 */
+    0,                          /* tp_iter                 */
+    0,                          /* tp_iternext             */
+    0,                          /* tp_arithmetic_interface */
+    0,                          /* tp_mapping_interface    */
+    0,                          /* tp_sequence_interface   */
 };
 
 COObject *
