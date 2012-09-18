@@ -6,8 +6,8 @@ Names
 =====
     - Use CAPITALIZED_WITH_UNDERSCORES for macros/constants.
     - Object-oriented style code use:
-        CObject_UppperCameCaseMethod for functions.
-        CObject_DataName for data.
+        COObject_UppperCameCaseMethod for functions.
+        COObject_DataName for data.
     - Procedure style code
         module_method for functions.
         method_data for data.

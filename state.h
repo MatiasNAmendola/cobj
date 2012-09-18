@@ -16,7 +16,7 @@ typedef struct _COGlobalState {
 } COGlobalState;
 
 COGlobalState *COGlobalState_Current;
-#define TS(o) (COGlobalState_Current)->o
+#define GS(o) (COGlobalState_Current)->o
 
 COGlobalState *COGlobalState_New();
 void COGlobalState_Delete(COGlobalState *gstate);

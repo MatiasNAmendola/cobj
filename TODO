@@ -14,5 +14,6 @@ Tests
 =====
   * unit tests with valgrind memory leak check
 
-Bugs
-====
+Modules
+=======
+  * write test module (like Perl6's test)

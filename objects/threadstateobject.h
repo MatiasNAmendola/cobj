@@ -17,6 +17,6 @@ COTypeObject COThreadState_Type;
 
 #define COThreadState_Check(co) (CO_TYPE(co) == &COThreadState_Type)
 
-COObject *COThreadState_New(void);
+COThreadStateObject * COThreadState_New(void);
 
 #endif

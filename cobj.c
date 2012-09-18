@@ -10,7 +10,7 @@ int
 argparse_showversion(struct argparse *this,
                      const struct argparse_option *option)
 {
-    printf("cobj %s\n", cobj_version);
+    printf("CObj %s\n", cobj_version);
     exit(1);
 }
 
@@ -102,6 +102,7 @@ run_string(const char *str, COObject *globals)
     return ret ? 1 : 0;
 }
 
+
 int
 main(int argc, const char **argv)
 {
@@ -120,7 +121,8 @@ main(int argc, const char **argv)
     COInt_Init();
     COFrame_Init();
     COObject_GC_Init();
-    COGlobalState_Current = COGlobalState_New();
+    COThreadStateObject *ts = COThreadState_New();
+    COGlobalState_Current = COGlobalState_New(ts);
     COObject *globals = CODict_New();
 
     /* Run */
@@ -149,7 +151,7 @@ main(int argc, const char **argv)
                     mksnpath(history, sizeof(history), "%s/.co_history", home);
                 linenoiseHistoryLoad(history_path);
             }
-            printf("COObject 0.1\n");
+            printf("CObj %s\n", cobj_version);
             /* Read-Eval-Print Loop */
             struct arena *arena;
             arena = arena_new();

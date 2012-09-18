@@ -1,4 +1,4 @@
-This is cobj, an general-purpose program language.
+This is CObj, an general-purpose program language.
 
 Compile/Install
 ===============
