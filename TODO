@@ -4,6 +4,7 @@ Core
  * turn lexer/parser error into Exception?
  * hand-written lexer?
  * implement `this` as keyword or a special name?
+ * coroutine
 
 Performance
 ===========

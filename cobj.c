@@ -82,7 +82,7 @@ run_file(FILE *fp, const char *filename, COObject *globals)
     CO_DECREF(source);
     CO_DECREF(f);
     CO_DECREF(code);
-    COState_DeleteCurrent();
+    COGlobalState_Delete(COGlobalState_Current);
     arena_free(arena);
     return ret ? 1 : 0;
 }
@@ -97,7 +97,7 @@ run_string(const char *str, COObject *globals)
     COObject *code = compile(arena);
     ret = eval_wrapper(code, globals);
     CO_DECREF(code);
-    COState_DeleteCurrent();
+    COGlobalState_Delete(COGlobalState_Current);
     arena_free(arena);
     return ret ? 1 : 0;
 }
@@ -120,7 +120,7 @@ main(int argc, const char **argv)
     COInt_Init();
     COFrame_Init();
     COObject_GC_Init();
-    state_current = COState_New();
+    COGlobalState_Current = COGlobalState_New();
     COObject *globals = CODict_New();
 
     /* Run */

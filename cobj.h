@@ -57,6 +57,7 @@
 #include "objects/rangeobject.h"
 #include "objects/setobject.h"
 #include "objects/strobject.h"
+#include "objects/threadstateobject.h"
 #include "objects/tupleiterobject.h"
 #include "objects/tupleobject.h"
 #include "objects/typeobject.h"
@@ -66,6 +67,7 @@
 #include "linenoise/linenoise.h"
 
 /*** Help Macros ***/
+
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof(x[0]))
 
 /* CO_SAFE_DOWNCAST(VALUE, WIDE, NARROW)

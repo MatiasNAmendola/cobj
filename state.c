@@ -1,34 +1,28 @@
 #include "cobj.h"
 
-COState *state_current = NULL;
+COGlobalState *COGlobalState_Current;
 
-COState *
-COState_New()
+COGlobalState *
+COGlobalState_New()
 {
-    COState *state = (COState *)malloc(sizeof(COState));
-    if (!state) {
+    COGlobalState *gstate = (COGlobalState *)malloc(sizeof(COGlobalState));
+    if (!gstate) {
         return NULL;
     }
 
-    state->curexc_type = NULL;
-    state->curexc_value = NULL;
-    state->curexc_traceback = NULL;
-    return state;
+    gstate->curexc_type = NULL;
+    gstate->curexc_value = NULL;
+    gstate->curexc_traceback = NULL;
+    return gstate;
 }
 
 void
-COState_Delete(COState *state)
+COGlobalState_Delete(COGlobalState *gstate)
 {
-    if (!state)
+    if (!gstate)
         return;
 
-    CO_XDECREF(state->curexc_type);
-    CO_XDECREF(state->curexc_value);
-    CO_XDECREF(state->curexc_traceback);
-}
-
-void
-COState_DeleteCurrent()
-{
-    COState_Delete(state_current);
+    CO_XDECREF(gstate->curexc_type);
+    CO_XDECREF(gstate->curexc_value);
+    CO_XDECREF(gstate->curexc_traceback);
 }

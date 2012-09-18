@@ -6,18 +6,19 @@
 
 #include "object.h"
 #include "objects/frameobject.h"
+#include "objects/threadstateobject.h"
 
-typedef struct _COState {
+typedef struct _COGlobalState {
+    COThreadStateObject *mainthread;
     COObject *curexc_type;
     COObject *curexc_value;
     COObject *curexc_traceback;
-} COState;
+} COGlobalState;
 
-COState *state_current;
-#define TS(o)    (state_current)->o
+COGlobalState *COGlobalState_Current;
+#define TS(o) (COGlobalState_Current)->o
 
-COState *COState_New();
-void COState_Delete(COState *state);
-void COState_DeleteCurrent();
+COGlobalState *COGlobalState_New();
+void COGlobalState_Delete(COGlobalState *gstate);
 
 #endif
