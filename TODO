@@ -1,6 +1,7 @@
 Core
 ====
- * don't use `is`, `not` keywords
+ * rework closure
+ * don't use `is`, `not` keywords?
  * implement import module
  * turn lexer/parser error into Exception?
  * hand-written lexer?

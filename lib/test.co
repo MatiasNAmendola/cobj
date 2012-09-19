@@ -1,3 +1,7 @@
+# 
+# Test Module
+# 
+# @link http://en.wikipedia.org/wiki/Test_Anything_Protocol
 
 # variables to keep track of our tests
 local num_of_tests_run    = 0

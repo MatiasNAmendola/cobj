@@ -38,6 +38,7 @@
 #include "objects/boolobject.h"
 #include "objects/bytesobject.h"
 #include "objects/capsuleobject.h"
+#include "objects/cellobject.h"
 #include "objects/cfunctionobject.h"
 #include "objects/codeobject.h"
 #include "objects/codeobject.h"

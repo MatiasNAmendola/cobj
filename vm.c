@@ -379,6 +379,7 @@ new_frame:                     /* reentry point when function call/return */
             oparg = NEXTARG();
             o1 = COTuple_GET_ITEM(((COFunctionObject *)func)->func_upvalues,
                                   oparg);
+            CO_INCREF(o1);
             PUSH(o1);
             break;
         case OP_LOAD_CONST:
@@ -436,6 +437,7 @@ new_frame:                     /* reentry point when function call/return */
         case OP_STORE_UPVAL:
             oparg = NEXTARG();
             o2 = POP();
+            CO_INCREF(o2);
             COTuple_SET_ITEM(((COFunctionObject *)func)->func_upvalues,
                              oparg, o2);
             break;
