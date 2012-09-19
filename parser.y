@@ -432,6 +432,11 @@ simple_stmt:
             $$->nd_fromname = $2;
             $$->nd_importlist = $4;
         }
+    |   T_FROM T_NAME T_IMPORT '*' {
+            $$ = node_new(c->arena, NODE_IMPORT, NULL, NULL);
+            $$->nd_fromname = $2;
+            $$->nd_importlist = -1; /* indicates start */
+        }
     |   T_RETURN { $$ = return_none_node(c->arena); }
     |   T_RETURN expr { $$ = node_new(c->arena, NODE_RETURN, $2, NULL); }
 ;

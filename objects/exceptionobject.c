@@ -62,13 +62,14 @@ COObject *COException = (COObject *)&COException_Type;
     };                                                      \
     COObject *COException_ ## EXCNAME = (COObject *)&_COException_ ## EXCNAME
 
-SimpleExtendsException(COException, SystemError);
-SimpleExtendsException(COException, NameError);
-SimpleExtendsException(COException, TypeError);
-SimpleExtendsException(COException, ValueError);
-SimpleExtendsException(COException, OverflowError);
-SimpleExtendsException(COException, MemoryError);
-SimpleExtendsException(COException, UndefinedError);
+SimpleExtendsException(COException, AttributeError);
+SimpleExtendsException(COException, ImportError);
 SimpleExtendsException(COException, IndexError);
 SimpleExtendsException(COException, KeyError);
-SimpleExtendsException(COException, AttributeError);
+SimpleExtendsException(COException, MemoryError);
+SimpleExtendsException(COException, NameError);
+SimpleExtendsException(COException, OverflowError);
+SimpleExtendsException(COException, SystemError);
+SimpleExtendsException(COException, TypeError);
+SimpleExtendsException(COException, UndefinedError);
+SimpleExtendsException(COException, ValueError);

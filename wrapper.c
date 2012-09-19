@@ -53,6 +53,56 @@ suffixcmp(const char *str, const char *suffix)
         return strcmp(str + len - suflen, suffix);
 }
 
+/*
+ * Returns directory name component of path. 
+ */
+size_t
+dirname(char *path, size_t len)
+{
+    char *end = path + len - 1;
+
+    if (len == 0)
+        return 0;
+
+    /* strip trailling slashes */
+    while (end >= path && *end == '/') {
+        end--;
+    }
+    if (end < path) {
+        /* The path only contained slashes. */
+        path[0] = '/';
+        path[1] = '\0';
+        return 1;
+    }
+
+    /* strip filename */
+    while (end >= path && *end != '/') {
+        end--;
+    }
+
+    if (end < path) {
+        /* no slash found, therefore return '.' */
+        path[0] = '.';
+        path[1] = '\0';
+        return 1;
+    }
+
+    /* strip slashes which came before the filename */
+    while (end >= path && *end == '/') {
+        end--;
+    }
+
+    if (end < path) {
+        path[0] = '/';
+        path[1] = '\0';
+        return 1;
+    }
+
+    *(end + 1) = '\0';
+
+    return (size_t)(end + 1 - path);
+}
+
 void
 usage(const char *err)
 {

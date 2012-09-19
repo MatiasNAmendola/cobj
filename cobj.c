@@ -102,6 +102,33 @@ run_string(const char *str, COObject *globals)
     return ret ? 1 : 0;
 }
 
+void
+setup_search_path(COThreadStateObject *ts, const char *script_file)
+{
+    char fullpath[PATH_MAX];
+    (void)realpath(script_file, fullpath);
+    size_t len = dirname((char *)fullpath, strlen(fullpath));
+    COObject *path = COStr_FromStringN(fullpath, len);
+    COList_Append(ts->module_search_path, path);
+    char *cobjpath = getenv("COBJPATH");
+    if (cobjpath) {
+        while (true) {
+            char *delim = strchr(cobjpath, ':');
+            if (delim) {
+                COObject *v = COStr_FromStringN(cobjpath, delim - cobjpath);
+                COList_Append(ts->module_search_path, v);
+                CO_DECREF(v);
+                cobjpath = delim + 1;
+            } else {
+                COObject *v = COStr_FromString(cobjpath);
+                COList_Append(ts->module_search_path, v);
+                CO_DECREF(v);
+                break;
+            }
+        }
+    }
+    CO_DECREF(path);
+}
 
 int
 main(int argc, const char **argv)
@@ -157,7 +184,6 @@ main(int argc, const char **argv)
             arena = arena_new();
             scanner_init(arena);
             COObject *ret;
-            COObject *globals = CODict_New();
             while ((eval = linenoise(">>> ")) != NULL) {
                 scanner_setcode(eval);
                 COObject *code = compile(arena);
@@ -181,6 +207,7 @@ main(int argc, const char **argv)
             }
             arena_free(arena);
         } else {
+            setup_search_path(GS(mainthread), *argv);
             ret = run_file(f, f_name, globals);
         }
     }

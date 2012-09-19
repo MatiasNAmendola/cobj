@@ -19,27 +19,29 @@ COTypeObject COException_Type;
  *
  * Hierarchy:
  *  Exception
- *    - SystemError
- *    - NameError
- *    - TypeError
- *    - ValueError
- *    - OverflowError
- *    - MemoryError
- *    - UndefinedError
+ *    - AttributeError
+ *    - ImportError
  *    - IndexError
  *    - KeyError
- *    - AttributeError
+ *    - MemoryError
+ *    - NameError
+ *    - OverflowError
+ *    - SystemError
+ *    - TypeError
+ *    - UndefinedError
+ *    - ValueError
  */
 COObject *COException;
-COObject *COException_SystemError;
-COObject *COException_NameError;
-COObject *COException_TypeError;
-COObject *COException_ValueError;
-COObject *COException_OverflowError;
-COObject *COException_MemoryError;
-COObject *COException_UndefinedError;
+COObject *COException_AttributeError;
+COObject *COException_ImportError;
 COObject *COException_IndexError;
 COObject *COException_KeyError;
-COObject *COException_AttributeError;
+COObject *COException_MemoryError;
+COObject *COException_NameError;
+COObject *COException_OverflowError;
+COObject *COException_SystemError;
+COObject *COException_TypeError;
+COObject *COException_UndefinedError;
+COObject *COException_ValueError;
 
 #endif

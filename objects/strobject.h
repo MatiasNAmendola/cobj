@@ -38,5 +38,6 @@ COObject *COStr_Join(COObject *sep, COObject *x);
 
 /* Macro, trading safety for speed */
 #define COStr_AS_STRING(o) (((COStrObject *)(o))->co_sval)
+#define COStr_GET_SIZE(o)  CO_SIZE(o)
 
 #endif

@@ -35,17 +35,55 @@ module_init(void)
     return builtins;
 }
 
+static FILE *
+find_module(char *name, COObject *path)
+{
+    ssize_t i;
+    ssize_t npath = COList_GET_SIZE(path);
+
+    char buf[PATH_MAX];
+    size_t len, namelen;
+    namelen = strlen(name);
+    FILE *fp;
+    for (i = 0; i < npath; i++) {
+        COObject *v = COList_GetItem(path, i);
+        if (!v)
+            goto error;
+        len = COStr_GET_SIZE(v);
+        strcpy(buf, COStr_AS_STRING(v));
+        buf[len++] = '/';
+        strcpy(buf+len, name);
+        len += namelen;
+        strcpy(buf+len, ".co");
+        len += 3;
+        buf[len] = '\0';
+
+        fp = fopen(buf, "rb");
+        if (fp) {
+            break;
+        }
+    }
+    if (!fp) {
+        COErr_Format(COException_ImportError, "No module named %.200s", name);
+        goto error;
+    }
+
+    return fp;
+
+error:
+    return NULL;
+}
+
 COObject *
 module_import(COObject *name)
 {
     struct arena *arena = arena_new();
     scanner_init(arena);
 
-    FILE *fp = fopen("./examples/module.co", "rb");
-    if (fp == NULL) {
-        COErr_BadInternalCall();
+    FILE *fp = find_module(COStr_AS_STRING(name), GS(mainthread)->module_search_path);
+    if (!fp)
         return NULL;
-    }
+
     COObject *f = COFile_FromFile(fp, name, COStr_FromString("rb"));
     if (!f)
         return NULL;
@@ -77,4 +115,5 @@ module_import(COObject *name)
         CODict_SetItem(dict, key, val);
     }
     return module;
+
 }

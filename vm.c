@@ -760,6 +760,10 @@ new_frame:                     /* reentry point when function call/return */
             o2 = COObject_GetAttr(o1, o2);
             PUSH(o2);
             break;
+        case OP_IMPORT_STAR:
+            o1 = POP();
+            // TODO
+            break;
         case OP_UNPACK_SEQUENCE:
             oparg = NEXTARG();
             o1 = POP();

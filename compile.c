@@ -764,19 +764,22 @@ compiler_visit_node(struct compiler *c, Node *n)
             oparg = compiler_add(c->u->u_names, n->nd_fromname->u.o);
             compiler_addop_i(c, OP_IMPORT_NAME, oparg);
 
-            Node *l = n->nd_importlist;
-            while (l) {
-                oparg = compiler_add(c->u->u_names, l->nd_node->u.o);
-                compiler_addop_i(c, OP_IMPORT_FROM, oparg);
-                if (l->nd_node->nd_alias) {
-                    oparg =
-                        compiler_add(c->u->u_names, l->nd_node->nd_alias->u.o);
+            if ((intptr_t)n->nd_importlist != -1) {
+                Node *l = n->nd_importlist;
+                while (l) {
+                    oparg = compiler_add(c->u->u_names, l->nd_node->u.o);
+                    compiler_addop_i(c, OP_IMPORT_FROM, oparg);
+                    if (l->nd_node->nd_alias) {
+                        oparg =
+                            compiler_add(c->u->u_names, l->nd_node->nd_alias->u.o);
+                    }
+                    compiler_addop_i(c, OP_STORE_NAME, oparg);
+                    l = l->nd_next;
                 }
-                compiler_addop_i(c, OP_STORE_NAME, oparg);
-                l = l->nd_next;
+                compiler_addop(c, OP_POP_TOP);      // POP imported module
+            } else {
+                compiler_addop(c, OP_IMPORT_STAR); 
             }
-
-            compiler_addop(c, OP_POP_TOP);      // POP imported module
         } else {
             Node *l = n->nd_importlist;
             while (l) {
@@ -1001,6 +1004,8 @@ opcode_stack_effect(int opcode, int oparg)
     case OP_IMPORT_FROM:
     case OP_IMPORT_NAME:
         return 1;
+    case OP_IMPORT_STAR:
+        return -1;
     case OP_UNPACK_SEQUENCE:
         return oparg - 1;
     default:
