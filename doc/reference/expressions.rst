@@ -5,6 +5,7 @@ Operators
 ---------
 
 Arithmetic operations::
+
     Addition: +
     Subtraction: -
     Multiplication: *
@@ -16,18 +17,22 @@ Arithmetic operations::
     Negative: -
     Invert: ~
 
-Relational comparisions::
-    ==
+Comparisions::
+
     <
     >
+    ==
     <=
     >=
+    !=
+    is [not]
+    [not] in
 
 Logical operations::
-    and
-    or
-    not
 
+    &&
+    ||
+    !
 
 Operator Precedence
 -------------------

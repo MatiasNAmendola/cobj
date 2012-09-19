@@ -16,14 +16,14 @@ Tokens
 Tokens form the vocabulary of the Co language. There are four classes: identifiers, keywords, operators and delimiters, and literals.
 White space, formed from spaces (U+0020), horizontal tabs (U+0009), carriage returns (U+000D), and newlines (U+000A), is ignored except as it separates tokens that would otherwise combine into a single token.
 
-Semicolons    
-~~~~~~~~~~
 Identifiers    
 ~~~~~~~~~~~
+
 Keywords    
 ~~~~~~~~
-Operators and delimiters    
-~~~~~~~~~~~~~~~~~~~~~~~~
+
+Operators
+~~~~~~~~~
 Precedence
 Operator precedence in Co follows the table below, from lower to higher priority:
 
