@@ -7,29 +7,38 @@ local no_plan             = True
 local proclaim = func(cond, desc)
     num_of_tests_run += 1
     if cond
-        print("ok " + num_of_tests_run + " - " + desc)
+        print("ok " + str(num_of_tests_run) + " - " + desc)
     else
         print("not ")
     end
 end
 
 func plan(num)
-    plans = num
+    if (type(num) is str)
+        # TODO check (num  == "no_plan")
+    else
+        plans = num
+        print("1.." + str(num))
+    end
 end
 
-func ok()
+#func ok()
+#end
+#
+#func nok()
+#end
+#
+func is_(got, expected, desc = '')
+    local test = got == expected
+    proclaim(test, desc)
 end
-
-func nok()
-end
-
-#func is(got, expected, desc = '')
-    #local test = got == expected
-    #proclaim(test, desc)
+#
+#func isnt()
 #end
 
-func isnt()
-end
+#func is_deeply()
+#end
 
-func is_deeply()
+func done()
+    
 end

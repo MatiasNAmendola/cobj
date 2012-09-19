@@ -168,9 +168,11 @@ dict_keys(CODictObject *this)
     COObject *v = COList_New(this->nNumOfElements);
     if (!v)
         return NULL;
+
     DictBucket *cursor = this->pListHead;
     while (cursor) {
         COList_SET_ITEM(v, i, cursor->pKey);
+        CO_INCREF(cursor->pKey);
         cursor = cursor->pListNext;
         i++;
     }
@@ -189,6 +191,7 @@ dict_values(CODictObject *this)
     DictBucket *cursor = this->pListHead;
     while (cursor) {
         COList_SET_ITEM(v, i, cursor->pItem);
+        CO_INCREF(cursor->pItem);
         cursor = cursor->pListNext;
         i++;
     }

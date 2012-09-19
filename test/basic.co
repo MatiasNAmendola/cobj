@@ -1,0 +1,5 @@
+from test import *
+
+plan(1)
+
+is_(10, 10)

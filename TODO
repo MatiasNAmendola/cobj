@@ -1,5 +1,6 @@
 Core
 ====
+ * don't use `is`, `not` keywords
  * implement import module
  * turn lexer/parser error into Exception?
  * hand-written lexer?
@@ -17,3 +18,7 @@ Tests
 Modules
 =======
   * write test module (like Perl6's test)
+
+Bugs
+====
+  * more than one level upvalue

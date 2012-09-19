@@ -4,6 +4,7 @@ all::
 # Define CO_DEBUG=1 to debug (Defaults: 0)
 # Define YY_DEBUG=1 to debug re2c/bison scripts. (Defaults: 0)
 # Define CC=clang to use clang to compile (Defaults: gcc)
+# Define CO_DEBUG_FRAME=1 to debug frame object stuff (Defaults: 0)
 
 CC = gcc
 RM = rm -rf
@@ -101,6 +102,9 @@ doc:
 
 test: all
 	$(MAKE) -C t/ all
+
+newtest: all
+	$(MAKE) -C test/ all
 
 tags:
 	$(RM) tags

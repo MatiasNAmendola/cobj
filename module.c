@@ -83,12 +83,14 @@ module_import(COObject *name)
     FILE *fp = find_module(COStr_AS_STRING(name), GS(mainthread)->module_search_path);
     if (!fp)
         return NULL;
-
-    COObject *f = COFile_FromFile(fp, name, COStr_FromString("rb"));
+    COObject *f_mode = COStr_FromString("rb");
+    COObject *f = COFile_FromFile(fp, name, f_mode);
+    CO_DECREF(f_mode);
     if (!f)
         return NULL;
 
     COObject *src = COFile_Read(f, -1);
+    CO_DECREF(f);
 
     scanner_setcode(COBytes_AsString(src));
     COObject *code = compile(arena);
@@ -102,6 +104,7 @@ module_import(COObject *name)
             return NULL;
         }
     }
+    CO_DECREF(src);
     CO_DECREF(func);
     CO_DECREF(code);
 
@@ -114,6 +117,6 @@ module_import(COObject *name)
     while (CODict_Next(globals, &key, &val) == 0) {
         CODict_SetItem(dict, key, val);
     }
+    CO_DECREF(globals);
     return module;
-
 }

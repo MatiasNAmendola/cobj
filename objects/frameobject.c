@@ -12,8 +12,9 @@ frame_dealloc(COFrameObject *this)
     COObject **p;
 
     /* free local objects */
-    for (p = this->f_extraplus; p < this->f_stack; p++)
+    for (p = this->f_extraplus; p < this->f_stack; p++) {
         CO_CLEAR(*p);
+    }
 
     /* free stack */
     if (this->f_stacktop != NULL) {
@@ -83,7 +84,7 @@ static COObject *builtins = NULL;
  * Method 2:
  *   TODO maitains a free list of stack frames
  */
-#ifdef CO_DEBUG
+#ifdef CO_DEBUG_FRAME
 static int reused = 0;
 #endif
 
@@ -99,7 +100,7 @@ COFrame_Init(void)
 void
 COFrame_Fini(void)
 {
-#if CO_DEBUG
+#if CO_DEBUG_FRAME
     printf("reused: %d\n", reused);
 #endif
     CO_XDECREF(builtins);
@@ -116,7 +117,7 @@ COFrame_New(COObject *prev, COObject *func, COObject *globals)
     extras = nlocals + code->co_stacksize;
     COFrameObject *f;
     if (code->co_zombieframe) {
-#if CO_DEBUG
+#if CO_DEBUG_FRAME
         reused++;
 #endif
         f = code->co_zombieframe;

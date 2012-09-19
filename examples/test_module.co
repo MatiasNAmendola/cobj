@@ -1,1 +1,5 @@
 from test import *
+#import test
+import module
+#print(is_)
+is_(10, module.a)

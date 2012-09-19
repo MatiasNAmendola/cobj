@@ -135,24 +135,23 @@ vm_import_all(COObject *m, COObject *globals)
     size_t nlist = COList_GET_SIZE(all);
     for (pos = 0; pos < nlist; pos++) {
         name = COList_GET_ITEM(all, pos);
-        if (!name) {
+        if (!name || !COStr_Check(name)) {
             err = -1; 
             break;
         }
-        if (COStr_AsString(name)[0] == '_') {
+        if (COStr_AS_STRING(name)[0] == '_') {
             continue;
         }
         value = COObject_GetAttr(m, name);
-        if (!value)
+        if (!value) {
             err = -1;
-        else {
-            CODict_SetItem(globals, name, value);
-        }
-        CO_XDECREF(value);
-        if (err != 0)
             break;
+        }
+        CODict_SetItem(globals, name, value);
+        CO_DECREF(value);
     }
 
+    CO_DECREF(all);
     return err;
 }
 
@@ -486,25 +485,22 @@ new_frame:                     /* reentry point when function call/return */
             ((COFunctionObject *)x)->func_defaults = defaults;
             // upvalues
             for (int i = 0; i < CO_SIZE(c->co_upvals); i++) {
+                // find in globals
                 COObject *name = COTuple_GET_ITEM(c->co_upvals, i);
                 COObject *upvalue = vm_getglobal(frame, name);
                 if (!upvalue) {
-                    // find in current & preivous stacks
-                    COFrameObject *currentframe = frame;
-                    do {
-                        COObject *mylocalnames =
-                            ((COCodeObject *)currentframe->
-                             f_code)->co_localnames;
-                        for (int j = 0; j < COTuple_GET_SIZE(mylocalnames); j++) {
-                            if (COObject_CompareBool
-                                (COTuple_GET_ITEM(mylocalnames, j), name,
-                                 Cmp_EQ)) {
-                                upvalue = currentframe->f_extraplus[j];
-                                break;
-                            }
+                    // find in locals
+                    COObject *mylocalnames =
+                        ((COCodeObject *)frame->
+                         f_code)->co_localnames;
+                    for (int j = 0; j < COTuple_GET_SIZE(mylocalnames); j++) {
+                        if (COObject_CompareBool
+                            (COTuple_GET_ITEM(mylocalnames, j), name,
+                             Cmp_EQ)) {
+                            upvalue = frame->f_extraplus[j];
+                            break;
                         }
-                        currentframe = (COFrameObject *)currentframe->f_prev;
-                    } while (currentframe);
+                    }
                     // find in upvalues
                     if (!upvalue) {
                         for (int j = 0; j < COTuple_GET_SIZE(((COCodeObject *)
@@ -523,6 +519,7 @@ new_frame:                     /* reentry point when function call/return */
                         }
                     }
                 }
+                CO_INCREF(upvalue);
                 COTuple_SET_ITEM(((COFunctionObject *)x)->func_upvalues, i,
                                  upvalue);
             }
@@ -746,7 +743,6 @@ new_frame:                     /* reentry point when function call/return */
             }
             CO_DECREF(o1);
             CO_DECREF(o2);
-            CO_INCREF(x);
             SET_TOP(x);
             break;
         case OP_SET_ATTR:
