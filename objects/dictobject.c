@@ -161,6 +161,42 @@ dict_iter(COObject *this)
     return (COObject *)it;
 }
 
+static COObject *
+dict_keys(CODictObject *this)
+{
+    ssize_t i = 0;
+    COObject *v = COList_New(this->nNumOfElements);
+    if (!v)
+        return NULL;
+    DictBucket *cursor = this->pListHead;
+    while (cursor) {
+        COList_SET_ITEM(v, i, cursor->pKey);
+        cursor = cursor->pListNext;
+        i++;
+    }
+
+    assert(i == this->nNumOfElements);
+    return v;
+}
+
+static COObject *
+dict_values(CODictObject *this)
+{
+    ssize_t i = 0;
+    COObject *v = COList_New(this->nNumOfElements);
+    if (!v)
+        return NULL;
+    DictBucket *cursor = this->pListHead;
+    while (cursor) {
+        COList_SET_ITEM(v, i, cursor->pItem);
+        cursor = cursor->pListNext;
+        i++;
+    }
+
+    assert(i == this->nNumOfElements);
+    return v;
+}
+
 static COMappingInterface mapping_interface = {
     (binaryfunc)dict_subscript,
     (ternaryintfunc)dict_ass_sub,
@@ -491,4 +527,17 @@ CODict_DelItemString(COObject *this, const char *key)
     err = CODict_DelItem(this, kv);
     CO_DECREF(kv);
     return err;
+}
+
+
+COObject *
+CODict_Keys(COObject *this)
+{
+    return dict_keys((CODictObject *)this);
+}
+
+COObject *
+CODict_Values(COObject *this)
+{
+    return dict_values((CODictObject *)this);
 }

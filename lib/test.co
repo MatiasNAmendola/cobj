@@ -23,11 +23,10 @@ end
 func nok()
 end
 
-func is(got, expected, desc = '')
-    local test = got == expected
-    proclaim(test, desc)
-    return 
-end
+#func is(got, expected, desc = '')
+    #local test = got == expected
+    #proclaim(test, desc)
+#end
 
 func isnt()
 end

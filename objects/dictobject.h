@@ -1,16 +1,13 @@
 #ifndef OBJECTS_DICTOBJECT_H
 #define OBJECTS_DICTOBJECT_H
 /**
- * Dictinary object type
+ * Dictinary object.
  *
- * This object can map str/int objects to any objects.
+ * Mapping any objects to any objects.
  */
 
 #include "../compat.h"
 #include "../object.h"
-
-typedef unsigned long (*dict_hash_func_t) (const char *arKey,
-                                           unsigned int nKeyLen);
 
 typedef struct _DictBucket {
     COObject *pKey;
@@ -59,11 +56,11 @@ size_t CODict_Size(COObject *this);
 int CODict_Current(COObject *this, COObject **key, COObject **item);
 int CODict_Next(COObject *this, COObject **key, COObject **item);
 void CODict_Rewind(COObject *this);
-COObject *CODict_Keys(COObject *this);
-COObject *CODict_Values(COObject *this);
 int CODict_Contains(COObject *this, COObject *key);
 COObject *CODict_GetItemString(COObject *this, const char *key);
 int CODict_SetItemString(COObject *this, const char *key, COObject *item);
 int CODict_DelItemString(COObject *this, const char *key);
+COObject *CODict_Keys(COObject *this);
+COObject *CODict_Values(COObject *this);
 
 #endif
