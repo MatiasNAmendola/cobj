@@ -120,6 +120,42 @@ error:
     return false;
 }
 
+static int
+vm_import_all(COObject *m, COObject *globals)
+{
+    COObject *dict = COModule_GetDict(m);
+    if (!dict) {
+        return -1;
+    }
+    COObject *all = CODict_Keys(dict);
+    size_t pos;
+    int err = 0;
+    COObject *name;
+    COObject *value;
+    size_t nlist = COList_GET_SIZE(all);
+    for (pos = 0; pos < nlist; pos++) {
+        name = COList_GET_ITEM(all, pos);
+        if (!name) {
+            err = -1; 
+            break;
+        }
+        if (COStr_AsString(name)[0] == '_') {
+            continue;
+        }
+        value = COObject_GetAttr(m, name);
+        if (!value)
+            err = -1;
+        else {
+            CODict_SetItem(globals, name, value);
+        }
+        CO_XDECREF(value);
+        if (err != 0)
+            break;
+    }
+
+    return err;
+}
+
 /*
  * Evaluate a function object into a object.
  */
@@ -762,7 +798,12 @@ new_frame:                     /* reentry point when function call/return */
             break;
         case OP_IMPORT_STAR:
             o1 = POP();
-            // TODO
+            err = vm_import_all(o1, frame->f_globals);
+            if (err != 0) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
+            CO_DECREF(o1);
             break;
         case OP_UNPACK_SEQUENCE:
             oparg = NEXTARG();

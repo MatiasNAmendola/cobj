@@ -44,7 +44,7 @@ find_module(char *name, COObject *path)
     char buf[PATH_MAX];
     size_t len, namelen;
     namelen = strlen(name);
-    FILE *fp;
+    FILE *fp = NULL;
     for (i = 0; i < npath; i++) {
         COObject *v = COList_GetItem(path, i);
         if (!v)

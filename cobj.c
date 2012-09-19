@@ -106,7 +106,8 @@ void
 setup_search_path(COThreadStateObject *ts, const char *script_file)
 {
     char fullpath[PATH_MAX];
-    (void)realpath(script_file, fullpath);
+    if (realpath(script_file, fullpath) == NULL)
+        return;
     size_t len = dirname((char *)fullpath, strlen(fullpath));
     COObject *path = COStr_FromStringN(fullpath, len);
     COList_Append(ts->module_search_path, path);

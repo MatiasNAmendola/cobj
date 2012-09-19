@@ -357,13 +357,13 @@ str_print(COStrObject *this, FILE *fp)
          * to avoid memory aligment issues.
          */
         const int chunk_size = INT_MAX & ~0x3FFF;
-        fwrite(data, 1, chunk_size, fp);
+        assert(fwrite(data, 1, chunk_size, fp) == chunk_size);
         data += chunk_size;
         size -= chunk_size;
     }
 
     if (size)
-        fwrite(data, (int)size, 1, fp);
+        assert(fwrite(data, (int)size, 1, fp) == 1);
     return 0;
 }
 
