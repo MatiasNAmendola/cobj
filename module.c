@@ -52,9 +52,9 @@ find_module(char *name, COObject *path)
         len = COStr_GET_SIZE(v);
         strcpy(buf, COStr_AS_STRING(v));
         buf[len++] = '/';
-        strcpy(buf+len, name);
+        strcpy(buf + len, name);
         len += namelen;
-        strcpy(buf+len, ".co");
+        strcpy(buf + len, ".co");
         len += 3;
         buf[len] = '\0';
 
@@ -80,7 +80,8 @@ module_import(COObject *name)
     struct arena *arena = arena_new();
     scanner_init(arena);
 
-    FILE *fp = find_module(COStr_AS_STRING(name), GS(mainthread)->module_search_path);
+    FILE *fp =
+        find_module(COStr_AS_STRING(name), GS(mainthread)->module_search_path);
     if (!fp)
         return NULL;
     COObject *f_mode = COStr_FromString("rb");

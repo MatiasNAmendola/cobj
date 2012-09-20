@@ -136,7 +136,7 @@ vm_import_all(COObject *m, COObject *globals)
     for (pos = 0; pos < nlist; pos++) {
         name = COList_GET_ITEM(all, pos);
         if (!name || !COStr_Check(name)) {
-            err = -1; 
+            err = -1;
             break;
         }
         if (COStr_AS_STRING(name)[0] == '_') {
@@ -278,6 +278,18 @@ new_frame:                     /* reentry point when function call/return */
             o1 = POP();
             o2 = TOP();
             x = COArithmetic_Mod(o2, o1);
+            if (!x) {
+                status = STATUS_EXCEPTION;
+                goto fast_end;
+            }
+            CO_DECREF(o1);
+            CO_DECREF(o2);
+            SET_TOP(x);
+            break;
+        case OP_BINARY_POW:
+            o1 = POP();
+            o2 = TOP();
+            x = COArithmetic_Pow(o2, o1);
             if (!x) {
                 status = STATUS_EXCEPTION;
                 goto fast_end;
@@ -508,12 +520,10 @@ new_frame:                     /* reentry point when function call/return */
                 if (!upvalue) {
                     // find in locals
                     COObject *mylocalnames =
-                        ((COCodeObject *)frame->
-                         f_code)->co_localnames;
+                        ((COCodeObject *)frame->f_code)->co_localnames;
                     for (int j = 0; j < COTuple_GET_SIZE(mylocalnames); j++) {
                         if (COObject_CompareBool
-                            (COTuple_GET_ITEM(mylocalnames, j), name,
-                             Cmp_EQ)) {
+                            (COTuple_GET_ITEM(mylocalnames, j), name, Cmp_EQ)) {
                             upvalue = frame->f_extraplus[j];
                             break;
                         }

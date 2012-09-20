@@ -411,6 +411,7 @@ static COAritmeticInterface arithmetic_interface = {
     0,
     0,
     0,
+    0,
 };
 
 COTypeObject COStr_Type = {

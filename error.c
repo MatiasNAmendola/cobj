@@ -53,6 +53,12 @@ COErr_Print(void)
 }
 
 void
+COErr_SetNone(COObject *exception)
+{
+    COErr_SetObject(exception, (COObject *)NULL);
+}
+
+void
 COErr_SetObject(COObject *exception, COObject *value)
 {
     COErr_Restore(exception, value, NULL);

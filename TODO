@@ -1,5 +1,13 @@
 Core
 ====
+ * float
+    - arithmetic methods
+    - freelist
+    - _CO_HashDouble
+ * multi assginment support a, b = expr, expr syntax
+ * implement pow
+ * t/basic.py -> test/basic.co
+ * fix more than one logical operators in expr
  * rework closure
  * don't use `is`, `not` keywords?
  * implement import module

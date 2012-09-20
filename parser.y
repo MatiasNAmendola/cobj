@@ -55,19 +55,6 @@ return_none_node(struct arena *arena)
 %token  <node> T_FNUM
 %token  <node> T_STRING
 %token  <node> T_NAME
-%token T_MAPPING
-%nonassoc T_EQUAL T_NOT_EQUAL T_IS T_IN
-%token T_MOD_ASSIGN T_DIV_ASSIGN T_MUL_ASSIGN T_SUB_ASSIGN T_ADD_ASSIGN T_SR_ASSIGN T_SL_ASSIGN
-%nonassoc '<' '>' T_SMALLER_OR_EQUAL T_GREATER_OR_EQUAL
-%nonassoc T_AND T_OR T_NOT
-%left   ','
-%left   '+' '-'
-%left   '*' '/' '%'
-%left   T_SR T_SL T_POW
-%right  '[' '{'
-%left   UNARY_OP
-%nonassoc '.' ':'
-
 %type <node> expr
 %type <node> stmt stmt_list start open_stmt_list
 %type <node> simple_stmt compound_stmt opt_else if_tail
@@ -78,6 +65,21 @@ return_none_node(struct arena *arena)
 %type <node> catch_block
 %type <node> catch_list opt_catch_list opt_finally_block
 %type <node> name non_empty_nameoralias_list name_list_morethanone
+
+%token T_MOD_ASSIGN T_DIV_ASSIGN T_MUL_ASSIGN T_SUB_ASSIGN T_ADD_ASSIGN T_SR_ASSIGN T_SL_ASSIGN
+%token T_MAPPING
+%nonassoc T_EQUAL T_NOT_EQUAL T_IS T_IN T_NOT
+%nonassoc '<' '>' T_SMALLER_OR_EQUAL T_GREATER_OR_EQUAL
+%left T_LOGICAL_AND T_LOGICAL_OR T_LOGICAL_NOT
+%left   ','
+%left   '+' '-'
+%left   '*' '/' '%'
+%left   T_SR T_SL T_POW
+%right  '[' '{'
+%left   UNARY_OP
+%nonassoc ':'
+%nonassoc '.'
+
 
 /*
  * Manual override of shift/reduce conflicts.
@@ -183,18 +185,16 @@ expr: /* express something */
     |   expr T_NOT T_IN expr { $$ = node_new(c->arena, NODE_CMP, $1, $4); $$->u.oparg = Cmp_NOT_IN; }
     |   expr T_IS expr { $$ = node_new(c->arena, NODE_CMP, $1, $3); $$->u.oparg = Cmp_IS; }
     |   expr T_IS T_NOT expr { $$ = node_new(c->arena, NODE_CMP, $1, $4); $$->u.oparg = Cmp_IS_NOT; }
-
     |   expr T_SL expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_SL; }
     |   expr T_SR expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_SR; }
     |   expr T_POW expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_POW; }
-    |   expr T_AND expr { $$ = node_new(c->arena, NODE_LOGICAL, $1, $3); $$->u.op = OP_JUMP_IF_FALSE_OR_POP; }
-    |   expr T_OR expr { $$ = node_new(c->arena, NODE_LOGICAL, $1, $3); $$->u.op = OP_JUMP_IF_TRUE_OR_POP; }
+    |   expr T_LOGICAL_AND expr { $$ = node_new(c->arena, NODE_LOGICAL, $1, $3); $$->u.op = OP_JUMP_IF_FALSE_OR_POP; }
+    |   expr T_LOGICAL_OR expr { $$ = node_new(c->arena, NODE_LOGICAL, $1, $3); $$->u.op = OP_JUMP_IF_TRUE_OR_POP; }
     |   '-' expr %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->u.op =
     OP_UNARY_NEGATE; }
     |   '~' expr %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->u.op =
     OP_UNARY_INVERT; }
-    |   T_NOT expr  %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->u.op = OP_UNARY_NOT; }
-
+    |   T_LOGICAL_NOT expr  %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->u.op = OP_UNARY_NOT; }
     |  '(' opt_newlines expr opt_newlines ',' opt_newlines ')' {
             $$ = node_new(c->arena, NODE_TUPLE, NULL, NULL);
             $$->nd_list = node_list(c->arena, $3, NULL);

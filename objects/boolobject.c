@@ -51,6 +51,7 @@ COBool_FromLong(long ok)
     else
         result = CO_False;
 
+    CO_INCREF(result);
     return result;
 }
 

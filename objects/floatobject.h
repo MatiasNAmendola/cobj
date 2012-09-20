@@ -12,6 +12,9 @@ COTypeObject COFloat_Type;
 
 #define COFloat_Check(co) (CO_TYPE(co) == &COFloat_Type)
 
+#define COFloat_AS_DOUBLE(o)    (((COFloatObject *)(o))->co_fval)
+
+COObject *COFloat_FromDouble(double);
 COObject *COFloat_FromString(char *s);
 
 #endif

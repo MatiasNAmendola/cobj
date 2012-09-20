@@ -9,14 +9,14 @@
 
 typedef struct _COThreadStateObject {
     COObject_HEAD;
-    COObject      *modules;            /* dict of name => module */
-    COObject      *module_search_path;
+    COObject *modules;          /* dict of name => module */
+    COObject *module_search_path;
 } COThreadStateObject;
 
 COTypeObject COThreadState_Type;
 
 #define COThreadState_Check(co) (CO_TYPE(co) == &COThreadState_Type)
 
-COThreadStateObject * COThreadState_New(void);
+COThreadStateObject *COThreadState_New(void);
 
 #endif

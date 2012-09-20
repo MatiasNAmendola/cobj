@@ -13,17 +13,21 @@ local proclaim = func(cond, desc)
     if cond
         print("ok " + str(num_of_tests_run) + " - " + desc)
     else
-        print("not ")
+        print("not ok " + str(num_of_tests_run) + " - " + desc)
     end
 end
 
 func plan(num)
-    if (type(num) is str)
+    if type(num) is str
         # TODO check (num  == "no_plan")
     else
         plans = num
         print("1.." + str(num))
     end
+end
+
+func diag(message)
+    print("# " + message)
 end
 
 func ok(got, desc = '')
@@ -37,6 +41,10 @@ end
 func is_ok(got, expected, desc = '')
     local test = got == expected
     proclaim(test, desc)
+    if !test
+        diag("     got: '" + str(got) + "'")
+        diag("expected: '" + str(expected) + "'")
+    end
 end
 
 func isnt_ok(got, expected, desc = '')

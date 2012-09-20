@@ -116,7 +116,7 @@ set_lookkey(COSetObject *so, COObject *key, long hash)
 static int
 set_merge(COSetObject *so, COObject *other)
 {
-    COErr_SetString(COException_UndefinedError, "TODO");
+    COErr_SetString(COException_NotImplementedError, "TODO");
     return 0;
 }
 

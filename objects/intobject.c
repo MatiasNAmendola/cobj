@@ -49,7 +49,7 @@ bits_in_digit(digit d)
 #define CHECK_BINOP(v, w, op)                                               \
     do {                                                                    \
         if (!COInt_Check(v) || !COInt_Check(w)) {                           \
-            COErr_Format(COException_UndefinedError,                        \
+            COErr_Format(COException_NotImplementedError,                        \
                          "undefined binary operation: %.100s() %s %.100s()",\
                          ((COObject *)v)->co_type->tp_name, op,             \
                          ((COObject *)w)->co_type->tp_name);                \
@@ -923,6 +923,105 @@ int_mod(COIntObject *a, COIntObject *b)
     return rem;
 }
 
+static COIntObject *
+int_pow(COIntObject *a, COIntObject *b)
+{
+    COIntObject *z = NULL;      // accummulated result
+    ssize_t i, j, k;
+    COIntObject *temp = NULL;
+    // v, w = a, b
+    COIntObject *v, *w;
+
+    v = a;
+    CO_INCREF(v);
+    w = b;
+    CO_INCREF(w);
+
+    assert(CO_SIZE(a) > 0);
+
+    if (CO_SIZE(w) < 0) {
+        // Returns a float.
+        CO_DECREF(v);
+        CO_DECREF(w);
+        return (COIntObject *)COFloat_Type.tp_arithmetic_interface->arith_pow((COObject *)a, (COObject *)b);
+    }
+
+    z = (COIntObject *)COInt_FromLong(1L);
+    if (!z)
+        goto error;
+
+    /* 5-ary values. If the exponent is large enough, table is precomputed so
+     * that table[i] = a**i for i in range(32)
+     */
+    COIntObject *table[32] = { 0 };
+    memset(table, 32, sizeof(COObject *));
+
+    /* Multiply two values. */
+#define MULT(x, y, result)                      \
+    do {                                        \
+        temp = (COIntObject *)int_mul(x, y);    \
+        if (!temp)                              \
+            goto error;                         \
+        CO_XDECREF(result);                     \
+        result = temp;                          \
+        temp = NULL;                            \
+    } while (0)
+
+/* For exponentiation, use the binary left-to-right algorithm
+ * unless the exponent contains more than FIVEARY_CUTOFF digits.  In that case,
+ * do 5 bits at a time. The potential drawback is that a table of 2**5
+ * intermediate results is computed.
+ */
+#define FIVEARY_CUTOFF 8
+
+    if (CO_SIZE(w) <= FIVEARY_CUTOFF) {
+        /* Left-to-right binary exponentiation (HAC Algorithm 14.79) */
+        /* http://www.cacr.math.uwaterloo.ca/hac/about/chap14.pdf    */
+        for (i = CO_SIZE(w) - 1; i >= 0; --i) {
+            digit wi = w->co_digit[i];
+
+            for (j = (digit)1 << (COInt_SHIFT - 1); j != 0; j >>= 1) {
+                MULT(z, z, z);
+                if (wi & j)
+                    MULT(z, v, z);
+            }
+        }
+    } else {
+        /* Left-to-right 5-ary exponentiation (HAC Algorithm 14.82) */
+        CO_INCREF(z);
+        table[0] = z;
+        for (i = 1; i < 32; i++)
+            MULT(table[i - 1], v, table[i]);
+
+        for (i = CO_SIZE(w) - 1; i >= 0; --i) {
+            digit wi = w->co_digit[i];
+
+            for (j = COInt_SHIFT - 5; j >= 0; j -= 5) {
+                int index = (wi >> j) & 0x1f;
+                for (k = 0; k < 5; ++k)
+                    MULT(z, z, z);
+                if (index)
+                    MULT(z, table[index], z);
+            }
+        }
+    }
+
+    goto done;
+
+error:
+    if (z) {
+        CO_DECREF(z);
+        z = NULL;
+    }
+    /* fall through */
+
+done:
+    CO_DECREF(a);
+    CO_DECREF(b);
+    CO_XDECREF(temp);
+    return z;
+}
+
 static COObject *
 int_neg(COIntObject *o)
 {
@@ -1053,6 +1152,7 @@ static COAritmeticInterface arithmetic_interface = {
     (binaryfunc)int_mul,
     (binaryfunc)int_div,
     (binaryfunc)int_mod,
+    (binaryfunc)int_pow,
     (binaryfunc)int_lshift,
     (binaryfunc)int_rshift,
     (unaryfunc)int_neg,
@@ -1256,6 +1356,126 @@ COInt_Init(void)
         o->co_digit[0] = abs(ival);
     }
     return 0;
+}
+
+/* 
+ * For a nonzero COInt a, express a in the form x * 2**e, with 0.5 <= abs(x) <
+ * 1.0 and e >= 0; return x and put e in *e.
+ * Here x is rounded to DBL_MANT_DIG significant bits using round-half-to-even.
+ * If a == 0, return 0.0 and set *e = 0. If the resulting exponent e is larger
+ * than SSIZE_MAX, raise COException_OverflowError and returns -1.0.
+ */
+
+/* attemp to define 2.0**DBL_MANT_DIG as a compile-time constant */
+#if DBL_MANT_DIG == 53
+#define EXP2_DBL_MANT_DIG 9007199254740992.0
+#else
+#define EXP2_DBL_MANT_DIG (ldexp(1.0, DBL_MANT_DIG))
+#endif
+
+double
+_COInt_Frexp(COIntObject *a, ssize_t *e)
+{
+    ssize_t a_size, a_bits, shift_digits, shift_bits, x_size;
+    /* See below for why x_digits is always large enough. */
+    digit rem, x_digits[2 + (DBL_MANT_DIG + 1) / COInt_SHIFT];
+
+    double dx;
+
+    static const int half_even_correction[8] = {0, -1, -2, 1, 0, -1, 2, 1};
+
+    a_size = ABS(CO_SIZE(a));
+    if (a_size == 0) {
+        *e = 0;
+        return 0.0;
+    }
+
+    a_bits = bits_in_digit(a->co_digit[a_size - 1]);
+
+    if (a_size >= (SSIZE_MAX - 1) / COInt_SHIFT + 1
+        && (a_size > (SSIZE_MAX - 1) / COInt_SHIFT + 1
+        || a_bits > (SSIZE_MAX - 1) % COInt_SHIFT + 1))
+        goto overflow;
+
+    if (a_bits <= DBL_MANT_DIG + 2) {
+        shift_digits = (DBL_MANT_DIG + 2 - a_bits) / COInt_SHIFT;
+        shift_bits = (DBL_MANT_DIG + 2 - a_bits) % COInt_SHIFT;
+        x_size = 0; 
+        while (x_size < shift_digits)
+            x_digits[x_size++] = 0; 
+        rem = v_lshift(x_digits + x_size, a->co_digit, a_size,
+                       (int)shift_bits);
+        x_size += a_size;
+        x_digits[x_size++] = rem; 
+    } else {
+        shift_digits = (a_bits - DBL_MANT_DIG - 2) / COInt_SHIFT;
+        shift_bits = (a_bits - DBL_MANT_DIG - 2) % COInt_SHIFT;
+        rem = v_rshift(x_digits, a->co_digit + shift_digits,
+                       a_size - shift_digits, (int)shift_bits);
+        x_size = a_size - shift_digits;
+        /* For correct rounding below, we need the least significant
+           bit of x to be 'sticky' for this shift: if any of the bits
+           shifted out was nonzero, we set the least significant bit
+           of x. */
+        if (rem)
+            x_digits[0] |= 1;
+        else
+            while (shift_digits > 0)
+                if (a->co_digit[--shift_digits]) {
+                    x_digits[0] |= 1;
+                    break;
+                }
+    }
+
+    assert(1 <= x_size && x_size <= (ssize_t)ARRAY_SIZE(x_digits));
+
+    /* Round, and convert to double. */
+    x_digits[0] += half_even_correction[x_digits[0] & 7];
+    dx = x_digits[--x_size];
+    while (x_size > 0)
+        dx = dx * COInt_BASE + x_digits[--x_size];
+
+    /* Rescale;  make correction if result is 1.0. */
+    dx /= 4.0 * EXP2_DBL_MANT_DIG;
+    if (dx == 1.0) {
+        if (a_bits == SSIZE_MAX)
+            goto overflow;
+        dx = 0.5;
+        a_bits += 1;
+    }
+
+    *e = a_bits;
+    return CO_SIZE(a) < 0 ? -dx : dx;
+
+overflow:
+    /* exponent > SSIZE_MAX */
+    COErr_SetString(COException_OverflowError, "huge integer: number of bits overflow a SSIZE_MAX");
+    *e = 0;
+    return -1.0;
+}
+
+/* 
+ * Get a C double from a int object. Rounds to the nearest double, using the
+ * round-half-to-even in the case of a tie.
+ */ 
+double
+COInt_AsDouble(COObject *this)
+{
+    ssize_t exponent;
+    double x;
+
+    if (!COInt_Check(this)) {
+        COErr_SetString(COException_TypeError, "an integer is required");
+        return -1.0;
+    }
+
+    x = _COInt_Frexp((COIntObject *)this, &exponent);
+    if ((x == -1.0 && COErr_Occurred()) || exponent > DBL_MAX_EXP) {
+        COErr_SetString(COException_OverflowError, "int too large to convert to float");
+        return -1.0;
+    }
+
+    return ldexp(x, (int)exponent);
 }
 
 /* 

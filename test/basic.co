@@ -1,11 +1,22 @@
 from test import *
 
-plan(1)
+plan(10)
 
-# logic operators
+# arithmetic operations
+is_ok(0 + 1, 1, "add")
+is_ok(0.0 + 0.1, 0.1, "float add")
+is_ok(3 - 1 , 2, "sub")
+#is_ok(3.0 - 1.0 , 2.0, "float sub")
+is_ok(123456789 * 987654321, 121932631112635269, "mul")
+#is_ok(123456789.0 * 987654321.0, 121932631112635269.0, "float mul")
+is_ok(-111111111111111111111111/11111111111111111111, -10000, "div")
+#is_ok(-111111111111111111111111.0/11111111111111111111.0, -10000.0, "float div")
+is_ok(6 % 5, 1, "mod")
+#is_ok(6.0 % 5.0, 1.0, "float mod")
+#is_ok(-2 ** 10, -1024, "pow")
+is_ok(2 ** 10, 1024, "pow")
 
-is_ok(1 and 0, 0, "and")
-is_ok(1 or 0, 1, "or")
-is_ok(not 1, False, "not")
-
-is_ok(1 and 0 or 1, 1)
+# logic operations
+is_ok(1 && 0, 0, "and")
+is_ok(1 || 0, 1, "or")
+is_ok(!1, False, "not")

@@ -119,7 +119,7 @@ do_compare(COObject *v, COObject *w, int op)
     static char *opstrings[] = { "<", "<=", "==", "!=", ">", ">=" };
 
     comparefunc f;
-    COObject *x;
+    COObject *x = NULL;
 
     if (v->co_type == w->co_type && (f = v->co_type->tp_compare) != NULL) {
         x = (*f) (v, w, op);
@@ -137,7 +137,7 @@ do_compare(COObject *v, COObject *w, int op)
         CO_INCREF(x);
         break;
     default:
-        COErr_Format(COException_UndefinedError,
+        COErr_Format(COException_NotImplementedError,
                      "undefined comparison: %.100s() %s %.100s()",
                      v->co_type->tp_name, opstrings[op], w->co_type->tp_name);
     }
@@ -495,21 +495,23 @@ COMapping_SetItem(COObject *o, COObject *key, COObject *value)
             } \
         } \
 \
-        COErr_Format(COException_UndefinedError, \
+        COErr_Format(COException_NotImplementedError, \
                      "undefined arithmetic operation: %.100s() %s %.100s()", \
                      a->co_type->tp_name, op_name, b->co_type->tp_name); \
         return NULL; \
     }
 
 ARITHMETIC_BINARY_FUNC(COArithmetic_Add, arith_add, "+")
-    ARITHMETIC_BINARY_FUNC(COArithmetic_Sub, arith_sub, "-")
-    ARITHMETIC_BINARY_FUNC(COArithmetic_Mul, arith_mul, "*")
-    ARITHMETIC_BINARY_FUNC(COArithmetic_Div, arith_div, "/")
-    ARITHMETIC_BINARY_FUNC(COArithmetic_Mod, arith_mod, "%")
-    ARITHMETIC_BINARY_FUNC(COArithmetic_Lshift, arith_lshift, "<<")
-    ARITHMETIC_BINARY_FUNC(COArithmetic_Rshift, arith_rshift, ">>")
+ARITHMETIC_BINARY_FUNC(COArithmetic_Sub, arith_sub, "-")
+ARITHMETIC_BINARY_FUNC(COArithmetic_Mul, arith_mul, "*")
+ARITHMETIC_BINARY_FUNC(COArithmetic_Div, arith_div, "/")
+ARITHMETIC_BINARY_FUNC(COArithmetic_Mod, arith_mod, "%")
+ARITHMETIC_BINARY_FUNC(COArithmetic_Pow, arith_pow, "%")
+ARITHMETIC_BINARY_FUNC(COArithmetic_Lshift, arith_lshift, "<<")
+ARITHMETIC_BINARY_FUNC(COArithmetic_Rshift, arith_rshift, ">>")
 
-     COObject *COArithmetic_Neg(COObject *o)
+COObject *
+COArithmetic_Neg(COObject *o)
 {
     COAritmeticInterface *ai;
     ai = o->co_type->tp_arithmetic_interface;

@@ -335,14 +335,6 @@ ANY_CHAR    = [^];
     return T_CONTINUE;
 }
 
-<SC_INIT>"and" {
-    return T_AND;
-}
-
-<SC_INIT>"or" {
-    return T_OR;
-}
-
 <SC_INIT>'"' {
     while (1) {
         if (YYCURSOR > YYLIMIT) {
@@ -447,8 +439,16 @@ ANY_CHAR    = [^];
     return T_GREATER_OR_EQUAL;
 }
 
-<SC_INIT>"[" {
-    return yytext[0];
+<SC_INIT>"&&" {
+    return T_LOGICAL_AND;
+}
+
+<SC_INIT>"||" {
+    return T_LOGICAL_OR;
+}
+
+<SC_INIT>"!" {
+    return T_LOGICAL_NOT;
 }
 
 <SC_INIT>"**" {

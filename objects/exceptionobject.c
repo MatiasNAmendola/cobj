@@ -71,5 +71,5 @@ SimpleExtendsException(COException, NameError);
 SimpleExtendsException(COException, OverflowError);
 SimpleExtendsException(COException, SystemError);
 SimpleExtendsException(COException, TypeError);
-SimpleExtendsException(COException, UndefinedError);
+SimpleExtendsException(COException, NotImplementedError);
 SimpleExtendsException(COException, ValueError);

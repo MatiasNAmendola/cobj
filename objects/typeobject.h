@@ -34,6 +34,7 @@ typedef struct {
     binaryfunc arith_mul;
     binaryfunc arith_div;
     binaryfunc arith_mod;
+    binaryfunc arith_pow;
     binaryfunc arith_lshift;
     binaryfunc arith_rshift;
     unaryfunc arith_neg;

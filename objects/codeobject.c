@@ -36,7 +36,7 @@ code_compare(COCodeObject *this, COCodeObject *that, int op)
     COObject *x;
 
     if (op != Cmp_EQ && op != Cmp_NE) {
-        COErr_Format(COException_UndefinedError, "");
+        COErr_Format(COException_NotImplementedError, "");
         return NULL;
     }
 

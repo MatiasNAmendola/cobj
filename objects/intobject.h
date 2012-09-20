@@ -54,6 +54,7 @@ COObject *COInt_FromString(char *s, char **pend, int base);
 COObject *COInt_FromLong(long ival);
 long COInt_AsLong(COObject *o);
 ssize_t COInt_AsSsize_t(COObject *o);
+double COInt_AsDouble(COObject *this);
 COObject *COInt_FromSsize_t(ssize_t ival);
 COObject *COInt_FromSize_t(size_t ival);
 

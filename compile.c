@@ -777,21 +777,22 @@ compiler_visit_node(struct compiler *c, Node *n)
             oparg = compiler_add(c->u->u_names, n->nd_fromname->u.o);
             compiler_addop_i(c, OP_IMPORT_NAME, oparg);
 
-            if ((intptr_t)n->nd_importlist != -1) {
+            if ((intptr_t) n->nd_importlist != -1) {
                 Node *l = n->nd_importlist;
                 while (l) {
                     oparg = compiler_add(c->u->u_names, l->nd_node->u.o);
                     compiler_addop_i(c, OP_IMPORT_FROM, oparg);
                     if (l->nd_node->nd_alias) {
                         oparg =
-                            compiler_add(c->u->u_names, l->nd_node->nd_alias->u.o);
+                            compiler_add(c->u->u_names,
+                                         l->nd_node->nd_alias->u.o);
                     }
                     compiler_addop_i(c, OP_STORE_NAME, oparg);
                     l = l->nd_next;
                 }
-                compiler_addop(c, OP_POP_TOP);      // POP imported module
+                compiler_addop(c, OP_POP_TOP);  // POP imported module
             } else {
-                compiler_addop(c, OP_IMPORT_STAR); 
+                compiler_addop(c, OP_IMPORT_STAR);
             }
         } else {
             Node *l = n->nd_importlist;
@@ -860,8 +861,7 @@ assembler_jump_offsets(struct assembler *a, struct compiler *c)
                 || instr->i_opcode == OP_CONTINUE_LOOP
                 || instr->i_opcode == OP_FOR_ITER
                 || instr->i_opcode == OP_JUMP_IF_FALSE_OR_POP
-                || instr->i_opcode == OP_JUMP_IF_TRUE_OR_POP
-                ) {
+                || instr->i_opcode == OP_JUMP_IF_TRUE_OR_POP) {
                 // absolutely
                 instr->i_oparg = instr->i_target->b_offset;
             } else {

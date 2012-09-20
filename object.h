@@ -178,6 +178,7 @@ COObject *COArithmetic_Sub(COObject *a, COObject *b);
 COObject *COArithmetic_Mul(COObject *a, COObject *b);
 COObject *COArithmetic_Div(COObject *a, COObject *b);
 COObject *COArithmetic_Mod(COObject *a, COObject *b);
+COObject *COArithmetic_Pow(COObject *a, COObject *b);
 COObject *COArithmetic_Lshift(COObject *a, COObject *b);
 COObject *COArithmetic_Rshift(COObject *a, COObject *b);
 COObject *COArithmetic_Neg(COObject *o);

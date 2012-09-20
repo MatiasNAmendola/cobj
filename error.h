@@ -54,6 +54,7 @@ void COErr_Print(void);
 COObject *COErr_Occurred(void);
 void COErr_Restore(COObject *type, COObject *value, COObject *traceback);
 void COErr_Fetch(COObject **type, COObject **value, COObject **traceback);
+void COErr_SetNone(COObject *exception);
 void COErr_SetObject(COObject *exception, COObject *value);
 void COErr_Format(COObject *exception, const char *fmt, ...);
 void COErr_SetString(COObject *exception, const char *str);

@@ -100,7 +100,7 @@ dirname(char *path, size_t len)
 
     *(end + 1) = '\0';
 
-    return (size_t)(end + 1 - path);
+    return (size_t) (end + 1 - path);
 }
 
 void
