@@ -4,35 +4,41 @@ Expressions
 Operators
 ---------
 
-Arithmetic operations::
+Arithmetic operators::
 
-    Addition: +
-    Subtraction: -
-    Multiplication: *
-    Division: /
-    Modulo: %
-    Shift Right: >>
-    Shift Left: <<
-    Exponentiation/Pow: **
-    Negative: -
-    Invert: ~
+    +       Addition
+    -       Subtraction
+    *       Multiplication
+    /       Division
+    %       Modulo
+    **      Exponentiation
+    -       Negative
+    &       And                     (TOOD)
+    |       Or  (inclusive or)      (TODO)
+    ^       Xor (exculsive or)      (TODO)
+    ~       Not             
+    <<      Shift left
+    >>      Shift right
 
-Comparisions::
+Comparision operators::
 
     <
     >
     ==
+    !=
     <=
     >=
-    !=
     is [not]
+
+Logical operators::
+
+    && (TODO)
+    || (TODO)
+    !  (TODO)
+
+Sequence operators::
+
     [not] in
-
-Logical operations::
-
-    &&
-    ||
-    !
 
 Operator Precedence
 -------------------

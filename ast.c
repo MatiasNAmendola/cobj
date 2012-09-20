@@ -109,6 +109,7 @@ node_type(Node_Type type)
         GIVE_NAME(NODE_CONTINUE);
         GIVE_NAME(NODE_THROW);
         GIVE_NAME(NODE_IMPORT);
+        GIVE_NAME(NODE_LOGICAL);
     }
     error("unknown type: %d\n", type);
     return NULL;

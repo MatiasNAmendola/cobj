@@ -17,6 +17,7 @@ enum {
     OP_CMP,
     OP_UNARY_NEGATE,
     OP_UNARY_INVERT,
+    OP_UNARY_NOT,
     OP_STORE_NAME,
     OP_JMPZ,
     OP_JMP,
@@ -57,6 +58,8 @@ enum {
     OP_IMPORT_FROM,
     OP_IMPORT_STAR,
     OP_UNPACK_SEQUENCE,
+    OP_JUMP_IF_FALSE_OR_POP,
+    OP_JUMP_IF_TRUE_OR_POP,
 };
 
 /* OP_CMP's opargs */

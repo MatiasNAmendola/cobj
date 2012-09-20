@@ -26,22 +26,23 @@ func plan(num)
     end
 end
 
-#func ok()
-#end
-#
-#func nok()
-#end
-#
-func is_(got, expected, desc = '')
+func ok(got, desc = '')
+    proclaim(got, desc)
+end
+
+func ngot(got, desc = '')
+    proclaim(!got, desc)
+end
+
+func is_ok(got, expected, desc = '')
     local test = got == expected
     proclaim(test, desc)
 end
-#
-#func isnt()
-#end
 
-#func is_deeply()
-#end
+func isnt_ok(got, expected, desc = '')
+    local test = got != expected
+    proclaim(test, desc)
+end
 
 func done()
     

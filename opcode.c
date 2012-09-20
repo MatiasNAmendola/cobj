@@ -20,6 +20,7 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_BINARY_SUBSCRIPT);
         GIVE_NAME(OP_UNARY_NEGATE);
         GIVE_NAME(OP_UNARY_INVERT);
+        GIVE_NAME(OP_UNARY_NOT);
         GIVE_NAME(OP_CMP);
         GIVE_NAME(OP_STORE_NAME);
         GIVE_NAME(OP_JMPZ);
@@ -61,6 +62,8 @@ opcode_name(unsigned char opcode)
         GIVE_NAME(OP_IMPORT_FROM);
         GIVE_NAME(OP_IMPORT_STAR);
         GIVE_NAME(OP_UNPACK_SEQUENCE);
+        GIVE_NAME(OP_JUMP_IF_FALSE_OR_POP);
+        GIVE_NAME(OP_JUMP_IF_TRUE_OR_POP);
     }
     error("unknown opcode: %d\n", opcode);
     return NULL;

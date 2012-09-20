@@ -55,10 +55,11 @@ return_none_node(struct arena *arena)
 %token  <node> T_FNUM
 %token  <node> T_STRING
 %token  <node> T_NAME
-%nonassoc T_EQUAL T_NOT_EQUAL T_IS T_IN T_NOT
-%nonassoc T_MAPPING
+%token T_MAPPING
+%nonassoc T_EQUAL T_NOT_EQUAL T_IS T_IN
 %token T_MOD_ASSIGN T_DIV_ASSIGN T_MUL_ASSIGN T_SUB_ASSIGN T_ADD_ASSIGN T_SR_ASSIGN T_SL_ASSIGN
 %nonassoc '<' '>' T_SMALLER_OR_EQUAL T_GREATER_OR_EQUAL
+%nonassoc T_AND T_OR T_NOT
 %left   ','
 %left   '+' '-'
 %left   '*' '/' '%'
@@ -186,10 +187,14 @@ expr: /* express something */
     |   expr T_SL expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_SL; }
     |   expr T_SR expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_SR; }
     |   expr T_POW expr { $$ = node_new(c->arena, NODE_BIN, $1, $3); $$->u.op = OP_BINARY_POW; }
+    |   expr T_AND expr { $$ = node_new(c->arena, NODE_LOGICAL, $1, $3); $$->u.op = OP_JUMP_IF_FALSE_OR_POP; }
+    |   expr T_OR expr { $$ = node_new(c->arena, NODE_LOGICAL, $1, $3); $$->u.op = OP_JUMP_IF_TRUE_OR_POP; }
     |   '-' expr %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->u.op =
     OP_UNARY_NEGATE; }
     |   '~' expr %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->u.op =
     OP_UNARY_INVERT; }
+    |   T_NOT expr  %prec UNARY_OP { $$ = node_new(c->arena, NODE_UNARY, $2, NULL); $$->u.op = OP_UNARY_NOT; }
+
     |  '(' opt_newlines expr opt_newlines ',' opt_newlines ')' {
             $$ = node_new(c->arena, NODE_TUPLE, NULL, NULL);
             $$->nd_list = node_list(c->arena, $3, NULL);

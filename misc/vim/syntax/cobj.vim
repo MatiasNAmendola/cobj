@@ -46,6 +46,7 @@ syn keyword cobjBuiltin     str type int print file
 " Keywords
 syn keyword cobjStatement   return local break continue while for in if elif else do end func
 syn keyword cobjStatement   try catch throw finally
+syn keyword cobjStatement   and or not is in
 
 
 " Define the default highlighting.

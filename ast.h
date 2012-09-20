@@ -41,6 +41,7 @@ typedef enum {
     NODE_CONTINUE,
     NODE_THROW,
     NODE_IMPORT,
+    NODE_LOGICAL,
 } Node_Type;
 
 typedef struct _Node {
@@ -76,6 +77,7 @@ typedef struct _Node {
  * NODE_ASSIGN_MULTI
  * NODE_LOAD_SUBSCRIPT
  * NODE_LOAD_DOTSUBSCRIPT
+ * NODE_LOGICAL
  */
 #define nd_left     n1
 #define nd_middle   n2

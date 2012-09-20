@@ -335,6 +335,14 @@ ANY_CHAR    = [^];
     return T_CONTINUE;
 }
 
+<SC_INIT>"and" {
+    return T_AND;
+}
+
+<SC_INIT>"or" {
+    return T_OR;
+}
+
 <SC_INIT>'"' {
     while (1) {
         if (YYCURSOR > YYLIMIT) {

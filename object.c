@@ -114,21 +114,34 @@ COObject_Print(COObject *o, FILE *fp)
  *  - True object is comparison is true
  */
 static COObject *
-do_compare(COObject *a, COObject *b, int op)
+do_compare(COObject *v, COObject *w, int op)
 {
     static char *opstrings[] = { "<", "<=", "==", "!=", ">", ">=" };
 
     comparefunc f;
     COObject *x;
 
-    if (a->co_type == b->co_type && (f = a->co_type->tp_compare) != NULL) {
-        x = (*f) (a, b, op);
-    } else {
+    if (v->co_type == w->co_type && (f = v->co_type->tp_compare) != NULL) {
+        x = (*f) (v, w, op);
+        return x;
+    }
+
+    /* Default comparision. */
+    switch (op) {
+    case Cmp_EQ:
+        x = (v == w) ? CO_True : CO_False;
+        CO_INCREF(x);
+        break;
+    case Cmp_NE:
+        x = (v != w) ? CO_True : CO_False;
+        CO_INCREF(x);
+        break;
+    default:
         COErr_Format(COException_UndefinedError,
                      "undefined comparison: %.100s() %s %.100s()",
-                     a->co_type->tp_name, opstrings[op], b->co_type->tp_name);
-        return NULL;
+                     v->co_type->tp_name, opstrings[op], w->co_type->tp_name);
     }
+
     return x;
 }
 

@@ -411,6 +411,19 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_visit_node(c, n->nd_right);
         compiler_addop(c, n->u.op);
         break;
+    case NODE_LOGICAL:
+        {
+            struct block *end;
+            end = compiler_new_block(c);
+            if (!end)
+                return 0;
+
+            compiler_visit_node(c, n->nd_left);
+            compiler_addop_j(c, n->u.op, end);
+            compiler_visit_node(c, n->nd_right);
+            compiler_use_next_block(c, end);
+        }
+        break;
     case NODE_STORE_SUBSCRIPT:
         compiler_visit_node(c, n->nd_left);
         compiler_visit_node(c, n->nd_middle);
@@ -845,7 +858,10 @@ assembler_jump_offsets(struct assembler *a, struct compiler *c)
                 || instr->i_opcode == OP_SETUP_LOOP
                 || instr->i_opcode == OP_SETUP_TRY
                 || instr->i_opcode == OP_CONTINUE_LOOP
-                || instr->i_opcode == OP_FOR_ITER) {
+                || instr->i_opcode == OP_FOR_ITER
+                || instr->i_opcode == OP_JUMP_IF_FALSE_OR_POP
+                || instr->i_opcode == OP_JUMP_IF_TRUE_OR_POP
+                ) {
                 // absolutely
                 instr->i_oparg = instr->i_target->b_offset;
             } else {
@@ -948,6 +964,7 @@ opcode_stack_effect(int opcode, int oparg)
         return -1;
     case OP_UNARY_NEGATE:
     case OP_UNARY_INVERT:
+    case OP_UNARY_NOT:
         return 0;
     case OP_STORE_LOCAL:
     case OP_STORE_UPVAL:
@@ -1008,6 +1025,9 @@ opcode_stack_effect(int opcode, int oparg)
         return -1;
     case OP_UNPACK_SEQUENCE:
         return oparg - 1;
+    case OP_JUMP_IF_FALSE_OR_POP:
+    case OP_JUMP_IF_TRUE_OR_POP:
+        return -1;
     default:
         error("opcode_stack_effect error, opcode: %d\n", opcode);
     }
@@ -1250,6 +1270,8 @@ dump_code(COObject *code)
         case OP_DICT_BUILD:
         case OP_FOR_ITER:
         case OP_UNPACK_SEQUENCE:
+        case OP_JUMP_IF_FALSE_OR_POP:
+        case OP_JUMP_IF_TRUE_OR_POP:
             oparg = NEXTARG();
             printf("\t\t%d", oparg);
             break;

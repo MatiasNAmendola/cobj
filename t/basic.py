@@ -51,3 +51,6 @@ test_expect_result("11\n", "print((25 - 1 - 1) % 12)", "precedence & association
 # 'in', 'not in', 'is', 'is not'
 test_expect_result("True\n", "print(1 in (1,2,3))")
 test_expect_result("True\n", "print(1 not in (2,3))")
+
+# '!', '&&', '||'
+test_expect_result("False\n", "print(!1)")

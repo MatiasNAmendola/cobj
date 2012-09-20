@@ -21,17 +21,33 @@ Identifiers
 
 Keywords    
 ~~~~~~~~
+    
+    False
+    None
+    True
+    as
+    break
+    catch
+    class
+    continue
+    do
+    elif
+    else
+    end
+    finally
+    for
+    from
+    func
+    if
+    import
+    local
+    return
+    throw
+    try
+    while
 
 Operators
 ~~~~~~~~~
-Precedence
-Operator precedence in Co follows the table below, from lower to higher priority:
-
-    \+ -
-
-    \* / %
-
-    \-
 
 Literals    
 ~~~~~~~~

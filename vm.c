@@ -356,6 +356,21 @@ new_frame:                     /* reentry point when function call/return */
             CO_DECREF(o1);
             SET_TOP(x);
             break;
+        case OP_UNARY_NOT:
+            o1 = TOP();
+            err = COObject_IsTrue(o1);
+            CO_DECREF(o1);
+            if (err == 0) {
+                CO_INCREF(CO_True);
+                SET_TOP(CO_True);
+            } else if (err > 0) {
+                CO_INCREF(CO_False);
+                SET_TOP(CO_False);
+                err = 0;
+            } else {
+                STACK_ADJ(-1);
+            }
+            break;
         case OP_LOAD_LOCAL:
             oparg = NEXTARG();
             x = GETLOCAL(oparg);
@@ -827,6 +842,50 @@ new_frame:                     /* reentry point when function call/return */
             } else {
                 status = STATUS_EXCEPTION;
                 goto fast_end;
+            }
+            break;
+        case OP_JUMP_IF_FALSE_OR_POP:
+            oparg = NEXTARG();
+            o1 = TOP();
+            if (o1 == CO_False) {
+                STACK_ADJ(-1);
+                CO_DECREF(o1);
+            } else if (o1 == CO_True) {
+                JUMPTO(oparg);
+            } else {
+                err = COObject_IsTrue(o1);
+                if (err > 0) {
+                    STACK_ADJ(-1);
+                    CO_DECREF(o1);
+                } else if (err == 0) {
+                    err = 0;
+                    JUMPTO(oparg);
+                } else {
+                    status = STATUS_EXCEPTION;
+                    goto fast_end;
+                }
+            }
+            break;
+        case OP_JUMP_IF_TRUE_OR_POP:
+            oparg = NEXTARG();
+            o1 = TOP();
+            if (o1 == CO_True) {
+                STACK_ADJ(-1);
+                CO_DECREF(o1);
+            } else if (o1 == CO_False) {
+                JUMPTO(oparg);
+            } else {
+                err = COObject_IsTrue(o1);
+                if (err > 0) {
+                    err = 0;
+                    JUMPTO(oparg);
+                } else if (err == 0) {
+                    STACK_ADJ(-1);
+                    CO_DECREF(o1);
+                } else {
+                    status = STATUS_EXCEPTION;
+                    goto fast_end;
+                }
             }
             break;
         default:
