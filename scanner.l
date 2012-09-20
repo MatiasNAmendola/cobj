@@ -198,6 +198,7 @@ re2c:yyfill:check = 0;
 
 NUM         = ([1-9][0-9]*|[0]|"0"[xX][0-9a-fA-F]+|"0"[oO][0-7]+|"0"[bB][01]+);
 FNUM        = ([0-9]*"."[0-9]+);
+EXP_FNUM    = (({NUM}|{FNUM})[eE][+-]?[0-9]+);
 NAME        = [a-zA-Z_][a-zA-Z0-9_]*;
 TOKENS      = [-+()=>/<*^,;:{}%\[\]~.];
 WHITESPACE  = [ \t]+;
@@ -207,7 +208,7 @@ ANY_CHAR    = [^];
 /* compute yyleng before each rule */
 <!*> := yyleng = YYCURSOR - scanner_globals.yy_text;
 
-<SC_INIT>NUM {
+<SC_INIT>{NUM} {
     char c = yytext[yyleng];
     yytext[yyleng] = '\0';
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
@@ -217,7 +218,14 @@ ANY_CHAR    = [^];
     return T_NUM;
 }
 
-<SC_INIT>FNUM {
+<SC_INIT>{FNUM} {
+    yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
+    yylval->node->u.o = COFloat_FromString(yytext);
+    arena_addobject(scanner_globals.arena, yylval->node->u.o);
+    return T_FNUM;
+}
+
+<SC_INIT>{EXP_FNUM} {
     yylval->node = node_new(scanner_globals.arena, NODE_CONST, NULL, NULL);
     yylval->node->u.o = COFloat_FromString(yytext);
     arena_addobject(scanner_globals.arena, yylval->node->u.o);
@@ -376,7 +384,7 @@ ANY_CHAR    = [^];
     return T_STRING;
 }
 
-<SC_INIT>NAME {
+<SC_INIT>{NAME} {
     yylval->node = node_new(scanner_globals.arena, NODE_NAME, NULL, NULL);
     yylval->node->u.o = COStr_FromStringN(yytext, yyleng);
     arena_addobject(scanner_globals.arena, yylval->node->u.o);
@@ -455,7 +463,7 @@ ANY_CHAR    = [^];
     return T_POW;
 }
 
-<SC_INIT>TOKENS {
+<SC_INIT>{TOKENS} {
     return yytext[0];
 }
 
@@ -463,15 +471,15 @@ ANY_CHAR    = [^];
     return T_COMMENT;
 }
 
-<SC_INIT>WHITESPACE   { 
+<SC_INIT>{WHITESPACE}   { 
     return T_WHITESPACE;
 }
 
-<SC_INIT>NEWLINE {
+<SC_INIT>{NEWLINE} {
     return T_NEWLINE;
 }
 
-<SC_INIT>ANY_CHAR   {
+<SC_INIT>{ANY_CHAR}   {
     return coerror(NULL, "invalid token: %s", yytext);
 }
 */

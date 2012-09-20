@@ -105,6 +105,26 @@ float_add(COObject *v, COObject *w)
 }
 
 static COObject *
+float_sub(COObject *v, COObject *w)
+{
+    double a, b;
+    CONVERT_TO_DOUBLE(v, a);
+    CONVERT_TO_DOUBLE(w, b);
+    a = a - b;
+    return COFloat_FromDouble(a);
+}
+
+static COObject *
+float_mul(COObject *v, COObject *w)
+{
+    double a, b;
+    CONVERT_TO_DOUBLE(v, a);
+    CONVERT_TO_DOUBLE(w, b);
+    a = a * b;
+    return COFloat_FromDouble(a);
+}
+
+static COObject *
 float_pow(COObject *v, COObject *w)
 {
     // TODO
@@ -113,12 +133,10 @@ float_pow(COObject *v, COObject *w)
 
 static COAritmeticInterface arithmetic_interface = {
     (binaryfunc)float_add,
-    /*(binaryfunc)float_sub,*/
-    /*(binaryfunc)float_mul,*/
+    (binaryfunc)float_sub,
+    (binaryfunc)float_mul,
     /*(binaryfunc)float_div,*/
     /*(binaryfunc)float_mod,*/
-    0,
-    0,
     0,
     0,
     (binaryfunc)float_pow,

@@ -18,9 +18,9 @@ local proclaim = func(cond, desc)
 end
 
 func plan(num)
-    if type(num) is str
-        # TODO check (num  == "no_plan")
+    if (type(num) is str) && (num == "no_plan")
     else
+        no_plan = False
         plans = num
         print("1.." + str(num))
     end
@@ -53,5 +53,5 @@ func isnt_ok(got, expected, desc = '')
 end
 
 func done()
-    
+
 end

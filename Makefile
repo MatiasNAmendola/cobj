@@ -77,7 +77,7 @@ parser.c: parser.y
 
 scanner.h: scanner.c
 scanner.c: scanner.l
-	re2c -cbdt scanner.h -o $@ $^
+	re2c -cbdFt scanner.h -o $@ $^
 
 .PHONY: all install uninstall clean test tags doc
 
