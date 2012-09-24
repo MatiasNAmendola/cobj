@@ -189,6 +189,6 @@ COFloat_FromString(char *s)
     COFloatObject *f;
 
     f = COObject_NEW(COFloatObject, &COFloat_Type);
-    f->co_fval = strtof(s, NULL);
+    f->co_fval = str2d(s, NULL);
     return (COObject *)f;
 }

@@ -43,6 +43,7 @@ LIB_OBJS += opcode.o
 LIB_OBJS += peephole.o
 LIB_OBJS += arena.o
 LIB_OBJS += gc.o
+LIB_OBJS += str2d.o
 LIB_OBJS += $(patsubst %.c,%.o,$(wildcard objects/*.c))
 LIB_OBJS += module.o
 LIB_OBJS += $(patsubst %.c,%.o,$(wildcard modules/*.c))

@@ -35,6 +35,7 @@
 #include "peephole.h"
 #include "arena.h"
 #include "object.h"
+#include "str2d.h"
 #include "objects/boolobject.h"
 #include "objects/bytesobject.h"
 #include "objects/capsuleobject.h"

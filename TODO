@@ -4,8 +4,6 @@ Core
     - arithmetic methods
     - freelist
     - _CO_HashDouble
-    - better COFloat_FromString
-        fix: 1.2193263111263526e+17
  * multi assginment support a, b = expr, expr syntax
  * implement pow
  * t/basic.py -> test/basic.co
