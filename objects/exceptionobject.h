@@ -30,6 +30,7 @@ COTypeObject COException_Type;
  *    - TypeError
  *    - NotImplementedError
  *    - ValueError
+ *    - ZeroDivisionError
  */
 COObject *COException;
 COObject *COException_AttributeError;
@@ -43,5 +44,6 @@ COObject *COException_SystemError;
 COObject *COException_TypeError;
 COObject *COException_NotImplementedError;
 COObject *COException_ValueError;
+COObject *COException_ZeroDivisionError;
 
 #endif

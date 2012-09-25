@@ -125,29 +125,75 @@ float_mul(COObject *v, COObject *w)
 }
 
 static COObject *
+float_div(COObject *v, COObject *w)
+{
+    double a, b;
+    CONVERT_TO_DOUBLE(v, a);
+    CONVERT_TO_DOUBLE(w, b);
+    if (b == 0.0) {
+        COErr_SetString(COException_ZeroDivisionError, "float division by zero");
+        return NULL;
+    }
+    a = a / b;
+    return COFloat_FromDouble(a);
+}
+
+static COObject *
+float_mod(COObject *v, COObject *w)
+{
+    double a, b;
+    CONVERT_TO_DOUBLE(v, a);
+    CONVERT_TO_DOUBLE(w, b);
+    if (b == 0.0) {
+        COErr_SetString(COException_ZeroDivisionError, "float modulo");
+        return NULL;
+    }
+    double mod = fmod(a, b);
+    return COFloat_FromDouble(mod);
+}
+
+static COObject *
 float_pow(COObject *v, COObject *w)
 {
-    // TODO
+    double x;
     double a, b;
+    CONVERT_TO_DOUBLE(v, a);
+    CONVERT_TO_DOUBLE(w, b);
+
+    if (b == 0) { /* a**0 = 1, even 0**0 */
+        return COFloat_FromDouble(1.0);
+    }
+
+    if (isnan(a)) { /* nan**b = nan, unless b == 0 */
+        return COFloat_FromDouble(a);
+    }
+
+    if (isnan(b)) { /* a**nan = nan, unless a == 1; 1 **nan = 1 */
+        return COFloat_FromDouble(a == 1.0 ? 1.0 : b);
+    }
+
+    x = pow(a, b);
+
+    return COFloat_FromDouble(x);
+}
+
+static COObject *
+float_neg(COObject *v)
+{
+    return COFloat_FromDouble(-COFloat_AS_DOUBLE(v));
 }
 
 static COAritmeticInterface arithmetic_interface = {
     (binaryfunc)float_add,
     (binaryfunc)float_sub,
     (binaryfunc)float_mul,
-    /*(binaryfunc)float_div,*/
-    /*(binaryfunc)float_mod,*/
-    0,
-    0,
+    (binaryfunc)float_div,
+    (binaryfunc)float_mod,
     (binaryfunc)float_pow,
     0,
     0,
+    (unaryfunc)float_neg,
     0,
-    0,
-    /*(binaryfunc)float_lshift,*/
-    /*(binaryfunc)float_rshift,*/
-    /*(unaryfunc)float_neg,*/
-    /*(unaryfunc)float_invert,*/
 };
 
 COTypeObject COFloat_Type = {

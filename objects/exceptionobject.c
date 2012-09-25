@@ -73,3 +73,4 @@ SimpleExtendsException(COException, SystemError);
 SimpleExtendsException(COException, TypeError);
 SimpleExtendsException(COException, NotImplementedError);
 SimpleExtendsException(COException, ValueError);
+SimpleExtendsException(COException, ZeroDivisionError);

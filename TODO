@@ -1,12 +1,7 @@
 Core
 ====
- * float
-    - arithmetic methods
-    - freelist
-    - _CO_HashDouble
+ * t -> newtest
  * multi assginment support a, b = expr, expr syntax
- * implement pow
- * t/basic.py -> test/basic.co
  * fix more than one logical operators in expr
  * rework closure
  * don't use `is`, `not` keywords?
@@ -19,6 +14,8 @@ Core
 Performance
 ===========
  * frameobject freelist
+ * floatobject freelist
+ * float hash function
 
 Tests
 =====

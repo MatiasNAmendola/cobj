@@ -483,21 +483,48 @@ COMapping_SetItem(COObject *o, COObject *key, COObject *value)
 /* ! Mapping Methods. */
 
 /* Arithmetic methods. */
+
+/*
+ * Calling scheme used for binary operations:
+ * 
+ * Order operations are tried until either a valid result or error:
+ *
+ *   b.op(a, b) - only when a->co_type != b->co_type && b->co_type is subclass
+ *   of a->co_type
+ *   v.op(a, b)
+ *   w.op(a, b)
+ */
 #define ARITHMETIC_BINARY_FUNC(func, op, op_name)  \
     COObject * \
-    func(COObject *a, COObject *b) \
+    func(COObject *v, COObject *w) \
     { \
-        COAritmeticInterface *ai; \
+        COObject *x; \
+        binaryfunc slotv; \
+        binaryfunc slotw; \
 \
-        if (a->co_type == b->co_type && (ai = a->co_type->tp_arithmetic_interface) != NULL) { \
-            if (ai->op) { \
-                return ai->op(a, b); \
-            } \
+        if (v->co_type->tp_arithmetic_interface != NULL) \
+            slotv = v->co_type->tp_arithmetic_interface->op; \
+        if (w->co_type != v->co_type && \
+            w->co_type->tp_arithmetic_interface != NULL) { \
+            slotw = w->co_type->tp_arithmetic_interface->op; \
+            if (slotw == slotv) \
+                slotw = NULL; \
+        } \
+\
+        if (slotv) { \
+            x = slotv(v, w); \
+            if (x) \
+                return x; \
+        } \
+        if (slotw) { \
+            x = slotw(v, w); \
+            if (x) \
+                return x; \
         } \
 \
         COErr_Format(COException_NotImplementedError, \
                      "undefined arithmetic operation: %.100s() %s %.100s()", \
-                     a->co_type->tp_name, op_name, b->co_type->tp_name); \
+                     v->co_type->tp_name, op_name, w->co_type->tp_name); \
         return NULL; \
     }
 
@@ -506,7 +533,7 @@ ARITHMETIC_BINARY_FUNC(COArithmetic_Sub, arith_sub, "-")
 ARITHMETIC_BINARY_FUNC(COArithmetic_Mul, arith_mul, "*")
 ARITHMETIC_BINARY_FUNC(COArithmetic_Div, arith_div, "/")
 ARITHMETIC_BINARY_FUNC(COArithmetic_Mod, arith_mod, "%")
-ARITHMETIC_BINARY_FUNC(COArithmetic_Pow, arith_pow, "%")
+ARITHMETIC_BINARY_FUNC(COArithmetic_Pow, arith_pow, "**")
 ARITHMETIC_BINARY_FUNC(COArithmetic_Lshift, arith_lshift, "<<")
 ARITHMETIC_BINARY_FUNC(COArithmetic_Rshift, arith_rshift, ">>")
 
