@@ -503,8 +503,8 @@ COMapping_SetItem(COObject *o, COObject *key, COObject *value)
     func(COObject *v, COObject *w) \
     { \
         COObject *x; \
-        binaryfunc slotv; \
-        binaryfunc slotw; \
+        binaryfunc slotv = NULL; \
+        binaryfunc slotw = NULL; \
 \
         if (v->co_type->tp_arithmetic_interface != NULL) \
             slotv = v->co_type->tp_arithmetic_interface->op; \

@@ -275,7 +275,7 @@ COFloat_ClearFreeList(void)
     return i;
 }
 
-COObject *
+void
 COFloat_Fini(void)
 {
     (void)COFloat_ClearFreeList();

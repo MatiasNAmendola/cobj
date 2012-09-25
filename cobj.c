@@ -214,6 +214,8 @@ main(int argc, const char **argv)
     }
 
     /* Finialize */
+    COInt_Fini();
+    COFloat_Fini();
     COFrame_Fini();
     COObject_GC_Collect();
 }
