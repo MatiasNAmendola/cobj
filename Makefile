@@ -104,9 +104,6 @@ doc:
 test: all
 	$(MAKE) -C t/ all
 
-newtest: all
-	$(MAKE) -C test/ all
-
 tags:
 	$(RM) tags
 	$(FIND_SOURCE_FILES) | xargs ctags -a
