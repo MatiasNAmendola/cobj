@@ -916,6 +916,7 @@ int_mod(COIntObject *a, COIntObject *b)
         div = NULL;
         rem = NULL;
     }
+    CO_XDECREF(div);
     return rem;
 }
 
