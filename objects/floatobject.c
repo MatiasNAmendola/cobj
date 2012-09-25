@@ -1,5 +1,14 @@
 #include "../cobj.h"
 
+/* 
+ * Free list is a singly-linked list of available float objects, linked via
+ * abuse of their co_type members.
+ */
+#define COFloat_MAXFREELIST 100
+static int numfree = 0;
+static COFloatObject *free_list = NULL;
+
+
 static long
 float_hash(COFloatObject *this)
 {
@@ -49,7 +58,13 @@ float_repr(COFloatObject *this)
 static void
 float_dealloc(COFloatObject *this)
 {
-    COObject_Mem_FREE(this);
+    if (numfree >= COFloat_MAXFREELIST) {
+        COObject_Mem_FREE(this);
+    } else {
+        numfree++;
+        CO_TYPE(this) = (COTypeObject *)free_list;
+        free_list = this;
+    }
 }
 
 static COObject *
@@ -222,9 +237,16 @@ COTypeObject COFloat_Type = {
 COObject *
 COFloat_FromDouble(double dbl)
 {
-    COFloatObject *f;
-
-    f = COObject_NEW(COFloatObject, &COFloat_Type);
+    COFloatObject *f = free_list;
+    if (f != NULL) {
+        free_list = (COFloatObject *)CO_TYPE(f);
+        numfree--;
+        COObject_INIT(f, &COFloat_Type);
+    } else {
+        f = COObject_NEW(COFloatObject, &COFloat_Type);
+        if (!f)
+            return COErr_NoMemory();
+    }
     f->co_fval = dbl;
     return (COObject *)f;
 }
@@ -232,9 +254,29 @@ COFloat_FromDouble(double dbl)
 COObject *
 COFloat_FromString(char *s)
 {
-    COFloatObject *f;
+    double x;
 
-    f = COObject_NEW(COFloatObject, &COFloat_Type);
-    f->co_fval = str2d(s, NULL);
-    return (COObject *)f;
+    x = str2d(s, NULL);
+    return COFloat_FromDouble(x);
+}
+
+int
+COFloat_ClearFreeList(void)
+{
+    COFloatObject *f = free_list, *next;
+    int i = numfree;
+    while (f) {
+        next = (COFloatObject *)CO_TYPE(f);
+        COObject_Mem_FREE(f);
+        f = next;
+    }
+    free_list = NULL;
+    numfree = 0;
+    return i;
+}
+
+COObject *
+COFloat_Fini(void)
+{
+    (void)COFloat_ClearFreeList();
 }

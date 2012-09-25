@@ -16,5 +16,7 @@ COTypeObject COFloat_Type;
 
 COObject *COFloat_FromDouble(double);
 COObject *COFloat_FromString(char *s);
+int COFloat_ClearFreeList(void);
+COObject *COFloat_Fini(void);
 
 #endif

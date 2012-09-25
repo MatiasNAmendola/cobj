@@ -10,7 +10,6 @@ Core
 Performance
 ===========
  * frameobject freelist
- * floatobject freelist
  * float hash function
 
 Tests
