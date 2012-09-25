@@ -1,8 +1,15 @@
 from test import *
 
-plan(3)
+plan(6)
 
+# one expr
 a, b, c = (1, 2, 3)
 is_ok(a, 1)
 is_ok(b, 2)
 is_ok(c, 3)
+
+# multi exprs
+a1, b1, c1 = a, b, c
+is_ok(a, a1)
+is_ok(b, b1)
+is_ok(c, c1)

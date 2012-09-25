@@ -1,11 +1,7 @@
 Core
 ====
- * t -> newtest
- * multi assginment support a, b = expr, expr syntax
  * fix more than one logical operators in expr
  * rework closure
- * don't use `is`, `not` keywords?
- * implement import module
  * turn lexer/parser error into Exception?
  * hand-written lexer?
  * implement `this` as keyword or a special name?
@@ -24,7 +20,3 @@ Tests
 Modules
 =======
   * write test module (like Perl6's test)
-
-Bugs
-====
-  * more than one level upvalue

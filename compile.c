@@ -505,7 +505,12 @@ compiler_visit_node(struct compiler *c, Node *n)
         compiler_addop_i(c, OP_STORE_LOCAL, oparg);
         break;
     case NODE_ASSIGN_MULTI:
-        compiler_visit_node(c, n->nd_right);
+        if (node_listlen(n->nd_right) > 1) {
+            compiler_visit_node(c, n->nd_right);
+            compiler_addop_i(c, OP_BUILD_TUPLE, node_listlen(n->nd_right));
+        } else {
+            compiler_visit_node(c, n->nd_right);
+        }
         oparg = node_listlen(n->nd_left);
         compiler_addop_i(c, OP_UNPACK_SEQUENCE, oparg);
         Node *l = n->nd_left;
