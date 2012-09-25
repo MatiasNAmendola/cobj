@@ -1,6 +1,6 @@
 from test import *
 
-plan(18)
+plan(22)
 
 # arithmetic operations
 is_ok(0 + 1, 1, "add")
@@ -19,7 +19,15 @@ is_ok(-6.0 % -5.0, -1.0, "float mod")
 is_ok(2 ** 10, 1024, "pow")
 is_ok(2.2 ** 10, 2655.9922791424024, "float pow")
 
+# arithmetic assignment operations
+
 # logic operations
 is_ok(1 && 0, 0, "and")
 is_ok(1 || 0, 1, "or")
 is_ok(!1, False, "not")
+
+# 'in', 'not in', 'is', 'is not'
+ok(1 in (1,2,3), "in")
+ok(1 not in (2,3), "not in")
+ok(type(1) is int, "is")
+ok(type(1) is not type, "is not")

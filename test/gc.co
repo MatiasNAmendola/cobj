@@ -1,0 +1,15 @@
+from test import *
+
+plan(1)
+
+func hello()
+    local a = [None, [1,2,3]]
+    local b = [a]
+    local c = [b]
+    local d = [c]
+    local e = [d]
+    a[0] = e
+end
+
+hello()
+is_ok(gc.collect(), 6)

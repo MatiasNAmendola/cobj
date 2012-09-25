@@ -1,0 +1,30 @@
+from test import *
+
+plan(5)
+
+# empty function body & param list
+func empty end
+
+# function in one line
+func sum(a, b) return a + b end
+
+# function literal
+f = func (a, b) return a + b end
+
+# empty exception
+try end
+
+# list literal
+nok([])
+ok([ 1
+,2
+,
+])
+nok([
+])
+
+# tuple literal
+ok((1,))
+ok((
+1,
+))

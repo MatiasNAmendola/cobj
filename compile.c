@@ -997,8 +997,9 @@ opcode_stack_effect(int opcode, int oparg)
         return 1;
     case OP_DICT_ADD:
         return -1;
-    case OP_SETUP_LOOP:
     case OP_SETUP_TRY:
+        return 2;
+    case OP_SETUP_LOOP:
     case OP_SETUP_FINALLY:
     case OP_POP_BLOCK:
     case OP_BREAK_LOOP:
@@ -1010,7 +1011,7 @@ opcode_stack_effect(int opcode, int oparg)
         return -1;
     case OP_END_TRY:
     case OP_END_FINALLY:
-        return -1;
+        return -2;
     case OP_STORE_SUBSCRIPT:
     case OP_SET_ATTR:
         return -3;

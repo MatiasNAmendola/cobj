@@ -1,0 +1,8 @@
+from test import *
+
+plan(3)
+
+a, b, c = (1, 2, 3)
+is_ok(a, 1)
+is_ok(b, 2)
+is_ok(c, 3)

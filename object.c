@@ -202,6 +202,10 @@ COObject_IsTrue(COObject *o)
         return 0;
     if (COInt_Check(o)) {
         size = CO_SIZE(o);
+    } else if (COFloat_Check(o)) {
+        return COFloat_AS_DOUBLE(o) != 0.0;
+    } else if (o->co_type->tp_sequence_interface->sq_length) {
+        size = o->co_type->tp_sequence_interface->sq_length(o);
     } else {
         // default
         return 1;

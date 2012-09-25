@@ -700,7 +700,7 @@ new_frame:                     /* reentry point when function call/return */
                 error("error oparg");
             }
             status = STATUS_EXCEPTION;
-            COErr_SetObject(COException_SystemError, o1);
+            COErr_SetNone(o1);
             break;
         case OP_DUP_TOP:
             o1 = TOP();
@@ -712,10 +712,12 @@ new_frame:                     /* reentry point when function call/return */
             CO_DECREF(o1);
             break;
         case OP_END_TRY:
+            o2 = POP();
             o1 = POP();
-            COErr_SetString(COException_SystemError, COStr_AsString(o1));
+            COErr_SetObject(o2, o1);
             status = STATUS_EXCEPTION;
             CO_DECREF(o1);
+            CO_DECREF(o2);
             break;
         case OP_SETUP_FINALLY:
             oparg = NEXTARG();
@@ -723,11 +725,14 @@ new_frame:                     /* reentry point when function call/return */
             break;
         case OP_END_FINALLY:
             o1 = POP();
+            o2 = POP();
             if (o1 != CO_None) {
-                COErr_SetString(COException_SystemError, COStr_AsString(o1));
+                COErr_SetNone(o1);
                 status = STATUS_EXCEPTION;
+                goto fast_end;
             }
             CO_DECREF(o1);
+            CO_DECREF(o2);
             break;
         case OP_STORE_SUBSCRIPT:
             o1 = TOP();
@@ -923,6 +928,7 @@ fast_end:
                 COObject *exc, *val, *tb;
                 COErr_Fetch(&exc, &val, &tb);
                 PUSH(val);
+                PUSH(exc);
                 JUMPTO(fb->fb_handler);
                 break;
             }

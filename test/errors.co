@@ -1,0 +1,44 @@
+from test import *
+
+plan(5)
+
+# simple case
+try
+    print(unknown)
+catch NameError
+    ok(True)
+end
+
+# no catch and no finally
+try
+    ok(True)
+end
+
+# multi catch list
+try
+    throw Exception
+catch NameError, Exception
+    ok(True)
+end
+
+# default catch
+try
+    throw SystemError
+catch NameError, Exception
+    ok(False)
+catch 
+    ok(True)
+end
+
+# finally
+a = 1
+try
+    a += 1
+    throw SystemError
+catch NameError, Exception
+catch
+    a += 2
+finally
+    a += 3
+end
+is_ok(a, 7)

@@ -34,7 +34,7 @@ func ok(got, desc = '')
     proclaim(got, desc)
 end
 
-func ngot(got, desc = '')
+func nok(got, desc = '')
     proclaim(!got, desc)
 end
 

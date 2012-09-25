@@ -1,0 +1,17 @@
+from test import *
+
+plan(4)
+
+# iter list
+j = 1
+for i in [1,2,3]
+    ok(i, j)
+    j += 1
+end
+
+# iter dict
+s = ""
+for k in {"a" => 1, "b" => 2, "c" => 3}
+    s += k
+end
+ok(s, "abc")

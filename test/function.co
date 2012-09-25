@@ -1,0 +1,42 @@
+from test import *
+
+plan(6)
+
+# scope
+a = "outside a"
+b = "outside b"
+func foo(b)
+    is_ok(b, "outside a")
+    b = "changed"
+    is_ok(b, "changed")
+end
+
+foo(a)
+
+# recursion
+func fibo(num)
+    if num == 0
+        return 0
+    elif num == 1
+        return 1
+    else
+        return fibo(num - 1) + fibo(num - 2)
+    end
+end
+
+is_ok(fibo(9), 34)
+
+# closure
+last = 0
+newIncrer = func(n)
+    return func(i) 
+        n = n + i
+        last = n
+        return n
+    end
+end
+
+f = newIncrer(10)
+is_ok(f(1), 11)
+is_ok(f(1), 12)
+is_ok(last, 12)

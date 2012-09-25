@@ -1,0 +1,14 @@
+from test import *
+
+plan(2)
+
+d = {
+    "string" => "a",
+    10 => "10",
+}
+
+is_ok(d["string"], "a")
+
+d[10] = 10
+
+is_ok(d[10], 10)
