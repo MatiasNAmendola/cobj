@@ -620,7 +620,7 @@ compiler_visit_node(struct compiler *c, Node *n)
                     already_has_optional_args = true;
                     if (!default_exprs) {
                         default_exprs =
-                            node_list(c->arena, l->nd_node->nd_right, NULL);
+                            node_list(c->arena, l->nd_node->nd_right);
                         oparg =
                             compiler_add(c->u->u_localnames,
                                          l->nd_node->nd_left->u.o);

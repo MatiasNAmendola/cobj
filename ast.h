@@ -147,7 +147,8 @@ typedef struct _Node {
 #define nd_alias n1
 
 Node *node_new(struct arena *arena, Node_Type type, Node *nleft, Node *nright);
-Node *node_list(struct arena *arena, Node *n, ...);
+#define node_list(...)  _node_list(__VA_ARGS__, NULL)
+Node *_node_list(struct arena *arena, Node *n, ...);
 Node *node_listprepend(struct arena *arena, Node *l, Node *n);
 Node *node_listappend(struct arena *arena, Node *l, Node *n);
 Node *node_listconcat(Node *a, Node *b);
