@@ -13,35 +13,11 @@ Names
         method_data for data.
     - Functions start with '_' must be used internally and carefully.
 
-Comments
-========
-    - Line comment
-    /*** 1st level line comment. ***/
-    /*** ! 1st level line comment. ***/
-    /* 2nd level line comment. */
-    /* ! 2nd level line comment. */
-    // 3rd level line comment.
-    // ! 3rd level line comment.
-
-    Note: Line comment can have a end of block line, which has same contents but preceded by `!`
-    to comment a code block that spans multiple lines.
-
-    - Block comment
-    /**
-     *  <block comment has title>
-     *
-     *  <doc string>
-     */
-
-    /*
-     *  <doc string, block comment without title>
-     */
-
 Conventions
 ===========
     For less memory usage...
 
-    Parameter names:
+    Common parameter names:
 
         a, b, c, d, e, f, g
         this, that, other

@@ -1,6 +1,10 @@
 Core
 ====
- * fix more than one logical operators in expr
+ * remote tuple literal syntax to simplify gramma
+ * support one line call syntax, like this:
+    print "hello world" # in one line
+   which is same as 
+    print("hello world")
  * rework closure
  * turn lexer/parser error into Exception?
  * hand-written lexer?
@@ -15,7 +19,3 @@ Performance
 Tests
 =====
   * unit tests with valgrind memory leak check
-
-Modules
-=======
-  * write test module (like Perl6's test)
