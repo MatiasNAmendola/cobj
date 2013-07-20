@@ -1,8 +1,8 @@
 [submodule "argparse"]
-	path = argparse
-	url = git@github.com:Cofyc/argparse.git
+    path = argparse
+    url = https://github.com/Cofyc/argparse.git
     ignore = dirty
 [submodule "linenoise"]
-	path = linenoise
-	url = https://github.com/antirez/linenoise.git
+    path = linenoise
+    url = https://github.com/antirez/linenoise.git
     ignore = dirty
