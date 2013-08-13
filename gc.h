@@ -7,10 +7,10 @@
  *
  * In COObject, each object has a reference count which indicates how many objects are
  * referring to it. When this reference count reaches zero the object is freed.
- * However, there is one fundamental flaw with reference couting and it's due to
+ * However, there is one fundamental flaw with reference counting and it's due to
  * something called reference cycle.
  *
- * If there is a reference cycle, this module is used to detct it and free it
+ * If there is a reference cycle, this module is used to detect it and free it
  * together.
  *
  * How does this work?
