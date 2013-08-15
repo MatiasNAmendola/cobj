@@ -20,7 +20,7 @@ node_new(struct arena *arena, Node_Type type, Node *nleft, Node *nright)
  * argument list.
  */
 Node *
-node_list(struct arena *arena, Node *n, ...)
+_node_list(struct arena *arena, Node *n, ...)
 {
     va_list params;
 
@@ -39,7 +39,7 @@ node_list(struct arena *arena, Node *n, ...)
         n = va_arg(params, Node *);
         if (!n)
             break;
-        l = node_listconcat(l, node_list(arena, n, NULL));
+        l = node_listconcat(l, node_list(arena, n));
     }
 
     va_end(params);
@@ -49,13 +49,13 @@ node_list(struct arena *arena, Node *n, ...)
 Node *
 node_listprepend(struct arena *arena, Node *l, Node *n)
 {
-    return node_listconcat(node_list(arena, n, NULL), l);
+    return node_listconcat(node_list(arena, n), l);
 }
 
 Node *
 node_listappend(struct arena *arena, Node *l, Node *n)
 {
-    return node_listconcat(l, node_list(arena, n, NULL));
+    return node_listconcat(l, node_list(arena, n));
 }
 
 /*

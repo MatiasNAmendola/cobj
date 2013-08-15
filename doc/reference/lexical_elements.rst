@@ -5,7 +5,7 @@ The lexical analysis is independent of the syntax parsing and semantic analysis.
 
 Source Text
 ~~~~~~~~~~~
-CO source text can be in one of the following formats: ASCII, UTF-8.
+CObj source text can be in one of the following formats: ASCII, UTF-8.
 
 Comments    
 ~~~~~~~~
@@ -13,8 +13,7 @@ There are only one form of comments, line comments start with the character '#' 
 
 Tokens    
 ~~~~~~
-Tokens form the vocabulary of the Co language. There are four classes: identifiers, keywords, operators and delimiters, and literals.
-White space, formed from spaces (U+0020), horizontal tabs (U+0009), carriage returns (U+000D), and newlines (U+000A), is ignored except as it separates tokens that would otherwise combine into a single token.
+Tokens form the vocabulary of the CObj language. There are five classes: identifiers, keywords, operators, delimiters, and literals.
 
 Identifiers    
 ~~~~~~~~~~~
@@ -49,8 +48,16 @@ Keywords
 Operators
 ~~~~~~~~~
 
+Operators can serve as delimiters.
+
+Delimiters
+~~~~~~~~~~
+
+White space, formed from spaces (U+0020), horizontal tabs (U+0009), carriage returns (U+000D), and newlines (U+000A), is ignored except as it separates tokens that would otherwise combine into a single token.
+
 Literals    
 ~~~~~~~~
+
 A string literal represents a string constant obtained from concatenating a sequence of characters.
 
 Single quoted string literals are character sequences between single quotes. Within the quotes, any character is legal except single quote. To specify a literal single quote, escape it with a backslash (\). To specify a literal backslash, double it (\\). All other instances of backslash will be treated as a literal backslash.

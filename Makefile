@@ -63,7 +63,7 @@ version.h: gen-version.sh
 	./gen-version.sh > version.h
 
 cobj: $(LIB_OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $^
 
 cobj.o: version.h
 
