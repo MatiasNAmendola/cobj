@@ -1,6 +1,6 @@
 [submodule "argparse"]
 	path = argparse
-	url = git@github.com:Cofyc/argparse.git
+	url = https://github.com/Cofyc/argparse.git
     ignore = dirty
 [submodule "linenoise"]
 	path = linenoise
