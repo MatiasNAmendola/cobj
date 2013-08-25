@@ -1,13 +1,16 @@
+# CObj
+
 This is CObj, an general-purpose program language.
 
-Compile/Install
-===============
+[![Build Status](https://travis-ci.org/Cofyc/cobj.png?branch=master)](https://travis-ci.org/Cofyc/cobj)
+
+# Compile/Install
+
     # install bison/re2c first
     $ make  
     $ make install
 
-Examples
-========
+# Examples
 
     maxnum = 10
     i = 2
