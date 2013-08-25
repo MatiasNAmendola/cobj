@@ -2,7 +2,7 @@
 
 This is CObj, an general-purpose program language.
 
-[![Build Status](https://travis-ci.org/Cofyc/cobj.png?branch=master)](https://travis-ci.org/Cofyc/cobj)
+[![Build Status](https://travis-ci.org/Cofyc/cobj.png)](https://travis-ci.org/Cofyc/cobj)
 
 # Compile/Install
 
