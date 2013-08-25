@@ -465,8 +465,8 @@ new_frame:                     /* reentry point when function call/return */
             oparg = NEXTARG();
             o2 = POP();
             CO_INCREF(o2);
-            COTuple_SET_ITEM(((COFunctionObject *)func)->func_upvalues,
-                             oparg, o2);
+            COTuple_SET_ITEM(((COFunctionObject *)func)->func_upvalues, oparg,
+                             o2);
             break;
         case OP_STORE_LOCAL:
             oparg = NEXTARG();
@@ -539,8 +539,7 @@ new_frame:                     /* reentry point when function call/return */
                                  (((COCodeObject *)code)->co_upvals, j), name,
                                  Cmp_EQ)) {
                                 upvalue = COTuple_GET_ITEM(((COFunctionObject *)
-                                                            func)->
-                                                           func_upvalues, j);
+                                                            func)->func_upvalues, j);
                                 break;
                             }
                         }

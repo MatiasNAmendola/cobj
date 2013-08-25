@@ -1,7 +1,6 @@
 #ifndef STRTOD_H
 #define STRTOD_H
 
-
 double str2d(const char *str, char **endptr);
 
 /* d2str's flags parameter can be set to 0 or more of: */

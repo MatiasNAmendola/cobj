@@ -1,0 +1,99 @@
+#!/bin/bash
+#
+# My GNU Indent Helper.
+#
+# Author: Yecheng Fu <cofyc.jackson@gmail.com>
+
+### Configurations
+OUTSIDE_TYPEDEFS+="FILE YYSTYPE"
+
+### Don't edit lines below!
+
+# from memcached/autogen.sh
+# Try to locate a program by using which, and verify that the file is an
+# executable
+locate_binary() {
+  for f in $@
+  do
+    file=`which $f 2>/dev/null | grep -v '^no '`
+    if test -n "$file" -a -x "$file"; then
+      echo $file
+      return 0
+    fi
+  done
+
+  echo ""
+  return 1
+}
+
+
+INDENT=`locate_binary gindent gnuindent gnu-indent indent`
+
+cat << EOD > .indent.pro 
+-nbad // forces a blank line after every block of declarations
+-bap // forces a blank line after every procedure body
+-l80 // --line-length: maximum line length for non-comment lines
+-br -ce  // braces on if line & cuddle else
+-cdw // cuddle do-while loop
+-di0 // declaration indentation
+--braces-on-struct-decl-line
+--struct-brace-indentation1
+-i4 // indent level
+-il0 // indent label level
+-bli4 // brace indentation
+-ci4 // continuation indentation
+-ncs // no space after casts
+-npcs // no space after function call names
+-nprs // no space after parenthese
+-nut // no tabs
+-sob // swallow optinal blank lines
+EOD
+
+# try to find out all typenames defined by 'typedef'
+function print_typedef() {
+    # case 1: typedefs in oneline
+    sed -n 's/\s*typedef\s.*\s\([a-zA-Z_]\+\);/\1/p' $1
+
+    # case 2: typedefs (function) in oneline
+    sed -nr 's/\s*typedef\s*.*\(\*([a-zA-Z_]+)\)\s*\(.*;/\1/p' $1
+
+    # case 3: typedefs span multiline
+    awk '
+    BEGIN {
+        a = 0
+    }
+
+    {
+        if (match($0, "typedef")) {
+            a = 1
+        }
+        if (a && match($0, "^} [a-zA-Z0-9_]+;")) {
+            if (x = index($2, ";")) {
+                typedefs[$0] = substr($2, 0, x - 1);
+                a = 0
+            }
+        }
+    }
+
+    END {
+        for (i in typedefs) {
+            print typedefs[i]
+        }
+    }' $1
+}
+
+for f in $(find . -name "*.[ch]"); do
+    print_typedef $f | xargs -Itype echo -T type >> .indent.pro
+done
+
+# typedefs from outside libraries
+for t in $OUTSIDE_TYPEDEFS; do
+    echo "-T $t" >> .indent.pro
+done
+
+# indent
+$INDENT $(find . -name "*.[ch]" | grep -E -v '^\.\/(argparse|dstring|linenoise|libtap|lua-|pbc|jemalloc|utf8proc)')
+
+# clear
+rm -f .indent.pro
+find . -name "*~" | xargs rm -f

@@ -921,8 +921,8 @@ dfs(struct assembler *a, struct block *b)
         dfs(a, b->b_next);
     for (i = 0; i < b->b_iused; i++) {
         instr = &b->b_instr[i];
-        if (instr->i_opcode == OP_JMP ||
-            instr->i_opcode == OP_JMPZ || instr->i_opcode == OP_JMPX) {
+        if (instr->i_opcode == OP_JMP || instr->i_opcode == OP_JMPZ
+            || instr->i_opcode == OP_JMPX) {
             dfs(a, instr->i_target);
         }
     }

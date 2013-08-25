@@ -384,8 +384,8 @@ COObject_GC_Malloc(size_t basicsize)
 
     generations[0].count++;     /* number of allocated GC objects */
 
-    if (generations[0].count > generations[0].threshold
-        && enabled && !collecting && !COErr_Occurred()) {
+    if (generations[0].count > generations[0].threshold && enabled
+        && !collecting && !COErr_Occurred()) {
         collecting = 1;
         collect_generations();
         collecting = 0;

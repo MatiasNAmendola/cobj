@@ -465,8 +465,8 @@ COMapping_GetItem(COObject *o, COObject *key)
     if (mi && mi->mp_subscript)
         return mi->mp_subscript(o, key);
 
-    COErr_Format(COException_TypeError,
-                 "'%.200s' object is not subscriptable", CO_TYPE(o)->tp_name);
+    COErr_Format(COException_TypeError, "'%.200s' object is not subscriptable",
+                 CO_TYPE(o)->tp_name);
     return NULL;
 }
 
@@ -532,14 +532,14 @@ COMapping_SetItem(COObject *o, COObject *key, COObject *value)
         return NULL; \
     }
 
-ARITHMETIC_BINARY_FUNC(COArithmetic_Add, arith_add, "+")
-ARITHMETIC_BINARY_FUNC(COArithmetic_Sub, arith_sub, "-")
-ARITHMETIC_BINARY_FUNC(COArithmetic_Mul, arith_mul, "*")
-ARITHMETIC_BINARY_FUNC(COArithmetic_Div, arith_div, "/")
-ARITHMETIC_BINARY_FUNC(COArithmetic_Mod, arith_mod, "%")
-ARITHMETIC_BINARY_FUNC(COArithmetic_Pow, arith_pow, "**")
-ARITHMETIC_BINARY_FUNC(COArithmetic_Lshift, arith_lshift, "<<")
-ARITHMETIC_BINARY_FUNC(COArithmetic_Rshift, arith_rshift, ">>")
+ARITHMETIC_BINARY_FUNC(COArithmetic_Add, arith_add, "+");
+ARITHMETIC_BINARY_FUNC(COArithmetic_Sub, arith_sub, "-");
+ARITHMETIC_BINARY_FUNC(COArithmetic_Mul, arith_mul, "*");
+ARITHMETIC_BINARY_FUNC(COArithmetic_Div, arith_div, "/");
+ARITHMETIC_BINARY_FUNC(COArithmetic_Mod, arith_mod, "%");
+ARITHMETIC_BINARY_FUNC(COArithmetic_Pow, arith_pow, "**");
+ARITHMETIC_BINARY_FUNC(COArithmetic_Lshift, arith_lshift, "<<");
+ARITHMETIC_BINARY_FUNC(COArithmetic_Rshift, arith_rshift, ">>");
 
 COObject *
 COArithmetic_Neg(COObject *o)

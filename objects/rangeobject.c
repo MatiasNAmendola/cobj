@@ -75,8 +75,8 @@ fast_range_iter(long start, long stop, long step)
 static COObject *
 range_iter(CORangeObject *this)
 {
-    return fast_range_iter(COInt_AsLong(this->start),
-                           COInt_AsLong(this->stop), COInt_AsLong(this->step));
+    return fast_range_iter(COInt_AsLong(this->start), COInt_AsLong(this->stop),
+                           COInt_AsLong(this->step));
 }
 
 static COObject *

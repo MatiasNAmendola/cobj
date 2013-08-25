@@ -8,7 +8,6 @@
 static int numfree = 0;
 static COFloatObject *free_list = NULL;
 
-
 static long
 float_hash(COFloatObject *this)
 {
@@ -146,7 +145,8 @@ float_div(COObject *v, COObject *w)
     CONVERT_TO_DOUBLE(v, a);
     CONVERT_TO_DOUBLE(w, b);
     if (b == 0.0) {
-        COErr_SetString(COException_ZeroDivisionError, "float division by zero");
+        COErr_SetString(COException_ZeroDivisionError,
+                        "float division by zero");
         return NULL;
     }
     a = a / b;
@@ -175,15 +175,15 @@ float_pow(COObject *v, COObject *w)
     CONVERT_TO_DOUBLE(v, a);
     CONVERT_TO_DOUBLE(w, b);
 
-    if (b == 0) { /* a**0 = 1, even 0**0 */
+    if (b == 0) {               /* a**0 = 1, even 0**0 */
         return COFloat_FromDouble(1.0);
     }
 
-    if (isnan(a)) { /* nan**b = nan, unless b == 0 */
+    if (isnan(a)) {             /* nan**b = nan, unless b == 0 */
         return COFloat_FromDouble(a);
     }
 
-    if (isnan(b)) { /* a**nan = nan, unless a == 1; 1 **nan = 1 */
+    if (isnan(b)) {             /* a**nan = nan, unless a == 1; 1 **nan = 1 */
         return COFloat_FromDouble(a == 1.0 ? 1.0 : b);
     }
 

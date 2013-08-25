@@ -1,6 +1,5 @@
 #include "../cobj.h"
 
-
 #define MAX_LONG_DIGITS \
     ((SIZE_MAX - offsetof(COIntObject, co_digit))/sizeof(digit))
 #define ABS(x) ((x) < 0 ? -(x) : (x))
@@ -855,9 +854,9 @@ int_divrem(COIntObject *a, COIntObject *b, COIntObject **pdiv,
         return -1;
     }
     // If |a| < |b|, it's simple.
-    if (size_a < size_b ||
-        (size_a == size_b && a->co_digit[size_a - 1] < b->co_digit[size_b - 1]))
-    {
+    if (size_a < size_b
+        || (size_a == size_b
+            && a->co_digit[size_a - 1] < b->co_digit[size_b - 1])) {
         *pdiv = (COIntObject *)COInt_FromLong(0);
         if (!*pdiv)
             return -1;
@@ -940,7 +939,8 @@ int_pow(COIntObject *a, COIntObject *b)
         // Returns a float.
         CO_DECREF(v);
         CO_DECREF(w);
-        return (COIntObject *)COFloat_Type.tp_arithmetic_interface->arith_pow((COObject *)a, (COObject *)b);
+        return (COIntObject *)COFloat_Type.
+            tp_arithmetic_interface->arith_pow((COObject *)a, (COObject *)b);
     }
 
     z = (COIntObject *)COInt_FromLong(1L);
@@ -1369,7 +1369,7 @@ COInt_Init(void)
 #endif
 
 double
-_COInt_Frexp(COIntObject *a, ssize_t *e)
+_COInt_Frexp(COIntObject *a, ssize_t * e)
 {
     ssize_t a_size, a_bits, shift_digits, shift_bits, x_size;
     /* See below for why x_digits is always large enough. */
@@ -1377,7 +1377,7 @@ _COInt_Frexp(COIntObject *a, ssize_t *e)
 
     double dx;
 
-    static const int half_even_correction[8] = {0, -1, -2, 1, 0, -1, 2, 1};
+    static const int half_even_correction[8] = { 0, -1, -2, 1, 0, -1, 2, 1 };
 
     a_size = ABS(CO_SIZE(a));
     if (a_size == 0) {
@@ -1389,24 +1389,24 @@ _COInt_Frexp(COIntObject *a, ssize_t *e)
 
     if (a_size >= (SSIZE_MAX - 1) / COInt_SHIFT + 1
         && (a_size > (SSIZE_MAX - 1) / COInt_SHIFT + 1
-        || a_bits > (SSIZE_MAX - 1) % COInt_SHIFT + 1))
+            || a_bits > (SSIZE_MAX - 1) % COInt_SHIFT + 1))
         goto overflow;
 
     if (a_bits <= DBL_MANT_DIG + 2) {
         shift_digits = (DBL_MANT_DIG + 2 - a_bits) / COInt_SHIFT;
         shift_bits = (DBL_MANT_DIG + 2 - a_bits) % COInt_SHIFT;
-        x_size = 0; 
+        x_size = 0;
         while (x_size < shift_digits)
-            x_digits[x_size++] = 0; 
-        rem = v_lshift(x_digits + x_size, a->co_digit, a_size,
-                       (int)shift_bits);
+            x_digits[x_size++] = 0;
+        rem = v_lshift(x_digits + x_size, a->co_digit, a_size, (int)shift_bits);
         x_size += a_size;
-        x_digits[x_size++] = rem; 
+        x_digits[x_size++] = rem;
     } else {
         shift_digits = (a_bits - DBL_MANT_DIG - 2) / COInt_SHIFT;
         shift_bits = (a_bits - DBL_MANT_DIG - 2) % COInt_SHIFT;
-        rem = v_rshift(x_digits, a->co_digit + shift_digits,
-                       a_size - shift_digits, (int)shift_bits);
+        rem =
+            v_rshift(x_digits, a->co_digit + shift_digits,
+                     a_size - shift_digits, (int)shift_bits);
         x_size = a_size - shift_digits;
         /* For correct rounding below, we need the least significant
            bit of x to be 'sticky' for this shift: if any of the bits
@@ -1422,7 +1422,7 @@ _COInt_Frexp(COIntObject *a, ssize_t *e)
                 }
     }
 
-    assert(1 <= x_size && x_size <= (ssize_t)ARRAY_SIZE(x_digits));
+    assert(1 <= x_size && x_size <= (ssize_t) ARRAY_SIZE(x_digits));
 
     /* Round, and convert to double. */
     x_digits[0] += half_even_correction[x_digits[0] & 7];
@@ -1444,7 +1444,8 @@ _COInt_Frexp(COIntObject *a, ssize_t *e)
 
 overflow:
     /* exponent > SSIZE_MAX */
-    COErr_SetString(COException_OverflowError, "huge integer: number of bits overflow a SSIZE_MAX");
+    COErr_SetString(COException_OverflowError,
+                    "huge integer: number of bits overflow a SSIZE_MAX");
     *e = 0;
     return -1.0;
 }
@@ -1452,7 +1453,7 @@ overflow:
 /* 
  * Get a C double from a int object. Rounds to the nearest double, using the
  * round-half-to-even in the case of a tie.
- */ 
+ */
 double
 COInt_AsDouble(COObject *this)
 {
@@ -1466,7 +1467,8 @@ COInt_AsDouble(COObject *this)
 
     x = _COInt_Frexp((COIntObject *)this, &exponent);
     if ((x == -1.0 && COErr_Occurred()) || exponent > DBL_MAX_EXP) {
-        COErr_SetString(COException_OverflowError, "int too large to convert to float");
+        COErr_SetString(COException_OverflowError,
+                        "int too large to convert to float");
         return -1.0;
     }
 
@@ -1587,8 +1589,10 @@ COInt_FromString(char *s, char **pend, int base)
 
     if (s[0] == '0' &&
         ((base == 16 && (s[1] == 'x' || s[1] == 'X')) ||
-         (base == 8 && (s[1] == 'o' || s[1] == 'O')) ||
-         (base == 2 && (s[1] == 'b' || s[1] == 'B')))) {
+         (base == 8 && (s[1] == 'o' || s[1] == 'O')) || (base == 2
+                                                         && (s[1] == 'b'
+                                                             || s[1] ==
+                                                             'B')))) {
         s += 2;
     }
 

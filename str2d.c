@@ -44,7 +44,6 @@ _parse_inf_or_nam(const char *str, char **endptr)
     return retval;
 }
 
-
 /* 
  * `strtod` convers a null-terminated byte string s to a float. The string
  * should not have leading or trailling whitespace. The conversion is
@@ -105,9 +104,7 @@ str2d(const char *str, char **endptr)
         goto invalid_string;
 
     digits_pos = p;
-    if (decimal_point[0] != '.' ||
-        decimal_point[1] != 0)
-    {
+    if (decimal_point[0] != '.' || decimal_point[1] != 0) {
         while (isdigit(*p))
             p++;
 
@@ -152,7 +149,7 @@ str2d(const char *str, char **endptr)
 
 invalid_string:
     if (endptr) {
-        *endptr = (char*)str;
+        *endptr = (char *)str;
     }
     errno = EINVAL;
     return -1.0;

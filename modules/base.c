@@ -76,9 +76,11 @@ module_base_init(void)
     CODict_SetItemString(dict, "OverflowError", COException_OverflowError);
     CODict_SetItemString(dict, "SystemError", COException_SystemError);
     CODict_SetItemString(dict, "TypeError", COException_TypeError);
-    CODict_SetItemString(dict, "NotImplementedError", COException_NotImplementedError);
+    CODict_SetItemString(dict, "NotImplementedError",
+                         COException_NotImplementedError);
     CODict_SetItemString(dict, "ValueError", COException_ValueError);
-    CODict_SetItemString(dict, "ZeroDivisionError", COException_ZeroDivisionError);
+    CODict_SetItemString(dict, "ZeroDivisionError",
+                         COException_ZeroDivisionError);
 
     return base;
 }
